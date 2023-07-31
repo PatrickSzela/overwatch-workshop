@@ -1,0 +1,248 @@
+import "customGameSettings.lobby"; 
+import "../../libs/utils/skipToMatch.del";
+import "variables.del";
+//import "cuber.del";
+import "sniffer.del";
+
+// TODO: check delays when leaving the point
+
+rule: 'Game settings & force game start'
+{
+  DisableCompletion();
+
+  Wait(2);
+
+  // contesting dummies
+  foreach (Team team in [Team.Team1, Team.Team2]) {
+    dummiesContesting += CreateDummyBot(Hero.Sombra, team, -1, SpawnPoints(team)[0]);
+    SetInvisible(LastCreatedEntity(), InvisibleTo.All);
+    Wait();
+  }
+
+  // detecting dummies
+  for (Number i = 0; i < 21; i++) {
+    dummies += CreateDummyBot(Hero.Sombra, Team.Team2, -1, SpawnPoints(Team.Team2)[0]);
+    Wait();
+  }
+
+  // set statuses for all dummies
+  foreach (Player dummy in dummiesContesting + dummies) {
+    StartScalingPlayer(dummy, scale * 2, false);
+    DisableMovementCollisionWithPlayers(dummy);
+    DisableMovementCollisionWithEnvironment(dummy, true);
+    SetGravity(dummy, 0);
+    SetStatus(dummy, HostPlayer(), Status.Invincible, 9999);
+    SetStatus(dummy, HostPlayer(), Status.PhasedOut, 9999);
+  }
+
+  Number pointsSize = 0;
+
+  CreateHudText(AllPlayers(Team.All), "", $"Server load: {ServerLoad()}%", "", Location.Right);
+  CreateHudText(AllPlayers(Team.All), "", $"Average load: {ServerLoadAverage()}%", "", Location.Right);
+  CreateHudText(AllPlayers(Team.All), "", $"----------------------------------------", "", Location.Right);
+  CreateHudText(AllPlayers(Team.All), "", $"Dummies spawned: {dummies.Length + dummiesContesting.Length}/24", "", Location.Right);
+  CreateHudText(AllPlayers(Team.All), "", $"Effects spawned: {effects.Length}/256", "", Location.Right);
+  // imagine if Workshop had a Reduce Array function...
+  CreateHudText(AllPlayers(Team.All), "", $"Point count: {dummies[0].points.Length + dummies[1].points.Length + dummies[2].points.Length + dummies[3].points.Length + dummies[4].points.Length + dummies[5].points.Length + dummies[6].points.Length + dummies[7].points.Length + dummies[8].points.Length + dummies[9].points.Length + dummies[10].points.Length + dummies[11].points.Length + dummies[12].points.Length + dummies[13].points.Length + dummies[14].points.Length + dummies[15].points.Length + dummies[16].points.Length + dummies[17].points.Length}", "", Location.Right);
+  CreateHudText(AllPlayers(Team.All), "", $"Outline count: {outline.Length}", "", Location.Right);
+  CreateHudText(AllPlayers(Team.All), "", $"----------------------------------------", "", Location.Right);
+
+  modeStarted = true;
+}
+
+rule: 'Pause match time'
+if(MatchTime() != 60 * 4 + 20)
+if(modeStarted)
+{
+  SetMatchTime(60 * 4 + 20);
+  PauseMatchTime();
+}
+
+playervar Boolean isOnObjective = false;
+globalvar Boolean forceContesting = true;
+globalvar Number objectiveIndex = -1;
+
+rule: 'Teleport players to objective on spawn'
+Event.OngoingPlayer
+if(HasSpawned(EventPlayer()))
+if(!IsDummyBot(EventPlayer()))
+{
+  Hero ogHero = EventPlayer().Hero();
+
+  // NearestWalkablePosition can be buggy
+  // Vector nearest = NearestWalkablePosition(CurrentObjectivePosition());
+  // EventPlayer().Teleport(nearest ? nearest : CurrentObjectivePosition());
+  SetGravity(EventPlayer(), 0);
+  EventPlayer().Teleport(CurrentObjectivePosition());
+
+  CreateHudText(EventPlayer(), "", $"Position: {EventPlayer().Position()}", "", Location.Right);
+  CreateHudText(EventPlayer(), "", $"Facing: {EventPlayer().FacingDirection()}", "", Location.Right);
+  CreateHudText(EventPlayer(), "", $"Force contesting: {forceContesting ? 'Yes' : 'No'}", "", Location.Right);
+  CreateHudText(EventPlayer(), "", $"Is on objective: {isOnObjective ? 'Yes' : 'No'}", "", Location.Right);
+
+  CreateHudText(EventPlayer(), "", "", "​", Location.Top, 99);
+  CreateHudText(EventPlayer(), "", "", "​", Location.Top, 99);
+  // CreateHudText(EventPlayer(), "", "", "​", Location.Top, 99);
+  // CreateHudText(EventPlayer(), "", "", "​", Location.Top, 99);
+  // CreateHudText(EventPlayer(), "", "", "​", Location.Top, 99);
+  CreateHudText(EventPlayer(), "", "", $"Is on objective: {isOnObjective ? 'Yes' : 'No'}", Location.Top, 100, Color.White, Color.White, isOnObjective ? Color.Green : Color.Red, HudTextRev.StringAndColor);
+
+  Wait();
+
+  Boolean notOnGround: RayCastHitPosition(EventPlayer().Position() + Up() * 0.1, EventPlayer().Position() + Down() * 2).DistanceTo(EventPlayer().Position() + Down() * 2) < 0.01;
+  
+  // CreateHudText(EventPlayer(), "", "", $"Is on ground: {!notOnGround ? 'Yes' : 'No'} {EventPlayer().IsOnGround() ? 'Yes' : 'No'}", Location.Top, 100, Color.White, Color.White, isOnObjective ? Color.Green : Color.Red, HudTextRev.StringAndColor);
+
+  if(!EventPlayer().IsOnGround() && notOnGround) {
+    ForcePlayerHero(EventPlayer(), Hero.Sombra);
+    Wait();
+    SetGravity(EventPlayer(), 0);
+
+    Wait(1);
+    SmallMessage(EventPlayer(), $"Teleport to a safe spot");
+    WaitUntil(EventPlayer().IsOnGround() || !notOnGround, 9999);
+
+    if(EventPlayer().IsButtonHeld(Button.Ability2)) {
+      WaitUntil(!EventPlayer().IsButtonHeld(Button.Ability2), 9999);
+    }
+  }
+
+  ForcePlayerHero(EventPlayer(), ogHero);
+  StopForcingHero(EventPlayer());
+
+  SetGravity(EventPlayer(), 100);
+  DisableMovementCollisionWithEnvironment(EventPlayer(), false);
+}
+
+rule: 'Server check if player on objective'
+Event.OngoingPlayer
+if(!IsDummyBot(EventPlayer()))
+if(EventPlayer().IsOnObjective())
+{
+  isOnObjective = true;
+}
+
+rule: 'Server check if player on objective'
+Event.OngoingPlayer
+if(!IsDummyBot(EventPlayer()))
+if(!EventPlayer().IsOnObjective())
+{
+  isOnObjective = false;
+}
+
+rule: 'Go to next objective'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Melee))
+if(CurrentGameMode() == GameMode.Assault && ObjectiveIndex() == 0)
+{
+  forceContesting = false;
+  Player[] dummiesSlice: dummies.Slice(1, dummies.Length);
+
+  Wait();
+  Teleport(dummiesSlice, CurrentObjectivePosition());
+
+  SmallMessage(AllPlayers(), "Waiting for capture of objective...");
+
+  foreach(Player player in AllPlayers()) {
+    if(player.IsDummy()) continue;
+    
+    if(player.IsDead()) {
+      Resurrect(player);
+      Wait();
+    }
+
+    player.Teleport(SpawnPoints(player.Team())[ObjectiveIndex()]);
+    SetStatus(player, player, Status.Asleep, 99999);
+
+    WaitUntil(EvaluateOnce(ObjectiveIndex()) != ObjectiveIndex(), 99999);
+
+    ClearStatus(player, Status.Asleep);
+    player.Teleport(CurrentObjectivePosition());
+  }
+
+  foreach(Player dummy in dummiesSlice) {
+    Teleport(dummy, SpawnPoints(dummy.Team())[0]);
+  }
+
+  forceContesting = true;
+}
+
+// rule: 'Start contesting objective when player enters it'
+// Event.OngoingPlayer
+// if(EventPlayer().IsOnObjective())
+// if(!EventPlayer().IsDummy())
+// {
+//   if(AllPlayersOnObjective().FilteredArray((player) => !player.IsDummy() && player.Team() == EventPlayer().Team())) {
+//     dummiesContesting[EventPlayer().Team() == Team.Team1 ? 1 : 0].Teleport(CurrentObjectivePosition());
+//   }
+// }
+
+// rule: 'Stop contesting objective when player leaves it'
+// Event.OngoingPlayer
+// if(!EventPlayer().IsOnObjective())
+// if(!EventPlayer().IsDummy())
+// {
+//   if(!AllPlayersOnObjective().FilteredArray((player) => !player.IsDummy() && player.Team() == EventPlayer().Team())) {
+//     dummiesContesting[EventPlayer().Team() == Team.Team1 ? 1 : 0].Teleport(Vector.Zero);
+//   }
+// }
+
+rule: 'Start contesting when enabled'
+Event.OngoingGlobal
+if(forceContesting)
+if(modeStarted)
+{
+  Teleport(dummiesContesting, CurrentObjectivePosition());
+  // DisableCompletion();
+}
+
+rule: 'Stop contesting when disabled'
+Event.OngoingGlobal
+if(!forceContesting)
+if(modeStarted)
+{
+  foreach(Player dummy in dummiesContesting) {
+    dummy.Teleport(SpawnPoints(dummy.Team())[0]);
+  }
+  // EnableCompletion();
+}
+
+// rule: 'On Objective changed'
+// if(modeStarted)
+// {
+//   WaitUntil(EvaluateOnce(ObjectiveIndex()) != ObjectiveIndex(), 99999);
+
+//   LogToInspector($'Objective changed {ObjectiveIndex()}');
+
+//   forceContesting = true;
+
+//   Loop();
+// }
+
+
+rule: 'Start mapping on Interact'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Interact))
+{
+  foreach(Any effect in effects) {
+    DestroyEffect(effect);
+  }
+
+  effects = [];
+  
+  delete(outline);
+  outline = new BigArray<Vector>([]);
+
+  foreach(Player dummy in dummies) {
+    delete(dummy.points);
+
+    dummy.points = new BigArray<Vector>([]);
+    dummy.finished = false;
+    dummy.position = Vector.Zero;
+    dummy.wasOnObjectiveAtLeastOnce = false;
+    //dummy.points.Get(0);
+  }
+
+  // step = Step.WorkingCuber;
+  step = Step.WorkingSniffer;
+}

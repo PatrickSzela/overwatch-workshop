@@ -1,0 +1,362 @@
+import "variables.del";
+import "../../libs/utils/bigArray.del";
+import "../../libs/utils/vector.del";
+import "../../libs/utils/number.del";
+
+enum StepSniffer {
+  Nothing = -1,
+  Mapping,
+  Simplifying,
+  Drawing,
+  Cleaning
+}
+
+globalvar StepSniffer stepSniffer = StepSniffer.Nothing;
+globalvar Vector[] order = [
+  Vector( 0,  -1,  0), 
+  Vector( 0,  0,  1), 
+  Vector(-1,  0,  1), 
+  Vector(-1,  0,  0), 
+  Vector(-1,  0, -1), 
+  Vector( 0,  0, -1), 
+  Vector( 1,  0, -1), 
+  Vector( 1,  0,  0),
+  Vector( 1,  0,  1)
+];
+globalvar Player[] mainDummies = [];
+// globalvar Number orderAngle = AngleBetweenVectors(order[0], order[1]);
+
+playervar Player[] helperDummies = [];
+playervar Vector[] dummyOrder = order;
+playervar Vector[] cache = [];
+playervar Any arrow = null;
+
+rule: '[Sniffer] Step 0: Initialize'
+if(step == Step.WorkingSniffer)
+if(stepSniffer == StepSniffer.Nothing)
+{
+  if(dummies.Length < order.Length + 1) {
+    SmallMessage(AllPlayers(), 'Not enough dummies available: {dummies.Length}');
+    LogToInspector('Not enough dummies available: {dummies.Length}');
+    step = Step.Nothing;
+    stepSniffer = StepSniffer.Nothing;
+  }
+
+  SmallMessage(AllPlayers(), "[Sniffer] Starting");
+
+  mainDummies = dummies.Length >= (order.Length + 1) * 2 ? [dummies[0], dummies[order.Length + 1]] : [dummies[0]];
+  // mainDummies = [dummies[0]];
+
+  center = CurrentObjectivePosition() + (Offsets.Get(CurrentMap())[ObjectiveIndex()] || Vector.Zero);
+
+  center = Vector(
+    RoundToInteger(center.X * 100) / 100, 
+    RoundToInteger(center.Y * 100) / 100, 
+    RoundToInteger(center.Z * 100) / 100
+  );
+
+  for(Number x = 0; x < mainDummies.Length; x++) {
+    for(Number i = 0; i < order.Length + 1; i++) {
+      Player dummy: dummies[x * (order.Length + 1) + i];
+
+      dummy.cache = [];
+      dummy.helperDummies = [];
+
+      if(i == 0) {
+        dummy.Teleport(center);
+        dummy.dummyOrder = !x ? order : ShiftAndPush(Reverse(order), -1);
+
+        dummy.arrow = CreateInWorldText(AllPlayers(), "↓", EvaluateOnce(dummy).EyePosition() + Up() * scale * 10, 3, Clipping.DoNotClip, InworldTextRev.VisibleToAndPosition, Color.Team1);
+      } else {
+        Player mainDummy: dummies[x * (order.Length + 1)];
+        AttachPlayers(dummy, mainDummy, mainDummy.dummyOrder[i - 1] * scale);
+        mainDummy.helperDummies += dummy;
+      }
+
+      SetFacing(dummy, dummy.dummyOrder[0], Relative.ToWorld);
+    }
+
+    Wait();
+  }
+
+  stepSniffer = StepSniffer.Mapping;
+}
+
+rule: '[Sniffer] Step 1: Mapping'
+if(step == Step.WorkingSniffer)
+if(stepSniffer == StepSniffer.Mapping)
+{
+  DisableInspectorRecording();
+
+  while(stepSniffer == StepSniffer.Mapping) {
+    for(Number a = 0; a < mainDummies.Length; a++) {
+      Player mainDummy: mainDummies[a];
+
+      if(mainDummy.finished)
+        continue;
+
+      if(mainDummy.points.Length > 1 && 
+        mainDummies.IsTrueForAny((p) => 
+          mainDummy.position.DistanceTo(p.points.First()) < 1.5 || 
+          mainDummy.position.DistanceTo(p.position) < 1.5 &&
+          p != mainDummy
+        )
+      ) {
+        mainDummy.finished = true;
+        continue;
+      }
+
+      Boolean[] obj = mainDummy.helperDummies.Map((p) => p.IsOnObjective());
+
+      for(Number i = 0; i < mainDummy.helperDummies.Length; i++) {
+        if((i == 0 ? !obj.Last && obj[0] : !obj[i - 1] && obj[i])) {
+          if(i == 0) break;
+          if(i == mainDummy.helperDummies.Length / 2) continue;
+
+          // skip appending point if the bot that's going in the other direction might go further (King's Row)
+          if(mainDummy.points.Length == 0 && obj.First) {}
+          else {
+            mainDummy.points.Append(mainDummy.position);
+            //effects += CreateEffect(AllPlayers(), Effect.Sphere, a == 0 ? Color.Red : Color.Green, center + mainDummy.position * scale, scale / 2, EffectRev.None);
+          }
+
+          //  if(mainDummy.points.Length > 547) {
+          //   EnableInspectorRecording();
+          //   LogToInspector($"{i}, {obj[i - 1]} && {obj[i]}, [{obj[0]}, {obj[1]}, {obj[2]}, {obj[3]}, {obj[4]}, {obj[5]}, {obj[6]}, {obj[7]}], {mainDummy.dummyOrder[0]}");
+          //   DisableInspectorRecording();
+          // }
+
+          mainDummy.dummyOrder = ShiftAndPush(mainDummy.dummyOrder, i);
+          mainDummy.helperDummies = ShiftAndPush(mainDummy.helperDummies, i);
+
+          break;
+        }
+      }
+      
+      if(!mainDummy.finished) {
+        mainDummy.position += mainDummy.dummyOrder[0];
+        mainDummy.Teleport(center + mainDummy.position * scale);
+        // SetFacing(mainDummy, mainDummy.dummyOrder[0], Relative.ToWorld);
+
+        // Wait();
+        // obj = mainDummy.helperDummies.Map((p) => p.IsOnObjective());
+
+        // for(Number i = 0; i < mainDummy.helperDummies.Length; i++) {
+        //   if(obj[i]) SetInvisible(mainDummy.helperDummies[i], InvisibleTo.All);
+        //   else SetInvisible(mainDummy[i].helperDummies[i], InvisibleTo.None);
+        // }
+      }
+    }
+
+    if(mainDummies.IsTrueForAll((e) => e.finished)) {
+      stepSniffer = StepSniffer.Simplifying;
+    }
+
+    // Wait(HostPlayer().IsButtonHeld(Button.Crouch) ? 1 : 0.016);
+    Wait(ServerLoadAverage() > 100 ? 0.032 : 0.016);
+  }
+
+  EnableInspectorRecording();
+}
+
+// rule: '[Sniffer] Step 1: Mapping'
+// if(step == Step.WorkingSniffer)
+// if(stepSniffer == StepSniffer.Mapping)
+// {
+//   DisableInspectorRecording();
+
+//   while(stepSniffer == StepSniffer.Mapping) {
+//     for(Number a = 0; a < mainDummies.Length; a++) {
+//       Boolean changes = false;
+//       Player mainDummy: mainDummies[a];
+
+//       if(mainDummy.finished)
+//         continue;
+
+//       if(mainDummy.points.Length > 2 && 
+//         mainDummies.IsTrueForAny((p) => 
+//           mainDummy.position.DistanceTo(p.points.First()) < 1.5 || 
+//           mainDummy.position.DistanceTo(p.position) < 1.5 &&
+//           p != mainDummy
+//         )
+//       ) {
+//         mainDummy.finished = true;
+//         continue;
+//       }
+
+//       Vector rot = SnapTo1(Rotate(mainDummy.dummyOrder[0], mainDummy.angle));
+//       Boolean[] obj = mainDummy.helperDummies.Map((v) => IsOnObjective(v));
+//       // Boolean[] obj = ShiftAndPush(mainDummy.dummyOrder.Map((v, idx) => mainDummy.helperDummies[idx].IsOnObjective()), mainDummy.direction);
+
+//       // if(obj.IsTrueForAll((p) => !p)) {
+//       //   mainDummy.angle = (mainDummy.angle + 180) % 360;
+
+//       //   EnableInspectorRecording();
+//       //   LogToInspector($"p{a}: 180deg {mainDummy.angle}, {rot}, {(Rotate(mainDummy.dummyOrder[0], mainDummy.angle))}, {SnapTo1(Rotate(mainDummy.dummyOrder[0], mainDummy.angle))}");
+//       //   DisableInspectorRecording();
+
+
+
+//       //   rot = SnapTo1(Rotate(mainDummy.dummyOrder[0], mainDummy.angle));
+
+        
+
+//       //   SetFacing(mainDummy, rot, Relative.ToWorld);
+//       //   Wait(HostPlayer().IsButtonHeld(Button.Crouch) ? 0.5 : 0.016);
+//       //   continue;
+//       // }
+
+//       // for(Number i = 0; i < mainDummy.helperDummies.Length; i++) {   
+//       //   if(obj[i]) {
+//       //     SetInvisible(mainDummy.helperDummies[i], InvisibleTo.All);
+//       //   } else {
+//       //     SetInvisible(mainDummy.helperDummies[i], InvisibleTo.None);
+//       //   }
+//       // }
+
+
+//       for(Number i = 0; i < mainDummy.helperDummies.Length; i++) {   
+//         if((i == 0 ? !obj.Last && obj[0] : !obj[i - 1] && obj[i])) {
+//           if(i == 0) break;
+
+//           Number t = RoundToInteger(AngleBetweenVectors(mainDummy.dummyOrder[0], mainDummy.dummyOrder[i]));
+//           if(i > (mainDummy.dummyOrder.Length - 1) / 2) {
+//             t = 360 - t;
+//           } 
+
+//           mainDummy.angle = (mainDummy.angle + t) % 360;
+//           rot = SnapTo1(Rotate(mainDummy.dummyOrder[0], mainDummy.angle));
+
+//           mainDummy.points.Append(mainDummy.position);
+
+//           changes = true;
+
+//           // EnableInspectorRecording();
+//           // LogToInspector($"p{a}: {i}, {mainDummy.angle}, {rot}, {t}");
+//           // DisableInspectorRecording();
+//           // mainDummy.dummyOrder = ShiftAndPush(mainDummy.dummyOrder, i);
+//           // mainDummy.direction = (mainDummy.direction + i) % (mainDummy.dummyOrder.Length);
+//           break;
+//         }
+//       }
+
+//       if(!mainDummy.finished) {
+//         if(changes)
+//           SetFacing(mainDummy, rot, Relative.ToWorld);
+
+//         // foreach(Player dummy in mainDummy.helperDummies) {
+//         //   SetFacing(dummy.helperDummies, rot, Relative.ToWorld);
+//         // }
+
+//         mainDummy.position += rot;
+
+//         mainDummy.Teleport(center + mainDummy.position * scale);
+//       }
+//     }
+
+//     if(mainDummies.IsTrueForAll((e) => e.finished)) {
+//       stepSniffer = StepSniffer.Simplifying;
+//     }
+
+//     Wait(HostPlayer().IsButtonHeld(Button.Crouch) ? 5 : 0.016);
+//   }
+//   EnableInspectorRecording();
+// }
+
+rule: '[Sniffer] Step 2: Simplifying'
+if(step == Step.WorkingSniffer)
+if(stepSniffer == StepSniffer.Simplifying)
+{
+  SmallMessage(AllPlayers(), "[Sniffer] Simplifying");
+
+  DisableInspectorRecording();
+
+  foreach(Player mainDummy in mainDummies) {
+    if(mainDummy != mainDummies[0]) {
+      mainDummy.points.Reverse();
+    }
+
+    outline.ConcatBigArray(mainDummy.points);
+
+    mainDummy.Teleport(SpawnPoints(TeamOf(mainDummy))[0]);
+    DestroyInWorldText(mainDummy.arrow);
+    mainDummy.arrow = null;
+
+    Wait();
+  }
+
+  EnableInspectorRecording();
+  LogToInspector($"Smoothing using Vector direction {outline.Length} points");
+  DisableInspectorRecording();
+
+  for(Number i = 0; i < 8; i++) {
+    count = outline.Length;
+    outline = SmoothenBetweenVectors(outline);
+
+    EnableInspectorRecording();
+    LogToInspector($"Pass {i} finished, length: {outline.Length}");
+    DisableInspectorRecording();
+    
+    if(count - outline.Length <= 1)
+      break;
+  }
+
+  EnableInspectorRecording();
+  LogToInspector($"Smoothing using RDP {outline.Length} points");
+  DisableInspectorRecording();
+
+  // outline = SmoothenRDP(outline, 0.75, true);
+  outline = SmoothenRDP(outline, 1, true);
+
+  Wait();
+
+  EnableInspectorRecording();
+
+  stepSniffer = StepSniffer.Drawing;
+}
+
+rule: '[Sniffer] Step 3: Drawing'
+if(step == Step.WorkingSniffer)
+if(stepSniffer == StepSniffer.Drawing)
+{
+  SmallMessage(AllPlayers(), "[Sniffer] Drawing");
+
+  DisableInspectorRecording();
+
+  EnableInspectorRecording();
+  LogToInspector($"Drawing {outline.Length} points");
+  DisableInspectorRecording();
+
+  for(Number i = 0; i < outline.Length; i++) {
+    // TODO: make a setting to snap effects to player's Y position
+    // TODO: start generating at player's Y position
+    // TODO: move generating outline to `main.del`
+    Vector pos: Vector(center.X, HostPlayer().Position().Y + 0.25, center.Z);
+
+    // CreateEffect(AllPlayers(), Effect.Sphere, Color.Red, center + outline.Get(i) * scale, scale / 2, EffectRev.None);
+    effects += CreateEffect(AllPlayers(), Effect.Sphere, Color.Red, pos + EvaluateOnce(outline.Get(i)) * scale, scale * 2, EffectRev.PositionAndRadius);
+
+    effects += CreateBeamEffect(AllPlayers(), BeamType.GrappleBeam, pos + EvaluateOnce(outline.Get(i == 0 ? outline.Length - 1 : i - 1)) * scale, pos + EvaluateOnce(outline.Get(i)) * scale, Color.Red, EffectRev.PositionAndRadius);
+
+    Wait();
+  }
+
+
+  EnableInspectorRecording();
+
+  stepSniffer = StepSniffer.Cleaning;
+}
+
+rule: '[Sniffer] Step 4: Cleaning'
+if(step == Step.WorkingSniffer)
+if(stepSniffer == StepSniffer.Cleaning)
+{
+  SmallMessage(AllPlayers(), "[Sniffer] Finished");
+
+  foreach(Player mainDummy in mainDummies) {
+    DetachPlayers(mainDummy.helperDummies);
+  }
+
+  step = Step.Nothing;
+  stepSniffer = StepSniffer.Nothing;
+}

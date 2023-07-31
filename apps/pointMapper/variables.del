@@ -1,0 +1,54 @@
+import '../../libs/utils/array.del';
+import '../../libs/utils/bigArray.del';
+import '../../libs/utils/dictionary.del';
+
+enum Step {
+  Nothing = -1,
+  WorkingCuber,
+  WorkingSniffer
+}
+
+globalvar Dictionary<Map, Vector[]> Offsets = new Dictionary<Map, Vector[]>();
+
+rule: 'Set Map Offsets'
+{
+  Dictionary<Map, Vector[]>.Add(Offsets, Map.Horizon_Lunar_Colony, [Up() * 0.5, Up() * 0.5]);
+  Dictionary<Map, Vector[]>.Add(Offsets, Map.Paris, [Up() * 0.5, Vector.Zero]);
+  Dictionary<Map, Vector[]>.Add(Offsets, Map.Temple_of_Anubis, [Up() * -2, Up() * 0.25]);
+  Dictionary<Map, Vector[]>.Add(Offsets, Map.Volskaya_Industries, [Vector.Zero, Up() * 0.1]);
+
+  Dictionary<Map, Vector[]>.Add(Offsets, Map.Busan, [Vector.Zero, Vector.Zero, Up()]);
+  Dictionary<Map, Vector[]>.Add(Offsets, Map.Ilios, [Vector.Zero, Up() * 0.5, Vector.Zero]);
+  Dictionary<Map, Vector[]>.Add(Offsets, Map.Nepal, [Up() * 0.25,Vector.Zero, Vector.Zero]);
+}
+
+globalvar Vector[] directions = [Left(), Right(), Up(), Down(), Forward(), Backward()];
+globalvar Vector[] directionsDiagonal = [
+  Vector(-1, -1, -1), 
+  Vector(-1, -1,  1), 
+  Vector( 1, -1, -1), 
+  Vector( 1, -1,  1), 
+  Vector(-1,  1, -1), 
+  Vector(-1,  1,  1), 
+  Vector( 1,  1, -1), 
+  Vector( 1,  1,  1)
+];
+globalvar Player[] dummies = [];
+globalvar Player[] dummiesContesting = [];
+globalvar Step step = Step.Nothing;
+globalvar Number scale = 0.025;
+globalvar Boolean modeStarted = false;
+globalvar Vector center = null;
+globalvar Any[] effects = [];
+
+
+globalvar Number count;
+globalvar BigArray<Vector> outline = new BigArray<Vector>([]);
+
+
+playervar BigArray<Vector> points = new BigArray<Vector>([]);
+playervar Boolean finished = false;
+playervar Vector position = null;
+playervar Boolean wasOnObjectiveAtLeastOnce = false;
+
+Vector CurrentObjectivePosition(): ObjectivePosition(ObjectiveIndex());

@@ -1,0 +1,44 @@
+{
+  "Modes": {
+    "All": {
+      "Hero Limit": "Off",
+      "Respawn Time Scalar": 0.0,
+      "Game Mode Start": "Immediately"
+    },
+    "Control": {
+      "Enabled": true,
+      "Enabled Maps": ["Oasis"],
+      "Limit Valid Control Points": "First",
+      "Scoring Speed Modifier": 500,
+      "Capture Speed Modifier": 500,
+      "Score To Win": 1
+    },
+    "Hybrid": {
+      "Enabled": true,
+      "Enabled Maps": [],
+      "Capture Speed Modifier": 500
+    },
+    "Assault": {
+      "Enabled": true,
+      "Enabled Maps": [],
+      "Capture Speed Modifier": 500
+    },
+    "Escort": {
+      "Enabled": true,
+      "Enabled Maps": []
+    },
+    "Push": {
+      "Enabled": true,
+      "Enabled Maps": []
+    }
+  },
+  "Lobby": {
+    "Max Team 1 Players": 1,
+    "Max Team 2 Players": 0
+  },
+  "Description": "Some awesome game mode",
+  "Extensions": {
+    "Play More Effects": true,
+    "Spawn More Dummy Bots": true
+  }
+}
