@@ -1,0 +1,31 @@
+import '../_variables.del';
+
+String PAGE_DEBUG_MENU_ITEM_ID: 'menuItem';
+String PAGE_DEBUG_MENU_ITEM_NAME: 'Menu Item';
+
+MenuItem[] PageDebugMenuDisplayItems() {
+  MenuItem[] interactive = [];
+  MenuItem[] nonInteractive = [];
+
+  for(Number i! = 1; i <= 5; i++) {
+    nonInteractive[i - 1] = new MenuItemNonInteractive($"Non-interactive {i}");
+
+    interactive[i - 1] = new MenuItem($"Interactive {i}");
+    interactive[i - 1].onEnter = (it) => LogToInspector($"{it.text}: enter");
+    interactive[i - 1].onLeave = (it) => LogToInspector($"{it.text}: left");
+    interactive[i - 1].onButtonDown = (button, it) => LogToInspector($"{it.text}: {button}​ button down");
+    interactive[i - 1].onButtonUp = (button, it) => LogToInspector($"{it.text}: {button}​ button up");
+    interactive[i - 1].onNavigate = (direction, it) => LogToInspector($"{it.text}: navigated {direction}");
+  }
+
+  return nonInteractive + new MenuItemNonInteractive() + interactive;
+}
+
+rule: 'Player Settings'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_DEBUG_MENU_ITEM_ID)
+{
+  menuState.SetTitle(PAGE_DEBUG_MENU_ITEM_NAME);
+  menuState.AddDescription("Every possible interaction will be logged to the Workshop Inspector");
+  menuState.AddItems(PageDebugMenuDisplayItems());
+}

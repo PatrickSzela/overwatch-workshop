@@ -1,0 +1,43 @@
+import '../menuState.del';
+import './menuItem.del';
+
+class MenuItemSubmenu: MenuItem 
+{
+  public static Button BUTTON_OPEN: Button.Ability2;
+  public MenuState _menuState;
+  public Any submenuID;
+
+  public constructor(
+    in MenuState menuState!,
+    in String text!, 
+    in String submenuID!
+  ) {
+    ConstructorMenuItemSubmenu([menuState, text, submenuID]);
+  }
+
+  protected void ConstructorMenuItemSubmenu(Any[] arr!) "[MenuItemSubmenu] Constructor Base" {
+    MenuState menuState: arr[0];
+    String text: arr[1];
+    String submenuID: arr[2];
+
+    ConstructorMenuItem([text, null]);
+    
+    this._menuState = menuState;
+    this.submenuID = submenuID;
+
+    AddDescription($"Press [{BUTTON_OPEN}] to open submenu");
+  }
+
+  public override void FormatText() "[MenuItemSubmenu] FormatText" {
+    renderedText = $"{textFormatter(this)}​ ▶";
+  }
+
+  public override void OnButtonDown(Button button!) "[MenuItemSubmenu] OnButtonDown" {
+    onButtonDown(button, this);
+    if(child != null)
+      child.OnButtonDown(button);
+
+    if(button == BUTTON_OPEN)
+      _menuState.GoTo(submenuID);
+  }
+}

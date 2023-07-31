@@ -1,0 +1,10 @@
+String HeroWithIconFormatter(Hero hero): $"{HeroIconString(hero)}​ {hero}";
+
+String PlayerWithHeroIconFormatter(Player player): $"{HeroIconString(HeroOf(player))}​ {player}";
+String PlayerWithHeroIconTeamSlotFormatter(Player player): $"{HeroIconString(HeroOf(player))}​ {player}​ ({TeamOf(player)}, Slot {SlotOf(player) + 1})";
+
+String SlotFormatter(Number number): $"{number == -1 ? 'First available' : number + 1}";
+
+String ObjectiveFormatter(Number number): $"{number == -1 ? 'Current' : number + 1}";
+
+String BooleanFormatter(Boolean bool): $"{bool ? 'On' : 'Off'}";

@@ -1,0 +1,67 @@
+struct Description {
+  public String text;
+  public Color color;
+  public Boolean visible;
+  public Number order;
+}
+
+class Component {
+  public String text;
+  public String renderedText;
+  public Description[] description;
+  public Boolean disabled;
+  public Component child;
+  public ((Component) => String) textFormatter;
+  static private ((Component) => String) defaultTextFormatter = (Component it) => it.text;
+
+  // events
+  public ((Button, Component) => void) onButtonDown;
+  public ((Button, Component) => void) onButtonUp;
+  public ((Vector, Component) => void) onNavigate;
+
+  public constructor(
+    in String text!,
+    in Component child! = null
+  ) {
+    ConstructorBase([text, child]);
+  }
+
+  protected void ConstructorBase(Any[] arr!) "[Component] ConstructorBase" {
+    String text: arr[0];
+    Component _child: arr[1];
+
+    this.text = text;
+    this.disabled = false;
+    this.description = [];
+    this.text = text;
+    this.textFormatter = defaultTextFormatter;
+    this.child = _child;
+  }
+
+  public void AddDescription(in String description!, in Color color! = Color.White, in Boolean visible! = true, in Number order! = 0) {
+    this.description += {text: description, color: color, visible: visible, order: order};
+  }
+
+  public virtual void FormatText() "[Component] FormatText" {
+    renderedText = child ? child.renderedText : textFormatter(this);
+  }
+
+  // events
+  public virtual void OnButtonDown(Button button!) "[Component] OnButtonDown" {
+    onButtonDown(button, this);
+    if(child != null)
+      child.OnButtonDown(button);
+  }
+
+  public virtual void OnButtonUp(Button button!) "[Component] OnButtonUp" {
+    onButtonUp(button, this);
+    if(child != null)
+      child.OnButtonUp(button);
+  }
+
+  public virtual void OnNavigate(Vector direction!) "[Component] OnNavigate" {
+    onNavigate(direction, this);
+    if(child != null)
+      child.OnNavigate(direction);
+  }
+}

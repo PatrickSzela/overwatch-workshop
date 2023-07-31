@@ -1,0 +1,19 @@
+import '../../_variables.del';
+import './healDamageTaken.del';
+
+String PAGE_TOOLS_ID: 'tools';
+String PAGE_TOOLS_NAME: 'Tools';
+
+MenuItem[] PageToolsItems() {
+  return [
+    PageHealDamageTakenMenuItem()
+  ];
+}
+
+rule: 'Player Settings'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_TOOLS_ID)
+{
+  menuState.SetTitle(PAGE_TOOLS_NAME);
+  menuState.AddItems(PageToolsItems());
+}

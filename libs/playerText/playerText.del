@@ -1,0 +1,32 @@
+import '../utils/vector.del';
+// TODO: support multiple texts above the same player
+// TODO: remove by ID
+
+class PlayerText {
+  public static Number TEXT_SIZE: 1.35;
+
+  private Any[] texts = [];
+
+  public void Add(in Player player!, in String text!, in Color color! = Color.White) {
+    texts += CreateInWorldText(
+      HasSpawned(player) ? LocalPlayer() : null,
+      text,
+      UpdateEveryFrame(
+        LocalPlayer() == player ? 
+          ScreenPositionToWorld(0, -0.95) :
+          player.EyePosition() + Up()
+      ),
+      TEXT_SIZE,
+      Clipping.DoNotClip,
+      InworldTextRev.VisibleToPositionStringAndColor,
+      color
+    );
+  }
+
+  public void Remove() "[PlayerText] Remove" {
+    foreach(Any effect! in texts)
+      DestroyInWorldText(effect);
+
+    texts = [];
+  }
+}

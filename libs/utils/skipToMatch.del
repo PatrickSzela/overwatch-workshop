@@ -1,0 +1,17 @@
+rule: 'Skip directly to match - assembling heroes'
+if(IsAssemblingHeroes())
+{
+  SetMatchTime(0);
+}
+
+rule: 'Skip directly to match - setup'
+if(IsInSetup())
+{
+  SetMatchTime(0);
+}
+
+rule: 'Skip directly to match - point locked'
+if(IsControlModePointLocked())
+{
+  SetMatchTime(0);
+}

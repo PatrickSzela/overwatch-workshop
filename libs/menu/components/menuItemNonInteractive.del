@@ -1,0 +1,16 @@
+import './menuItem.del';
+
+class MenuItemNonInteractive: MenuItem 
+{
+  public constructor(
+    in String text! = ' '
+  ) {
+    ConstructorMenuItemNonInteractive([text, null]);
+  }
+
+  protected void ConstructorMenuItemNonInteractive(Any[] arr!) "[MenuItemNonInteractive] Constructor Base" {
+    ConstructorMenuItem(arr);
+    
+    this.disabled = true;
+  }
+}

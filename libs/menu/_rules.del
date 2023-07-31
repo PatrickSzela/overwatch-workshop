@@ -1,0 +1,140 @@
+
+import './menuState.del';
+
+// edit this to point to different MenuState variable
+MenuState STATE: menuState;
+
+rule: '[MenuState]: Update every frame'
+Event.OngoingPlayer
+if(STATE.isOpen)
+if(STATE.hoveredItem.updateEveryFrame)
+{
+  STATE.RenderItems();
+  MinWait();
+  LoopIfConditionIsTrue();
+}
+
+//
+// navigation
+//
+void NavigationHelper(Vector direction!) "[MenuState]: Navigation Helper" {
+  STATE.Navigate(direction);
+
+  Wait(0.5, WaitBehavior.AbortWhenFalse);
+
+  while(true) {
+    Wait(0.075, WaitBehavior.AbortWhenFalse);
+    STATE.Navigate(direction);
+  }
+}
+
+rule: '[MenuState]: Interacted with menu - Up'
+Event.OngoingPlayer
+if(STATE.isOpen)
+if(ThrottleOf(EventPlayer()).Z > 0.5)
+{
+  NavigationHelper(Up());
+}
+
+rule: '[MenuState]: Interacted with menu - Down'
+Event.OngoingPlayer
+if(STATE.isOpen)
+if(ThrottleOf(EventPlayer()).Z < -0.5)
+{
+  NavigationHelper(Down());
+}
+
+rule: '[MenuState]: Interacted with menu - Left'
+Event.OngoingPlayer
+if(STATE.isOpen)
+if(ThrottleOf(EventPlayer()).X < -0.5)
+{
+  NavigationHelper(Left());
+}
+
+rule: '[MenuState]: Interacted with menu - Right'
+Event.OngoingPlayer
+if(STATE.isOpen)
+if(ThrottleOf(EventPlayer()).X > 0.5)
+{
+  NavigationHelper(Right());
+}
+
+//
+// button interactions
+//
+void ButtonHelper(in Button button!) {
+  STATE.ButtonDown(button);
+  WaitUntil(!EventPlayer().IsButtonHeld(button), 99999);
+  STATE.ButtonUp(button);
+}
+
+rule: '[MenuState]: Interacted with menu - Ability 1'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Ability1))
+{
+  ButtonHelper(Button.Ability1);
+}
+
+rule: '[MenuState]: Interacted with menu - Ability 2'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Ability2))
+{
+  ButtonHelper(Button.Ability2);
+}
+
+rule: '[MenuState]: Interacted with menu - Crouch'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Crouch))
+{
+  ButtonHelper(Button.Crouch);
+}
+
+rule: '[MenuState]: Interacted with menu - Interact'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Interact))
+{
+  ButtonHelper(Button.Interact);
+}
+
+rule: '[MenuState]: Interacted with menu - Jump'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Jump))
+{
+  ButtonHelper(Button.Jump);
+}
+
+rule: '[MenuState]: Interacted with menu - Melee'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Melee))
+{
+  ButtonHelper(Button.Melee);
+}
+
+rule: '[MenuState]: Interacted with menu - Primary Fire'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
+{
+  ButtonHelper(Button.PrimaryFire);
+}
+
+rule: '[MenuState]: Interacted with menu - Reload'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Reload))
+{
+  ButtonHelper(Button.Reload);
+}
+
+rule: '[MenuState]: Interacted with menu - Secondary Fire'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.SecondaryFire))
+{
+  ButtonHelper(Button.SecondaryFire);
+}
+
+rule: '[MenuState]: Interacted with menu - Ultimate'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Ultimate))
+{
+  ButtonHelper(Button.Ultimate);
+}

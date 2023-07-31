@@ -1,0 +1,25 @@
+import '../../libs/menu/_index.del';
+import '../../libs/pickPosition/pickPosition.del';
+import '../../libs/playerText/playerText.del';
+import '../../libs/selectedPlayers/selectedPlayers.del';
+
+globalvar Menu menu;
+playervar Player[] selectedPlayers = [EventPlayer()];
+playervar MenuState menuState = new MenuState(menu, 'root', [Button.Crouch, Button.Interact]);
+
+globalvar SelectedPlayers selectedPlayersInstance;
+
+playervar PickPosition pickPosition = new PickPosition();
+playervar PlayerText playerText = new PlayerText();
+
+globalvar Number __i!;
+globalvar Player __player!;
+
+rule: "Fix \"selectedPlayers\" when player leaves"
+Event.OnPlayerLeave
+{
+  for(__i = 0; AllPlayers().Length; 1) {
+    __player = AllPlayers()[__i];
+    ModifyVariable(__player.selectedPlayers, Operation.RemoveFromArrayByValue, EventPlayer());
+  }
+}

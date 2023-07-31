@@ -1,0 +1,74 @@
+import '../../../../libs/utils/other.del';
+import '../../_variables.del';
+
+String PAGE_TELEPORT_ID: 'teleport';
+String PAGE_TELEPORT_NAME: 'Teleport to';
+
+String PAGE_TELEPORT_POSITION_ID: PAGE_TELEPORT_ID + 'position';
+String PAGE_TELEPORT_POSITION_NAME: 'Position';
+String PAGE_TELEPORT_OBJECTIVE_ID: PAGE_TELEPORT_ID + 'objective';
+String PAGE_TELEPORT_OBJECTIVE_NAME: 'Objective';
+String PAGE_TELEPORT_PAYLOAD_ID: PAGE_TELEPORT_ID + 'payload';
+String PAGE_TELEPORT_PAYLOAD_NAME: 'Payload';
+String PAGE_TELEPORT_PLAYER_ID: PAGE_TELEPORT_ID + 'player';
+String PAGE_TELEPORT_PLAYER_NAME: 'Player';
+Button PAGE_TELEPORT_BUTTON_APPLY: Button.Ability2;
+
+MenuItem[] PageTeleportItems() {
+  MenuItem position = new MenuItem(PAGE_TELEPORT_POSITION_NAME);
+  position.AddDescription(PickPosition.CHANGE_DISTANCE_DESCRIPTION);
+  position.onEnter = (it) => {
+    pickPosition.Enable(Color.Red);
+  };
+  position.onLeave = (it) => {
+    pickPosition.Disable();
+  };
+  position.onButtonDown = (button, it) => {
+    pickPosition.ChangeDistance(button);
+
+    if(buttonsHeld != [PAGE_TELEPORT_BUTTON_APPLY]) return;
+    Teleport(selectedPlayers, pickPosition.position);
+  };
+
+  Carousel objectiveCarousel = new Carousel(
+    text: PAGE_TELEPORT_OBJECTIVE_NAME,
+    options: [-1, 0, 1, 2]
+  );
+  objectiveCarousel.valueFormatter = (it) => ObjectiveFormatter(it.value);
+  objectiveCarousel.onButtonDown = (button, it) => {
+    if(buttonsHeld != [PAGE_TELEPORT_BUTTON_APPLY]) return;
+    Teleport(selectedPlayers, ObjectivePosition(it.value == -1 ? ObjectiveIndex() : it.value));
+  };
+
+  MenuItem objective = new MenuItem(child: objectiveCarousel);
+
+  MenuItem payload = new MenuItem(PAGE_TELEPORT_PAYLOAD_NAME);
+  payload.onButtonDown = (button, it) => {
+    if(button != PAGE_TELEPORT_BUTTON_APPLY) return;
+    Teleport(selectedPlayers, PayloadPosition());
+  };
+
+  Carousel playerCarousel = new Carousel(
+    text: PAGE_TELEPORT_PLAYER_NAME,
+    options: SortedAllPlayersFlat()
+  );
+  playerCarousel.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
+  playerCarousel.onButtonDown = (button, it) => {
+    if(buttonsHeld != [PAGE_TELEPORT_BUTTON_APPLY]) return;
+    if(it.value == null) return;
+    Teleport(selectedPlayers, it.value);
+  };
+
+  MenuItem player = new MenuItem(child: playerCarousel);
+
+  return [position, objective, payload, player];
+}
+
+rule: 'Player Settings/Teleport'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_TELEPORT_ID)
+{
+  menuState.SetTitle(PAGE_TELEPORT_NAME);
+  menuState.AddDescription($"Press [{PAGE_TELEPORT_BUTTON_APPLY}] to apply");
+  menuState.AddItems(PageTeleportItems());
+}

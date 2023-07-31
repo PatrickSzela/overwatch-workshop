@@ -1,0 +1,137 @@
+import '../../../../libs/utils/formatters.del';
+import '../../../../libs/utils/other.del';
+import '../../_variables.del';
+
+String PAGE_LOOK_AT_ID: 'lookAt';
+String PAGE_LOOK_AT_NAME: 'Look At';
+
+String PAGE_LOOK_AT_POSITION_ID: PAGE_LOOK_AT_ID + 'position';
+String PAGE_LOOK_AT_POSITION_NAME: 'Position';
+String PAGE_LOOK_AT_OBJECTIVE_ID: PAGE_LOOK_AT_ID + 'objective';
+String PAGE_LOOK_AT_OBJECTIVE_NAME: 'Objective';
+String PAGE_LOOK_AT_PAYLOAD_ID: PAGE_LOOK_AT_ID + 'payload';
+String PAGE_LOOK_AT_PAYLOAD_NAME: 'Payload';
+String PAGE_LOOK_AT_PLAYER_ID: PAGE_LOOK_AT_ID + 'player';
+String PAGE_LOOK_AT_PLAYER_NAME: 'Player';
+String PAGE_LOOK_AT_APPLY_ID: PAGE_LOOK_AT_ID + 'apply';
+String PAGE_LOOK_AT_APPLY_NAME: 'Apply';
+Button PAGE_LOOK_AT_BUTTON_APPLY_ONCE: Button.Ability2;
+Button PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY: Button.Reload;
+
+String[] PAGE_LOOK_AT_DESCRIPTION: [
+  $"Press [{PAGE_LOOK_AT_BUTTON_APPLY_ONCE}] to apply once",
+  $"Press [{PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY}] to apply continuously"
+];
+
+// TODO: look at looking position of player
+
+Vector GetDirectionFromPlayerEyes(Player player, Vector vector): 
+  player.EyePosition().DirectionTowards(vector);
+
+MenuItem[] PageLookAtItems() {
+  MenuItem position = new MenuItem(PAGE_LOOK_AT_POSITION_NAME);
+  position.onEnter = (it) => {
+    pickPosition.Enable(Color.Red);
+  };
+  position.onLeave = (it) => {
+    pickPosition.Disable();
+  };
+  position.onButtonDown = (button, it) => {
+    pickPosition.ChangeDistance(button);
+
+    if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
+      PageLookAtApplyHelper(false, pickPosition.position);
+    else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
+      PageLookAtApplyHelper(true, EvaluateOnce(pickPosition.position));
+  };
+  position.AddDescription(PickPosition.CHANGE_DISTANCE_DESCRIPTION);
+
+  Carousel objectiveCarousel = new Carousel(
+    text: PAGE_LOOK_AT_OBJECTIVE_NAME,
+    options: [-1, 0, 1, 2]
+  );
+  objectiveCarousel.valueFormatter = (it) => ObjectiveFormatter(it.value);
+  objectiveCarousel.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
+      PageLookAtApplyHelper(false, ObjectivePosition(it.value == -1 ? ObjectiveIndex() : it.value));
+    else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
+      PageLookAtApplyHelper(true, ObjectivePosition(EvaluateOnce(it.value) == -1 ? ObjectiveIndex() : EvaluateOnce(it.value)));
+  };
+
+  MenuItem objective = new MenuItem(child: objectiveCarousel);
+
+  MenuItem payload = new MenuItem(PAGE_LOOK_AT_PAYLOAD_NAME);
+   payload.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
+      PageLookAtApplyHelper(false, PayloadPosition());
+    else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
+      PageLookAtApplyHelper(true, PayloadPosition());
+  };
+
+  Carousel playerCarousel = new Carousel(
+    text: PAGE_LOOK_AT_PLAYER_NAME,
+    options: SortedAllPlayersFlat()
+  );
+  playerCarousel.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
+  playerCarousel.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
+      PageLookAtApplyHelper(false, EyePosition(it.value));
+    else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
+      PageLookAtApplyHelper(true, EyePosition(EvaluateOnce(it.value)));
+  };
+
+  MenuItem player = new MenuItem(child: playerCarousel);
+
+  return [
+    position,
+    objective,
+    payload,
+    player
+  ];
+}
+
+rule: 'Player Settings/Look At'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_LOOK_AT_ID)
+{
+  menuState.SetTitle(PAGE_LOOK_AT_NAME);
+  menuState.AddDescription(PAGE_LOOK_AT_DESCRIPTION[0]);
+  menuState.AddDescription(PAGE_LOOK_AT_DESCRIPTION[1]);
+  menuState.AddItems(PageLookAtItems());
+}
+
+rule: 'Player Settings/Look At: Create Sphere'
+Event.OngoingPlayer
+if(menuState.isOpen)
+if(menuState.currentMenuID == PAGE_LOOK_AT_ID)
+{
+  foreach(Player p! in AllPlayers()) {
+    if(p == EventPlayer()) continue;
+
+    pickPosition.CreateAdditionalSphere(
+      color: Color.Green,
+      position: PickPosition.RayCast(EvaluateOnce(p)),
+      text: $"{EvaluateOnce(p)}'s look position:\n{PickPosition.RayCast(EvaluateOnce(p))}",
+      lineEnd: EvaluateOnce(p).EyePosition()
+    );
+
+    Wait(0.05);
+  }
+
+  WaitUntil(menuState.currentMenuID != PAGE_LOOK_AT_ID || !menuState.isOpen, 99999);
+
+  pickPosition.DestroyAdditionalSpheres();
+}
+
+void PageLookAtApplyHelper(in Boolean continuously!, in Vector position!) {
+  foreach(Player p! in selectedPlayers) {
+    StopFacing(p);
+
+    if(!continuously) {
+      SetFacing(p, GetDirectionFromPlayerEyes(p, position), Relative.ToWorld);
+    } else {
+      // FIXME: figure out why this breaks after bot's death
+      StartFacing(p, GetDirectionFromPlayerEyes(EvaluateOnce(p), position), 200, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
+    }
+  }
+}

@@ -1,0 +1,26 @@
+import './checkbox.del';
+
+class Radio: Checkbox
+{
+  public constructor(
+    in MenuState menuState!,
+    in String text!, 
+    in String name!,
+    in Any value!,
+    in Boolean defaultChecked! = null,
+    in Component child! = null
+  ) {
+    ConstructorCheckbox([menuState, text, name, value, defaultChecked, child]);
+  }
+
+  public override void SetSelected(Boolean selected!) "[Radio] SetSelected" {
+    if(selected != checked) {
+      SetValue([value]);
+      OnChange();
+    }
+  }
+
+  public override void FormatText() "[Radio] FormatText" {
+    renderedText = $"{checked ? "(✓)" : "(    )"}​ {child ? child.renderedText : textFormatter(this)}";
+  }
+}

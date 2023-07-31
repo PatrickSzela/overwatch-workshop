@@ -1,0 +1,245 @@
+import '../../../../../libs/utils/formatters.del';
+import '../../../_variables.del';
+
+Button PAGE_ABILITIES_BUTTON_HOLD: Button.Reload;
+Button PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING: Button.Interact;
+
+playervar Player[] pageAbilitiesFilteredPlayers = [];
+playervar Boolean[] pageAbilitiesEnabled = [true, true, true, true, true, true, true, true, true, true];
+// apparently IsButtonHeld doesn't work for players other than EventPlayer() on client side...
+playervar Boolean[] pageAbilitiesInfiniteAmmo = [];
+playervar Boolean[] pageAbilitiesNoCooldown = [];
+playervar Boolean[] pageAbilitiesInfiniteCharge = [];
+playervar Boolean[] pageAbilitiesInfiniteResource = [];
+
+String PAGE_ABILITIES_WARNING_BROKEN: "Due to Workshop bugs, some settings might not work correctly for some heroes";
+
+String PageAbilitiesInfo(Player player, Button button): 
+  $"Enabled: {BooleanFormatter(player.pageAbilitiesEnabled[allButtons.IndexOf(button)])}\n" +
+  $"Button held: {BooleanFormatter(player.buttonsHeld.Contains(EvaluateOnce(button)))}\n";
+
+// apparently these functions doesn't work on client side for players other than EventPlayer...
+// $"Enabled: {BooleanFormatter(pageAbilitiesEnabled[allButtons.IndexOf(button)])}\n" +
+// (button == Button.PrimaryFire || button == Button.SecondaryFire ? 
+//   $"Ammo: {Ammo(player, button == Button.SecondaryFire ? 1 : 0)}​ / {MaxAmmo(player, button == Button.SecondaryFire ? 1 : 0)}{pageAbilitiesInfiniteAmmo[allButtons.IndexOf(button)] ? ' (Infinite)' : ''}\n" 
+// : '') +
+// (button != Button.Ultimate ? 
+//   $"Cooldown: {AbilityCooldown(player, button)}​ sec{pageAbilitiesNoCooldown[allButtons.IndexOf(button)] ? ' (No cooldown)' : ''}\n"
+// : '') +
+// $"Charge: {AbilityCharge(player, button)}{pageAbilitiesInfiniteCharge[allButtons.IndexOf(button)] ? ' (Infinite)' : ''}\n" +
+// (button != Button.Ultimate ? 
+//   $"Resource: {AbilityResource(player, button)}%{pageAbilitiesInfiniteResource[allButtons.IndexOf(button)] ? ' (Infinite)' : ''}\n"
+// : '');
+
+void PageAbilitiesHoldButtonMenuItemEnhancer(ref MenuItem item, in Button ability) {
+  item.onButtonDown = (_button, it) => {
+    if(buttonsHeld == [PAGE_ABILITIES_BUTTON_HOLD]) {
+      StartHoldingButton(pageAbilitiesFilteredPlayers, ability);        
+    } else if(buttonsHeld == [PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING]) {
+        if(pageAbilitiesFilteredPlayers[0].IsButtonHeld(ability)) {
+          StopHoldingButton(pageAbilitiesFilteredPlayers, ability);
+        } else {
+          StartHoldingButton(pageAbilitiesFilteredPlayers, ability);
+        }
+      }
+  };
+  item.onButtonUp = (_button, it) => {
+    if(_button == PAGE_ABILITIES_BUTTON_HOLD && buttonsHeld == []) {
+      StopHoldingButton(pageAbilitiesFilteredPlayers, EvaluateOnce(ability));
+    }
+  };
+  
+  item.AddDescription($"Hold [{PAGE_ABILITIES_BUTTON_HOLD}] to force players to also hold the button");
+  item.AddDescription($"Press [{PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING}] to toggle forcing players to hold the button");
+}
+
+void PageAbilitiesRuleGenerator(String title!, Button ability!, Button buttonApply!) "PageAbilitiesRuleGenerator" {
+  menuState.SetTitle(title);
+  menuState.AddDescription(PAGE_ABILITIES_WARNING_BROKEN, Color.Orange);
+  menuState.AddItems(PageAbilitiesMenuItemsGenerator(ability, buttonApply));
+}
+
+MenuItem PageAbilitiesSpinnerGenerator(Button ability!, Button buttonApply!, String text!, String unit! = null, Number value!, ((Number) => void) onApply!) "PageAbilitiesSpinnerGenerator" {
+  Spinner spinner! = new Spinner(
+    menuState: menuState, 
+    text: text,
+    defaultValue: value,
+    integralLength: 5,
+    unit: unit
+  );
+  spinner.onButtonDown = (button, it) => {
+    if(buttonsHeld == [buttonApply])
+      onApply(it.value);
+  };
+  spinner.AddDescription($"Press [{buttonApply}] to apply");
+
+  return new MenuItem(child: spinner);
+}
+
+MenuItem PageAbilitiesToggleGenerator(String text!, Number defaultChecked!, ((Boolean) => void) onApply!) "PageAbilitiesToggleGenerator" {
+  Toggle toggle! = new Toggle(
+    text: text,
+    defaultChecked: defaultChecked
+  );
+  toggle.onChange = (checked, it) => {
+    onApply(checked);
+  };
+
+  return new MenuItem(child: toggle);
+}
+
+MenuItem[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!) "PageAbilitiesMenuItemsGenerator" {
+  MenuItem[] list = [];
+
+  // enabled
+  // since we can't disable Interact button...
+  if(ability != Button.Interact) {
+    list += PageAbilitiesToggleGenerator(
+      text: 'Enabled',
+      defaultChecked: selectedPlayers[0].pageAbilitiesEnabled[allButtons.IndexOf(ability)],
+      onApply: (value) => {
+        foreach(Player pl! in selectedPlayers) {
+          pl.pageAbilitiesEnabled[allButtons.IndexOf(ability)] = value;
+          
+          if(ability == Button.PrimaryFire) SetPrimaryFireEnabled(pl, value);
+          else if(ability == Button.SecondaryFire) SetSecondaryFireEnabled(pl, value);
+          else if(ability == Button.Ability1) SetAbility1Enabled(pl, value);
+          else if(ability == Button.Ability2) SetAbility2Enabled(pl, value);
+          else if(ability == Button.Ultimate) SetUltimateAbilityEnabled(pl, value);
+          else if(ability == Button.Reload) SetReloadEnabled(pl, value);
+          else if(ability == Button.Melee) SetMeleeEnabled(pl, value);
+          else if(ability == Button.Jump) SetJumpEnabled(pl, value);
+          else SetCrouchEnabled(pl, value);
+        }
+      }
+    );
+
+    list += new MenuItemNonInteractive();
+  }
+
+  // use
+  MenuItem use! = new MenuItem('Use');
+  use.onButtonDown = (button, it) => {
+    if(buttonsHeld == [buttonApply])
+      PressButton(selectedPlayers.FilteredArray((i) => i != EventPlayer()), ability);
+  };
+  PageAbilitiesHoldButtonMenuItemEnhancer(use, ability);
+
+  if(ability == Button.Ultimate) {
+    list += PageAbilitiesSpinnerGenerator(
+      ability: ability,
+      buttonApply: buttonApply,
+      text: 'Charge',
+      unit: '%',
+      value: UltimateChargePercent(selectedPlayers[0]),
+      onApply: (value) => SetUltimateCharge(selectedPlayers, value)
+    );
+
+    list += new MenuItemNonInteractive();
+
+    list += PageAbilitiesToggleGenerator(
+      text: 'Infinite Charge',
+      defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteCharge[allButtons.IndexOf(ability)],
+      onApply: (value) => {
+        foreach(Player pl! in selectedPlayers)
+          pl.pageAbilitiesInfiniteCharge[allButtons.IndexOf(ability)] = value;
+      }
+    );
+
+    list += new MenuItemNonInteractive();
+    list += use;
+
+    return list;
+  }
+
+  if(ability == Button.PrimaryFire || ability == Button.SecondaryFire) {
+    Number clip! = ability == Button.SecondaryFire ? 1 : 0;
+
+    list += PageAbilitiesSpinnerGenerator(
+      ability: ability,
+      buttonApply: buttonApply,
+      text: 'Ammo',
+      value: Ammo(selectedPlayers[0], clip),
+      onApply: (value) => SetAmmo(selectedPlayers, clip, value)
+    );
+    list += PageAbilitiesSpinnerGenerator(
+      ability: ability,
+      buttonApply: buttonApply,
+      text: 'Max Ammo',
+      value: MaxAmmo(selectedPlayers[0], clip),
+      onApply: (value) => SetMaxAmmo(selectedPlayers, clip, value)
+    );
+  }
+
+  list += PageAbilitiesSpinnerGenerator(
+    ability: ability,
+    buttonApply: buttonApply,
+    text: 'Cooldown',
+    unit: ' sec',
+    value: AbilityCooldown(selectedPlayers[0], ability),
+    onApply: (value) => SetAbilityCooldown(selectedPlayers, ability, value)
+  );
+
+  list += PageAbilitiesSpinnerGenerator(
+    ability: ability,
+    buttonApply: buttonApply,
+    text: 'Charge',
+    value: AbilityCharge(selectedPlayers[0], ability),
+    onApply: (value) => SetAbilityCharge(selectedPlayers, ability, value)
+  );
+
+  list += PageAbilitiesSpinnerGenerator(
+    ability: ability,
+    buttonApply: buttonApply,
+    text: 'Resource',
+    unit: '%',
+    value: AbilityResource(selectedPlayers[0], ability),
+    onApply: (value) => SetAbilityResource(selectedPlayers, ability, value)
+  );
+
+  list += new MenuItemNonInteractive();
+
+  // infinite
+  if(ability == Button.PrimaryFire || ability == Button.SecondaryFire) {
+    list += PageAbilitiesToggleGenerator(
+      text: 'Infinite Ammo',
+      defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteAmmo[allButtons.IndexOf(ability)],
+      onApply: (value) => {
+        foreach(Player pl! in selectedPlayers)
+          pl.pageAbilitiesInfiniteAmmo[allButtons.IndexOf(ability)] = value;
+      }
+    );
+  }
+
+  list += PageAbilitiesToggleGenerator(
+    text: 'No Cooldown',
+    defaultChecked: selectedPlayers[0].pageAbilitiesNoCooldown[allButtons.IndexOf(ability)],
+    onApply: (value) => {
+      foreach(Player pl! in selectedPlayers)
+        pl.pageAbilitiesNoCooldown[allButtons.IndexOf(ability)] = value;
+    }
+  );
+
+  list += PageAbilitiesToggleGenerator(
+    text: 'Infinite Charge',
+    defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteCharge[allButtons.IndexOf(ability)],
+    onApply: (value) => {
+      foreach(Player pl! in selectedPlayers)
+        pl.pageAbilitiesInfiniteCharge[allButtons.IndexOf(ability)] = value;
+    }
+  );
+
+  list += PageAbilitiesToggleGenerator(
+    text: 'Infinite Resource',
+    defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteResource[allButtons.IndexOf(ability)],
+    onApply: (value) => {
+      foreach(Player pl! in selectedPlayers)
+        pl.pageAbilitiesInfiniteResource[allButtons.IndexOf(ability)] = value;
+    }
+  );
+
+  list += new MenuItemNonInteractive();
+  list += use;
+
+  return list;
+}

@@ -1,0 +1,14 @@
+T[] ShiftAndPush<T>(in T[] array, in Number amount): amount > 0 ? 
+  array.Slice(amount, array.Length).Append(array.Slice(0, amount)) :
+  array.Slice(array.Length + amount, -amount).Append(array.Slice(0, array.Length + amount));
+
+T[] Reverse<T>(in T[] array): array.SortedArray((_, idx) => -idx);
+
+String Join(in Any[] array, in String separator) {
+  if(!array.Length) return "";
+  String ret! = array[0];
+  foreach(String str! in array.Slice(1, array.Length - 1)) {
+    ret = $"{ret}{separator}{str}";
+  }
+  return ret;
+}

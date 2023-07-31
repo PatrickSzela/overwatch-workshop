@@ -1,0 +1,77 @@
+import '../../../../libs/utils/vector.del';
+// import '../../../../libs/playerText/playerText.del';
+import '../../_variables.del';
+
+// TODO: migrate to playerText when multiple texts are supported properly
+
+String PAGE_HEAL_DAMAGE_TAKEN_ID: 'healDamageTaken';
+String PAGE_HEAL_DAMAGE_TAKEN_NAME: 'Show Heal/Damage Taken';
+
+playervar Boolean showHealDamageTaken = false;
+
+playervar Number healedBy = 0;
+playervar Number damagedBy = 0;
+globalvar Any[] healDamageTexts = [];
+
+MenuItem PageHealDamageTakenMenuItem() {
+  Toggle toggle = new Toggle(
+    text: PAGE_HEAL_DAMAGE_TAKEN_NAME,
+    defaultChecked: selectedPlayers[0].showHealDamageTaken
+  );
+  toggle.onChange = (checked, it) => {
+    showHealDamageTaken = checked;
+  };
+
+  MenuItem menuItem = new MenuItem(child: toggle);
+
+  return new MenuItem(child: menuItem);
+}
+
+rule: 'Heal info'
+Event.OnHealingTaken
+{
+  healedBy += EventHealing();
+  Wait(1, WaitBehavior.RestartWhenTrue);
+  healedBy = 0;
+}
+
+rule: 'Damaged info'
+Event.OnDamageTaken
+{
+  damagedBy += EventDamage();
+  Wait(1, WaitBehavior.RestartWhenTrue);
+  damagedBy = 0;
+}
+
+rule: 'Heal/Damage Taken: Generate texts'
+{
+  while(true) {
+    Player[] players: AllPlayers();
+    Number num! = AllPlayers().Length - healDamageTexts.Length;
+
+    for(Number i! = 0; i < num; i++) {
+      Number idx: EvaluateOnce(healDamageTexts.Length);
+
+      healDamageTexts += CreateInWorldText(
+        VisibleTo: HasSpawned(players[idx]) && LocalPlayer().showHealDamageTaken ? LocalPlayer() : null,
+        Header: 
+          (players[idx].healedBy > 0 ? $"+{players[idx].healedBy + 0.0001}​ HP" : '') + 
+          (players[idx].damagedBy > 0 ? $"\n-{players[idx].damagedBy + 0.0001}​ HP" : ''),
+        Position: UpdateEveryFrame(
+          LocalPlayer() == players[idx] ? 
+            ScreenPositionToWorld(0, -0.95) : 
+            players[idx].EyePosition() + Up()
+        ),
+        // scale can't be reevaluated...
+        Scale: PlayerText.TEXT_SIZE,
+        Clipping: Clipping.DoNotClip,
+        Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+        TextColor: Color.White
+      );
+
+      MinWait();
+    }
+
+    WaitUntil(AllPlayers().Length > healDamageTexts.Length, 99999);
+  }
+}

@@ -1,0 +1,56 @@
+import '../../utils/formatters.del';
+import './componentWithValue.del';
+
+class Toggle: ComponentWithValue 
+{
+  public static Button BUTTON_TOGGLE: Button.Ability2;
+  public Boolean checked: value;
+  public Boolean defaultChecked: defaultValue;
+
+  // events
+  public ((Boolean, Toggle) => void) onChange;
+
+  public constructor(
+    in String text!,
+    in Boolean defaultChecked! = null
+  ) {
+    ConstructorToggle([text, defaultChecked]);
+  }
+
+  protected void ConstructorToggle(Any[] arr!) "[Toggle] Constructor Helper" {
+    String text: arr[0];
+    Any defaultChecked: arr[1];
+
+    ConstructorWithValue([text, defaultChecked]);
+
+    this.valueFormatter = (it) => BooleanFormatter(it.value);
+
+    AddDescription($"Press [{BUTTON_TOGGLE}] to toggle");
+  }
+
+  public virtual void SetSelected(Boolean selected!) "[Toggle] SetSelected" {
+    if(selected != checked) {
+      value = selected;
+      OnChange();
+    }
+  }
+
+  public virtual void Toggle() "[Toggle] Toggle" {
+    SetSelected(!checked);
+  }
+
+  // events
+  public override void OnButtonDown(Button button!) "[Toggle] OnButtonDown" {
+    onButtonDown(button, this);
+
+    if(button == BUTTON_TOGGLE)
+      Toggle();
+
+    if(child != null)
+      child.OnButtonDown(button);
+  }
+
+  public virtual void OnChange() "[Toggle] OnChange" {
+    onChange(value, this);
+  }
+}

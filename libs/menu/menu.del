@@ -1,0 +1,72 @@
+import '../utils/array.del';
+import './menuState.del';
+
+//
+// DOCS
+//
+// TODO: mention support for up to 2 children in Component
+// TODO: meniton about lambda size limit and why its better to use rules for longer code (but there might be some race conditions happening, so better call subroutine in callback)
+// TODO: add info that if child is provided in Component, text will be ignored
+
+//
+// FEATURES
+//
+// TODO: teleport/look at flag
+// TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
+// TODO: tools - ruler, spheres
+//
+// TODO: support multiple menus
+// TODO: support multiple title rows & closed titles rows
+// TODO: automatically handle scrollable height instead of always forced value (calculate based on amount of hud items and size of description & title)
+
+//
+// TESTING
+//
+// TODO: stess test with lobby fully filled (especially look at)
+
+enum MenuLocation {
+  Left,
+  Center,
+  Right
+}
+
+// this class is required because text/effect that's created in a OngoingPlayer rule will be removed when the player leaves the match...
+class Menu {
+  public static Number MAX_MENU_ITEMS: 20;
+
+  public MenuLocation location;
+  public Any[] hudTexts = [];
+
+  // static public Menu[] menus = [];
+
+  public constructor(ref MenuState state!, in MenuLocation location! = MenuLocation.Left) {
+    this.location = location;
+
+    GenerateHUDTexts(state);
+    // this.menus += this;
+  }
+
+  private Any CreateHudTextHelper(ref MenuState state!, in Number i!, Location location!) { 
+    Number num: EvaluateOnce(i);      
+
+    return CreateHudText(
+      VisibleTo: state.renderedTexts[num] && state.enabled ? LocalPlayer() : null,
+      Subheader: state.renderedTexts[num],
+      Location: location, 
+      SortOrder: num, 
+      Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,
+      SubheaderColor: state.renderedColors[num] == null ? Color.Gray : state.renderedColors[num]
+    );
+  }
+
+  public void GenerateHUDTexts(ref MenuState state!) {
+    for(Number i! = -2; i < MAX_MENU_ITEMS + 10; i++) {
+      if(location == MenuLocation.Left)
+        hudTexts[i + 2] = CreateHudTextHelper(state, i + 2, Location.Left);
+      else if(location == MenuLocation.Right)
+        hudTexts[i + 2] = CreateHudTextHelper(state, i + 2, Location.Right);
+      else
+        hudTexts[i + 2] = CreateHudTextHelper(state, i + 2, Location.Top);
+    }
+  }
+}

@@ -1,0 +1,87 @@
+import '../menuState.del';
+import './componentWithValue.del';
+
+class Checkbox: ComponentWithValue 
+{
+  public static Button BUTTON_TOGGLE: Button.Ability2;
+  public MenuState _menuState;
+  public String name;
+  public Any[] values: _menuState.variables.Get(name);
+  public Boolean checked: values.Contains(value);
+  public Boolean defaultChecked;
+
+  // events
+  public ((Boolean, Checkbox) => void) onChange;
+
+  public constructor(
+    in MenuState menuState!,
+    in String text!, 
+    in String name!,
+    in Any value!,
+    in Boolean defaultChecked! = null,
+    in Component child! = null
+  ) {
+    ConstructorCheckbox([menuState, text, name, value, defaultChecked, child]);
+  }
+
+  protected void ConstructorCheckbox(Any[] arr!) "[Checkbox] Constructor Helper" {
+    MenuState menuState: arr[0];
+    String text: arr[1];
+    String name: arr[2];
+    Any value: arr[3];
+    Any defaultChecked: arr[4];
+    Component child: arr[5];
+
+    ConstructorWithValue([text, value, child]);
+
+    this._menuState = menuState;
+    this.name = name;
+    this.defaultChecked = defaultChecked;
+
+    if(values == null)
+      SetValue([]);
+
+    SetSelected(defaultChecked);
+
+    AddDescription($"Press [{BUTTON_TOGGLE}] to toggle selection");
+  }
+
+  public void SetValue(Any value!) "[Checkbox] SetValue" {
+    Dictionary<String, Any>.SetOrAdd(_menuState.variables, name, value);
+  }
+
+  public virtual void SetSelected(Boolean selected!) "[Checkbox] SetSelected" {
+    if(selected != checked) {
+      Any[] values! = values;
+
+      if(checked) ModifyVariable(values, Operation.RemoveFromArrayByValue, value);
+      else ModifyVariable(values, Operation.AppendToArray, value);
+
+      SetValue(values);
+      OnChange();
+    }
+  }
+
+  public virtual void Toggle() "[Checkbox] Toggle" {
+    SetSelected(!checked);
+  }
+
+  public override void FormatText() "[Checkbox] FormatText" {
+    renderedText = $"{checked ? "[✓]" : "[    ]"}​ {child ? child.renderedText : textFormatter(this)}";
+  }
+
+  // events
+  public override void OnButtonDown(Button button!) "[Checkbox] OnButtonDown" {
+    onButtonDown(button, this);
+
+    if(button == BUTTON_TOGGLE)
+      Toggle();
+
+    if(child != null)
+      child.OnButtonDown(button);
+  }
+
+  public virtual void OnChange() "[Checkbox] OnChange" {
+    onChange(value, this);
+  }
+}

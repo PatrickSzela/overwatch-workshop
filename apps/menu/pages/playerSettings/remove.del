@@ -1,0 +1,29 @@
+import '../../_variables.del';
+
+String PAGE_REMOVE_ID: 'remove';
+String PAGE_REMOVE_NAME: 'Remove from the game';
+
+Button PAGE_REMOVE_BUTTON_APPLY: Button.Ability2;
+
+MenuItem PageRemoveMenuItem() {
+  MenuItem remove = new MenuItem(PAGE_REMOVE_NAME);
+  remove.AddDescription($"Press [{PAGE_REMOVE_BUTTON_APPLY}] to apply");
+  remove.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_REMOVE_BUTTON_APPLY]) {
+      foreach(Player p! in selectedPlayers) {
+        if(p == EventPlayer()) {
+          SmallMessage(EventPlayer(), "You can't remove yourself from the game");
+          return;
+        }
+
+        if(p.IsDummy())
+          DestroyDummyBot(TeamOf(p), SlotOf(p));
+        else
+          RemovePlayer(selectedPlayers);
+      }
+    }
+  };
+
+  return remove;
+}
+

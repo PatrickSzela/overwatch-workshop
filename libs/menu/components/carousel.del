@@ -1,0 +1,55 @@
+import './componentWithValue.del';
+
+class Carousel: ComponentWithValue
+{
+  public Any[] options;  
+
+  public constructor(
+    in String text!,
+    in Any[] options!,
+    in Any defaultValue! = null
+  ) {
+    ConstructorCarousel([text, options, defaultValue]);
+  }
+
+  protected void ConstructorCarousel(Any[] arr!) "[Carousel] Constructor Helper" {
+    String text: arr[0];
+    Any[] options: arr[1];
+    Any defaultValue: arr[2];
+
+    this.defaultValue = defaultValue == null ? options.First : defaultValue;
+    this.options = options;
+    
+    ConstructorWithValue([text, this.defaultValue, null]);
+    AddDescription('Use [←] or [→] to select an option');
+  }
+
+  public override void OnNavigate(Vector direction!) "[Carousel] OnNavigate" {
+    onNavigate(direction, this);
+
+    Any old! = value;
+    Number index! = options.IndexOf(value);
+
+    if(index == -1) {
+      index = 0;
+    } else {
+      if(direction == Right()) index--;
+      else if(direction == Left()) index++;
+
+      if(index < 0) index = options.Length - 1;
+      else if(index > options.Length - 1) index = 0;
+    }
+
+    value = options[index];
+
+    if(old != options[index]) {
+      OnChange();
+    }
+  }
+
+  public override void FormatText() "[Carousel] FormatText" {
+    renderedText = textFormatter(this);
+    if(options.Length == 0) renderedText = $"{renderedText}: Empty";
+    else renderedText = $"{renderedText}: ← {valueFormatter(this)}​ →";
+  }
+}

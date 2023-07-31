@@ -1,0 +1,13 @@
+import './_helpers.del';
+import './_index.del';
+
+String PAGE_ABILITIES_ABILITY_1_ID: PAGE_ABILITIES_ID + 'ability1';
+String PAGE_ABILITIES_ABILITY_1_NAME: 'Ability 1';
+Button PAGE_ABILITIES_ABILITY_1_APPLY: Button.Ability2;
+
+rule: 'Player Settings/Abilities/Ability 1'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_ABILITIES_ABILITY_1_ID)
+{
+  PageAbilitiesRuleGenerator(PAGE_ABILITIES_ABILITY_1_NAME, Button.Ability1, PAGE_ABILITIES_ABILITY_1_APPLY);
+}

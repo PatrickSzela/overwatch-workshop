@@ -1,0 +1,37 @@
+import '../_variables.del';
+import './menuItem.del';
+import './toggle.del';
+import './carousel.del';
+import './spinner.del';
+import './checkbox.del';
+import './radio.del';
+import './listLong.del';
+import './listDynamic.del';
+
+String PAGE_DEBUG_ID: 'root';
+String PAGE_DEBUG_NAME: 'Components List';
+
+MenuItem[] PageDebugItems() {
+  return <MenuItem[]>[
+    new MenuItemNonInteractive("Items:"),
+    new MenuItemSubmenu(menuState, PAGE_DEBUG_MENU_ITEM_NAME, PAGE_DEBUG_MENU_ITEM_ID),
+    new MenuItemSubmenu(menuState, PAGE_DEBUG_TOGGLE_NAME, PAGE_DEBUG_TOGGLE_ID),
+    new MenuItemSubmenu(menuState, PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
+    new MenuItemSubmenu(menuState, PAGE_DEBUG_SPINNER_NAME, PAGE_DEBUG_SPINNER_ID),
+    new MenuItemSubmenu(menuState, PAGE_DEBUG_CHECKBOX_NAME, PAGE_DEBUG_CHECKBOX_ID),
+    new MenuItemSubmenu(menuState, PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),
+    new MenuItemNonInteractive(),
+
+    new MenuItemNonInteractive("Lists:"),
+    new MenuItemSubmenu(menuState, PAGE_DEBUG_LIST_LONG_NAME, PAGE_DEBUG_LIST_LONG_ID),
+    new MenuItemSubmenu(menuState, PAGE_DEBUG_LIST_DYNAMIC_NAME, PAGE_DEBUG_LIST_DYNAMIC_ID)
+  ];
+}
+
+rule: 'Debug'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_DEBUG_ID)
+{
+  menuState.SetTitle(PAGE_DEBUG_NAME);
+  menuState.AddItems(PageDebugItems());
+}

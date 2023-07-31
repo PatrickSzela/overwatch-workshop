@@ -1,0 +1,18 @@
+import '../../_variables.del';
+
+String PAGE_KILL_ID: 'kill';
+String PAGE_KILL_NAME: 'Kill';
+
+Button PAGE_KILL_BUTTON_APPLY: Button.Ability2;
+
+MenuItem PageKillMenuItem() {
+  MenuItem kill = new MenuItem(PAGE_KILL_NAME);
+
+  kill.AddDescription($"Press [{PAGE_KILL_BUTTON_APPLY}] to apply");
+  kill.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_KILL_BUTTON_APPLY])
+      Kill(selectedPlayers);
+  };
+
+  return kill;
+}

@@ -1,0 +1,30 @@
+import '../../../libs/menu/components/toggle.del';
+import '../../../libs/utils/array.del';
+import '../_variables.del';
+
+String PAGE_DEBUG_TOGGLE_ID: 'toggle';
+String PAGE_DEBUG_TOGGLE_NAME: 'Toggle';
+
+MenuItem[] PageDebugToggleItems() {
+  MenuItem[] menuItems! = [];
+
+  for(Number i! = 0; i <= 1; i++) {
+    Toggle toggle = new Toggle(
+      text: $"Item {i + 1}", 
+      defaultChecked: i == 1
+    );
+    toggle.onChange = (checked, it) => LogToInspector($'{it.text}: {checked}');
+
+    menuItems[i] = new MenuItem(child: toggle);
+  }
+
+  return menuItems;
+}
+
+rule: 'Debug/Toggle'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_DEBUG_TOGGLE_ID)
+{
+  menuState.SetTitle(PAGE_DEBUG_TOGGLE_NAME);
+  menuState.AddItems(PageDebugToggleItems());
+}

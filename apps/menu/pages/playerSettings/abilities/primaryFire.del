@@ -1,0 +1,13 @@
+import './_helpers.del';
+import './_index.del';
+
+String PAGE_ABILITIES_PRIMARY_FIRE_ID: PAGE_ABILITIES_ID + 'primaryFire';
+String PAGE_ABILITIES_PRIMARY_FIRE_NAME: 'Primary Fire';
+Button PAGE_ABILITIES_PRIMARY_FIRE_APPLY: Button.Ability2;
+
+rule: 'Player Settings/Abilities/Primary Fire'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_ABILITIES_PRIMARY_FIRE_ID)
+{
+  PageAbilitiesRuleGenerator(PAGE_ABILITIES_PRIMARY_FIRE_NAME, Button.PrimaryFire, PAGE_ABILITIES_PRIMARY_FIRE_APPLY);
+}

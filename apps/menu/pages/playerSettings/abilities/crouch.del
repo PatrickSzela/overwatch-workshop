@@ -1,0 +1,13 @@
+import './_helpers.del';
+import './_index.del';
+
+String PAGE_ABILITIES_CROUCH_ID: PAGE_ABILITIES_ID + 'crouch';
+String PAGE_ABILITIES_CROUCH_NAME: 'Crouch';
+Button PAGE_ABILITIES_CROUCH_APPLY: Button.Ability2;
+
+rule: 'Player Settings/Abilities/Crouch'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_ABILITIES_CROUCH_ID)
+{
+  PageAbilitiesRuleGenerator(PAGE_ABILITIES_CROUCH_NAME, Button.Crouch, PAGE_ABILITIES_CROUCH_APPLY);
+}

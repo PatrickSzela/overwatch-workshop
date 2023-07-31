@@ -1,0 +1,16 @@
+import './_rules.del';
+import './pages/_index.del';
+import '../../libs/utils/pauseMatchTime.del';
+import './customGameSettings.lobby';
+
+rule: 'Generate Menu'
+{
+  // TODO: add info about state being a variable of LocalPlayer
+  menu = new Menu(LocalPlayer().menuState);
+}
+
+// creating SelectedPlayers contains loop
+rule: 'Generate SelectedPlayers'
+{
+  selectedPlayersInstance = new SelectedPlayers(LocalPlayer().selectedPlayers, LocalPlayer().menuState.isOpen && LocalPlayer().menuState.stack.Contains(PAGE_PLAYER_SETTINGS_ID));
+}

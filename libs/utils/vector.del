@@ -1,0 +1,152 @@
+import 'bigArray.del';
+import 'number.del';
+
+Vector SnapToClosestAxis(Vector vec) {
+  Vector ret;
+
+  if(AbsoluteValue(vec.X) >= AbsoluteValue(vec.Z))
+    ret = Vector(vec.X, vec.Y, 0);
+  else
+    ret = Vector(0, vec.Y, vec.Z);
+
+  return ret;
+}
+
+// based on https://workshop.codes/wiki/articles/rendering-an-inworld-text-at-a-specific-onscreen-position
+// from center
+Vector ScreenPositionToWorld(Number x, Number y): LocalPlayer().EyePosition() + 100 * (
+  x * WorldVectorOf(Right(), LocalPlayer(), LocalVector.Rotation) +
+  y * DirectionFromAngles(
+    HorizontalAngleFromDirection(LocalPlayer().FacingDirection()), 
+    VerticalAngleFromDirection(LocalPlayer().FacingDirection()) - 90
+  ) + 3 * LocalPlayer().FacingDirection()
+);
+
+Vector RotateAroundY(Vector vec, Number degree) {
+  return Vector(
+    CosineFromDegrees(degree) * vec.X - SineFromDegrees(degree) * vec.Z, 
+    vec.Y, 
+    SineFromDegrees(degree) * vec.X + CosineFromDegrees(degree) * vec.Z
+  );
+}
+
+Vector SnapTo1(Vector vec): Vector(Sign(vec.X), Sign(vec.Y), Sign(vec.Z));
+
+Vector[] DirectionsBetweenVectors(in Vector[] arr) {
+  Vector[] ret = [];
+
+  for(Number i! = 1; i < arr.Length; i++) {
+    ret = ret.Append(arr[i == arr.Length ? 0 : i] - arr[i - 1]);
+  }
+
+  return ret;
+}
+
+Number PerpendicularDistance(Vector pt, Vector lineStart, Vector lineEnd) {
+  Number dx = lineEnd.X - lineStart.X;
+  Number dy = lineEnd.Z - lineStart.Z;
+  
+  Number mag = SquareRoot(dx * dx + dy * dy);
+
+  if(mag > 0) {
+    dx /= mag;
+    dy /= mag;
+  }
+
+  Number pvx = pt.X - lineStart.X;
+  Number pvy = pt.Z - lineStart.Z;
+
+  Number pvdot = dx * pvx + dy * pvy;
+
+  Number ax = pvx - pvdot * dx;
+  Number ay = pvy - pvdot * dy;
+
+  return SquareRoot(ax * ax + ay * ay);
+}
+
+// removes points when it's between 2 previous vectors
+BigArray<Vector> SmoothenBetweenVectors(in BigArray<Vector> arr) {
+  if(arr.Length < 3) 
+    return arr;
+
+  BigArray<Vector> ret = new BigArray<Vector>([]);
+  Vector[] cache = [];
+  Number maxAngle = 45;
+
+  for(Number i! = 0; i < arr.Length; i++) {
+    cache += arr.Get(i);
+
+    if(cache.Length < 4) {
+      continue;
+    }
+
+    Number l = cache.Length - 1;
+
+    Number angleBetweenFirstSecond = AngleBetweenVectors(cache[l - 2] - cache[0], cache[l - 1] - cache[0]);
+    Number angleBetweenThirdFirst = AngleBetweenVectors(cache[l - 2] - cache[0], cache[l] - cache[0]);
+    Number angleBetweenThirdSecond = AngleBetweenVectors(cache[l - 1] - cache[0], cache[l] - cache[0]);
+
+    Number d1 = DistanceBetween(cache[0], cache[l - 2]);
+    Number d2 = DistanceBetween(cache[0], cache[l - 1]);
+
+    maxAngle = 90 / SquareRoot(d1^2 + d2^2);
+
+    if((angleBetweenThirdFirst + angleBetweenThirdSecond) > angleBetweenFirstSecond || angleBetweenFirstSecond > maxAngle) {     
+      ret.Append(cache[0]);
+      cache = cache.Slice(cache.Length - 3, 3);
+    }
+
+    if(i % (ServerLoadAverage() > 100 ? 10 : 20)  == 0) 
+      Wait();
+  }
+
+  ret.Concat(cache);
+
+  return ret;
+}
+
+
+// https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
+// https://gist.github.com/federicodangelo/f7da779cb33a25b087fee58bf6460600
+BigArray<Vector> SmoothenRDP(in BigArray<Vector> arr, in Number epsilon, in Boolean isPolygon) {
+  if(arr.Length <= 2 + (isPolygon ? 0 : -1)) return arr;
+
+  Number start = isPolygon ? -1 : 0;
+  Number end = arr.Length + (isPolygon ? 0 : -1);
+  BigArray<Vector> ret = new BigArray<Vector>([]);
+
+  while(start < end) {
+    if(start > -1)
+      ret.Append(arr.Get(start));
+
+    Number newEnd = end;
+
+    while(true) {
+      Number maxDistanceIndex = 0;
+      Number maxDistance = 0;
+
+      for(Number i! = start + 1; i < newEnd; i++) {
+        Number d = PerpendicularDistance(arr.Get(i), 
+          arr.Get(start == -1 ? arr.Length - 1 : start == arr.Length ? 0 : start), 
+          arr.Get(newEnd == -1 ? arr.Length - 1 : newEnd == arr.Length ? 0 : newEnd));
+
+        if(d > maxDistance) {
+          maxDistanceIndex = i;
+          maxDistance = d;
+        }
+
+        if(i % (ServerLoadAverage() > 100 ? 5 : 10) == 0) 
+          Wait();
+      }
+
+      if(maxDistance <= epsilon)
+        break;
+
+      newEnd = maxDistanceIndex;
+    }
+
+    start = newEnd;
+  }
+
+  return ret;  
+}

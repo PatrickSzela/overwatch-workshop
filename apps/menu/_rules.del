@@ -1,0 +1,22 @@
+import './_variables.del';
+
+void StatusHelper(in String text, in Number value, in Number colorRed, in Number colorOrange) {
+  CreateHudText(
+    VisibleTo: LocalPlayer(), 
+    Subheader: text, 
+    Location: Location.Right,
+    SubheaderColor: 
+      value >= colorRed ? Color.Red : 
+      value >= colorOrange ? Color.Orange : 
+      Color.White,
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
+}
+
+rule: 'Status'
+{
+  StatusHelper($"Server Load: {ServerLoad()}%", ServerLoad(), 100, 80);
+  StatusHelper($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak(), 100, 80);
+  StatusHelper($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed(), 900, 800);
+  StatusHelper($"Text count: {TextCount()}/128", TextCount(), 112, 96);
+  StatusHelper($"Entity count: {EntityCount()}/128", EntityCount(), 112, 96);
+}

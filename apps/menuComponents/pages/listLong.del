@@ -1,0 +1,21 @@
+import '../_variables.del';
+
+String PAGE_DEBUG_LIST_LONG_ID: 'listLong';
+String PAGE_DEBUG_LIST_LONG_NAME: 'Long List';
+
+MenuItem[] PageDebugListLongItems() {
+  MenuItem[] list = [];
+
+  for(Number i = 1; i <= 50; i++)
+    list += new MenuItem($"Item {i}");
+
+  return list;
+}
+
+rule: 'Debug/Long List'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_DEBUG_LIST_LONG_ID)
+{
+  menuState.SetTitle(PAGE_DEBUG_LIST_LONG_NAME);
+  menuState.AddItems(PageDebugListLongItems());
+}
