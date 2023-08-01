@@ -179,7 +179,7 @@ if(stepSniffer == StepSniffer.Simplifying)
   Wait(0.1);
 
   // EnableInspectorRecording();
-  LogToInspector($"Smoothing using Vector direction {outline.Length}​ points");
+  // LogToInspector($"Smoothing using Vector direction {outline.Length}​ points");
   // DisableInspectorRecording();
 
   for(Number i = 0; i < 8; i++) {
@@ -187,7 +187,7 @@ if(stepSniffer == StepSniffer.Simplifying)
     outline = SmoothenBetweenVectors(outline);
 
     // EnableInspectorRecording();
-    LogToInspector($"Pass {i}​ finished, length: {outline.Length}");
+    // LogToInspector($"Pass {i}​ finished, length: {outline.Length}");
     // DisableInspectorRecording();
     
     if(oldCount - outline.Length <= 1)
@@ -197,7 +197,7 @@ if(stepSniffer == StepSniffer.Simplifying)
   Wait(0.25);
 
   // EnableInspectorRecording();
-  LogToInspector($"Smoothing using RDP {outline.Length}​ points");
+  // LogToInspector($"Smoothing using RDP {outline.Length}​ points");
   // DisableInspectorRecording();
 
   outline = SmoothenRDP(outline, 1, true);

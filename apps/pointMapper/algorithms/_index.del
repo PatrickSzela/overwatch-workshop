@@ -24,7 +24,7 @@ if(step == Step.Drawing)
   Wait(0.1);
 
   // EnableInspectorRecording();
-  LogToInspector($"Drawing {outline.Length}​ points");
+  // LogToInspector($"Drawing {outline.Length}​ points");
   // DisableInspectorRecording();
 
   for(Number i = 0; i < outline.Length; i++) {
