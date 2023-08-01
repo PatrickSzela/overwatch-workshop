@@ -119,13 +119,10 @@ class MenuState {
       hoveredItem.OnEnter();
       RenderItems();
     }
-
-    EnableInspectorRecording();
   }
 
   public void RemoveItems() "[MenuState]: Remove Items" {
-    DisableInspectorRecording();
-
+    // DisableInspectorRecording();
     foreach(MenuItem menuItem! in currentMenuItems) {
       if(menuItem.child) {
         if(menuItem.child.child)
@@ -137,8 +134,7 @@ class MenuState {
     }
 
     currentMenuItems = [];
-
-    EnableInspectorRecording();
+    // EnableInspectorRecording();
   }
 
   // 1 line - no need to make it subroutine
@@ -148,8 +144,7 @@ class MenuState {
   }
 
   public void RenderItems() "[MenuState]: Render Items" {
-    DisableInspectorRecording();
-
+    // DisableInspectorRecording();
     MenuItem hov! = hoveredItem;
     MenuItem[] sliced! = currentMenuItems.Slice(scrollOffset.Last.scroll, MAX_MENU_ITEMS);
     renderedColors = [];
@@ -193,11 +188,10 @@ class MenuState {
       (description.Length ? description : []);
 
     renderedColors = [Color.White, Color.White] + renderedColors + [Color.White] + descr.Map((i) => i[1]);
-
-    EnableInspectorRecording();
+    // EnableInspectorRecording();
 
     if(renderedTexts.Length > _menu.hudTexts.Length)
-      LogToInspector($"Not enough HUD items available ({renderedTexts.Length}​ requested, {_menu.hudTexts.Length}​ available)");
+      SmallMessage(EventPlayer(), $"Not enough HUD items available ({renderedTexts.Length}​ requested, {_menu.hudTexts.Length}​ available)");
   }
 
   private void HandleScroll() "[MenuState]: Handle Scroll" {
