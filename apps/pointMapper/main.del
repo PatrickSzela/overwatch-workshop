@@ -11,5 +11,6 @@ import "./algorithms/_index.del";
 
 rule: 'Generate Menu'
 {
+  DisableInspectorRecording();
   menu = new Menu(LocalPlayer().menuState);
 }

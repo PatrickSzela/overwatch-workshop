@@ -30,12 +30,14 @@ playervar Vector[] dummyOrder = order;
 playervar Vector[] cache = [];
 playervar Any arrow = null;
 
-rule: '[Sniffer] Step 0: Initialize'
+rule: '[Sniffer] Step 0: Prepare'
 if(step == Step.WorkingSniffer)
 if(stepSniffer == StepSniffer.Nothing)
 {
   SmallMessage(AllPlayers(), "[Sniffer] Preparing");
+  Wait(0.1);
 
+  // find approximate center of objective
   center = CurrentObjectivePosition() + (Offsets.Get(CurrentMap())[ObjectiveIndex()] || Vector.Zero);
 
   center = Vector(
@@ -48,28 +50,39 @@ if(stepSniffer == StepSniffer.Nothing)
   mainDummies = AddDummies(2);
 
   for(Number i! = 0; i < mainDummies.Length; i++) {
-    Player dummy: mainDummies[i];
+    Player mainDummy: mainDummies[i];
 
-    dummy.dummyOrder = !i ? order : ShiftAndPush(Reverse(order), -1);
+    // 2nd main dummy will be going anticlockwise
+    if(i)
+      mainDummy.dummyOrder = ShiftAndPush(Reverse(order), -1);
 
-    dummy.arrow = CreateInWorldText(AllPlayers(), "↓", UpdateEveryFrame(EvaluateOnce(dummy).EyePosition() + Up() * scale * 10), 3, Clipping.DoNotClip, InworldTextRev.VisibleToAndPosition, Color.Team1);
+    mainDummy.arrow = CreateInWorldText(
+      VisibleTo: AllPlayers(), 
+      Header: "↓", 
+      Position: UpdateEveryFrame(EvaluateOnce(mainDummy).EyePosition() + Up() * scale * 10), 
+      Scale: 3, 
+      Clipping: Clipping.DoNotClip, 
+      Reevaluation: InworldTextRev.VisibleToAndPosition, 
+      TextColor: Color.Team1
+    );
 
     Wait(0.1);
 
-    SetFacing(dummy, dummy.dummyOrder[0], Relative.ToWorld);
+    SetFacing(mainDummy, mainDummy.dummyOrder[0], Relative.ToWorld);
 
-    dummy.helperDummies = AddDummies(order.Length);
+    // geneare dummies around the main dummy
+    mainDummy.helperDummies = AddDummies(order.Length);
 
-    for(Number x! = 0; x < dummy.helperDummies.Length; x++) {
-      Player helperDummy: dummy.helperDummies[x];
-      AttachPlayers(helperDummy, dummy, dummy.dummyOrder[x] * scale);
-      SetFacing(helperDummy, dummy.dummyOrder[0], Relative.ToWorld);
+    for(Number x! = 0; x < mainDummy.helperDummies.Length; x++) {
+      Player helperDummy: mainDummy.helperDummies[x];
+      AttachPlayers(helperDummy, mainDummy, mainDummy.dummyOrder[x] * scale);
+      SetFacing(helperDummy, mainDummy.dummyOrder[0], Relative.ToWorld);
     }
 
-    dummy.Teleport(center);
+    mainDummy.Teleport(center);
   }
 
-  Wait(0.5);
+  Wait(0.25);
 
   stepSniffer = StepSniffer.Mapping;
 }
@@ -78,15 +91,16 @@ rule: '[Sniffer] Step 1: Mapping'
 if(step == Step.WorkingSniffer)
 if(stepSniffer == StepSniffer.Mapping)
 {
-  DisableInspectorRecording();
+  SmallMessage(AllPlayers(), "[Sniffer] Mapping");
+  Wait(0.1);
 
-  while(stepSniffer == StepSniffer.Mapping) {
-    for(Number a = 0; a < mainDummies.Length; a++) {
-      Player mainDummy: mainDummies[a];
-
+  while(step == Step.WorkingSniffer && stepSniffer == StepSniffer.Mapping) {
+    // DisableInspectorRecording();
+    foreach(Player mainDummy in mainDummies) {
       if(mainDummy.finished)
         continue;
 
+      // mark dummy as finished if is going to loop or is close to the other dummy
       if(mainDummy.points.Length > 1 && 
         mainDummies.IsTrueForAny((p) => 
           mainDummy.position.DistanceTo(p.points.First()) < 1.5 || 
@@ -98,19 +112,25 @@ if(stepSniffer == StepSniffer.Mapping)
         continue;
       }
 
-      Boolean[] obj = mainDummy.helperDummies.Map((p) => p.IsOnObjective());
+      Boolean[] helpersOnObjective = mainDummy.helperDummies.Map((p) => p.IsOnObjective());
 
+      // find next position to teleport to by finding the first dummy which is on point but it's prior neighbor isn't
       for(Number i = 0; i < mainDummy.helperDummies.Length; i++) {
-        if((i == 0 ? !obj.Last && obj[0] : !obj[i - 1] && obj[i])) {
+        if((i == 0 ? 
+          !helpersOnObjective.Last && helpersOnObjective[0] : 
+          !helpersOnObjective[i - 1] && helpersOnObjective[i])
+        ) {
+          // do nothing if going forward
           if(i == 0) break;
+          // skip if about to go backward
           if(i == mainDummy.helperDummies.Length / 2) continue;
 
-          // skip appending point if the bot that's going in the other direction might go further (King's Row)
-          if(mainDummy.points.Length == 0 && obj.First) {}
-          else {
+          // skip appending point if the bot that's going in the other direction might go further than the current one (bug on King's Row)
+          if(!(mainDummy.points.Length == 0 && helpersOnObjective.First)) {
             mainDummy.points.Append(mainDummy.position);
           }
 
+          // move order and bots clockwise
           mainDummy.dummyOrder = ShiftAndPush(mainDummy.dummyOrder, i);
           mainDummy.helperDummies = ShiftAndPush(mainDummy.helperDummies, i);
 
@@ -129,31 +149,26 @@ if(stepSniffer == StepSniffer.Mapping)
 
       // remove dummies
       foreach(Player[] dummy in mainDummies) {
+        // since the 2nd bot was going anticlockwise, reverse registered points for proper outline generation
         if(dummy != mainDummies[0])
           dummy.points.Reverse();
 
-        MinWait();
+        outline.ConcatBigArray(dummy.points);
 
         RemoveDummies(dummy.helperDummies);
         DestroyInWorldText(dummy.arrow);
-
-        outline.ConcatBigArray(dummy.points);
-
         MinWait();
       }
 
       RemoveDummies(mainDummies);
       mainDummies = [];
-
       Wait(0.1);
 
       stepSniffer = StepSniffer.Simplifying;
     }
 
-    Wait(ServerLoadAverage() > 100 ? 0.032 : 0.016);
+    Wait(ServerLoadAverage() > 70 ? 0.032 : 0.016);
   }
-
-  EnableInspectorRecording();
 }
 
 rule: '[Sniffer] Step 2: Simplifying'
@@ -161,34 +176,35 @@ if(step == Step.WorkingSniffer)
 if(stepSniffer == StepSniffer.Simplifying)
 {
   SmallMessage(AllPlayers(), "[Sniffer] Simplifying");
+  Wait(0.1);
 
   EnableInspectorRecording();
-  LogToInspector($"Smoothing using Vector direction {outline.Length} points");
+  LogToInspector($"Smoothing using Vector direction {outline.Length}​ points");
   DisableInspectorRecording();
 
   for(Number i = 0; i < 8; i++) {
-    count = outline.Length;
+    Number oldCount = outline.Length;
     outline = SmoothenBetweenVectors(outline);
 
     EnableInspectorRecording();
-    LogToInspector($"Pass {i} finished, length: {outline.Length}");
+    LogToInspector($"Pass {i}​ finished, length: {outline.Length}");
     DisableInspectorRecording();
     
-    if(count - outline.Length <= 1)
+    if(oldCount - outline.Length <= 1)
       break;
   }
 
-  Wait(0.5);
+  Wait(0.25);
 
   EnableInspectorRecording();
-  LogToInspector($"Smoothing using RDP {outline.Length} points");
+  LogToInspector($"Smoothing using RDP {outline.Length}​ points");
   DisableInspectorRecording();
 
   outline = SmoothenRDP(outline, 1, true);
 
-  Wait(0.5);
+  Wait(0.25);
 
-  EnableInspectorRecording();
+  // EnableInspectorRecording();
 
   step = Step.Drawing;
   stepSniffer = StepSniffer.Nothing;

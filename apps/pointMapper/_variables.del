@@ -49,7 +49,6 @@ globalvar Vector center = Vector.Zero;
 globalvar Any[] effects = [];
 
 
-globalvar Number count;
 globalvar BigArray<Vector> outline = new BigArray<Vector>([]);
 
 
