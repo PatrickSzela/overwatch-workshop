@@ -9,20 +9,24 @@ class BigArray<T> {
   
   public constructor(in T[] arr) {
     multiArray = [arr];
-    RecalculateLength();
+    Length = arr.Length;
   }
 
   public T Get(in Number idx): multiArray[FirstIdx(idx)][SecondIdx(idx)];
 
-  public void Set(in Number idx, in T value) {
+  private void Set(in Number idx, in T value) {
     multiArray[FirstIdx(idx)][SecondIdx(idx)] = value;
-    RecalculateLength();
   }
 
-  private void RecalculateLength() {
+  private void RecalculateLength() "[Big Array]: Recalculate Length" {
     Length = 0;
     foreach (T[] i in multiArray)
       Length += i.Length;
+  }
+
+  public void Clear() {
+    multiArray = [];
+    Length = 0;
   }
 
   public T First() {
@@ -37,6 +41,8 @@ class BigArray<T> {
 
   public void Append(in T value) { 
     Set(Length, value); 
+    // RecalculateLength();
+    Length++;
   }
 
   public void Concat(in T[] value) {
@@ -71,15 +77,16 @@ class BigArray<T> {
 
   public void Reverse() {
     T[][] copy = multiArray.SortedArray((_, idx) => -idx);
+    Number i = 0;
 
-    for(Number i = 0; i < copy.Length; i++) {
+    for(i = 0; i < copy.Length; i++) {
       copy[i] = copy[i].SortedArray((_, idx) => -idx);
     }
 
     multiArray = [[]];
     Length = 0;
 
-    for(Number i = 0; i < copy.Length; i++) 
+    for(i = 0; i < copy.Length; i++) 
       Concat(copy[i]);
   }
 

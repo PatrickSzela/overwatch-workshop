@@ -8,3 +8,4 @@ String SlotFormatter(Number number): $"{number == -1 ? 'First available' : numbe
 String ObjectiveFormatter(Number number): $"{number == -1 ? 'Current' : number + 1}";
 
 String BooleanFormatter(Boolean bool): $"{bool ? 'On' : 'Off'}";
+String BooleanFormatterYesNo(Boolean bool): $"{bool ? 'Yes' : 'No'}";

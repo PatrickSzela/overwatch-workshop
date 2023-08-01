@@ -1,0 +1,53 @@
+import '../_variables.del';
+
+String PAGE_TELEPORT_ID: 'teleport';
+String PAGE_TELEPORT_NAME: 'Teleport to Objective';
+
+Button PAGE_TELEPORT_BUTTON_APPLY: Button.Ability2;
+
+void PageTeleportHandleTeleport() "Teleport: Handle Teleport to Objective" {
+  Hero ogHero = EventPlayer().Hero();
+
+  // NearestWalkablePosition can be buggy
+  // Vector nearest = NearestWalkablePosition(CurrentObjectivePosition());
+  // EventPlayer().Teleport(nearest ? nearest : CurrentObjectivePosition());
+  SetGravity(EventPlayer(), 0);
+  EventPlayer().Teleport(CurrentObjectivePosition());
+
+  MinWait();
+
+  Boolean notOnGround: RayCastHitPosition(EventPlayer().Position() + Up() * 0.1, EventPlayer().Position() + Down() * 2).DistanceTo(EventPlayer().Position() + Down() * 2) < 0.01;
+  
+  if(!EventPlayer().IsOnGround() && notOnGround) {
+    ForcePlayerHero(EventPlayer(), Hero.Sombra);
+    MinWait();
+
+    Wait(1);
+
+    SmallMessage(EventPlayer(), "Teleport to a safe spot");
+    WaitUntil(EventPlayer().IsOnGround() || !notOnGround, 99999);
+
+    if(EventPlayer().IsButtonHeld(Button.Ability2)) {
+      WaitUntil(!EventPlayer().IsButtonHeld(Button.Ability2), 99999);
+    }
+  }
+
+  ForcePlayerHero(EventPlayer(), ogHero);
+  StopForcingHero(EventPlayer());
+
+  SetGravity(EventPlayer(), 100);
+  DisableMovementCollisionWithEnvironment(EventPlayer(), false);
+}
+
+MenuItem PageTeleportMenuItem() {
+  MenuItem teleport = new MenuItem(PAGE_TELEPORT_NAME);
+
+  teleport.AddDescription($"Press [{PAGE_TELEPORT_BUTTON_APPLY}] to apply");
+  teleport.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_TELEPORT_BUTTON_APPLY]) {
+      PageTeleportHandleTeleport();
+    }
+  };
+
+  return teleport;
+}

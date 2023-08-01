@@ -1,16 +1,5 @@
 import './_variables.del';
-
-void StatusHelper(in String text, in Number value, in Number colorRed, in Number colorOrange) {
-  CreateHudText(
-    VisibleTo: LocalPlayer(), 
-    Subheader: text, 
-    Location: Location.Right,
-    SubheaderColor: 
-      value >= colorRed ? Color.Red : 
-      value >= colorOrange ? Color.Orange : 
-      Color.White,
-    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
-}
+import '../../libs/utils/status.del';
 
 rule: 'Status'
 {

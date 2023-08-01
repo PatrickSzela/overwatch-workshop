@@ -1,6 +1,8 @@
 rule: 'Pause Match Time'
+if(IsGameInProgress())
 {
   DisableCompletion();
+  MinWait();
   SetMatchTime(60 * 4 + 20);
   PauseMatchTime();
 }

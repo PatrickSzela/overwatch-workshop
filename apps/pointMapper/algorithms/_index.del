@@ -1,0 +1,45 @@
+import '../_variables.del';
+import './sniffer.del';
+
+rule: 'Preparing'
+if(step == Step.Preparing)
+{
+  SmallMessage(AllPlayers(), "Preparing");
+
+  foreach(Any effect in effects) {
+    DestroyEffect(effect);
+  }
+
+  effects = [];
+  Wait(0.1);
+  outline.Clear();
+  Wait(0.1);
+  step = Step.WorkingSniffer;
+}
+
+rule: 'Drawing'
+if(step == Step.Drawing)
+{
+  SmallMessage(AllPlayers(), "Drawing");
+  LogToInspector($"Drawing {outline.Length} points");
+
+  DisableInspectorRecording();
+
+  for(Number i = 0; i < outline.Length; i++) {
+    // TODO: make a setting to snap effects to player's Y position
+    // TODO: start generating at player's Y position
+    // TODO: move generating outline to `main.del`
+    Vector pos: Vector(center.X, HostPlayer().Position().Y + 0.25, center.Z);
+
+    effects += CreateEffect(AllPlayers(), Effect.Sphere, Color.Red, pos + EvaluateOnce(outline.Get(i)) * scale, scale * 2, EffectRev.PositionAndRadius);
+
+    effects += CreateBeamEffect(AllPlayers(), BeamType.GrappleBeam, pos + EvaluateOnce(outline.Get(i == 0 ? outline.Length - 1 : i - 1)) * scale, pos + EvaluateOnce(outline.Get(i)) * scale, Color.Red, EffectRev.PositionAndRadius);
+
+    MinWait();
+  }
+
+  SmallMessage(AllPlayers(), "Finished");
+  EnableInspectorRecording();
+
+  step = Step.Nothing;
+}

@@ -1,12 +1,20 @@
 import '../../libs/utils/array.del';
 import '../../libs/utils/bigArray.del';
 import '../../libs/utils/dictionary.del';
+import '../../libs/menu/_index.del';
 
 enum Step {
   Nothing = -1,
-  WorkingCuber,
-  WorkingSniffer
+  Preparing,
+  WorkingSniffer,
+  Drawing
 }
+
+globalvar Menu menu;
+playervar MenuState menuState = new MenuState(menu, 'root', [Button.Crouch, Button.Interact]);
+
+playervar Boolean isOnObjective = false;
+globalvar Boolean forceContesting = true;
 
 globalvar Dictionary<Map, Vector[]> Offsets = new Dictionary<Map, Vector[]>();
 
@@ -33,12 +41,11 @@ globalvar Vector[] directionsDiagonal = [
   Vector( 1,  1, -1), 
   Vector( 1,  1,  1)
 ];
-globalvar Player[] dummies = [];
 globalvar Player[] dummiesContesting = [];
 globalvar Step step = Step.Nothing;
 globalvar Number scale = 0.025;
 globalvar Boolean modeStarted = false;
-globalvar Vector center = null;
+globalvar Vector center = Vector.Zero;
 globalvar Any[] effects = [];
 
 
@@ -48,7 +55,7 @@ globalvar BigArray<Vector> outline = new BigArray<Vector>([]);
 
 playervar BigArray<Vector> points = new BigArray<Vector>([]);
 playervar Boolean finished = false;
-playervar Vector position = null;
+playervar Vector position = Vector.Zero;
 playervar Boolean wasOnObjectiveAtLeastOnce = false;
 
 Vector CurrentObjectivePosition(): ObjectivePosition(ObjectiveIndex());

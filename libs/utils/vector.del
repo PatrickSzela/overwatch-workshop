@@ -80,24 +80,25 @@ BigArray<Vector> SmoothenBetweenVectors(in BigArray<Vector> arr) {
       continue;
     }
 
-    Number l = cache.Length - 1;
+    Number length: cache.Length - 1;
+    Number[] angles = [
+      AngleBetweenVectors(cache[length - 2] - cache[0], cache[length - 1] - cache[0]),
+      AngleBetweenVectors(cache[length - 2] - cache[0], cache[length] - cache[0]),
+      AngleBetweenVectors(cache[length - 1] - cache[0], cache[length] - cache[0])
+    ];
 
-    Number angleBetweenFirstSecond = AngleBetweenVectors(cache[l - 2] - cache[0], cache[l - 1] - cache[0]);
-    Number angleBetweenThirdFirst = AngleBetweenVectors(cache[l - 2] - cache[0], cache[l] - cache[0]);
-    Number angleBetweenThirdSecond = AngleBetweenVectors(cache[l - 1] - cache[0], cache[l] - cache[0]);
-
-    Number d1 = DistanceBetween(cache[0], cache[l - 2]);
-    Number d2 = DistanceBetween(cache[0], cache[l - 1]);
+    Number d1: DistanceBetween(cache[0], cache[length - 2]);
+    Number d2: DistanceBetween(cache[0], cache[length - 1]);
 
     maxAngle = 90 / SquareRoot(d1^2 + d2^2);
 
-    if((angleBetweenThirdFirst + angleBetweenThirdSecond) > angleBetweenFirstSecond || angleBetweenFirstSecond > maxAngle) {     
+    if((angles[1] + angles[2]) > angles[0] || angles[0] > maxAngle) {     
       ret.Append(cache[0]);
       cache = cache.Slice(cache.Length - 3, 3);
     }
 
-    if(i % (ServerLoadAverage() > 100 ? 10 : 20)  == 0) 
-      Wait();
+    if(i % (ServerLoadAverage() > 100 ? 10 : 20) == 0) 
+      MinWait();
   }
 
   ret.Concat(cache);
@@ -125,18 +126,19 @@ BigArray<Vector> SmoothenRDP(in BigArray<Vector> arr, in Number epsilon, in Bool
       Number maxDistanceIndex = 0;
       Number maxDistance = 0;
 
-      for(Number i! = start + 1; i < newEnd; i++) {
+      for(Number i = start + 1; i < newEnd; i++) {
         Number d = PerpendicularDistance(arr.Get(i), 
           arr.Get(start == -1 ? arr.Length - 1 : start == arr.Length ? 0 : start), 
-          arr.Get(newEnd == -1 ? arr.Length - 1 : newEnd == arr.Length ? 0 : newEnd));
+          arr.Get(newEnd == -1 ? arr.Length - 1 : newEnd == arr.Length ? 0 : newEnd)
+        );
 
         if(d > maxDistance) {
           maxDistanceIndex = i;
           maxDistance = d;
         }
 
-        if(i % (ServerLoadAverage() > 100 ? 5 : 10) == 0) 
-          Wait();
+        if(i % (ServerLoadAverage() > 50 ? 5 : 7) == 0) 
+          MinWait();
       }
 
       if(maxDistance <= epsilon)

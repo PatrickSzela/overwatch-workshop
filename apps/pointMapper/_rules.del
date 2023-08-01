@@ -1,0 +1,88 @@
+import "../../libs/utils/formatters.del";
+import "../../libs/utils/status.del";
+import "./menu/teleport.del";
+import "./_variables.del";
+import "./_helpers.del";
+
+rule: 'Spawn Dummies'
+{
+  Wait(2);
+
+  // contesting dummies
+  foreach (Team team in [Team.Team1, Team.Team2]) {
+    dummiesContesting += AddDummies(1, team);
+    SetInvisible(LastCreatedEntity(), InvisibleTo.All);
+  }
+
+  modeStarted = true;
+}
+
+rule: 'Status'
+{
+  StatusHelper($"Server Load: {ServerLoad()}%", ServerLoad(), 100, 80);
+  StatusHelper($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak(), 100, 80);
+  StatusHelper($"──────────────────────");
+  StatusHelper($"Text count: {TextCount()}/128", TextCount(), 112, 96);
+  StatusHelper($"Entity count: {EntityCount()}/256", EntityCount(), 224, 192);
+  StatusHelper($"Dummies spawned: {AllPlayers().FilteredArray((i) => i.IsDummy()).Length}/24", AllPlayers().FilteredArray((i) => i.IsDummy()).Length, 20, 16);
+  // StatusHelper($"Effects spawned: {effects.Length}/256", effects.Length, 224, 192);
+  // imagine if Workshop had a Reduce Array function...
+  // StatusHelper($"Point count: {dummies[0].points.Length + dummies[1].points.Length + dummies[2].points.Length + dummies[3].points.Length + dummies[4].points.Length + dummies[5].points.Length + dummies[6].points.Length + dummies[7].points.Length + dummies[8].points.Length + dummies[9].points.Length + dummies[10].points.Length + dummies[11].points.Length + dummies[12].points.Length + dummies[13].points.Length + dummies[14].points.Length + dummies[15].points.Length + dummies[16].points.Length + dummies[17].points.Length}");
+  StatusHelper($"Outline count: {outline.Length}");
+  StatusHelper($"──────────────────────");
+  StatusHelper($"Position: {LocalPlayer().Position()}");
+  StatusHelper($"Facing: {LocalPlayer().FacingDirection()}");
+  StatusHelper($"Force contesting: {BooleanFormatter(forceContesting)}");
+  StatusHelper($"Is on objective: {BooleanFormatterYesNo(LocalPlayer().isOnObjective)}");
+
+  CreateHudText(
+    VisibleTo: LocalPlayer(), 
+    Text: $"\n\nIs on objective: {BooleanFormatterYesNo(LocalPlayer().isOnObjective)}",
+    Location: Location.Top, 
+    SortOrder: 100, 
+    TextColor: LocalPlayer().isOnObjective ? Color.Green : Color.Red, 
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
+  );
+}
+
+rule: 'Server check if player is on objective'
+Event.OngoingPlayer
+if(!IsDummyBot(EventPlayer()))
+if(EventPlayer().IsOnObjective())
+{
+  isOnObjective = true;
+}
+
+rule: 'Server check if player is not on objective'
+Event.OngoingPlayer
+if(!IsDummyBot(EventPlayer()))
+if(!EventPlayer().IsOnObjective())
+{
+  isOnObjective = false;
+}
+
+rule: 'Start contesting when enabled'
+Event.OngoingGlobal
+if(forceContesting)
+if(modeStarted)
+{
+  Teleport(dummiesContesting, CurrentObjectivePosition());
+}
+
+rule: 'Stop contesting when disabled'
+Event.OngoingGlobal
+if(!forceContesting)
+if(modeStarted)
+{
+  foreach(Player dummy in dummiesContesting) {
+    dummy.Teleport(SpawnPoints(dummy.Team())[0]);
+  }
+}
+
+rule: 'Teleport players to objective on spawn'
+Event.OngoingPlayer
+if(HasSpawned(EventPlayer()))
+if(!IsDummyBot(EventPlayer()))
+{
+  PageTeleportHandleTeleport();
+}

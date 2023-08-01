@@ -1,0 +1,22 @@
+import '../_variables.del';
+import './startMapping.del';
+import './teleport.del';
+import './nextObjective.del';
+
+String PAGE_ROOT_ID: 'root';
+String PAGE_ROOT_NAME: 'Main Menu';
+
+MenuItem[] PageRootItems() {
+  return <MenuItem[]>[
+    PageTeleportMenuItem(),
+    PageStartMappingMenuItem()
+  ] + PageNextObjectiveMenuItem();
+}
+
+rule: 'Root'
+Event.OngoingPlayer
+if(menuState.currentMenuID == PAGE_ROOT_ID)
+{
+  menuState.SetTitle(PAGE_ROOT_NAME);
+  menuState.AddItems(PageRootItems());
+}

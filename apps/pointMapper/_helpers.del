@@ -1,0 +1,26 @@
+import "./_variables.del";
+
+Player[] AddDummies(Number amount = 1, Team team = Team.Team2) "Add dummies" {
+  Player[] dummies = [];
+
+  // detecting dummies
+  for (Number i = 0; i < amount; i++) {
+    dummies += CreateDummyBot(Hero.Sombra, team, -1, SpawnPoints(team)[0]);
+
+    StartScalingPlayer(LastCreatedEntity(), scale * 2, false);
+    DisableMovementCollisionWithPlayers(LastCreatedEntity());
+    DisableMovementCollisionWithEnvironment(LastCreatedEntity(), true);
+    SetGravity(LastCreatedEntity(), 0);
+    SetStatus(LastCreatedEntity(), HostPlayer(), Status.Invincible, 9999);
+    SetStatus(LastCreatedEntity(), HostPlayer(), Status.PhasedOut, 9999);
+
+    Wait(0.1);
+  }
+
+  return dummies;
+}
+
+void RemoveDummies(Player[] dummies) "Remove dummies" {
+  foreach(Player dummy in dummies)
+    DestroyDummyBot(dummy);
+}

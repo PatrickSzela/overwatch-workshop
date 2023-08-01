@@ -1,7 +1,8 @@
-import "variables.del";
-import "../../libs/utils/bigArray.del";
-import "../../libs/utils/vector.del";
-import "../../libs/utils/number.del";
+import "../_variables.del";
+import "../_helpers.del";
+import "../../../libs/utils/bigArray.del";
+import "../../../libs/utils/vector.del";
+import "../../../libs/utils/number.del";
 
 enum StepSniffer {
   Nothing = -1,
@@ -33,17 +34,7 @@ rule: '[Sniffer] Step 0: Initialize'
 if(step == Step.WorkingSniffer)
 if(stepSniffer == StepSniffer.Nothing)
 {
-  if(dummies.Length < order.Length + 1) {
-    SmallMessage(AllPlayers(), 'Not enough dummies available: {dummies.Length}');
-    LogToInspector('Not enough dummies available: {dummies.Length}');
-    step = Step.Nothing;
-    stepSniffer = StepSniffer.Nothing;
-  }
-
-  SmallMessage(AllPlayers(), "[Sniffer] Starting");
-
-  mainDummies = dummies.Length >= (order.Length + 1) * 2 ? [dummies[0], dummies[order.Length + 1]] : [dummies[0]];
-  // mainDummies = [dummies[0]];
+  SmallMessage(AllPlayers(), "[Sniffer] Preparing");
 
   center = CurrentObjectivePosition() + (Offsets.Get(CurrentMap())[ObjectiveIndex()] || Vector.Zero);
 
@@ -53,29 +44,32 @@ if(stepSniffer == StepSniffer.Nothing)
     RoundToInteger(center.Z * 100) / 100
   );
 
-  for(Number x = 0; x < mainDummies.Length; x++) {
-    for(Number i = 0; i < order.Length + 1; i++) {
-      Player dummy: dummies[x * (order.Length + 1) + i];
+  // generate dummies
+  mainDummies = AddDummies(2);
 
-      dummy.cache = [];
-      dummy.helperDummies = [];
+  for(Number i! = 0; i < mainDummies.Length; i++) {
+    Player dummy: mainDummies[i];
 
-      if(i == 0) {
-        dummy.Teleport(center);
-        dummy.dummyOrder = !x ? order : ShiftAndPush(Reverse(order), -1);
+    dummy.dummyOrder = !i ? order : ShiftAndPush(Reverse(order), -1);
 
-        dummy.arrow = CreateInWorldText(AllPlayers(), "↓", EvaluateOnce(dummy).EyePosition() + Up() * scale * 10, 3, Clipping.DoNotClip, InworldTextRev.VisibleToAndPosition, Color.Team1);
-      } else {
-        Player mainDummy: dummies[x * (order.Length + 1)];
-        AttachPlayers(dummy, mainDummy, mainDummy.dummyOrder[i - 1] * scale);
-        mainDummy.helperDummies += dummy;
-      }
+    dummy.arrow = CreateInWorldText(AllPlayers(), "↓", UpdateEveryFrame(EvaluateOnce(dummy).EyePosition() + Up() * scale * 10), 3, Clipping.DoNotClip, InworldTextRev.VisibleToAndPosition, Color.Team1);
 
-      SetFacing(dummy, dummy.dummyOrder[0], Relative.ToWorld);
+    Wait(0.1);
+
+    SetFacing(dummy, dummy.dummyOrder[0], Relative.ToWorld);
+
+    dummy.helperDummies = AddDummies(order.Length);
+
+    for(Number x! = 0; x < dummy.helperDummies.Length; x++) {
+      Player helperDummy: dummy.helperDummies[x];
+      AttachPlayers(helperDummy, dummy, dummy.dummyOrder[x] * scale);
+      SetFacing(helperDummy, dummy.dummyOrder[0], Relative.ToWorld);
     }
 
-    Wait();
+    dummy.Teleport(center);
   }
+
+  Wait(0.5);
 
   stepSniffer = StepSniffer.Mapping;
 }
@@ -131,6 +125,28 @@ if(stepSniffer == StepSniffer.Mapping)
     }
 
     if(mainDummies.IsTrueForAll((e) => e.finished)) {
+      Wait(0.1);
+
+      // remove dummies
+      foreach(Player[] dummy in mainDummies) {
+        if(dummy != mainDummies[0])
+          dummy.points.Reverse();
+
+        MinWait();
+
+        RemoveDummies(dummy.helperDummies);
+        DestroyInWorldText(dummy.arrow);
+
+        outline.ConcatBigArray(dummy.points);
+
+        MinWait();
+      }
+
+      RemoveDummies(mainDummies);
+      mainDummies = [];
+
+      Wait(0.1);
+
       stepSniffer = StepSniffer.Simplifying;
     }
 
@@ -145,22 +161,6 @@ if(step == Step.WorkingSniffer)
 if(stepSniffer == StepSniffer.Simplifying)
 {
   SmallMessage(AllPlayers(), "[Sniffer] Simplifying");
-
-  DisableInspectorRecording();
-
-  foreach(Player mainDummy in mainDummies) {
-    if(mainDummy != mainDummies[0]) {
-      mainDummy.points.Reverse();
-    }
-
-    outline.ConcatBigArray(mainDummy.points);
-
-    mainDummy.Teleport(SpawnPoints(TeamOf(mainDummy))[0]);
-    DestroyInWorldText(mainDummy.arrow);
-    mainDummy.arrow = null;
-
-    Wait();
-  }
 
   EnableInspectorRecording();
   LogToInspector($"Smoothing using Vector direction {outline.Length} points");
@@ -178,56 +178,18 @@ if(stepSniffer == StepSniffer.Simplifying)
       break;
   }
 
+  Wait(0.5);
+
   EnableInspectorRecording();
   LogToInspector($"Smoothing using RDP {outline.Length} points");
   DisableInspectorRecording();
 
   outline = SmoothenRDP(outline, 1, true);
 
-  Wait();
+  Wait(0.5);
 
   EnableInspectorRecording();
 
-  stepSniffer = StepSniffer.Drawing;
-}
-
-rule: '[Sniffer] Step 3: Drawing'
-if(step == Step.WorkingSniffer)
-if(stepSniffer == StepSniffer.Drawing)
-{
-  SmallMessage(AllPlayers(), "[Sniffer] Drawing");
-  LogToInspector($"Drawing {outline.Length} points");
-
-  DisableInspectorRecording();
-
-  for(Number i = 0; i < outline.Length; i++) {
-    // TODO: make a setting to snap effects to player's Y position
-    // TODO: start generating at player's Y position
-    // TODO: move generating outline to `main.del`
-    Vector pos: Vector(center.X, HostPlayer().Position().Y + 0.25, center.Z);
-
-    effects += CreateEffect(AllPlayers(), Effect.Sphere, Color.Red, pos + EvaluateOnce(outline.Get(i)) * scale, scale * 2, EffectRev.PositionAndRadius);
-
-    effects += CreateBeamEffect(AllPlayers(), BeamType.GrappleBeam, pos + EvaluateOnce(outline.Get(i == 0 ? outline.Length - 1 : i - 1)) * scale, pos + EvaluateOnce(outline.Get(i)) * scale, Color.Red, EffectRev.PositionAndRadius);
-
-    Wait();
-  }
-
-  EnableInspectorRecording();
-
-  stepSniffer = StepSniffer.Cleaning;
-}
-
-rule: '[Sniffer] Step 4: Cleaning'
-if(step == Step.WorkingSniffer)
-if(stepSniffer == StepSniffer.Cleaning)
-{
-  SmallMessage(AllPlayers(), "[Sniffer] Finished");
-
-  foreach(Player mainDummy in mainDummies) {
-    DetachPlayers(mainDummy.helperDummies);
-  }
-
-  step = Step.Nothing;
+  step = Step.Drawing;
   stepSniffer = StepSniffer.Nothing;
 }

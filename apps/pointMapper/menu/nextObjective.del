@@ -1,0 +1,55 @@
+import '../_variables.del';
+
+String PAGE_NEXT_OBJECTIVE_ID: 'nextObjective';
+String PAGE_NEXT_OBJECTIVE_NAME: 'Go to Next Objective';
+
+Button PAGE_NEXT_OBJECTIVE_BUTTON_APPLY: Button.Ability2;
+
+void PageNextObjectiveGoToNextObjective() "Next Objective: Go to Next Objective" {
+  forceContesting = false;
+  Player[] dummiesSlice: dummiesContesting.Slice(1, dummiesContesting.Length);
+
+  MinWait();
+  Teleport(dummiesSlice, CurrentObjectivePosition());
+
+  SmallMessage(AllPlayers(), "Waiting until objective is captured...");
+
+  foreach(Player player in AllPlayers()) {
+    if(player.IsDummy()) continue;
+    
+    if(player.IsDead()) {
+      Resurrect(player);
+      MinWait();
+    }
+
+    player.Teleport(SpawnPoints(player.Team())[ObjectiveIndex()]);
+    SetStatus(player, player, Status.Asleep, 99999);
+
+    WaitUntil(EvaluateOnce(ObjectiveIndex()) != ObjectiveIndex(), 99999);
+
+    ClearStatus(player, Status.Asleep);
+    player.Teleport(CurrentObjectivePosition());
+  }
+
+  foreach(Player dummy in dummiesSlice) {
+    Teleport(dummy, SpawnPoints(dummy.Team())[0]);
+  }
+
+  forceContesting = true;
+}
+
+MenuItem[] PageNextObjectiveMenuItem() {
+  if(!(CurrentGameMode() == GameMode.Assault && ObjectiveIndex() == 0))
+    return [];
+
+  MenuItem nextObjective = new MenuItem(PAGE_NEXT_OBJECTIVE_NAME);
+
+  nextObjective.AddDescription($"Press [{PAGE_NEXT_OBJECTIVE_BUTTON_APPLY}] to apply");
+  nextObjective.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_NEXT_OBJECTIVE_BUTTON_APPLY]) {
+      PageNextObjectiveGoToNextObjective();
+    }
+  };
+
+  return [nextObjective];
+}

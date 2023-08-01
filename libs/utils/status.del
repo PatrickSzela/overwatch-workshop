@@ -1,0 +1,12 @@
+void StatusHelper(in String text, in Number value = -2, in Number colorRed = -1, in Number colorOrange = -1, Location location = Location.Right) {
+  CreateHudText(
+    VisibleTo: LocalPlayer(), 
+    Subheader: text, 
+    Location: location,
+    SubheaderColor: 
+      value >= colorRed ? Color.Red : 
+      value >= colorOrange ? Color.Orange : 
+      Color.White,
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
+  );
+}
