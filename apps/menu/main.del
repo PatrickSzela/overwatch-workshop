@@ -5,6 +5,7 @@ import './customGameSettings.lobby';
 
 rule: 'Generate Menu'
 {
+  DisableInspectorRecording();
   // TODO: add info about state being a variable of LocalPlayer
   menu = new Menu(LocalPlayer().menuState);
 }
