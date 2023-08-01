@@ -167,7 +167,7 @@ if(stepSniffer == StepSniffer.Mapping)
       stepSniffer = StepSniffer.Simplifying;
     }
 
-    Wait(ServerLoadAverage() > 70 ? 0.032 : 0.016);
+    Wait(ServerLoadAverage() > 100 ? 0.032 : 0.016);
   }
 }
 
