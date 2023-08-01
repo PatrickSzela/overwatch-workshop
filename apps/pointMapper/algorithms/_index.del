@@ -23,9 +23,9 @@ if(step == Step.Drawing)
   SmallMessage(AllPlayers(), "Drawing");
   Wait(0.1);
 
-  EnableInspectorRecording();
+  // EnableInspectorRecording();
   LogToInspector($"Drawing {outline.Length}​ points");
-  DisableInspectorRecording();
+  // DisableInspectorRecording();
 
   for(Number i = 0; i < outline.Length; i++) {
     // TODO: make a setting to snap effects to player's Y position

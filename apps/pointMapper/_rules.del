@@ -25,9 +25,6 @@ rule: 'Status'
   StatusHelper($"Text count: {TextCount()}/128", TextCount(), 112, 96);
   StatusHelper($"Entity count: {EntityCount()}/256", EntityCount(), 224, 192);
   StatusHelper($"Dummies spawned: {AllPlayers().FilteredArray((i) => i.IsDummy()).Length}/24", AllPlayers().FilteredArray((i) => i.IsDummy()).Length, 20, 16);
-  // StatusHelper($"Effects spawned: {effects.Length}/256", effects.Length, 224, 192);
-  // imagine if Workshop had a Reduce Array function...
-  // StatusHelper($"Point count: {dummies[0].points.Length + dummies[1].points.Length + dummies[2].points.Length + dummies[3].points.Length + dummies[4].points.Length + dummies[5].points.Length + dummies[6].points.Length + dummies[7].points.Length + dummies[8].points.Length + dummies[9].points.Length + dummies[10].points.Length + dummies[11].points.Length + dummies[12].points.Length + dummies[13].points.Length + dummies[14].points.Length + dummies[15].points.Length + dummies[16].points.Length + dummies[17].points.Length}");
   StatusHelper($"Outline count: {outline.Length}");
   StatusHelper($"──────────────────────");
   StatusHelper($"Position: {LocalPlayer().Position()}");
