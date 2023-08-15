@@ -7,7 +7,6 @@ Button PAGE_START_MAPPING_BUTTON_APPLY: Button.Ability2;
 
 MenuItem PageStartMappingMenuItem() {
   MenuItem startMapping = new MenuItem(PAGE_START_MAPPING_NAME);
-
   startMapping.AddDescription($"Press [{PAGE_START_MAPPING_BUTTON_APPLY}] to apply");
   startMapping.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_START_MAPPING_BUTTON_APPLY]) {

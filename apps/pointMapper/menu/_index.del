@@ -1,5 +1,7 @@
 import '../_variables.del';
+import './mappingAccuracy.del';
 import './startMapping.del';
+import './stopMapping.del';
 import './teleport.del';
 import './nextObjective.del';
 
@@ -8,8 +10,13 @@ String PAGE_ROOT_NAME: 'Main Menu';
 
 MenuItem[] PageRootItems() {
   return <MenuItem[]>[
-    PageTeleportMenuItem(),
-    PageStartMappingMenuItem()
+    new MenuItemNonInteractive("Mapping:"),
+    PageMappingAccuracyMenuItem(),
+    PageStartMappingMenuItem(),
+    PageStopMappingMenuItem(),
+    new MenuItemNonInteractive(""),
+    new MenuItemNonInteractive("Objective:"),
+    PageTeleportMenuItem()
   ] + PageNextObjectiveMenuItem();
 }
 

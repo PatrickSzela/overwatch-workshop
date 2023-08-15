@@ -1,0 +1,23 @@
+import '../_variables.del';
+
+String PAGE_STOP_MAPPING_ID: 'stopMapping';
+String PAGE_STOP_MAPPING_NAME: 'Stop Mapping';
+
+Button PAGE_STOP_MAPPING_BUTTON_APPLY: Button.Ability2;
+
+MenuItem[] PageStopMappingMenuItem() {
+  MenuItem stopMapping = new MenuItem(PAGE_STOP_MAPPING_NAME);
+  stopMapping.AddDescription($"Press [{PAGE_STOP_MAPPING_BUTTON_APPLY}] to apply");
+  stopMapping.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_STOP_MAPPING_BUTTON_APPLY]) {
+      if(step == Step.Nothing) {
+        step = Step.Preparing;
+      } else {
+        SmallMessage(EventPlayer(), "Mapping already in progress");
+      }
+    }
+  };
+
+  return [stopMapping];
+}
+

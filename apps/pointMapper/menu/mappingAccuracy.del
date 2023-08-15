@@ -1,0 +1,23 @@
+import '../_variables.del';
+
+String PAGE_MAPPING_ACCURACY_ID: 'mappingAccuracy';
+String PAGE_MAPPING_ACCURACY_NAME: 'Mapping Accuracy';
+
+Button PAGE_MAPPING_ACCURACY_BUTTON_APPLY: Button.Ability2;
+
+MenuItem PageMappingAccuracyMenuItem() {
+  MenuItem mappingAccuracy = new MenuItem(PAGE_MAPPING_ACCURACY_NAME);
+  mappingAccuracy.AddDescription($"Press [{PAGE_MAPPING_ACCURACY_BUTTON_APPLY}] to apply");
+  mappingAccuracy.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_MAPPING_ACCURACY_BUTTON_APPLY]) {
+      if(step == Step.Nothing) {
+        SmallMessage(EventPlayer(), "Mapping hasn't been started");
+      } else {
+        step = Step.Preparing;
+      }
+    }
+  };
+
+  return mappingAccuracy;
+}
+
