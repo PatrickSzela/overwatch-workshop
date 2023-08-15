@@ -3,6 +3,7 @@ import '../../../_variables.del';
 
 Button PAGE_ABILITIES_BUTTON_HOLD: Button.Reload;
 Button PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING: Button.Interact;
+Button PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING: Button.Jump;
 
 playervar Player[] pageAbilitiesFilteredPlayers = [];
 playervar Boolean[] pageAbilitiesEnabled = [true, true, true, true, true, true, true, true, true, true];
@@ -11,6 +12,7 @@ playervar Boolean[] pageAbilitiesInfiniteAmmo = [];
 playervar Boolean[] pageAbilitiesNoCooldown = [];
 playervar Boolean[] pageAbilitiesInfiniteCharge = [];
 playervar Boolean[] pageAbilitiesInfiniteResource = [];
+playervar Boolean[] pageAbilitiesKeepPressingButton = [];
 
 String PAGE_ABILITIES_WARNING_BROKEN: "Due to Workshop bugs, some settings might not work correctly for some heroes";
 
@@ -36,10 +38,18 @@ void PageAbilitiesHoldButtonMenuItemEnhancer(ref MenuItem item, in Button abilit
     if(buttonsHeld == [PAGE_ABILITIES_BUTTON_HOLD]) {
       StartHoldingButton(pageAbilitiesFilteredPlayers, ability);        
     } else if(buttonsHeld == [PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING]) {
-        if(pageAbilitiesFilteredPlayers[0].IsButtonHeld(ability)) {
-          StopHoldingButton(pageAbilitiesFilteredPlayers, ability);
-        } else {
-          StartHoldingButton(pageAbilitiesFilteredPlayers, ability);
+      if(pageAbilitiesFilteredPlayers[0].IsButtonHeld(ability)) {
+        StopHoldingButton(pageAbilitiesFilteredPlayers, ability);
+      } else {
+        StartHoldingButton(pageAbilitiesFilteredPlayers, ability);
+      }
+    } else if(buttonsHeld == [PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING]) {
+        foreach(Player pl in pageAbilitiesFilteredPlayers) {
+          pl.pageAbilitiesKeepPressingButton[allButtons.IndexOf(ability)] = !pl.pageAbilitiesKeepPressingButton[allButtons.IndexOf(ability)];
+
+          if(!pl.pageAbilitiesKeepPressingButton[allButtons.IndexOf(ability)]) {
+            StopHoldingButton(pl, ability);
+          }
         }
       }
   };
@@ -51,6 +61,7 @@ void PageAbilitiesHoldButtonMenuItemEnhancer(ref MenuItem item, in Button abilit
   
   item.AddDescription($"Hold [{PAGE_ABILITIES_BUTTON_HOLD}] to force players to also hold the button");
   item.AddDescription($"Press [{PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING}] to toggle forcing players to hold the button");
+  item.AddDescription($"Press [{PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING}] to toggle forcing players to hold and release the button every 1 sec");
 }
 
 void PageAbilitiesRuleGenerator(String title!, Button ability!, Button buttonApply!) "PageAbilitiesRuleGenerator" {

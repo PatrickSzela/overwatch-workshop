@@ -100,6 +100,29 @@ if(pageAbilitiesInfiniteResource.IsTrueForAny((i) => i))
   LoopIfConditionIsTrue();
 }
 
+rule: 'Repeat button'
+Event.OngoingPlayer
+if(pageAbilitiesKeepPressingButton.IsTrueForAny((i) => i))
+{
+  for(Number i! = 0; i < pageAbilitiesKeepPressingButton.Length; i++) {
+    if(!pageAbilitiesKeepPressingButton[i]) continue;
+    
+    StartHoldingButton(EventPlayer(), allButtons[i]);
+  }
+
+  Wait(1);
+
+  for(Number i! = 0; i < pageAbilitiesKeepPressingButton.Length; i++) {
+    if(!pageAbilitiesKeepPressingButton[i]) continue;
+    
+    StopHoldingButton(EventPlayer(), allButtons[i]);
+  }
+  
+  MinWait();
+
+  LoopIfConditionIsTrue();
+}
+
 // draw
 rule: 'Draw currently pressed buttons above players'
 Event.OngoingPlayer
