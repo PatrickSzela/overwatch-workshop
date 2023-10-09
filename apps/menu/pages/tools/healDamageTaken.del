@@ -9,8 +9,10 @@ String PAGE_HEAL_DAMAGE_TAKEN_NAME: 'Show Heal/Damage Taken';
 
 playervar Boolean showHealDamageTaken = false;
 
-playervar Number healedBy = 0;
-playervar Number damagedBy = 0;
+playervar Number healedBySum = 0;
+playervar Number healedByLast = 0;
+playervar Number damagedBySum = 0;
+playervar Number damagedByLast = 0;
 globalvar Any[] healDamageTexts = [];
 
 MenuItem PageHealDamageTakenMenuItem() {
@@ -30,17 +32,19 @@ MenuItem PageHealDamageTakenMenuItem() {
 rule: 'Heal info'
 Event.OnHealingTaken
 {
-  healedBy += EventHealing();
+  healedBySum += EventHealing();
+  healedByLast = EventHealing();
   Wait(1, WaitBehavior.RestartWhenTrue);
-  healedBy = 0;
+  healedBySum = 0;
 }
 
 rule: 'Damaged info'
 Event.OnDamageTaken
 {
-  damagedBy += EventDamage();
+  damagedBySum += EventDamage();
+  damagedByLast = EventDamage();
   Wait(1, WaitBehavior.RestartWhenTrue);
-  damagedBy = 0;
+  damagedBySum = 0;
 }
 
 rule: 'Heal/Damage Taken: Generate texts'
@@ -55,8 +59,8 @@ rule: 'Heal/Damage Taken: Generate texts'
       healDamageTexts += CreateInWorldText(
         VisibleTo: HasSpawned(players[idx]) && LocalPlayer().showHealDamageTaken ? LocalPlayer() : null,
         Header: 
-          (players[idx].healedBy > 0 ? $"+{players[idx].healedBy + 0.0001}​ HP" : '') + 
-          (players[idx].damagedBy > 0 ? $"\n-{players[idx].damagedBy + 0.0001}​ HP" : ''),
+          (players[idx].healedBySum > 0 ? $"+{players[idx].healedBySum + 0.0001}​ HP (+{players[idx].healedByLast + 0.0001})" : '') + 
+          (players[idx].damagedBySum > 0 ? $"\n-{players[idx].damagedBySum + 0.0001}​ HP (-{players[idx].damagedByLast + 0.0001})" : ''),
         Position: UpdateEveryFrame(
           LocalPlayer() == players[idx] ? 
             ScreenPositionToWorld(0, -0.95) : 
