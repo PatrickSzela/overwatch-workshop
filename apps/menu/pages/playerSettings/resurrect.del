@@ -7,7 +7,7 @@ Button PAGE_RESURRECT_BUTTON_APPLY: Button.Ability2;
 
 MenuItem PageResurrectMenuItem() {
   MenuItem resurrect = new MenuItem(PAGE_RESURRECT_NAME);
-  resurrect.AddDescription($"Press [{PAGE_RESURRECT_BUTTON_APPLY}] to apply");
+  resurrect.AddDescription($"Press {ButtonFormatterSingle(PAGE_RESURRECT_BUTTON_APPLY)}​ to apply");
   resurrect.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_RESURRECT_BUTTON_APPLY])
       Resurrect(selectedPlayers);

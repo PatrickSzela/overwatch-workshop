@@ -25,7 +25,7 @@ class Toggle: ComponentWithValue
 
     this.valueFormatter = (it) => BooleanFormatter(it.value);
 
-    AddDescription($"Press [{BUTTON_TOGGLE}] to toggle");
+    AddDescription($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle");
   }
 
   public virtual void SetSelected(Boolean selected!) "[Toggle] SetSelected" {

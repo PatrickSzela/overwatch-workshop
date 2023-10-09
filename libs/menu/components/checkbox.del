@@ -43,7 +43,7 @@ class Checkbox: ComponentWithValue
 
     SetSelected(defaultChecked);
 
-    AddDescription($"Press [{BUTTON_TOGGLE}] to toggle selection");
+    AddDescription($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle selection");
   }
 
   public void SetValue(Any value!) "[Checkbox] SetValue" {

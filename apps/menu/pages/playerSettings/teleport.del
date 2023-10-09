@@ -69,6 +69,6 @@ Event.OngoingPlayer
 if(menuState.currentMenuID == PAGE_TELEPORT_ID)
 {
   menuState.SetTitle(PAGE_TELEPORT_NAME);
-  menuState.AddDescription($"Press [{PAGE_TELEPORT_BUTTON_APPLY}] to apply");
+  menuState.AddDescription($"Press {ButtonFormatterSingle(PAGE_TELEPORT_BUTTON_APPLY)}​ to apply");
   menuState.AddItems(PageTeleportItems());
 }

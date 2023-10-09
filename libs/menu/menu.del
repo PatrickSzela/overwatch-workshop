@@ -51,7 +51,17 @@ class Menu {
 
     return CreateHudText(
       VisibleTo: state.renderedTexts[num] && state.enabled ? LocalPlayer() : null,
-      Subheader: state.renderedTexts[num],
+      Subheader: state.renderedTexts[num]
+        .Replace($"_{Button.PrimaryFire}_", InputBindingString(Button.PrimaryFire))
+        .Replace($"_{Button.SecondaryFire}_", InputBindingString(Button.SecondaryFire))
+        .Replace($"_{Button.Ability1}_", InputBindingString(Button.Ability1))
+        .Replace($"_{Button.Ability2}_", InputBindingString(Button.Ability2))
+        .Replace($"_{Button.Ultimate}_", InputBindingString(Button.Ultimate))
+        .Replace($"_{Button.Reload}_", InputBindingString(Button.Reload))
+        .Replace($"_{Button.Melee}_", InputBindingString(Button.Melee))
+        .Replace($"_{Button.Jump}_", InputBindingString(Button.Jump))
+        .Replace($"_{Button.Crouch}_", InputBindingString(Button.Crouch))
+        .Replace($"_{Button.Interact}_", InputBindingString(Button.Interact)),
       Location: location, 
       SortOrder: num, 
       Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,

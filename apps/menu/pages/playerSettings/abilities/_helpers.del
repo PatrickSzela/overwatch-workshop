@@ -62,9 +62,9 @@ void PageAbilitiesHoldButtonMenuItemEnhancer(ref MenuItem item, in Button abilit
     }
   };
   
-  item.AddDescription($"Hold [{PAGE_ABILITIES_BUTTON_HOLD}] to force players to also hold the button");
-  item.AddDescription($"Press [{PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING}] to toggle forcing players to hold the button");
-  item.AddDescription($"Press [{PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING}] to toggle forcing players to hold and release the button every 1 sec");
+  item.AddDescription($"Hold {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_HOLD)}​ to force players to also hold the button");
+  item.AddDescription($"Press {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING)}​ to toggle forcing players to hold the button");
+  item.AddDescription($"Press {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING)}​ to toggle forcing players to hold and release the button every 1 sec");
 }
 
 void PageAbilitiesRuleGenerator(String title!, Button ability!, Button buttonApply!) "PageAbilitiesRuleGenerator" {
@@ -85,7 +85,7 @@ MenuItem PageAbilitiesSpinnerGenerator(Button ability!, Button buttonApply!, Str
     if(buttonsHeld == [buttonApply])
       onApply(it.value);
   };
-  spinner.AddDescription($"Press [{buttonApply}] to apply");
+  spinner.AddDescription($"Press {ButtonFormatterSingle(buttonApply)}​ to apply");
 
   return new MenuItem(child: spinner);
 }

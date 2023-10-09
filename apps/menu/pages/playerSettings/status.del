@@ -6,7 +6,7 @@ String PAGE_STATUS_NAME: 'Status';
 Button PAGE_STATUS_BUTTON_TOGGLE: Button.Ability2;
 
 String[] PAGE_STATUS_DESCRIPTION: [
-  $"Press [{PAGE_STATUS_BUTTON_TOGGLE}] to toggle",
+  $"Press {ButtonFormatterSingle(PAGE_STATUS_BUTTON_TOGGLE)}​ to toggle",
   'All Players have a list of currently active statuses above them'
 ];
 String PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION: "Selected players will not be able to navigate the menu";

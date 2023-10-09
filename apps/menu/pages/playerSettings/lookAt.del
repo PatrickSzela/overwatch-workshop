@@ -19,8 +19,8 @@ Button PAGE_LOOK_AT_BUTTON_APPLY_ONCE: Button.Ability2;
 Button PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY: Button.Reload;
 
 String[] PAGE_LOOK_AT_DESCRIPTION: [
-  $"Press [{PAGE_LOOK_AT_BUTTON_APPLY_ONCE}] to apply once",
-  $"Press [{PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY}] to apply continuously"
+  $"Press {ButtonFormatterSingle(PAGE_LOOK_AT_BUTTON_APPLY_ONCE)}​ to apply once",
+  $"Press {ButtonFormatterSingle(PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY)}​ to apply continuously"
 ];
 
 // TODO: look at looking position of player

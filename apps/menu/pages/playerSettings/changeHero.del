@@ -13,8 +13,8 @@ MenuItem PageChangeHeroMenuItem() {
     options: AllTankHeroes() + AllDamageHeroes() + AllSupportHeroes(),
     defaultValue: EventPlayer().Hero()
   );
-  carousel.AddDescription($"Press [{PAGE_CHANGE_HERO_BUTTON_APPLY}] to apply");
-  carousel.AddDescription($"Press [{PAGE_CHANGE_HERO_BUTTON_HERO_SELECT}] to send to Hero Select screen");
+  carousel.AddDescription($"Press {ButtonFormatterSingle(PAGE_CHANGE_HERO_BUTTON_APPLY)}​ to apply");
+  carousel.AddDescription($"Press {ButtonFormatterSingle(PAGE_CHANGE_HERO_BUTTON_HERO_SELECT)}​ to send to Hero Select screen");
   carousel.valueFormatter = (it) => HeroWithIconFormatter(it.value);
   carousel.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_CHANGE_HERO_BUTTON_APPLY])

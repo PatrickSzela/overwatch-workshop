@@ -25,7 +25,7 @@ class MenuItemSubmenu: MenuItem
     this._menuState = menuState;
     this.submenuID = submenuID;
 
-    AddDescription($"Press [{BUTTON_OPEN}] to open submenu");
+    AddDescription($"Press {ButtonFormatterSingle(BUTTON_OPEN)}​ to open submenu");
   }
 
   public override void FormatText() "[MenuItemSubmenu] FormatText" {

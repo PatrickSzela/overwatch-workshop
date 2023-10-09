@@ -7,7 +7,7 @@ Button PAGE_REMOVE_BUTTON_APPLY: Button.Ability2;
 
 MenuItem PageRemoveMenuItem() {
   MenuItem remove = new MenuItem(PAGE_REMOVE_NAME);
-  remove.AddDescription($"Press [{PAGE_REMOVE_BUTTON_APPLY}] to apply");
+  remove.AddDescription($"Press {ButtonFormatterSingle(PAGE_REMOVE_BUTTON_APPLY)}​ to apply");
   remove.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_REMOVE_BUTTON_APPLY]) {
       foreach(Player p! in selectedPlayers) {

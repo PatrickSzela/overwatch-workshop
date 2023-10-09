@@ -58,7 +58,7 @@ MenuItem[] PageCreateBotItems() {
 
   MenuItem position = new MenuItem(PAGE_CREATE_BOT_POSITION_NAME);
   position.AddDescription(PickPosition.CHANGE_DISTANCE_DESCRIPTION);
-  position.AddDescription($"Press [{PAGE_CREATE_BOT_POSITION_BUTTON_SELECT}] to select the position");
+  position.AddDescription($"Press {ButtonFormatterSingle(PAGE_CREATE_BOT_POSITION_BUTTON_SELECT)}​ to select the position");
   position.textFormatter = (it) => $"{it.text}: {spawnBotPosition}";
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
@@ -74,7 +74,7 @@ MenuItem[] PageCreateBotItems() {
   };
 
   MenuItem spawnBot = new MenuItem(PAGE_CREATE_BOT_SPAWN_NAME);
-  spawnBot.AddDescription($"Press [{PAGE_CREATE_BOT_SPAWN_BUTTON}] to spawn the bot");
+  spawnBot.AddDescription($"Press {ButtonFormatterSingle(PAGE_CREATE_BOT_SPAWN_BUTTON)}​ to spawn the bot");
   spawnBot.onButtonDown = (button, it) => {
     if(buttonsHeld == [Button.Ability2]) {
       CreateDummyBot(spawnBotHero, spawnBotTeam, spawnBotSlot, spawnBotPosition);

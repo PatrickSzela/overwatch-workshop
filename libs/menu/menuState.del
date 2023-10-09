@@ -1,4 +1,5 @@
 import '../utils/dictionary.del';
+import '../utils/formatters.del';
 import '../utils/other.del';
 import './menu.del';
 import './components/menuItem.del';
@@ -112,7 +113,7 @@ class MenuState {
 
     if(stack.Length == 1 && internalNavigationEnabled) {
       AddDescription("Use [↑] or [↓] to navigate menu", order: -1);
-      AddDescription($"Press [{BUTTON_GO_BACK}] to go back", order: -1);
+      AddDescription($"Press {ButtonFormatterSingle(BUTTON_GO_BACK)}​ to go back", order: -1);
     }
 
     if(isOpen) {
@@ -140,7 +141,7 @@ class MenuState {
   // 1 line - no need to make it subroutine
   public void RenderClosedItems() {
     renderedColors = [Color.White];
-    renderedTexts = [$"Press [{Join(toggleOpenButtons, " + ")}] to toggle Menu"];
+    renderedTexts = [$"Press {ButtonFormatter(toggleOpenButtons)}​ to toggle Menu"];
   }
 
   public void RenderItems() "[MenuState]: Render Items" {

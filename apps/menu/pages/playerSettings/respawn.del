@@ -7,7 +7,7 @@ Button PAGE_RESPAWN_BUTTON_APPLY: Button.Ability2;
 
 MenuItem PageRespawnMenuItem() {
   MenuItem respawn = new MenuItem(PAGE_RESPAWN_NAME);
-  respawn.AddDescription($"Press [{PAGE_RESPAWN_BUTTON_APPLY}] to apply");
+  respawn.AddDescription($"Press {ButtonFormatterSingle(PAGE_RESPAWN_BUTTON_APPLY)}​ to apply");
   respawn.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_RESPAWN_BUTTON_APPLY])
       Respawn(selectedPlayers);

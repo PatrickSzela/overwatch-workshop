@@ -8,3 +8,6 @@ String SlotFormatter(Number number): $"{number == -1 ? 'First available' : numbe
 String ObjectiveFormatter(Number number): $"{number == -1 ? 'Current' : number + 1}";
 
 String BooleanFormatter(Boolean bool): $"{bool ? 'On' : 'Off'}";
+
+String ButtonFormatterSingle(Button button): $"[_{button}_]";
+String ButtonFormatter(Button[] buttons): $"[_{buttons[0]}_{buttons[1] ? $' + _{buttons[1]}_' : ''}{buttons[2] ? $' + _{buttons[2]}_' : ''}]";

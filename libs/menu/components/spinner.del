@@ -4,7 +4,7 @@ import './componentWithValue.del';
 
 class Spinner: ComponentWithValue
 {
-  public String DESCRIPTION: $'Press [{BUTTON_EDIT_MODE}] to {editMode ? "disable" : "enable"}​ Edit Mode';
+  public String DESCRIPTION: $'Press {ButtonFormatterSingle(BUTTON_EDIT_MODE)}​ to {editMode ? "disable" : "enable"}​ Edit Mode';
   public static Button BUTTON_EDIT_MODE: Button.Melee;
   public MenuState _menuState;
   public Boolean editMode;

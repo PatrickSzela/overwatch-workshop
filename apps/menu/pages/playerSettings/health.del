@@ -28,7 +28,7 @@ MenuItem[] PageHealthItems() {
     if(buttonsHeld == [PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY])
       SetPlayerHealth(selectedPlayers, it.value);
   };
-  currentHealthSpinner.AddDescription($"Press [{PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY}] to apply");
+  currentHealthSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY)}​ to apply");
 
   MenuItem currentHealth = new MenuItem(child: currentHealthSpinner);
 
@@ -53,8 +53,8 @@ MenuItem[] PageHealthItems() {
       }
     }
   };
-  maxHealthSpinner.AddDescription($"Press [{PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY}] to apply");
-  maxHealthSpinner.AddDescription($"Press [{PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET}] to reset to original value");
+  maxHealthSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY)}​ to apply");
+  maxHealthSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET)}​ to reset to original value");
   maxHealthSpinner.AddDescription("Applied Max Health value might differ because of Workshop limitations", Color.Orange);
   
   MenuItem maxHealth = new MenuItem(child: maxHealthSpinner);
