@@ -38,6 +38,9 @@ void PageAbilitiesHoldButtonMenuItemEnhancer(ref MenuItem item, in Button abilit
     if(buttonsHeld == [PAGE_ABILITIES_BUTTON_HOLD]) {
       StartHoldingButton(pageAbilitiesFilteredPlayers, ability);        
     } else if(buttonsHeld == [PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING]) {
+      foreach(Player pl in pageAbilitiesFilteredPlayers)
+        pl.pageAbilitiesKeepPressingButton[allButtons.IndexOf(ability)] = false;
+
       if(pageAbilitiesFilteredPlayers[0].IsButtonHeld(ability)) {
         StopHoldingButton(pageAbilitiesFilteredPlayers, ability);
       } else {
