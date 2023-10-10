@@ -1,3 +1,5 @@
+import './other.del';
+
 String HeroWithIconFormatter(Hero hero): $"{HeroIconString(hero)}​ {hero}";
 
 String PlayerWithHeroIconFormatter(Player player): $"{HeroIconString(HeroOf(player))}​ {player}";
@@ -5,7 +7,7 @@ String PlayerWithHeroIconTeamSlotFormatter(Player player): $"{HeroIconString(Her
 
 String SlotFormatter(Number number): $"{number == -1 ? 'First available' : number + 1}";
 
-String ObjectiveFormatter(Number number): $"{number == -1 ? 'Current' : number + 1}";
+String ObjectiveFormatter(Number objective): $"{objective == -1 ? 'Current' : alphabet[objective]}";
 
 String BooleanFormatter(Boolean bool): $"{bool ? 'On' : 'Off'}";
 

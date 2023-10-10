@@ -48,7 +48,7 @@ MenuItem[] PageLookAtItems() {
 
   Carousel objectiveCarousel = new Carousel(
     text: PAGE_LOOK_AT_OBJECTIVE_NAME,
-    options: [-1, 0, 1, 2]
+    options: [-1, 0, 1, 2, 3, 4]
   );
   objectiveCarousel.valueFormatter = (it) => ObjectiveFormatter(it.value);
   objectiveCarousel.onButtonDown = (button, it) => {

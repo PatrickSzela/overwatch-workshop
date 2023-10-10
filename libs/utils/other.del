@@ -11,6 +11,8 @@ globalvar Button[] allButtons = [
   Button.Interact
 ];
 
+globalvar String[] alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+
 Player[][] SortedAllPlayers() "Sorted All Players" {
   Player[][] perTeam! = [[], [], []];
 
