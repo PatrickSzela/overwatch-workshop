@@ -1,4 +1,5 @@
 rule: 'Pause Match Time'
+if(CurrentGameMode() == GameMode.Skirmish)
 {
   DisableCompletion();
   SetMatchTime(60 * 4 + 20);
