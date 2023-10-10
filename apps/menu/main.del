@@ -1,3 +1,4 @@
+import './_variables.del';
 import './pages/_index.del';
 import '../../libs/utils/pauseMatchTime.del';
 import './customGameSettings.lobby';
