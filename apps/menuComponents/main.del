@@ -1,11 +1,17 @@
-import './_rules.del';
 import './pages/_index.del';
 import '../../libs/utils/pauseMatchTime.del';
 import '../menu/customGameSettings.lobby';
+import '../menu/pages/tools/diagnostics.del';
 
 Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 
 rule: 'Generate Menu'
 {
   menu = new Menu(LocalPlayer().menuState);
+}
+
+rule: 'Show Diagnostics'
+Event.OngoingPlayer
+{
+  showDiagnostics = true;
 }

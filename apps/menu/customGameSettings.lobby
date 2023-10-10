@@ -29,5 +29,5 @@
     }
   },
   "Mode Name": "(Not So) Simple Menu",
-  "Description": "Version: 1.1.0\nWorkshop Code: PS3MX\nDiscord: PatPatPatriq"
+  "Description": "[Crouch + Interact] - Open/Close menu\n[Ultimate] - Go back (when in submenu)/Close menu (when in root)\nThe rest of controls depends on currently hovered menu item and are listed below the menu itself\n\nVersion: 1.2.0\nWorkshop Code: PS3MX\nDiscord: PatPatPatriq"
 }

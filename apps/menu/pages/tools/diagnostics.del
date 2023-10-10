@@ -1,8 +1,28 @@
-import './_variables.del';
+import '../../../../libs/utils/vector.del';
+import '../../_variables.del';
+
+String PAGE_DIAGNOSTICS_ID: 'diagnostics';
+String PAGE_DIAGNOSTICS_NAME: 'Diagnostics';
+
+playervar Boolean showDiagnostics = false;
+
+MenuItem PageDiagnosticsMenuItem() {
+  Toggle toggle = new Toggle(
+    text: PAGE_DIAGNOSTICS_NAME,
+    defaultChecked: showDiagnostics
+  );
+  toggle.onChange = (checked, it) => {
+    showDiagnostics = checked;
+  };
+
+  MenuItem menuItem = new MenuItem(child: toggle);
+
+  return new MenuItem(child: menuItem);
+}
 
 void StatusHelper(in String text, in Number value, in Number colorRed, in Number colorOrange) {
   CreateHudText(
-    VisibleTo: LocalPlayer(), 
+    VisibleTo: LocalPlayer().showDiagnostics ? LocalPlayer() : null, 
     Subheader: text, 
     Location: Location.Right,
     SubheaderColor: 
