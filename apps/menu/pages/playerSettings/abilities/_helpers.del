@@ -62,11 +62,10 @@ void PageAbilitiesHoldButtonMenuItemEnhancer(ref MenuItem item, in Button abilit
     }
   };
   
-  item.AddDescription($"Hold {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_HOLD)}​ to force players to also hold the button");
-  item.AddDescription($"Press {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING)}​ to toggle forcing players to hold the button");
-  item.AddDescription($"Press {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING)}​ to toggle forcing players to hold and release the button every 1 sec");
+  item.AddDescription($"Hold {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_HOLD)}​ to force players to hold the button");
+  item.AddDescription($"Press {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING)}​ to toggle forced button holding");
+  item.AddDescription($"Press {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING)}​ to toggle forced button spamming (hold for 1 sec, release, repeat)");
 }
-
 void PageAbilitiesRuleGenerator(String title!, Button ability!, Button buttonApply!) "PageAbilitiesRuleGenerator" {
   menuState.SetTitle(title);
   menuState.AddDescription(PAGE_ABILITIES_WARNING_BROKEN, Color.Orange);
