@@ -18,7 +18,7 @@ globalvar Any[] healDamageTexts = [];
 MenuItem PageHealDamageTakenMenuItem() {
   Toggle toggle = new Toggle(
     text: PAGE_HEAL_DAMAGE_TAKEN_NAME,
-    defaultChecked: selectedPlayers[0].showHealDamageTaken
+    defaultChecked: showHealDamageTaken
   );
   toggle.onChange = (checked, it) => {
     showHealDamageTaken = checked;
