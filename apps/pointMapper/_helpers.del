@@ -5,7 +5,7 @@ Player[] AddDummies(Number amount = 1, Team team = Team.Team2) "Add dummies" {
 
   // detecting dummies
   for (Number i = 0; i < amount; i++) {
-    dummies += CreateDummyBot(Hero.Sombra, team, -1, SpawnPoints(team)[0]);
+    dummies += CreateDummyBot(Hero.Ana, team, -1, SpawnPoints(team)[0]);
 
     StartScalingPlayer(LastCreatedEntity(), scale * 2, false);
     DisableMovementCollisionWithPlayers(LastCreatedEntity());
