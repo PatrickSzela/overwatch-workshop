@@ -70,10 +70,11 @@ if(pageAbilitiesInfiniteCharge.IsTrueForAny((i) => i))
     allButtons
       .FilteredArray((button, idx) => pageAbilitiesInfiniteCharge[idx])
       .Map((button) => 
-        (button == Button.Ultimate ? true : AbilityCharge(EventPlayer(), button)) && 
         (button == Button.Ultimate ? UltimateChargePercent() < 100 : AbilityCharge(EventPlayer(), button) < 99))
       .IsTrueForAny((i) => i), 
     99999);
+   
+  Wait(1);
 
   LoopIfConditionIsTrue();
 }
@@ -104,12 +105,22 @@ rule: 'Repeat button'
 Event.OngoingPlayer
 if(pageAbilitiesKeepPressingButton.IsTrueForAny((i) => i))
 {
-  for(Number i! = 0; i < pageAbilitiesKeepPressingButton.Length; i++) {
+  Boolean abilityThenFire! = pageAbilitiesKeepPressingButton.Slice(0, 2).IsTrueForAny((i) => i) && pageAbilitiesKeepPressingButton.Slice(2, pageAbilitiesKeepPressingButton.Length).IsTrueForAny((i) => i);
+
+  for(Number i! = abilityThenFire ? 2 : 0; i < pageAbilitiesKeepPressingButton.Length; i++) {
     if(!pageAbilitiesKeepPressingButton[i]) continue;
     
     StartHoldingButton(EventPlayer(), allButtons[i]);
   }
 
+  Wait(abilityThenFire ? 1 : 0);
+
+  for(Number i! = 0; i < 2; i++) {
+    if(!pageAbilitiesKeepPressingButton[i]) continue;
+    
+    StartHoldingButton(EventPlayer(), allButtons[i]);
+  }
+  
   Wait(1);
 
   for(Number i! = 0; i < pageAbilitiesKeepPressingButton.Length; i++) {
@@ -117,8 +128,17 @@ if(pageAbilitiesKeepPressingButton.IsTrueForAny((i) => i))
     
     StopHoldingButton(EventPlayer(), allButtons[i]);
   }
-  
-  MinWait();
+
+  Wait(0.1);
+
+  WaitUntil(
+    allButtons
+      .FilteredArray((button, idx) => pageAbilitiesKeepPressingButton[idx])
+      .Map((button, idx) => !IsUsingAbility(EventPlayer(), button))
+      .IsTrueForAny((i) => i), 
+    99999);
+
+  Wait(1);
 
   LoopIfConditionIsTrue();
 }
