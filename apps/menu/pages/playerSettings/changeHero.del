@@ -11,7 +11,7 @@ MenuItem PageChangeHeroMenuItem() {
   Carousel carousel! = new Carousel(
     text: PAGE_CHANGE_HERO_NAME, 
     options: AllTankHeroes() + AllDamageHeroes() + AllSupportHeroes(),
-    defaultValue: EventPlayer().Hero()
+    defaultValue: selectedPlayers.First.Hero()
   );
   carousel.AddDescription($"Press {ButtonFormatterSingle(PAGE_CHANGE_HERO_BUTTON_APPLY)}​ to apply");
   carousel.AddDescription($"Press {ButtonFormatterSingle(PAGE_CHANGE_HERO_BUTTON_HERO_SELECT)}​ to send to Hero Select screen");
