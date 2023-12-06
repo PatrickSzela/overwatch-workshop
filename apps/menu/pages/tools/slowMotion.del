@@ -1,0 +1,33 @@
+import '../../../../libs/utils/vector.del';
+import '../../_variables.del';
+
+String PAGE_SLOW_MOTION_ID: 'slowMotion';
+String PAGE_SLOW_MOTION_NAME: 'Slow motion';
+
+globalvar Number slowMotion = 100;
+Button PAGE_SLOW_MOTION_BUTTON_APPLY: Button.Ability2;
+
+MenuItem PageSlowMotionMenuItem() {
+  Spinner slowMotionSpinner = new Spinner(
+    menuState: menuState, 
+    text: PAGE_SLOW_MOTION_NAME,
+    integralLength: 3,
+    defaultValue: slowMotion,
+    unit: '%'
+  );
+
+  slowMotionSpinner.onButtonDown = (button, it) => {
+    if(buttonsHeld == [PAGE_SLOW_MOTION_BUTTON_APPLY]) {
+      slowMotion = it.value;
+      SetSlowMotion(slowMotion);
+    }
+  };
+
+  slowMotionSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_SLOW_MOTION_BUTTON_APPLY)}​ to apply");
+  slowMotionSpinner.AddDescription($"Value will be clamped to be in range of 0-100%", Color.Orange);
+  slowMotionSpinner.AddDescription($"Slow motion will affect the responsiveness of the menu", Color.Orange);
+
+  MenuItem menuItem = new MenuItem(child: slowMotionSpinner);
+
+  return new MenuItem(child: menuItem);
+}

@@ -1,5 +1,6 @@
 import '../../_variables.del';
 import './healDamageTaken.del';
+import './slowMotion.del';
 import './diagnostics.del';
 
 String PAGE_TOOLS_ID: 'tools';
@@ -8,6 +9,7 @@ String PAGE_TOOLS_NAME: 'Tools';
 MenuItem[] PageToolsItems() {
   return [
     PageHealDamageTakenMenuItem(),
+    PageSlowMotionMenuItem(),
     PageDiagnosticsMenuItem()
   ];
 }
