@@ -6,6 +6,7 @@ String PAGE_SLOW_MOTION_NAME: 'Slow motion';
 
 globalvar Number slowMotion = 100;
 Button PAGE_SLOW_MOTION_BUTTON_APPLY: Button.Ability2;
+Button PAGE_SLOW_MOTION_BUTTON_RESET: Button.Reload;
 
 MenuItem PageSlowMotionMenuItem() {
   Spinner slowMotionSpinner = new Spinner(
@@ -19,11 +20,15 @@ MenuItem PageSlowMotionMenuItem() {
   slowMotionSpinner.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_SLOW_MOTION_BUTTON_APPLY]) {
       slowMotion = it.value;
-      SetSlowMotion(slowMotion);
+    } else if(buttonsHeld == [PAGE_SLOW_MOTION_BUTTON_RESET]) {
+      slowMotion = 100;
     }
+
+    SetSlowMotion(slowMotion);
   };
 
   slowMotionSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_SLOW_MOTION_BUTTON_APPLY)}​ to apply");
+  slowMotionSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_SLOW_MOTION_BUTTON_RESET)}​ to reset");
   slowMotionSpinner.AddDescription($"Value will be clamped to be in range of 0-100%", Color.Orange);
   slowMotionSpinner.AddDescription($"Slow motion will affect the responsiveness of the menu", Color.Orange);
 
