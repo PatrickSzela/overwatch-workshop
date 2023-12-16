@@ -16,6 +16,5 @@ rule: 'Debug/Dynamic List'
 Event.OngoingPlayer
 if(menuState.currentMenuID == PAGE_DEBUG_LIST_DYNAMIC_ID)
 {
-  menuState.SetTitle(PAGE_DEBUG_LIST_DYNAMIC_NAME);
-  menuState.AddItems(PageDebugListDynamicItems());
+  menuState.CreatePage(PAGE_DEBUG_LIST_DYNAMIC_NAME, PageDebugListDynamicItems);
 }

@@ -45,6 +45,5 @@ rule: 'Debug/Carousel'
 Event.OngoingPlayer
 if(menuState.currentMenuID == PAGE_DEBUG_CAROUSEL_ID)
 {
-  menuState.SetTitle(PAGE_DEBUG_CAROUSEL_NAME);
-  menuState.AddItems(PageDebugCarouselItems());
+  menuState.CreatePage(PAGE_DEBUG_CAROUSEL_NAME, PageDebugCarouselItems);
 }

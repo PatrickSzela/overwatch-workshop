@@ -39,19 +39,19 @@ class Menu {
 
   // static public Menu[] menus = [];
 
-  public constructor(ref MenuState state!, in MenuLocation location! = MenuLocation.Left) {
+  public constructor(ref MenuState state, in MenuLocation location = MenuLocation.Left) {
     this.location = location;
 
     GenerateHUDTexts(state);
     // this.menus += this;
   }
 
-  private Any CreateHudTextHelper(ref MenuState state!, in Number i!, Location location!) { 
+  private Any CreateHudTextHelper(ref MenuState state, in Number i, Location location) { 
     Number num: EvaluateOnce(i);      
 
     return CreateHudText(
-      VisibleTo: state.renderedTexts[num] && state.enabled ? LocalPlayer() : null,
-      Subheader: state.renderedTexts[num]
+      VisibleTo: state.renderedAllTexts[num] && state.isEnabled ? LocalPlayer() : null,
+      Subheader: state.renderedAllTexts[num].text
         .Replace($"_{Button.PrimaryFire}_", InputBindingString(Button.PrimaryFire))
         .Replace($"_{Button.SecondaryFire}_", InputBindingString(Button.SecondaryFire))
         .Replace($"_{Button.Ability1}_", InputBindingString(Button.Ability1))
@@ -65,11 +65,11 @@ class Menu {
       Location: location, 
       SortOrder: num, 
       Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,
-      SubheaderColor: state.renderedColors[num] == null ? Color.Gray : state.renderedColors[num]
+      SubheaderColor: state.renderedAllTexts[num].color
     );
   }
 
-  public void GenerateHUDTexts(ref MenuState state!) {
+  public void GenerateHUDTexts(ref MenuState state) {
     for(Number i! = -2; i < MAX_MENU_ITEMS + 10; i++) {
       if(location == MenuLocation.Left)
         hudTexts[i + 2] = CreateHudTextHelper(state, i + 2, Location.Left);

@@ -9,7 +9,7 @@ Event.OngoingPlayer
 if(STATE.isOpen)
 if(STATE.hoveredItem.updateEveryFrame)
 {
-  STATE.RenderItems();
+  STATE.Render();
   MinWait();
   LoopIfConditionIsTrue();
 }

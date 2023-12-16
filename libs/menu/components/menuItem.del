@@ -3,6 +3,7 @@ import './component.del';
 class MenuItem: Component
 {
   public String id;
+  public Any[] dependencies;
   public Color color;
   public Boolean updateEveryFrame;
 
@@ -21,6 +22,7 @@ class MenuItem: Component
     ConstructorBase(arr);
 
     this.color = Color.White;
+    this.dependencies = [];
   }
 
   // events

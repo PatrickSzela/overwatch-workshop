@@ -25,6 +25,5 @@ rule: 'Debug/Toggle'
 Event.OngoingPlayer
 if(menuState.currentMenuID == PAGE_DEBUG_TOGGLE_ID)
 {
-  menuState.SetTitle(PAGE_DEBUG_TOGGLE_NAME);
-  menuState.AddItems(PageDebugToggleItems());
+  menuState.CreatePage(PAGE_DEBUG_TOGGLE_NAME, PageDebugToggleItems);
 }

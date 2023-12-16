@@ -4,78 +4,101 @@ import '../utils/other.del';
 import './menu.del';
 import './components/menuItem.del';
 
+# List of currently pressed buttons by a player.
 playervar Button[] buttonsHeld = [];
 
-struct ScrollOffset {
+single struct ScrollOffset {
   public Number visible;
   public Number scroll;
 }
 
+single struct Previous<T> {
+  public T current;
+  public T previous;
+}
+
+single struct RenderedText {
+  public Color color;
+  public String text;
+}
+
+# Holds current state of `Menu` for a player and handles logic for displaying and controlling every `MenuItem` and its derivatives.
 class MenuState {
+  # Button used to go back to the previous page (or close menu when in root).
   public static Button BUTTON_GO_BACK: Button.Ultimate;
-  public Button[] toggleOpenButtons;
-  public Boolean enabled;
+  # Maximum number of visible menu items.
+  public static Number MAX_MENU_ITEMS: Menu.MAX_MENU_ITEMS;
+
+  # Whether player has access to menu.
+  public Boolean isEnabled;
+  # Whether menu is currently open.
   public Boolean isOpen;
+  # Combination of buttons used to toggle menu on and off.
+  public Button[] _toggleMenu;
   public MenuItem[] currentMenuItems = [];
-  public String[] renderedTexts = [];
-  public Color[] renderedColors = [];
-  public Any[] stack = [];
+  // public String[] renderedTexts = [];
+  // public Color[] renderedColors = [];
+  public Any[] history = [];
   public Any[] titles = [];
-  public Any currentMenuID: stack.Last;
+  public Any currentMenuID: history.Last;
   public ScrollOffset[] scrollOffset;
-  public Number hoveredItemIdx: scrollOffset.Last.visible + scrollOffset.Last.scroll;
-  public MenuItem hoveredItem: currentMenuItems[hoveredItemIdx];
+  public Previous<Number> hoveredItemIdx = {current: 0, previous: 0};
+
+  public RenderedText[] renderedTitle = [];
+  public RenderedText[] renderedSeparators = [];
+  public RenderedText[] renderedItems = [];
+  public RenderedText[] renderedDescription = [];
+  public RenderedText[] renderedAllTexts = [];
+  // public Number hoveredItemIdx: scrollOffset.Last.visible + scrollOffset.Last.scroll;
+  public MenuItem hoveredItem: currentMenuItems[hoveredItemIdx.current];
   public Boolean internalNavigationEnabled;
   public Description[] description;
+  # Dictionary to store custom variables created at runtime.
+  # 
+  # TODO: remove it.
+  public Dictionary<String, Any> variables = {Keys: [], Values: []};
 
   Number firstItemIdx: currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled).First);
   Number lastItemIdx: currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled).Last);
 
+  # Currently assigned global menu.
   protected Menu _menu;
+  # Player to which this `MenuState` is assigned to.
   protected Player _player;
-  public Dictionary<String, Any> variables = {Keys: [], Values: []};
 
-  private Number MAX_MENU_ITEMS: Menu.MAX_MENU_ITEMS;
-
-  public constructor(in Menu menu!, in Any rootID!, in Button[] toggle!) {
+  public constructor(ref Menu menu, in Any rootID, in Button[] toggleMenu) {
     _menu = menu;
     _player = EventPlayer();
+    _toggleMenu = toggleMenu;
 
-    // make sure to select root first
-    stack = [rootID];
+    // make sure to add root to history
+    history = [rootID];
     scrollOffset = [];
     currentMenuItems = [];
-    renderedColors = [];
+    renderedTitle = [];
+    renderedSeparators = [];
+    renderedItems = [];
+    renderedDescription = [];
+    renderedAllTexts = [];    
     internalNavigationEnabled = true;
-    this.toggleOpenButtons = toggle;
-    enabled = EventPlayer() == HostPlayer();
+    isEnabled = EventPlayer() == HostPlayer();
 
     RenderClosedItems();
   }
 
-  public Any GetVariable(Any id!, String variable!) "[MenuState] Get Variable" { 
-    return variables.Get($"{id}.{variable}");
-  }
-  
-  public void SetVariable(Any id!, String variable!, Any value!) "[MenuState] Set Variable" {
-    Dictionary<String, Any>.SetOrAdd(variables, $"{id}.{variable}", value);
-  }
-
   public void SetEnabled(Boolean enabled!) "[MenuState] Set Enabled" {
-    if(enabled != this.enabled) {
+    if(enabled != isEnabled) {
       if(isOpen) Close();
-      this.enabled = enabled;
+      isEnabled = enabled;
     }
   }
 
   public void Open() "[MenuState] Open" {
-    if(!enabled) return;
-
-    if(!isOpen) {
+    if(!isOpen && isEnabled) {
       isOpen = true;
 
       hoveredItem.OnEnter();
-      RenderItems();
+      Render();
 
       _player.SetMoveSpeed(0);
 
@@ -99,26 +122,36 @@ class MenuState {
     }
   }
 
+  public void CreatePage(String title!, () => MenuItem[] items!, Description[] descriptions! = []) "[MenuState]: Create Page" {
+    SetTitle(title);
+    AddItems(items());
+
+    foreach(Description desc! in descriptions)
+      AddDescription(desc);
+
+    if(history.Length == 1 && internalNavigationEnabled) {
+      Description desc1: {text: "Use [↑] or [↓] to navigate menu", order: -1, ..DESCRIPTION_BASE};
+      Description desc2: {text: $"Press {ButtonFormatterSingle(BUTTON_GO_BACK)}​ to go back", order: -1, ..DESCRIPTION_BASE};
+      AddDescription(desc1);
+      AddDescription(desc2);
+    }
+
+    if(isOpen) {
+      hoveredItem.OnEnter();
+      Render();
+    }
+  }
+
   public void SetTitle(in String title!) {
-    titles[stack.Length - 1] = title;
+    titles[history.Length - 1] = title;
   }
 
   public void AddItems(MenuItem[] items!) "[MenuState]: Add Items" {
     currentMenuItems += items;
 
-    if(hoveredItem.disabled || scrollOffset.Length < stack.Length) {
-      scrollOffset[stack.Length - 1] = {visible: firstItemIdx, scroll: 0};
+    if(hoveredItem.disabled || scrollOffset.Length < history.Length) {
+      scrollOffset[history.Length - 1] = {visible: firstItemIdx, scroll: 0};
       HandleScroll();
-    }
-
-    if(stack.Length == 1 && internalNavigationEnabled) {
-      AddDescription("Use [↑] or [↓] to navigate menu", order: -1);
-      AddDescription($"Press {ButtonFormatterSingle(BUTTON_GO_BACK)}​ to go back", order: -1);
-    }
-
-    if(isOpen) {
-      hoveredItem.OnEnter();
-      RenderItems();
     }
   }
 
@@ -138,37 +171,45 @@ class MenuState {
     // EnableInspectorRecording();
   }
 
-  // 1 line - no need to make it subroutine
   public void RenderClosedItems() {
-    renderedColors = [Color.White];
-    renderedTexts = [$"Press {ButtonFormatter(toggleOpenButtons)}​ to toggle Menu"];
+    renderedAllTexts = [
+      { 
+        text: $"Press {ButtonFormatter(_toggleMenu)}​ to toggle Menu", 
+        color: Color.White
+      }
+    ];
   }
 
-  public void RenderItems() "[MenuState]: Render Items" {
-    // DisableInspectorRecording();
-    MenuItem hov! = hoveredItem;
-    MenuItem[] sliced! = currentMenuItems.Slice(scrollOffset.Last.scroll, MAX_MENU_ITEMS);
-    renderedColors = [];
-
-    foreach(MenuItem item! in sliced) {
-      // called here, not in Component because it won't work
-      if(item.child) {
-        if(item.child.child)
-          item.child.child.FormatText();
-        item.child.FormatText();
+  public void RenderTitle() "t" {
+    renderedTitle = [
+      { 
+        text: history.Length == 1 ? titles.First : Join(titles.Slice(1, history.Length - 1), " / "), 
+        color: Color.White
       }
+    ];
+  }
 
-      item.FormatText();
-      renderedColors += item.color;
-    }
+  public void RenderSeparators() "t" {
+    renderedSeparators = [
+      { 
+        text: $"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : scrollOffset.Last.scroll == 0 ? '△' : '▲'}──────────────────────", 
+        color: Color.White 
+      },
+      {
+        text: $"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : scrollOffset.Last.scroll == currentMenuItems.Length - MAX_MENU_ITEMS ? '▽' : '▼'}──────────────────────",
+        color: Color.White
+      }
+    ];
+  }
 
-    Description[] descriptionArr! = hov.description;
-    if(hov.child) {
-      foreach(Description arr! in hov.child.description)
+  public void RenderDescription() "t" {
+    Description[] descriptionArr! = hoveredItem.description;
+    if(hoveredItem.child) {
+      foreach(Description arr! in hoveredItem.child.description)
         descriptionArr += arr;
 
-      if(hov.child.child) {
-        foreach(Description arr! in hov.child.child.description)
+      if(hoveredItem.child.child) {
+        foreach(Description arr! in hoveredItem.child.child.description)
           descriptionArr += arr;
       }
     }
@@ -178,25 +219,69 @@ class MenuState {
 
     Any[][] descr = descriptionArr.Map((i) => <Any[]>[i.text, i.color, i.visible, i.order]).FilteredArray((i) => i[2]).SortedArray((i) => i[3]);
 
-    String[] header! = [stack.Length == 1 ? titles.First : Join(titles.Slice(1, stack.Length - 1), " / ")];
-    String[] separatorTop! = [$"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : scrollOffset.Last.scroll == 0 ? '△' : '▲'}──────────────────────"];
-    String[] menuItems! = sliced.Map((i, idx) => $"{!i.disabled ? hoveredItemIdx == idx + scrollOffset.Last.scroll ? '● ' : '○ ' : ''}{i.renderedText}");
-    String[] separatorBottom! = [$"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : scrollOffset.Last.scroll == currentMenuItems.Length - MAX_MENU_ITEMS ? '▽' : '▼'}──────────────────────"];
-    String[] description! = descr.Map((i) => i[0]);
-    
-    renderedTexts = header + separatorTop + menuItems + 
-      (currentMenuItems.Length > MAX_MENU_ITEMS || description.Length ? separatorBottom : []) + 
-      (description.Length ? description : []);
+    renderedDescription = descr.Map((i) => <RenderedText>{text: i[0], color: i[1]});
+  }
 
-    renderedColors = [Color.White, Color.White] + renderedColors + [Color.White] + descr.Map((i) => i[1]);
+  public void RenderItem(MenuItem item!) "t" {
+    // called here, not in Component because it won't work
+    if(item.child) {
+      if(item.child.child)
+        item.child.child.FormatText();
+      item.child.FormatText();
+    }
+
+    item.FormatText();
+  }
+
+  public void RenderNecessaryItems() "t" {
+    RenderItem(currentMenuItems[hoveredItemIdx.previous]);
+    RenderItem(currentMenuItems[hoveredItemIdx.current]);
+  }
+
+  public void RenderAllItems() "[MenuState]: Render All Items" {
+    // DisableInspectorRecording();
+    MenuItem hov! = hoveredItem;
+    MenuItem[] visibleItems! = currentMenuItems.Slice(scrollOffset.Last.scroll, MAX_MENU_ITEMS);
+
+    foreach(MenuItem item! in visibleItems) {
+      // called here, not in Component because it won't work
+      if(item.child) {
+        if(item.child.child)
+          item.child.child.FormatText();
+        item.child.FormatText();
+      }
+
+      item.FormatText();
+    }
+   
+    renderedItems = visibleItems.Map((i, idx) => <RenderedText>{ 
+      text: $"{!i.disabled ? hoveredItemIdx.current == idx + scrollOffset.Last.scroll ? '● ' : '○ ' : ''}{i.renderedText}",
+      color: i.color 
+    });
+  }
+
+  public void MergeTexts() "t" {
+    renderedAllTexts = renderedTitle + [renderedSeparators[0]] + renderedItems + 
+      (currentMenuItems.Length > MAX_MENU_ITEMS || renderedDescription.Length ? [renderedSeparators[1]] : []) + 
+      (renderedDescription.Length ? renderedDescription : []);
+
+    // renderedColors = [Color.White, Color.White] + renderedColors + [Color.White] + descr.Map((i) => i[1]);
     // EnableInspectorRecording();
 
-    if(renderedTexts.Length > _menu.hudTexts.Length)
-      SmallMessage(EventPlayer(), $"Not enough HUD items available ({renderedTexts.Length}​ requested, {_menu.hudTexts.Length}​ available)");
+    if(renderedAllTexts.Length > _menu.hudTexts.Length)
+      SmallMessage(EventPlayer(), $"Not enough HUD items available ({renderedAllTexts.Length}​ requested, {_menu.hudTexts.Length}​ available)");
+  }
+
+  public void Render() "t" {
+    RenderTitle();
+    RenderAllItems();
+    RenderDescription();
+    RenderSeparators();
+    MergeTexts();
   }
 
   private void HandleScroll() "[MenuState]: Handle Scroll" {
-    Number idx: stack.Length - 1;
+    Number idx: history.Length - 1;
     Number offset! = 0;
     
     if(scrollOffset.Last.visible > MAX_MENU_ITEMS - 1) {
@@ -206,6 +291,13 @@ class MenuState {
       offset = scrollOffset.Last.visible;
       scrollOffset[idx] = {visible: 0, scroll: scrollOffset.Last.scroll + offset};
     }
+
+    CalculateCurrentIdx();
+  }
+
+  private void CalculateCurrentIdx() {
+    hoveredItemIdx.previous = hoveredItemIdx.current;
+    hoveredItemIdx.current = scrollOffset.Last.visible + scrollOffset.Last.scroll;
   }
 
   public virtual void Navigate(Vector direction!) "[MenuState]: Navigate" {
@@ -213,7 +305,7 @@ class MenuState {
 
     if(internalNavigationEnabled && (direction == Down() || direction == Up())) {
       Number offset! = 0;
-      Number hov! = hoveredItemIdx;
+      Number hov! = hoveredItemIdx.current;
 
       if(direction == Down()) {
         Number nextItemIdx! = currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled && idx > hov).First);
@@ -227,27 +319,28 @@ class MenuState {
 
       if(offset != 0) {
         hoveredItem.OnLeave();
-        scrollOffset[stack.Length - 1].visible += offset;
+        scrollOffset[history.Length - 1].visible += offset;
         HandleScroll(); 
         hoveredItem.OnEnter();
       }
     }
     
-    RenderItems();
+    Render();
+    // RenderItems();
   }
 
   public virtual void ButtonDown(in Button button!) {
     buttonsHeld += button;
 
     if(!isOpen) {
-      if(buttonsHeld == toggleOpenButtons) {
+      if(buttonsHeld == _toggleMenu) {
         Open();
       }
     } else {
       hoveredItem.OnButtonDown(button);
 
       if(internalNavigationEnabled) {
-        if(buttonsHeld == toggleOpenButtons) {
+        if(buttonsHeld == _toggleMenu) {
           Close();
         } else if(buttonsHeld == [BUTTON_GO_BACK]) {
           GoBack();
@@ -256,7 +349,7 @@ class MenuState {
     }
 
     if(isOpen) {
-      RenderItems();
+      // RenderItems();
     }
   }
 
@@ -265,7 +358,7 @@ class MenuState {
 
     if(isOpen) {
       hoveredItem.OnButtonUp(button);
-      RenderItems();
+      // RenderItems();
     }
   }
 
@@ -275,14 +368,14 @@ class MenuState {
 
     buttonsHeld = [];
     description = [];
-    stack += id;
+    history += id;
     titles += id;
   }
 
   public virtual void GoBack() "[MenuState]: Go Back" {
     hoveredItem.OnLeave();
 
-    if(stack.Length == 1) {
+    if(history.Length == 1) {
       Close();
       return;
     }
@@ -291,14 +384,15 @@ class MenuState {
 
     buttonsHeld = [];
     description = [];
-    stack = ArraySlice(stack, 0, stack.Length - 1);
-    titles = ArraySlice(titles, 0, stack.Length);
+    history = ArraySlice(history, 0, history.Length - 1);
+    titles = ArraySlice(titles, 0, history.Length);
 
-    scrollOffset = scrollOffset.Slice(0, stack.Length);
+    scrollOffset = scrollOffset.Slice(0, history.Length);
+    CalculateCurrentIdx();
   }
 
-  public void AddDescription(in String description!, in Color color! = Color.White, in Boolean visible! = true, in Number order! = 0) {
-    this.description += {text: description, color: color, visible: visible, order: order};
+  public void AddDescription(in Description desc) {
+    this.description += desc;
   }
 
   public void WaitUntilButtonDown(in Any id!, in Button button!) {

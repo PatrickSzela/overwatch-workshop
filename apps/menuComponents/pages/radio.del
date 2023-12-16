@@ -28,6 +28,5 @@ rule: 'Debug/Radio'
 Event.OngoingPlayer
 if(menuState.currentMenuID == PAGE_DEBUG_RADIO_ID)
 {
-  menuState.SetTitle(PAGE_DEBUG_RADIO_NAME);
-  menuState.AddItems(PageDebugRadioItems());
+  menuState.CreatePage(PAGE_DEBUG_RADIO_NAME, PageDebugRadioItems);
 }

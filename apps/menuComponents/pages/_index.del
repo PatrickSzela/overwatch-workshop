@@ -32,6 +32,5 @@ rule: 'Debug'
 Event.OngoingPlayer
 if(menuState.currentMenuID == PAGE_DEBUG_ID)
 {
-  menuState.SetTitle(PAGE_DEBUG_NAME);
-  menuState.AddItems(PageDebugItems());
+  menuState.CreatePage(PAGE_DEBUG_NAME, PageDebugItems);
 }

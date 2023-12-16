@@ -1,9 +1,16 @@
 struct Description {
   public String text;
-  public Color color;
-  public Boolean visible;
-  public Number order;
+  public Color color = Color.White;
+  public Boolean visible = true;
+  public Number order = 0;
 }
+
+Description DESCRIPTION_BASE: {
+  text: '',
+  color: Color.White,
+  visible: true,
+  order: 0
+};
 
 class Component {
   public String text;
