@@ -240,7 +240,6 @@ class MenuState {
 
   public void RenderAllItems() "[MenuState]: Render All Items" {
     // DisableInspectorRecording();
-    MenuItem hov! = hoveredItem;
     MenuItem[] visibleItems! = currentMenuItems.Slice(scrollOffset.Last.scroll, MAX_MENU_ITEMS);
 
     foreach(MenuItem item! in visibleItems) {
