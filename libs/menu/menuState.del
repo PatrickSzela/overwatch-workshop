@@ -87,7 +87,7 @@ class MenuState {
 
     updateQueued = [];
 
-    // RenderClosedItems();
+    RenderClosedItems();
   }
 
   public void SetEnabled(Boolean enabled!) "[MenuState] Set Enabled" {
@@ -116,7 +116,7 @@ class MenuState {
       isOpen = false;
 
       hoveredItem.OnLeave();
-      // RenderClosedItems();
+      RenderClosedItems();
 
       // TODO: store & restore previous speed in case it was modified - how?
       _player.SetMoveSpeed(100);
@@ -146,11 +146,11 @@ class MenuState {
     }
   }
 
-  public void SetTitle(in String title!) {
+  public void SetTitle(in String title) {
     titles[history.Length - 1] = title;
   }
 
-  public void AddItems(MenuItem[] items!) "[MenuState]: Add Items" {
+  public void AddItems(in MenuItem[] items) {
     updateQueued += items;
     currentMenuItems += items;
 
@@ -185,7 +185,7 @@ class MenuState {
     ];
   }
 
-  public void RenderTitle() "t" {
+  public void RenderTitle() {
     renderedTitle = [
       { 
         text: history.Length == 1 ? titles.First : Join(titles.Slice(1, history.Length - 1), " / "), 
@@ -194,7 +194,7 @@ class MenuState {
     ];
   }
 
-  public void RenderSeparators() "t" {
+  public void RenderSeparators() {
     renderedSeparators = [
       { 
         text: $"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : scrollOffset.Last.scroll == 0 ? '△' : '▲'}──────────────────────", 
@@ -207,7 +207,7 @@ class MenuState {
     ];
   }
 
-  public void RenderDescription() "t" {
+  public void RenderDescription() {
     Description[] descriptionArr! = hoveredItem.description;
     if(hoveredItem.child) {
       foreach(Description arr! in hoveredItem.child.description)
@@ -243,7 +243,7 @@ class MenuState {
   //   RenderItem(currentMenuItems[hoveredItemIdx.current]);
   // }
 
-  public void PrepareVisibleItems() "t" {
+  public void PrepareVisibleItems() {
     foreach(MenuItem item! in updateQueued) {
       // called here, not in Component because it won't work
       if(item.child) {
@@ -255,12 +255,13 @@ class MenuState {
       item.FormatText();
     }
 
-    RenderDescription();
+    if(updateQueued.Contains(hoveredItem))
+      RenderDescription();
 
     updateQueued = [];
   }
 
-  public void RenderVisibleItems() "[MenuState]: Render Visible Items" {
+  public void RenderVisibleItems() {
     // DisableInspectorRecording();
     MenuItem[] visibleItems! = currentMenuItems.Slice(scrollOffset.Last.scroll, MAX_MENU_ITEMS);
 
@@ -270,7 +271,7 @@ class MenuState {
     });
   }
 
-  public void MergeTexts() "t" {
+  public void MergeTexts() {
     renderedAllTexts = renderedTitle + [renderedSeparators[0]] + renderedItems + 
       (currentMenuItems.Length > MAX_MENU_ITEMS || renderedDescription.Length ? [renderedSeparators[1]] : []) + 
       (renderedDescription.Length ? renderedDescription : []);
@@ -314,6 +315,7 @@ class MenuState {
 
   public virtual void Navigate(Vector direction!) "[MenuState]: Navigate" {
     hoveredItem.OnNavigate(direction);
+    updateQueued += hoveredItem;
 
     if(internalNavigationEnabled && (direction == Down() || direction == Up())) {
       Number offset! = 0;
@@ -334,9 +336,10 @@ class MenuState {
         scrollOffset[history.Length - 1].visible += offset;
         HandleScroll(); 
         hoveredItem.OnEnter();
+        updateQueued += hoveredItem;
       }
     }
-    
+
     Render();
     // RenderItems();
   }
@@ -361,6 +364,8 @@ class MenuState {
     }
 
     if(isOpen) {
+      updateQueued += hoveredItem;
+      Render();
       // RenderItems();
     }
   }
@@ -370,6 +375,8 @@ class MenuState {
 
     if(isOpen) {
       hoveredItem.OnButtonUp(button);
+      updateQueued += hoveredItem;
+      Render();
       // RenderItems();
     }
   }
