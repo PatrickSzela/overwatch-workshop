@@ -44,6 +44,8 @@ class MenuState {
   public ScrollOffset[] scrollOffset;
   public Previous<Number> hoveredItemIdx = {current: 0, previous: 0};
 
+  private MenuItem[] updateQueued = [];
+
   public RenderedText[] renderedTitle = [];
   public RenderedText[] renderedSeparators = [];
   public RenderedText[] renderedItems = [];
@@ -83,7 +85,9 @@ class MenuState {
     internalNavigationEnabled = true;
     isEnabled = EventPlayer() == HostPlayer();
 
-    RenderClosedItems();
+    updateQueued = [];
+
+    // RenderClosedItems();
   }
 
   public void SetEnabled(Boolean enabled!) "[MenuState] Set Enabled" {
@@ -112,7 +116,7 @@ class MenuState {
       isOpen = false;
 
       hoveredItem.OnLeave();
-      RenderClosedItems();
+      // RenderClosedItems();
 
       // TODO: store & restore previous speed in case it was modified - how?
       _player.SetMoveSpeed(100);
@@ -147,6 +151,7 @@ class MenuState {
   }
 
   public void AddItems(MenuItem[] items!) "[MenuState]: Add Items" {
+    updateQueued += items;
     currentMenuItems += items;
 
     if(hoveredItem.disabled || scrollOffset.Length < history.Length) {
@@ -222,27 +227,24 @@ class MenuState {
     renderedDescription = descr.Map((i) => <RenderedText>{text: i[0], color: i[1]});
   }
 
-  public void RenderItem(MenuItem item!) "t" {
-    // called here, not in Component because it won't work
-    if(item.child) {
-      if(item.child.child)
-        item.child.child.FormatText();
-      item.child.FormatText();
-    }
+  // public void RenderItem(MenuItem item!) "t" {
+  //   // called here, not in Component because it won't work
+  //   if(item.child) {
+  //     if(item.child.child)
+  //       item.child.child.FormatText();
+  //     item.child.FormatText();
+  //   }
 
-    item.FormatText();
-  }
+  //   item.FormatText();
+  // }
 
-  public void RenderNecessaryItems() "t" {
-    RenderItem(currentMenuItems[hoveredItemIdx.previous]);
-    RenderItem(currentMenuItems[hoveredItemIdx.current]);
-  }
+  // public void RenderNecessaryItems() "t" {
+  //   RenderItem(currentMenuItems[hoveredItemIdx.previous]);
+  //   RenderItem(currentMenuItems[hoveredItemIdx.current]);
+  // }
 
-  public void RenderAllItems() "[MenuState]: Render All Items" {
-    // DisableInspectorRecording();
-    MenuItem[] visibleItems! = currentMenuItems.Slice(scrollOffset.Last.scroll, MAX_MENU_ITEMS);
-
-    foreach(MenuItem item! in visibleItems) {
+  public void PrepareVisibleItems() "t" {
+    foreach(MenuItem item! in updateQueued) {
       // called here, not in Component because it won't work
       if(item.child) {
         if(item.child.child)
@@ -252,7 +254,16 @@ class MenuState {
 
       item.FormatText();
     }
-   
+
+    RenderDescription();
+
+    updateQueued = [];
+  }
+
+  public void RenderVisibleItems() "[MenuState]: Render Visible Items" {
+    // DisableInspectorRecording();
+    MenuItem[] visibleItems! = currentMenuItems.Slice(scrollOffset.Last.scroll, MAX_MENU_ITEMS);
+
     renderedItems = visibleItems.Map((i, idx) => <RenderedText>{ 
       text: $"{!i.disabled ? hoveredItemIdx.current == idx + scrollOffset.Last.scroll ? '● ' : '○ ' : ''}{i.renderedText}",
       color: i.color 
@@ -272,9 +283,11 @@ class MenuState {
   }
 
   public void Render() "t" {
+    PrepareVisibleItems();
+
     RenderTitle();
-    RenderAllItems();
-    RenderDescription();
+    RenderVisibleItems();
+    // RenderDescription();
     RenderSeparators();
     MergeTexts();
   }
