@@ -1,4 +1,4 @@
-struct Description {
+single struct Description {
   public String text;
   public Color color = Color.White;
   public Boolean visible = true;

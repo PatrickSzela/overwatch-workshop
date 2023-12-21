@@ -50,7 +50,7 @@ class Menu {
     Number num: EvaluateOnce(i);      
 
     return CreateHudText(
-      VisibleTo: state.renderedAllTexts[num] && state.isEnabled ? LocalPlayer() : null,
+      VisibleTo: state.renderedAllTexts[num].text && state.isEnabled ? LocalPlayer() : null,
       Subheader: state.renderedAllTexts[num].text
         .Replace($"_{Button.PrimaryFire}_", InputBindingString(Button.PrimaryFire))
         .Replace($"_{Button.SecondaryFire}_", InputBindingString(Button.SecondaryFire))

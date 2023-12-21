@@ -7,17 +7,17 @@ import './components/menuItem.del';
 # List of currently pressed buttons by a player.
 playervar Button[] buttonsHeld = [];
 
-single struct ScrollOffset {
+struct ScrollOffset {
   public Number visible;
   public Number scroll;
 }
 
-single struct Previous<T> {
+struct Previous<T> {
   public T current;
   public T previous;
 }
 
-single struct RenderedText {
+struct RenderedText {
   public Color color;
   public String text;
 }
@@ -272,9 +272,12 @@ class MenuState {
   }
 
   public void MergeTexts() {
-    renderedAllTexts = renderedTitle + [renderedSeparators[0]] + renderedItems + 
-      (currentMenuItems.Length > MAX_MENU_ITEMS || renderedDescription.Length ? [renderedSeparators[1]] : []) + 
-      (renderedDescription.Length ? renderedDescription : []);
+    renderedAllTexts = renderedTitle + [renderedSeparators[0]] + renderedItems;
+
+    if(currentMenuItems.Length > MAX_MENU_ITEMS || renderedDescription.Length)
+      renderedAllTexts += [renderedSeparators[1]];
+      
+    renderedAllTexts += renderedDescription;
 
     // renderedColors = [Color.White, Color.White] + renderedColors + [Color.White] + descr.Map((i) => i[1]);
     // EnableInspectorRecording();
