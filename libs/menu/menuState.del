@@ -198,7 +198,7 @@ class MenuState {
     ];
   }
 
-  public void RenderSeparators() {
+  public void RenderSeparators() "t" {
     renderedSeparators = [
       { 
         text: $"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : scrollOffset.Last.scroll == 0 ? '△' : '▲'}──────────────────────", 
@@ -280,11 +280,14 @@ class MenuState {
 
   private void HandleScroll() "[MenuState]: Handle Scroll" {
     Number idx: history.Length - 1;
-    
+    Number offset! = 0;
+
     if(scrollOffset.Last.visible > MAX_MENU_ITEMS - 1) {
-      scrollOffset[idx] = {visible: MAX_MENU_ITEMS - 1, scroll: scrollOffset.Last.scroll + (scrollOffset.Last.visible - (MAX_MENU_ITEMS - 1))};
+      offset = scrollOffset.Last.visible - (MAX_MENU_ITEMS - 1);
+      scrollOffset[idx] = {visible: MAX_MENU_ITEMS - 1, scroll: scrollOffset.Last.scroll + offset};
     } else if(scrollOffset.Last.visible < 0) {
-      scrollOffset[idx] = {visible: 0, scroll: scrollOffset.Last.scroll + scrollOffset.Last.visible};
+      offset = scrollOffset.Last.visible;
+      scrollOffset[idx] = {visible: 0, scroll: scrollOffset.Last.scroll + offset};
     }
 
     CalculateCurrentIdx();
@@ -383,6 +386,7 @@ class MenuState {
 
     scrollOffset = scrollOffset.Slice(0, history.Length);
     CalculateCurrentIdx();
+    RenderSeparators();
   }
 
   public virtual void PageChangeCleanup() "t" {
