@@ -74,7 +74,7 @@ class MenuState {
     _toggleMenu = toggleMenu;
     _rootID = rootID;
 
-    history = [];
+    history = [rootID];
     scrollOffset = [];
     currentMenuItems = [];
     renderedTitle = [];
@@ -87,22 +87,36 @@ class MenuState {
 
     updateQueued = [];
 
-    RenderClosedItems();
+    Render();
   }
 
+  // helpers
+  public void SetTitle(in String title) {
+    titles[history.Length - 1] = title;
+    RenderTitle();
+  }
+  
   public void SetEnabled(Boolean enabled!) "[MenuState] Set Enabled" {
     if(enabled != isEnabled) {
       if(isOpen) Close();
       isEnabled = enabled;
     }
+  }  
+
+  public void AddItems(in MenuItem[] items) {
+    updateQueued += items;
+    currentMenuItems += items;
+
+    if(hoveredItem.disabled || scrollOffset.Length < history.Length) {
+      scrollOffset[history.Length - 1] = {visible: firstItemIdx, scroll: 0};
+      HandleScroll();
+    }
   }
 
+  // phase 1: handle events
   public void Open() "[MenuState] Open" {
     if(!isOpen && isEnabled) {
       isOpen = true;
-
-      if(!history)
-        GoTo(_rootID);
 
       hoveredItem.OnEnter();
       Render();
@@ -117,9 +131,9 @@ class MenuState {
   public void Close() "[MenuState] Close" {
     if(isOpen) {
       isOpen = false;
-
+      
       hoveredItem.OnLeave();
-      RenderClosedItems();
+      Render();
 
       // TODO: store & restore previous speed in case it was modified - how?
       _player.SetMoveSpeed(100);
@@ -131,7 +145,6 @@ class MenuState {
 
   public void CreatePage(String title!, () => MenuItem[] items!, Description[] descriptions! = []) "[MenuState]: Create Page" {
     SetTitle(title);
-    RenderTitle();
     AddItems(items());
 
     foreach(Description desc! in descriptions)
@@ -150,22 +163,14 @@ class MenuState {
     }
   }
 
-  public void SetTitle(in String title) {
-    titles[history.Length - 1] = title;
-  }
-
-  public void AddItems(in MenuItem[] items) {
-    updateQueued += items;
-    currentMenuItems += items;
-
-    if(hoveredItem.disabled || scrollOffset.Length < history.Length) {
-      scrollOffset[history.Length - 1] = {visible: firstItemIdx, scroll: 0};
-      HandleScroll();
+  public void DestroyPage() "[MenuState]: Destroy Page" {
+    if(isOpen) {
+      hoveredItem.OnLeave();
     }
-  }
 
-  public void RemoveItems() "[MenuState]: Remove Items" {
-    // DisableInspectorRecording();
+    buttonsHeld = [];
+    description = [];
+
     foreach(MenuItem menuItem! in currentMenuItems) {
       if(menuItem.child) {
         if(menuItem.child.child)
@@ -177,9 +182,77 @@ class MenuState {
     }
 
     currentMenuItems = [];
-    // EnableInspectorRecording();
+  }
+  
+  public virtual void Navigate(Vector direction!) "[MenuState]: Navigate" {
+    hoveredItem.OnNavigate(direction);
+    updateQueued += hoveredItem;
+
+    if(internalNavigationEnabled && (direction == Down() || direction == Up())) {
+      Number offset! = 0;
+      Number hov! = hoveredItemIdx;
+
+      if(direction == Down()) {
+        Number nextItemIdx! = currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled && idx > hov).First);
+
+        offset = (nextItemIdx == -1 ? firstItemIdx : nextItemIdx) - hov;
+      } else if(direction == Up()) {
+        Number prevItemIdx! = currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled && idx < hov).Last);
+
+        offset = (prevItemIdx == -1 ? lastItemIdx : prevItemIdx) - hov;
+      }
+
+      if(offset != 0) {
+        hoveredItem.OnLeave();
+        scrollOffset[history.Length - 1].visible += offset;
+        HandleScroll(); 
+        hoveredItem.OnEnter();
+        updateQueued += hoveredItem;
+      }
+    }
+
+    Render();
   }
 
+  public virtual void ButtonDown(in Button button!) {
+    buttonsHeld += button;
+
+    if(!isOpen) {
+      if(buttonsHeld == _toggleMenu) {
+        Open();
+      }
+    } else {
+      hoveredItem.OnButtonDown(button);
+
+      if(internalNavigationEnabled) {
+        if(buttonsHeld == _toggleMenu) {
+          Close();
+        } else if(buttonsHeld == [BUTTON_GO_BACK]) {
+          GoBack();
+        }
+      }
+    }
+
+    if(isOpen) {
+      updateQueued += hoveredItem;
+      Render();
+    }
+  }
+
+  public virtual void ButtonUp(Button button!) "[MenuState]: Button Up" {
+    // when changing page `buttonsHeld` is being cleared
+    if(!buttonsHeld.Contains(button)) return;
+
+    ModifyVariable(buttonsHeld, Operation.RemoveFromArrayByValue, button);
+
+    if(isOpen) {
+      hoveredItem.OnButtonUp(button);
+      updateQueued += hoveredItem;
+      Render();
+    }
+  }
+
+  // phase 3: render
   public void RenderClosedItems() {
     renderedAllTexts = [
       { 
@@ -271,11 +344,14 @@ class MenuState {
       SmallMessage(EventPlayer(), $"Not enough HUD items available ({renderedAllTexts.Length}​ requested, {_menu.hudTexts.Length}​ available)");
   }
 
-  public void Render() "t" {
-    PrepareVisibleItems();
-
-    RenderVisibleItems();
-    MergeTexts();
+  public void Render() "[MenuState] Render" {
+    if(isOpen) {
+      PrepareVisibleItems();
+      RenderVisibleItems();
+      MergeTexts();
+    } else {
+      RenderClosedItems();
+    }
   }
 
   private void HandleScroll() "[MenuState]: Handle Scroll" {
@@ -298,88 +374,18 @@ class MenuState {
     hoveredItemIdx = scrollOffset.Last.visible + scrollOffset.Last.scroll;
   }
 
-  public virtual void Navigate(Vector direction!) "[MenuState]: Navigate" {
-    hoveredItem.OnNavigate(direction);
-    updateQueued += hoveredItem;
-
-    if(internalNavigationEnabled && (direction == Down() || direction == Up())) {
-      Number offset! = 0;
-      Number hov! = hoveredItemIdx;
-
-      if(direction == Down()) {
-        Number nextItemIdx! = currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled && idx > hov).First);
-
-        offset = (nextItemIdx == -1 ? firstItemIdx : nextItemIdx) - hov;
-      } else if(direction == Up()) {
-        Number prevItemIdx! = currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled && idx < hov).Last);
-
-        offset = (prevItemIdx == -1 ? lastItemIdx : prevItemIdx) - hov;
-      }
-
-      if(offset != 0) {
-        hoveredItem.OnLeave();
-        scrollOffset[history.Length - 1].visible += offset;
-        HandleScroll(); 
-        hoveredItem.OnEnter();
-        updateQueued += hoveredItem;
-      }
-    }
-
-    Render();
-  }
-
-  public virtual void ButtonDown(in Button button!) {
-    buttonsHeld += button;
-
-    if(!isOpen) {
-      if(buttonsHeld == _toggleMenu) {
-        Open();
-      }
-    } else {
-      hoveredItem.OnButtonDown(button);
-
-      if(internalNavigationEnabled) {
-        if(buttonsHeld == _toggleMenu) {
-          Close();
-        } else if(buttonsHeld == [BUTTON_GO_BACK]) {
-          GoBack();
-        }
-      }
-    }
-
-    if(isOpen) {
-      updateQueued += hoveredItem;
-      Render();
-    }
-  }
-
-  public virtual void ButtonUp(Button button!) "[MenuState]: Button Up" {
-    ModifyVariable(buttonsHeld, Operation.RemoveFromArrayByValue, button);
-
-    if(isOpen) {
-      hoveredItem.OnButtonUp(button);
-      updateQueued += hoveredItem;
-      Render();
-    }
-  }
-
   public virtual void GoTo(Any id!) "[MenuState]: Go To" {
-    hoveredItem.OnLeave();
-
-    PageChangeCleanup();
-
+    DestroyPage();
     history += id;
   }
 
-  public virtual void GoBack() "[MenuState]: Go Back" {
-    hoveredItem.OnLeave();
-    
+  public virtual void GoBack() "[MenuState]: Go Back" {    
     if(history.Length == 1) {
       Close();
       return;
     }
 
-    PageChangeCleanup();
+    DestroyPage();
     
     history = ArraySlice(history, 0, history.Length - 1);
     titles = ArraySlice(titles, 0, history.Length);
@@ -387,13 +393,6 @@ class MenuState {
     scrollOffset = scrollOffset.Slice(0, history.Length);
     CalculateCurrentIdx();
     RenderSeparators();
-  }
-
-  public virtual void PageChangeCleanup() "t" {
-    RemoveItems();
-
-    buttonsHeld = [];
-    description = [];
   }
 
   public void AddDescription(in Description desc) {
