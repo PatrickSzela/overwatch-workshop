@@ -375,13 +375,13 @@ class MenuState {
 
   public virtual void GoBack() "[MenuState]: Go Back" {
     hoveredItem.OnLeave();
-
-    PageChangeCleanup();
     
     if(history.Length == 1) {
       Close();
       return;
     }
+
+    PageChangeCleanup();
     
     history = ArraySlice(history, 0, history.Length - 1);
     titles = ArraySlice(titles, 0, history.Length);
