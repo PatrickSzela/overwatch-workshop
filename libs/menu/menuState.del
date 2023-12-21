@@ -387,10 +387,10 @@ class MenuState {
 
     DestroyPage();
     
-    history = ArraySlice(history, 0, history.Length - 1);
-    titles = ArraySlice(titles, 0, history.Length);
-
+    history = history.Slice(0, history.Length - 1);
+    titles = titles.Slice(0, history.Length);
     scrollOffset = scrollOffset.Slice(0, history.Length);
+
     CalculateCurrentIdx();
     RenderSeparators();
   }
