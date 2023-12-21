@@ -52,7 +52,6 @@ class MenuState {
   public RenderedText[] renderedItems = [];
   public RenderedText[] renderedDescription = [];
   public RenderedText[] renderedAllTexts = [];
-  // public Number hoveredItemIdx: scrollOffset.Last.visible + scrollOffset.Last.scroll;
   public MenuItem hoveredItem: currentMenuItems[hoveredItemIdx];
   public Boolean internalNavigationEnabled;
   public Description[] description;
@@ -324,7 +323,6 @@ class MenuState {
     }
 
     Render();
-    // RenderItems();
   }
 
   public virtual void ButtonDown(in Button button!) {
@@ -349,7 +347,6 @@ class MenuState {
     if(isOpen) {
       updateQueued += hoveredItem;
       Render();
-      // RenderItems();
     }
   }
 
@@ -360,7 +357,6 @@ class MenuState {
       hoveredItem.OnButtonUp(button);
       updateQueued += hoveredItem;
       Render();
-      // RenderItems();
     }
   }
 
@@ -370,7 +366,6 @@ class MenuState {
     PageChangeCleanup();
 
     history += id;
-    // titles += id;
   }
 
   public virtual void GoBack() "[MenuState]: Go Back" {
