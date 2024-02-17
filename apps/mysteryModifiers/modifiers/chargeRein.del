@@ -1,0 +1,56 @@
+import '../modifier.del';
+import '../duplicate.del';
+
+String CHARGE_REIN_NAME: 'Charge';
+
+playervar Boolean chargeEnabled = false;
+
+Modifier chargeRein: {
+  name: CHARGE_REIN_NAME,
+  notification: CHARGE_REIN_NAME,
+  icon: AbilityIconString(Hero.Reinhardt, Button.Ability1),
+  duration: 5, 
+  enabled: SettingToggle(CHARGE_REIN_NAME),
+  preload: () => {
+    foreach(Player player in AllPlayers()) {
+      PreloadDuplicate(player, Hero.Reinhardt, false, true);
+      Wait();
+    }
+  },
+  enable: () => {
+    foreach(Player player in AllPlayers()) {
+      StartDuplicate(player);
+      player.chargeEnabled = true;
+    }
+  },
+  disable: () => {    
+    foreach(Player player in AllPlayers()) {
+      player.chargeEnabled = false;
+    }
+  },
+  ..MODIFIER_BASE
+};
+
+rule: '[Charge] Press Button'
+Event.OngoingPlayer
+if(chargeEnabled && duplicationState == DuplicateState.ENABLED)
+{
+  CancelPrimaryAction(EventPlayer());
+  SetMaxHealth(EventPlayer(), 0.0001);
+  AddHealthPoolToPlayer(EventPlayer(), HealthType.Health, 200 - Health(EventPlayer()), false);
+  PressButton(EventPlayer(), Button.Ability1);
+
+  // apparently when someone is being pinned by Rein's Charge, they get `Stunned` status
+  WaitUntil(!chargeEnabled || !IsUsingAbility1(EventPlayer()) && !HasStatus(EventPlayer(), Status.Stunned), 10);
+  Wait();
+  
+  chargeEnabled = false;
+  RemoveAllHealthPoolsFromPlayer(EventPlayer());
+  SetMaxHealth(EventPlayer(), 100);
+
+  if(EventPlayer().IsAlive()) {
+    StopDuplicate(EventPlayer());
+  }
+
+  AllowAllButtons(EventPlayer());
+}

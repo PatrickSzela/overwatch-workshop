@@ -1,0 +1,31 @@
+import '../modifier.del';
+import '../effects.del';
+
+String INVERT_CONTROLS_NAME: 'Invert Controls';
+
+Modifier invertControls: {
+  name: INVERT_CONTROLS_NAME,
+  notification: INVERT_CONTROLS_NAME,
+  icon: AbilityIconString(Hero.WreckingBall, Button.Ability1),
+  duration: 10, 
+  enabled: SettingToggle(INVERT_CONTROLS_NAME),
+  preload: () => {
+    foreach(Player player in AllPlayers()) {
+      CreatePlayerEffect(player, Effect.BadAura, 0.25);
+      CreatePlayerEffect(player, Effect.BadAuraSound, 100);
+
+      Wait();
+    }
+  },
+  enable: () => {
+    StartTransformingThrottle(AllPlayers(), -1, -1, LocalPlayer().FacingDirection());
+  },
+  disable: () => {
+    foreach(Player player in AllPlayers()) {
+      DestroyPlayerEffects(player);
+    }
+
+    StopTransformingThrottle(AllPlayers());
+  },
+  ..MODIFIER_BASE
+};

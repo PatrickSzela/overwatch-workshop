@@ -1,0 +1,31 @@
+single struct Modifier {
+  public String name;
+  public String notification;
+  public String icon;
+  public Number duration;
+  public Boolean enabled;
+
+  public () => void preload;
+  public () => void enable;
+  public () => void disable;
+}
+
+Modifier MODIFIER_BASE: {
+  name: '', 
+  notification: '', 
+  icon: '', 
+  duration: -1, 
+  enabled: false,
+
+  preload: () => {
+    LogToInspector('Preload not implemented');
+  }, 
+  enable: () => {
+    LogToInspector('Enable not implemented');
+  }, 
+  disable: () => {
+    LogToInspector('Disable not implemented');
+  }
+};
+
+Boolean SettingToggle(in String name): WorkshopSettingToggle("Modifier", name, true, 1);

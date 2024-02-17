@@ -1,9 +1,7 @@
 globalvar Number[] allNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 globalvar String[] allNumbersAsStrings = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-Number Sign(in Number value) {
-  return value < 0 ? -1 : value == 0 ? 0 : 1;
-}
+Number Sign(in Number value): value < 0 ? -1 : value > 0 ? 1 : 0;
 
 // [0] - sign, '-1' = decimal point
 Number[] NumberToParts(Number number!, Number integralLength! = -1, Number fractionalLength! = -1) "Number To Parts" {

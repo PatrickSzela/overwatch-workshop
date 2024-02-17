@@ -1,0 +1,15 @@
+import './variables.del';
+
+playervar Any[] effects = [];
+
+void CreatePlayerEffect(in Player player, Effect effect, in Number radius, in Any color = null, in Boolean visibleToSelf = true, in Boolean visibleCondition = true) {
+  player.effects += CreateEffect(state == State.WAIT_FOR_MODIFIER && visibleCondition ? (visibleToSelf ? AllPlayers() : AllPlayers().FilteredArray((pl) => pl != EvaluateOnce(player))) : null, effect, color == null ? player.Team() : color, EvaluateOnce(player), EvaluateOnce(radius), EffectRev.VisibleToPositionAndRadius);
+}
+
+void DestroyPlayerEffects(in Player player) {
+  foreach(Any effect in player.effects) {
+    DestroyEffect(effect);
+  }
+
+  player.effects = [];
+}

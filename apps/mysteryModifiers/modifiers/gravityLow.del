@@ -1,0 +1,20 @@
+import '../modifier.del';
+
+String GRAVITY_LOW_NAME: 'Gravity: Low';
+
+Modifier gravityLow: {
+  name: GRAVITY_LOW_NAME,
+  notification: GRAVITY_LOW_NAME,
+  icon: AbilityIconString(Hero.Mercy, Button.Jump),
+  duration: 10, 
+  enabled: SettingToggle('Gravity - Low'),
+  enable: () => {
+    SetGravity(AllPlayers(), 37.5);
+    SetProjectileGravity(AllPlayers(), 37.5);
+  },
+  disable: () => {
+    SetGravity(AllPlayers(), 100);
+    SetProjectileGravity(AllPlayers(), 100);
+  },
+  ..MODIFIER_BASE
+};

@@ -1,0 +1,19 @@
+import '../modifier.del';
+
+String SLEEP_NAME: 'Sleep';
+
+Modifier sleep: {
+  name: SLEEP_NAME,
+  // Asleep status already displays big message which overrides custom one
+  notification: "",
+  icon: AbilityIconString(Hero.Ana, Button.Ability1),
+  duration: 3, 
+  enabled: SettingToggle(SLEEP_NAME),
+  enable: () => {    
+    SetStatus(AllPlayers(), null, Status.Asleep, 999);
+  },
+  disable: () => {    
+    ClearStatus(AllPlayers(), Status.Asleep);
+  },
+  ..MODIFIER_BASE
+};

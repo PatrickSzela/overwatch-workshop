@@ -1,0 +1,12 @@
+import './prevHeroInfo.del';
+
+enum State {
+  NOT_STARTED,
+  COUNTDOWN,
+  ENABLE_MODIFIER,
+  WAIT_FOR_MODIFIER
+}
+
+globalvar State state = State.NOT_STARTED;
+playervar PrevHeroInfo prevHeroInfo;
+globalvar Number historySize = 3;

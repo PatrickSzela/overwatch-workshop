@@ -1,0 +1,20 @@
+import '../modifier.del';
+
+String GRAVITY_HIGH_NAME: 'Gravity: High';
+
+Modifier gravityHigh: {
+  name: GRAVITY_HIGH_NAME,
+  notification: GRAVITY_HIGH_NAME,
+  icon: AbilityIconString(Hero.Ramattra, Button.Ability2),
+  duration: 10, 
+  enabled: SettingToggle('Gravity - High'),
+  enable: () => {
+    SetGravity(AllPlayers(), 200);
+    SetProjectileGravity(AllPlayers(), 200);
+  },
+  disable: () => {
+    SetGravity(AllPlayers(), 100);
+    SetProjectileGravity(AllPlayers(), 100);
+  },
+  ..MODIFIER_BASE
+};

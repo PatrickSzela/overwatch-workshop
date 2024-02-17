@@ -1,0 +1,52 @@
+import '../modifier.del';
+import '../buttons.del';
+import '../../../libs/utils/heroes.del';
+
+String EMOTE_NAME: 'Emote';
+
+playervar Boolean emoteEnabled = false;
+
+Modifier emote: {
+  name: EMOTE_NAME,
+  notification: EMOTE_NAME,
+  icon: AbilityIconString(Hero.Zenyatta, Button.Ultimate),
+  duration: 5, 
+  enabled: SettingToggle(EMOTE_NAME),
+  enable: () => {
+    foreach(Player player in AllPlayers()) {
+      player.emoteEnabled = true;
+    }
+  },
+  disable: () => {
+    foreach(Player player in AllPlayers()) {
+      player.emoteEnabled = false;
+    }
+  },
+  ..MODIFIER_BASE
+};
+
+rule: '[Emote] Is in air'
+Event.OngoingPlayer
+if(emoteEnabled)
+{
+  DisallowAllButtons(EventPlayer());
+  SetMoveSpeed(EventPlayer(), 0);
+  SetGravity(EventPlayer(), 300);
+  SetStatus(EventPlayer(), null, Status.Stunned, 5);
+
+  WaitUntil(EventPlayer().IsOnGround() || EventPlayer().IsDead(), 5);
+
+  Wait();
+  ClearStatus(EventPlayer(), Status.Stunned);
+
+  while(!IsEmoting(EventPlayer()) && EventPlayer().IsAlive() && emoteEnabled) {
+    Communicate(EventPlayer(), Communication.EmoteUp);
+    Wait(0.25);
+  }
+
+  AllowAllButtons(EventPlayer());
+  SetMoveSpeed(EventPlayer(), 100);
+  SetGravity(EventPlayer(), 100);
+  
+  emoteEnabled = false;
+}

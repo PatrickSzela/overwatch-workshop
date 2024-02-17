@@ -1,0 +1,31 @@
+import '../modifier.del';
+
+String TRAMPOLINE_NAME: 'Trampoline';
+
+playervar Boolean trampolineEnabled = false;
+
+Modifier trampoline: {
+  name: TRAMPOLINE_NAME,
+  notification: TRAMPOLINE_NAME,
+  icon: AbilityIconString(Hero.Winston, Button.Ability1),
+  duration: 10, 
+  enabled: SettingToggle(TRAMPOLINE_NAME),
+  enable: () => {
+    foreach(Player player in AllPlayers()) {
+      player.trampolineEnabled = true;
+    }
+  },
+  disable: () => {
+    foreach(Player player in AllPlayers()) {
+      player.trampolineEnabled = false;
+    }
+  },
+  ..MODIFIER_BASE
+};
+
+rule: '[Trampoline] Handle logic'
+Event.OngoingPlayer
+if(trampolineEnabled && EventPlayer().IsOnGround())
+{
+  ApplyImpulse(EventPlayer(), Up(), 10, Relative.ToPlayer, ContraryMotion.Incorporate);
+}

@@ -1,0 +1,54 @@
+import '../modifier.del';
+import './slowMotion.del';
+import './playerSizeBig.del';
+import './playerSizeSmall.del';
+import './sleep.del';
+import './hacked.del';
+import './nanoBoost.del';
+import './antiHeal.del';
+import './randomHero.del';
+import './primalRage.del';
+import './gravityLow.del';
+import './gravityHigh.del';
+import './speedBoost.del';
+import './chargeRein.del';
+import './emote.del';
+import './noHud.del';
+import './trampoline.del';
+import './useUltimate.del';
+import './goForward.del';
+import './energize.del';
+import './invertControls.del';
+import './bodyOdor.del';
+import './floorIsLava.del';
+import './healthExchange.del';
+import './adaptiveShield.del';
+
+globalvar Modifier[] allModifiers = [
+  slowMotion,
+  playerSizeBig,
+  playerSizeSmall,
+  sleep,
+  hacked,
+  nanoBoost,
+  antiHeal,
+  randomHero,
+  primalRage,
+  gravityLow,
+  gravityHigh,
+  speedBoost,
+  chargeRein,
+  emote,
+  noHud,
+  trampoline,
+  useUltimate,
+  goForward,
+  energize,
+  invertControls,
+  bodyOdor,
+  floorIsLava,
+  healthExchange,
+  adaptiveShield
+];
+
+globalvar Modifier[] enabledModifiers = [];

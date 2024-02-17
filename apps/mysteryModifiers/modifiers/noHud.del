@@ -1,0 +1,30 @@
+import '../modifier.del';
+
+String NO_HUD_NAME: 'No HUD';
+
+Modifier noHud: {
+  name: NO_HUD_NAME,
+  notification: NO_HUD_NAME,
+  icon: AbilityIconString(Hero.Reinhardt, Button.SecondaryFire),
+  duration: 10, 
+  enabled: SettingToggle(NO_HUD_NAME),
+  enable: () => {
+    DisableGameModeHud(AllPlayers());
+    DisableGameModeInworldUI(AllPlayers());
+    DisableHeroHud(AllPlayers());
+    DisableKillFeed(AllPlayers());
+    DisableNameplates(AllPlayers(), AllPlayers());
+    DisableScoreboard(AllPlayers());
+    StartForcingPlayerOutlines(AllPlayers(), AllPlayers(), false);
+  },
+  disable: () => {
+    EnableGameModeHud(AllPlayers());
+    EnableGameModeInworldUI(AllPlayers());
+    EnableHeroHud(AllPlayers());
+    EnableKillFeed(AllPlayers());
+    EnableNameplates(AllPlayers(), AllPlayers());
+    EnableScoreboard(AllPlayers());
+    StopForcingPlayerOutlines(AllPlayers(), AllPlayers());
+  },
+  ..MODIFIER_BASE
+};
