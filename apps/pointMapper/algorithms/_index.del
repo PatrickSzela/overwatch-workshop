@@ -12,7 +12,7 @@ if(step == Step.Preparing)
 
   effects = [];
   Wait(0.1);
-  outline.Clear();
+  outline.Clear(outline);
   Wait(0.1);
   step = Step.WorkingSniffer;
 }

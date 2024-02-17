@@ -49,10 +49,10 @@ globalvar Vector center = Vector.Zero;
 globalvar Any[] effects = [];
 
 
-globalvar BigArray<Vector> outline = new BigArray<Vector>([]);
+globalvar BigArray<Vector> outline = { multiArray: [[]], Length: 0 };
 
 
-playervar BigArray<Vector> points = new BigArray<Vector>([]);
+playervar BigArray<Vector> points = { multiArray: [[]], Length: 0 };
 playervar Boolean finished = false;
 playervar Vector position = Vector.Zero;
 playervar Boolean wasOnObjectiveAtLeastOnce = false;

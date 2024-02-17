@@ -1,5 +1,4 @@
-
-class BigArray<T> {
+struct BigArray<T> {
   static public Number MAX_ARRAY_SIZE: 1000;
   public T[][] multiArray;
   public Number Length;
@@ -14,19 +13,19 @@ class BigArray<T> {
 
   public T Get(in Number idx): multiArray[FirstIdx(idx)][SecondIdx(idx)];
 
-  private void Set(in Number idx, in T value) {
-    multiArray[FirstIdx(idx)][SecondIdx(idx)] = value;
+  private void Set(ref BigArray<T> array, in Number idx, in T value) {
+    array.multiArray[FirstIdx(idx)][SecondIdx(idx)] = value;
   }
 
-  private void RecalculateLength() "[Big Array]: Recalculate Length" {
-    Length = 0;
-    foreach (T[] i in multiArray)
-      Length += i.Length;
+  private void RecalculateLength(ref BigArray<T> array) {
+    array.Length = 0;
+    foreach (T[] i in array.multiArray)
+      array.Length += i.Length;
   }
 
-  public void Clear() {
-    multiArray = [];
-    Length = 0;
+  public void Clear(ref BigArray<T> array) {
+    array.multiArray = [];
+    array.Length = 0;
   }
 
   public T First() {
@@ -36,20 +35,20 @@ class BigArray<T> {
   public T Last() {
     return Get(Length - 1);
     // workaround a compilation bug...
-    Any a = <BigArray<Any>>multiArray;
+    // Any a = <BigArray<Any>>multiArray;
   }
 
-  public void Append(in T value) { 
-    Set(Length, value); 
+  public void Append(ref BigArray<T> array, in T value) { 
+    Set(array, array.Length, value); 
     // RecalculateLength();
-    Length++;
+    array.Length++;
   }
 
-  public void Concat(in T[] value) {
+  public void Concat(ref BigArray<T> array, in T[] value) {
     Number count = Length;
 
     if(!multiArray[FirstIdx(count)].Length) {
-      multiArray[FirstIdx(count)] = [];
+      array.multiArray[FirstIdx(count)] = [];
     }
 
     Number availableSpace = MAX_ARRAY_SIZE - multiArray[FirstIdx(count)].Length;
@@ -57,37 +56,42 @@ class BigArray<T> {
     T[][] split = [value.Slice(0, availableSpace), value.Length > availableSpace ? value.Slice(availableSpace, value.Length - availableSpace) : []];
 
     if(value.Length >= availableSpace) {
-      multiArray[FirstIdx(count)] += split[0].Slice(0, split[0].Length - 1);
+      array.multiArray[FirstIdx(count)] += split[0].Slice(0, split[0].Length - 1);
       // workaround for broken Append() when resulting array would end up having 1000 elements
-      multiArray[FirstIdx(count)][multiArray[FirstIdx(count)].Length] = split[0].Last;    
+      array.multiArray[FirstIdx(count)][multiArray[FirstIdx(count)].Length] = split[0].Last;    
     } else {
-      multiArray[FirstIdx(count)] += split[0];
+      array.multiArray[FirstIdx(count)] += split[0];
     }
 
-    if(split[1].Length) multiArray[FirstIdx(count) + 1] = split[1];
+    if(split[1].Length) array.multiArray[FirstIdx(count) + 1] = split[1];
 
-    RecalculateLength();
+    RecalculateLength(array);
   }
 
-  public void ConcatBigArray(in BigArray<T> value) {
+  public void ConcatBigArray(ref BigArray<T> array, in BigArray<T> value) {
     foreach(T[] arr in value.multiArray) {
-      Concat(arr);
+      array.Concat(array, arr);
     }
   }
 
-  public void Reverse() {
-    T[][] copy = multiArray.SortedArray((_, idx) => -idx);
+  public static BigArray<T> Reverse(ref BigArray<T> array) {
+    T[][] copy = array.multiArray.SortedArray((_, idx) => -idx);
     Number i = 0;
 
     for(i = 0; i < copy.Length; i++) {
       copy[i] = copy[i].SortedArray((_, idx) => -idx);
     }
 
-    multiArray = [[]];
-    Length = 0;
+    BigArray<T> arr = { multiArray: copy, Length: 0 };
+    arr.RecalculateLength(arr);
+    return arr;
 
-    for(i = 0; i < copy.Length; i++) 
-      Concat(copy[i]);
+    // array.multiArray = [[]];
+    // array.Length = 0;
+
+    // for(i = 0; i < copy.Length; i++) 
+    //   Concat(array, copy[i]);
+    // Any a = <BigArray<Any>>multiArray;
   }
 
   public Boolean Contains(in T value) {

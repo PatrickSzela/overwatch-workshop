@@ -103,7 +103,9 @@ if(stepSniffer == StepSniffer.Mapping)
       // mark dummy as finished if is going to loop or is close to the other dummy
       if(mainDummy.points.Length > 1 && 
         mainDummies.IsTrueForAny((p) => 
-          mainDummy.position.DistanceTo(p.points.First()) < 1.5 || 
+          // ostw bug
+          // mainDummy.position.DistanceTo(p.points.First()) < 1.5 || 
+          mainDummy.position.DistanceTo(p.points.multiArray[0][0]) < 1.5 || 
           mainDummy.position.DistanceTo(p.position) < 1.5 &&
           p != mainDummy
         )
@@ -127,7 +129,7 @@ if(stepSniffer == StepSniffer.Mapping)
 
           // skip appending point if the bot that's going in the other direction might go further than the current one (bug on King's Row)
           if(!(mainDummy.points.Length == 0 && helpersOnObjective.First)) {
-            mainDummy.points.Append(mainDummy.position);
+            mainDummy.points.Append(mainDummy.points, mainDummy.position);
           }
 
           // move order and bots clockwise
@@ -151,9 +153,12 @@ if(stepSniffer == StepSniffer.Mapping)
       foreach(Player[] dummy in mainDummies) {
         // since the 2nd bot was going anticlockwise, reverse registered points for proper outline generation
         if(dummy != mainDummies[0])
-          dummy.points.Reverse();
+          dummy.points = BigArray<Vector>.Reverse(dummy.points);
 
-        outline.ConcatBigArray(dummy.points);
+        // outline.ConcatBigArray(outline, dummy.points);
+        foreach(Vector[] arr in dummy.points.multiArray) {
+          outline.Concat(outline, arr);
+        }
 
         RemoveDummies(dummy.helperDummies);
         DestroyInWorldText(dummy.arrow);
