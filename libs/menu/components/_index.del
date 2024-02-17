@@ -1,9 +1,0 @@
-import './component.del';
-import './toggle.del';
-import './carousel.del';
-import './spinner.del';
-import './checkbox.del';
-import './radio.del';
-import './menuItem.del';
-import './menuItemNonInteractive.del';
-import './menuItemSubmenu.del';

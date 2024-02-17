@@ -10,10 +10,10 @@ MenuItem[] PageStopMappingMenuItem() {
   stopMapping.AddDescription($"Press [{PAGE_STOP_MAPPING_BUTTON_APPLY}] to apply");
   stopMapping.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_STOP_MAPPING_BUTTON_APPLY]) {
-      if(step == Step.Nothing) {
-        step = Step.Preparing;
+      if(step != Step.Nothing) {
+        step = Step.Nothing;
       } else {
-        SmallMessage(EventPlayer(), "Mapping already in progress");
+        SmallMessage(EventPlayer(), "Mapping not in progress");
       }
     }
   };

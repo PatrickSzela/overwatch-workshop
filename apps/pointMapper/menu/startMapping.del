@@ -18,6 +18,8 @@ MenuItem PageStartMappingMenuItem() {
     }
   };
 
+  startMapping.AddDescription("With every subsequent run the chance to crash the server gets higher", Color.Orange, true, 1);
+
   return startMapping;
 }
 

@@ -23,20 +23,25 @@
       "Enabled Maps": [],
       "Capture Speed Modifier": 500
     },
-    "Escort": {
+    "Flashpoint": {
       "Enabled": true,
-      "Enabled Maps": []
+      "Enabled Maps": [],
+      "Scoring Speed Modifier": 500,
+      "Capture Speed Modifier": 500
+    },
+    "Escort": {
+      "Enabled": false
     },
     "Push": {
-      "Enabled": true,
-      "Enabled Maps": []
+      "Enabled": false
     }
   },
   "Lobby": {
     "Max Team 1 Players": 1,
     "Max Team 2 Players": 0
   },
-  "Description": "Some awesome game mode",
+  "Mode Name": "Objective Boundaries Mapper",
+  "Description": "Automatically map boundaries of objective",
   "Extensions": {
     "Play More Effects": true,
     "Spawn More Dummy Bots": true

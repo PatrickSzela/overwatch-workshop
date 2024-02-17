@@ -6,6 +6,8 @@ String PAGE_TELEPORT_NAME: 'Teleport to Objective';
 Button PAGE_TELEPORT_BUTTON_APPLY: Button.Ability2;
 
 void PageTeleportHandleTeleport() "Teleport: Handle Teleport to Objective" {
+  menuState.Close();
+
   Hero ogHero = EventPlayer().Hero();
 
   // NearestWalkablePosition can be buggy

@@ -7,7 +7,15 @@ import "./_variables.del";
 import "./menu/_index.del";
 import "./algorithms/_index.del";
 
-// TODO: check delays when leaving the point
+// TODO: finish Stop Mapping
+// TODO: set custom starting position
+// TODO: set custom accuracy
+// TODO: generate very simplified boundaries at start
+// TODO: setting to toggle Y axis being attached to host
+// TODO: pregenerate bots (causes random server load spikes for some reason...)
+// TODO: toggle red spheres
+
+// TODO: check delays when leaving the point (~1 sec grace period)
 
 rule: 'Generate Menu'
 {

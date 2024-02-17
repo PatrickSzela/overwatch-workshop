@@ -6,7 +6,7 @@ import "./_helpers.del";
 
 rule: 'Spawn Dummies'
 {
-  Wait(2);
+  Wait(5);
 
   // contesting dummies
   foreach (Team team in [Team.Team1, Team.Team2]) {

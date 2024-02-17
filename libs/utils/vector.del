@@ -97,7 +97,7 @@ BigArray<Vector> SmoothenBetweenVectors(in BigArray<Vector> arr) {
       cache = cache.Slice(cache.Length - 3, 3);
     }
 
-    if(i % (ServerLoadAverage() > 100 ? 10 : 20) == 0) 
+    if(i % (ServerLoadAverage() > 100 ? 20 : 40) == 0) 
       MinWait();
   }
 
@@ -137,7 +137,7 @@ BigArray<Vector> SmoothenRDP(in BigArray<Vector> arr, in Number epsilon, in Bool
           maxDistance = d;
         }
 
-        if(i % (ServerLoadAverage() > 50 ? 5 : 7) == 0) 
+        if(i % (ServerLoadAverage() > 80 ? 20 : 40) == 0) 
           MinWait();
       }
 

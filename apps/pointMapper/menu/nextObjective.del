@@ -11,6 +11,7 @@ void PageNextObjectiveGoToNextObjective() "Next Objective: Go to Next Objective"
 
   MinWait();
   Teleport(dummiesSlice, CurrentObjectivePosition());
+  EnableCompletion();
 
   SmallMessage(AllPlayers(), "Waiting until objective is captured...");
 
@@ -35,11 +36,12 @@ void PageNextObjectiveGoToNextObjective() "Next Objective: Go to Next Objective"
     Teleport(dummy, SpawnPoints(dummy.Team())[0]);
   }
 
+  DisableCompletion();
   forceContesting = true;
 }
 
 MenuItem[] PageNextObjectiveMenuItem() {
-  if(!(CurrentGameMode() == GameMode.Assault && ObjectiveIndex() == 0))
+  if(!([GameMode.Assault, GameMode.Flashpoint].Contains(CurrentGameMode())))
     return [];
 
   MenuItem nextObjective = new MenuItem(PAGE_NEXT_OBJECTIVE_NAME);
@@ -50,6 +52,8 @@ MenuItem[] PageNextObjectiveMenuItem() {
       PageNextObjectiveGoToNextObjective();
     }
   };
+
+  nextObjective.AddDescription("If possible, it's preferable to set current Control Point from Lobby Settings", Color.SkyBlue, true, 1);
 
   return [nextObjective];
 }
