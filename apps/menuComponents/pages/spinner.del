@@ -47,7 +47,7 @@ MenuItem[] PageDebugSpinnerItems() {
 
 rule: 'Debug/Spinner'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_DEBUG_SPINNER_ID)
+if(menuState.currentPage == PAGE_DEBUG_SPINNER_ID)
 {
   menuState.CreatePage(PAGE_DEBUG_SPINNER_NAME, PageDebugSpinnerItems);
 }

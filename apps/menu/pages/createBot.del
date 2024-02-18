@@ -88,7 +88,7 @@ MenuItem[] PageCreateBotItems() {
 
 rule: 'Create Bot'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_CREATE_BOT_ID)
+if(menuState.currentPage == PAGE_CREATE_BOT_ID)
 {
   if(!spawnBotPosition)
     spawnBotPosition = PickPosition.RayCast(EventPlayer());
@@ -100,7 +100,7 @@ if(menuState.currentMenuID == PAGE_CREATE_BOT_ID)
 rule: 'Create Bot: Create Sphere'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.currentMenuID == PAGE_CREATE_BOT_ID)
+if(menuState.currentPage == PAGE_CREATE_BOT_ID)
 {
   pickPosition.CreateAdditionalSphere(
     color: Color.Green,
@@ -108,7 +108,7 @@ if(menuState.currentMenuID == PAGE_CREATE_BOT_ID)
     text: $"Spawn position: {spawnBotPosition}"
   );
 
-  WaitUntil(menuState.currentMenuID != PAGE_CREATE_BOT_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.currentPage != PAGE_CREATE_BOT_ID || !menuState.isOpen, 99999);
 
   pickPosition.DestroyAdditionalSpheres();
 }

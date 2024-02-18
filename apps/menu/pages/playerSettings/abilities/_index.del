@@ -39,7 +39,7 @@ MenuItem[] PageAbilitiesItems() {
 
 rule: 'Player Settings/Abilities'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_ABILITIES_ID)
+if(menuState.currentPage == PAGE_ABILITIES_ID)
 {
   pageAbilitiesFilteredPlayers = selectedPlayers.FilteredArray((i) => i != EventPlayer());
 

@@ -50,8 +50,8 @@ class Menu {
     Number num: EvaluateOnce(i);      
 
     return CreateHudText(
-      VisibleTo: state.renderedAllTexts[num].text && state.isEnabled ? LocalPlayer() : null,
-      Subheader: state.renderedAllTexts[num].text
+      VisibleTo: state.renderedAllTexts.merged[num].text && state.isEnabled ? LocalPlayer() : null,
+      Subheader: state.renderedAllTexts.merged[num].text
         .Replace($"_{Button.PrimaryFire}_", InputBindingString(Button.PrimaryFire))
         .Replace($"_{Button.SecondaryFire}_", InputBindingString(Button.SecondaryFire))
         .Replace($"_{Button.Ability1}_", InputBindingString(Button.Ability1))
@@ -65,7 +65,7 @@ class Menu {
       Location: location, 
       SortOrder: num, 
       Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,
-      SubheaderColor: state.renderedAllTexts[num].color
+      SubheaderColor: state.renderedAllTexts.merged[num].color
     );
   }
 

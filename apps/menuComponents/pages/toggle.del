@@ -23,7 +23,7 @@ MenuItem[] PageDebugToggleItems() {
 
 rule: 'Debug/Toggle'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_DEBUG_TOGGLE_ID)
+if(menuState.currentPage == PAGE_DEBUG_TOGGLE_ID)
 {
   menuState.CreatePage(PAGE_DEBUG_TOGGLE_NAME, PageDebugToggleItems);
 }

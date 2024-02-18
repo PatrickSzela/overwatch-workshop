@@ -7,7 +7,7 @@ Button PAGE_ABILITIES_MELEE_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Melee'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_ABILITIES_MELEE_ID)
+if(menuState.currentPage == PAGE_ABILITIES_MELEE_ID)
 {
   PageAbilitiesRuleGenerator(PAGE_ABILITIES_MELEE_NAME, Button.Melee, PAGE_ABILITIES_MELEE_APPLY);
 }

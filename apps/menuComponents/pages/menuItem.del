@@ -24,7 +24,7 @@ MenuItem[] PageDebugMenuDisplayItems() {
 
 rule: 'Player Settings'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_DEBUG_MENU_ITEM_ID)
+if(menuState.currentPage == PAGE_DEBUG_MENU_ITEM_ID)
 {
   Description[] desc: [{ text: "Every possible interaction will be logged to the Workshop Inspector", ..DESCRIPTION_BASE }];
   menuState.CreatePage(PAGE_DEBUG_MENU_ITEM_NAME, PageDebugMenuDisplayItems, desc);

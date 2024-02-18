@@ -7,7 +7,7 @@ Button PAGE_ABILITIES_SECONDARY_FIRE_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Secondary Fire'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_ABILITIES_SECONDARY_FIRE_ID)
+if(menuState.currentPage == PAGE_ABILITIES_SECONDARY_FIRE_ID)
 {
   PageAbilitiesRuleGenerator(PAGE_ABILITIES_SECONDARY_FIRE_NAME, Button.SecondaryFire, PAGE_ABILITIES_SECONDARY_FIRE_APPLY);
 }

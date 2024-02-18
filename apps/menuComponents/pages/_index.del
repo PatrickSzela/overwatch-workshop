@@ -31,7 +31,7 @@ MenuItem[] PageDebugItems() {
 
 rule: 'Debug'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_DEBUG_ID)
+if(menuState.currentPage == PAGE_DEBUG_ID)
 {
   menuState.CreatePage(PAGE_DEBUG_NAME, PageDebugItems);
 }

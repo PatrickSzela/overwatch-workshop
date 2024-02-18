@@ -75,7 +75,7 @@ MenuItem[] PageHealthItems() {
 
 rule: 'Player Settings/Health'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_HEALTH_ID)
+if(menuState.currentPage == PAGE_HEALTH_ID)
 {
   menuState.SetTitle(PAGE_HEALTH_NAME);
   menuState.AddDescription(PAGE_HEALTH_DESCRIPTION_INFO, Color.SkyBlue);
@@ -85,7 +85,7 @@ if(menuState.currentMenuID == PAGE_HEALTH_ID)
 rule: 'Draw current health info above players'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.currentMenuID == PAGE_HEALTH_ID)
+if(menuState.currentPage == PAGE_HEALTH_ID)
 {
   foreach(Player player in AllPlayers()) {
     if(player == EventPlayer()) continue;
@@ -97,7 +97,7 @@ if(menuState.currentMenuID == PAGE_HEALTH_ID)
     MinWait();
   }
 
-  WaitUntil(menuState.currentMenuID != PAGE_HEALTH_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.currentPage != PAGE_HEALTH_ID || !menuState.isOpen, 99999);
   
   playerText.Remove();
 }

@@ -5,7 +5,7 @@ import '../../libs/selectedPlayers/selectedPlayers.del';
 
 globalvar Menu menu;
 playervar Player[] selectedPlayers = [EventPlayer()];
-playervar MenuState menuState = new MenuState(menu, 'root', [Button.Crouch, Button.Interact]);
+playervar MenuState menuState = new MenuState(menu, 'root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
 
 globalvar SelectedPlayers selectedPlayersInstance;
 

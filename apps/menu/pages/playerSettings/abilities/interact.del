@@ -7,7 +7,7 @@ Button PAGE_ABILITIES_INTERACT_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Interact'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_ABILITIES_INTERACT_ID)
+if(menuState.currentPage == PAGE_ABILITIES_INTERACT_ID)
 {
   PageAbilitiesRuleGenerator(PAGE_ABILITIES_INTERACT_NAME, Button.Interact, PAGE_ABILITIES_INTERACT_APPLY);
 }

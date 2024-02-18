@@ -97,7 +97,7 @@ class Spinner: ComponentWithValue
     if(button == BUTTON_EDIT_MODE) {
       editMode = !editMode;
 
-      _menuState.internalNavigationEnabled = !editMode;
+      _menuState.isLocked = !editMode;
       this.description[0].color = editMode ? Color.Red : Color.Green;
       this.description[0].text = DESCRIPTION;
       this.description[1].visible = editMode;

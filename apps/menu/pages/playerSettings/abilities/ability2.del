@@ -7,7 +7,7 @@ Button PAGE_ABILITIES_ABILITY_2_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Ability 2'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_ABILITIES_ABILITY_2_ID)
+if(menuState.currentPage == PAGE_ABILITIES_ABILITY_2_ID)
 {
   PageAbilitiesRuleGenerator(PAGE_ABILITIES_ABILITY_2_NAME, Button.Ability2, PAGE_ABILITIES_ABILITY_2_APPLY);
 }

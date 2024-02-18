@@ -16,7 +16,7 @@ MenuItem[] PageRootItems() {
 
 rule: 'Root'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_ROOT_ID)
+if(menuState.currentPage == PAGE_ROOT_ID)
 {
   menuState.SetTitle(PAGE_ROOT_NAME);
   menuState.AddItems(PageRootItems());
