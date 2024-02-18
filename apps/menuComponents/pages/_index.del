@@ -1,3 +1,4 @@
+import '../../../libs/menu/components/menuItemSubmenu.del';
 import '../_variables.del';
 import './menuItem.del';
 import './toggle.del';

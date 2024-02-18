@@ -1,6 +1,6 @@
 import '../utils/dictionary.del';
 import '../utils/formatters.del';
-import '../utils/other.del';
+import '../utils/button.del';
 import './menu.del';
 import './components/menuItem.del';
 

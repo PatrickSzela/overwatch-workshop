@@ -1,3 +1,4 @@
+import '../../../libs/menu/components/menuItemNonInteractive.del';
 import '../_variables.del';
 
 String PAGE_DEBUG_MENU_ITEM_ID: 'menuItem';

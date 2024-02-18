@@ -1,8 +1,8 @@
 import './_variables.del';
 import './pages/_index.del';
 import '../../libs/utils/pauseMatchTime.del';
+import '../../libs/utils/diagnostic.del';
 import '../menu/customGameSettings.lobby';
-import '../menu/pages/tools/diagnostics.del';
 
 Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 
@@ -11,8 +11,11 @@ rule: 'Generate Menu'
   menu = new Menu(LocalPlayer().menuState);
 }
 
-rule: 'Show Diagnostics'
-Event.OngoingPlayer
+rule: 'Status'
 {
-  showDiagnostics = true;
+  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad(), 100, 80, statusEnabled);
+  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak(), 100, 80, statusEnabled);
+  CreateDiagnosticText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed(), 900, 800, statusEnabled);
+  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount(), 112, 96, statusEnabled);
+  CreateDiagnosticText($"Entity count: {EntityCount()}/128", EntityCount(), 112, 96, statusEnabled);
 }

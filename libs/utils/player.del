@@ -1,0 +1,16 @@
+Player[][] SortedAllPlayers() "Sorted All Players" {
+  Player[][] perTeam! = [[], [], []];
+
+  foreach(Player player! in AllPlayers()) {
+    perTeam[TeamOf(player) == Team.Team1 ? 0 : TeamOf(player) == Team.Team2 ? 1 : 2] += player;
+  }
+
+  for(Number i! = 0; i < perTeam.Length; i++)
+    perTeam[i] = perTeam[i].SortedArray((c) => SlotOf(c));
+
+  return perTeam;
+}
+
+Player[] SortedAllPlayersFlat() "Sorted All Players Flat" {
+  return AllPlayers().SortedArray((i) => (TeamOf(i) == Team.Team1 ? 0 : TeamOf(i) == Team.Team2 ? 100 : 10000) + SlotOf(i));
+}

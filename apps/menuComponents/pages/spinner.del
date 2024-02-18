@@ -1,3 +1,4 @@
+import '../../../libs/menu/components/spinner.del';
 import '../_variables.del';
 
 String PAGE_DEBUG_SPINNER_ID: 'spinner';

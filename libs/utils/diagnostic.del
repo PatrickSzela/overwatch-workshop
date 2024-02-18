@@ -1,0 +1,11 @@
+void CreateDiagnosticText(in String text, in Number value, in Number colorRed, in Number colorOrange, ref Boolean visible) {
+  CreateHudText(
+    VisibleTo: visible ? LocalPlayer() : null, 
+    Subheader: text, 
+    Location: Location.Right,
+    SubheaderColor: 
+      value >= colorRed ? Color.Red : 
+      value >= colorOrange ? Color.Orange : 
+      Color.White,
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
+}
