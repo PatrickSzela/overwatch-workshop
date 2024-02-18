@@ -24,7 +24,7 @@ rule: 'Status'
   StatusHelper($"──────────────────────");
   StatusHelper($"Text count: {TextCount()}/128", TextCount(), 112, 96);
   StatusHelper($"Entity count: {EntityCount()}/256", EntityCount(), 224, 192);
-  StatusHelper($"Dummies spawned: {AllPlayers().FilteredArray((i) => i.IsDummy()).Length}/24", AllPlayers().FilteredArray((i) => i.IsDummy()).Length, 20, 16);
+  StatusHelper($"Dummies spawned: {AllPlayers().FilteredArray((i) => i.IsDummy()).Length}/23", AllPlayers().FilteredArray((i) => i.IsDummy()).Length, 20, 16);
   StatusHelper($"Outline count: {outline.Length}");
   StatusHelper($"──────────────────────");
   StatusHelper($"Position: {LocalPlayer().Position()}");

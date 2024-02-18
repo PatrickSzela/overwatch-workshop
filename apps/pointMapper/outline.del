@@ -1,0 +1,50 @@
+struct Vertex {
+  public Vector position;
+  public Vector[] connectedTo;
+}
+
+struct Outline {
+  public String algorithm;
+  public Vertex[] vertices;
+
+  public Any[] effectLineIds;
+  public Any[] effectVerticeIds;
+
+  public static Outline BASE: { algorithm: '', effectLineIds: [], effectVerticeIds: [], vertices: [] };
+
+  public void RenderLines(ref Any[] effectIdsStorage, in Vector origin, in Number scale) {
+    foreach(Vertex vertex in vertices) {
+      Vector _origin: Vector(origin.X, HostPlayer().Position().Y + 0.25, origin.Z);
+
+      foreach(Vector connectedTo in vertex.connectedTo) {
+        effectIdsStorage += CreateBeamEffect(
+          LocalPlayer(), 
+          BeamType.GrappleBeam, 
+          _origin + EvaluateOnce(vertex.position) * scale, 
+          _origin + EvaluateOnce(connectedTo) * scale, 
+          Color.Red, 
+          EffectRev.VisibleToPositionAndRadius
+        );
+      }
+
+      MinWait();
+    }
+  }
+
+  public void RenderVertices(ref Any[] effectIdsStorage, in Vector origin, in Number scale) {
+    foreach(Vertex vertex in vertices) {
+      Vector _origin: Vector(origin.X, HostPlayer().Position().Y + 0.25, origin.Z);
+
+      effectIdsStorage += CreateEffect(
+        LocalPlayer(), 
+        Effect.Sphere, 
+        Color.Red, 
+        _origin + EvaluateOnce(vertex.position) * scale, 
+        scale * 2, 
+        EffectRev.VisibleToPositionAndRadius
+      );
+
+      MinWait();
+    }
+  }
+}

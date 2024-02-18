@@ -28,30 +28,23 @@ struct BigArray<T> {
     array.Length = 0;
   }
 
-  public T First() {
-    return multiArray[0][0];
-  }
+  public T First(): multiArray[0][0];
 
-  public T Last() {
-    return Get(Length - 1);
-    // workaround a compilation bug...
-    // Any a = <BigArray<Any>>multiArray;
-  }
+  public T Last(): Get(Length - 1);
 
   public void Append(ref BigArray<T> array, in T value) { 
     Set(array, array.Length, value); 
-    // RecalculateLength();
     array.Length++;
   }
 
   public void Concat(ref BigArray<T> array, in T[] value) {
-    Number count = Length;
+    Number count! = Length;
 
     if(!multiArray[FirstIdx(count)].Length) {
       array.multiArray[FirstIdx(count)] = [];
     }
 
-    Number availableSpace = MAX_ARRAY_SIZE - multiArray[FirstIdx(count)].Length;
+    Number availableSpace! = MAX_ARRAY_SIZE - multiArray[FirstIdx(count)].Length;
 
     T[][] split = [value.Slice(0, availableSpace), value.Length > availableSpace ? value.Slice(availableSpace, value.Length - availableSpace) : []];
 
@@ -76,22 +69,14 @@ struct BigArray<T> {
 
   public static BigArray<T> Reverse(ref BigArray<T> array) {
     T[][] copy = array.multiArray.SortedArray((_, idx) => -idx);
-    Number i = 0;
 
-    for(i = 0; i < copy.Length; i++) {
+    for(Number i! = 0; i < copy.Length; i++) {
       copy[i] = copy[i].SortedArray((_, idx) => -idx);
     }
 
     BigArray<T> arr = { multiArray: copy, Length: 0 };
     arr.RecalculateLength(arr);
     return arr;
-
-    // array.multiArray = [[]];
-    // array.Length = 0;
-
-    // for(i = 0; i < copy.Length; i++) 
-    //   Concat(array, copy[i]);
-    // Any a = <BigArray<Any>>multiArray;
   }
 
   public Boolean Contains(in T value) {

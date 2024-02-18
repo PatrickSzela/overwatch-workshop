@@ -42,6 +42,8 @@ Vector[] DirectionsBetweenVectors(in Vector[] arr) {
   return ret;
 }
 
+// for 3D
+// https://github.com/JeremyBYU/simplifyline/blob/master/src/SimplifyLine/SimplifyLine.cpp
 Number PerpendicularDistance(Vector pt, Vector lineStart, Vector lineEnd) {
   Number dx = lineEnd.X - lineStart.X;
   Number dy = lineEnd.Z - lineStart.Z;

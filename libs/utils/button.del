@@ -1,0 +1,12 @@
+globalvar Button[] allButtons = [
+  Button.PrimaryFire,
+  Button.SecondaryFire,
+  Button.Ability1,
+  Button.Ability2,
+  Button.Ultimate,
+  Button.Reload,
+  Button.Melee,
+  Button.Jump,
+  Button.Crouch,
+  Button.Interact
+];

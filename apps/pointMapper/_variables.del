@@ -2,6 +2,7 @@ import '../../libs/utils/array.del';
 import '../../libs/utils/bigArray.del';
 import '../../libs/utils/dictionary.del';
 import '../../libs/menu/_index.del';
+import './outline.del';
 
 enum Step {
   Nothing = -1,
@@ -58,3 +59,8 @@ playervar Vector position = Vector.Zero;
 playervar Boolean wasOnObjectiveAtLeastOnce = false;
 
 Vector CurrentObjectivePosition(): ObjectivePosition(ObjectiveIndex());
+
+
+
+
+globalvar Outline[] outlines = [];

@@ -27,17 +27,8 @@ if(step == Step.Drawing)
   // LogToInspector($"Drawing {outline.Length}​ points");
   // DisableInspectorRecording();
 
-  for(Number i = 0; i < outline.Length; i++) {
-    // TODO: make a setting to snap effects to player's Y position
-    // TODO: start generating at player's Y position
-    Vector pos: Vector(center.X, HostPlayer().Position().Y + 0.25, center.Z);
-
-    effects += CreateEffect(AllPlayers(), Effect.Sphere, Color.Red, pos + EvaluateOnce(outline.Get(i)) * scale, scale * 2, EffectRev.PositionAndRadius);
-    MinWait();
-
-    effects += CreateBeamEffect(AllPlayers(), BeamType.GrappleBeam, pos + EvaluateOnce(outline.Get(i == 0 ? outline.Length - 1 : i - 1)) * scale, pos + EvaluateOnce(outline.Get(i)) * scale, Color.Red, EffectRev.PositionAndRadius);
-    MinWait();
-  }
+  outlines[outlines.Length].RenderLines(outlines[outlines.Length].effectLineIds, center, scale);
+  outlines[outlines.Length].RenderVertices(outlines[outlines.Length].effectVerticeIds, center, scale);
 
   SmallMessage(AllPlayers(), "Finished");
   // EnableInspectorRecording();

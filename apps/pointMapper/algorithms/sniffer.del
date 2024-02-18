@@ -1,8 +1,8 @@
 import "../_variables.del";
 import "../_helpers.del";
-import "../../../libs/utils/bigArray.del";
 import "../../../libs/utils/vector.del";
-import "../../../libs/utils/number.del";
+
+String SNIFFER_NAME: 'Sniffer';
 
 enum StepSniffer {
   Nothing = -1,
@@ -210,6 +210,15 @@ if(stepSniffer == StepSniffer.Simplifying)
   Wait(0.25);
 
   // EnableInspectorRecording();
+
+  Outline _outline = { algorithm: SNIFFER_NAME, ..Outline.BASE };
+
+  for(Number i = 0; i < outline.Length; i++) {
+    Vertex vertex: { position: outline.Get(i), connectedTo: [outline.Get(i == outline.Length - 1 ? 0 : i + 1)] };
+    _outline.vertices += [vertex];
+  }
+
+  outlines[outlines.Length] = _outline;
 
   step = Step.Drawing;
   stepSniffer = StepSniffer.Nothing;
