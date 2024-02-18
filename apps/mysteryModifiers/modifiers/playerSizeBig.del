@@ -1,0 +1,20 @@
+import '../modifier.del';
+
+String PLAYER_SIZE_BIG_NAME: 'Player Size: Big';
+
+Modifier playerSizeBig: {
+  name: PLAYER_SIZE_BIG_NAME,
+  notification: PLAYER_SIZE_BIG_NAME,
+  icon: AbilityIconString(Hero.Baptiste, Button.Crouch),
+  duration: 10, 
+  enabled: SettingToggle('Player Size - Big'),
+  enable: () => {
+    StartScalingPlayer(AllPlayers(), 2);
+    StartModifyingHeroVoiceLines(AllPlayers(), 0.5);
+  },
+  disable: () => {
+    StopScalingPlayer(AllPlayers());
+    StopModifyingHeroVoiceLines(AllPlayers());
+  },
+  ..MODIFIER_BASE
+};

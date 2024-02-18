@@ -1,0 +1,33 @@
+import '../modifier.del';
+import '../effects.del';
+
+String NANO_BOOST_NAME: 'Nano Boost';
+
+Modifier nanoBoost: {
+  name: NANO_BOOST_NAME,
+  notification: NANO_BOOST_NAME,
+  icon: AbilityIconString(Hero.Ana, Button.Ultimate),
+  duration: 8, 
+  enabled: SettingToggle(NANO_BOOST_NAME),
+  preload: () => {
+    foreach(Player player in AllPlayers()) {
+      CreatePlayerEffect(player, Effect.AnaNanoBoostedEffect, 1);
+      CreatePlayerEffect(player, Effect.AnaNanoBoostedSound, 50);
+
+      Wait();
+    }
+  },
+  enable: () => {
+    Heal(AllPlayers(), null, 250);
+    SetDamageDealt(AllPlayers(), 150);
+    // SetDamageReceived(AllPlayers(), 50);
+  },
+  disable: () => {
+    foreach(Player player in AllPlayers()) {
+      DestroyPlayerEffects(player);
+    }
+
+    SetDamageDealt(AllPlayers(), 100);
+    // SetDamageReceived(AllPlayers(), 100);
+  }
+};

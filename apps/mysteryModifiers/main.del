@@ -1,0 +1,287 @@
+import './customGameSettings.lobby';
+// import './customGameSettings.dev.lobby';
+import './customGameSettings.prod.lobby';
+import './variables.del';
+import './modifiers/index.del';
+import '../../libs/utils/vector.del';
+import '../../libs/utils/heroes.del';
+
+// TODO: call functions in Ongoing.OngoingPlayer rule instead using foreach everywhere
+// TODO: reduce lambdas size
+// TODO: move preload to subroutines
+
+// Modifiers to add:
+// - Squid Game red light green light
+// - everyone is lucio, increased knockback on boop and very low cooldown, wallrading gives dmg boost
+// - swap heroes betweem teams
+// - push nearby players away
+// - widow walls (not in ffa)
+// - group up - increase dmg, healing etc based on how many teammates are nearby
+
+// Possible modifiers to add in the future:
+// - Infinite Ammo - buggy for some heroes
+// - Disable Primary & Secondary Fire - buggy for some heroes
+// - Disable Random Direction (Forward, Left, Right, Backward) - too many movement modifiers already
+// - Third Person Cam - cant align crosshair with where player actually shoots
+// - marco polo, everyone invisible, trigger random voice lines - hard to balance
+// - rip tire, destroy the tire to kill enemy - kinda bad when everyone is close, prob not doable
+// - moth melee - kinda boring
+// - healing deals dmg, damaging heals
+// - speed up 500% - too similar to Speed Boost
+
+Color COLOR_OVERWATCH: CustomColor(237, 104, 56, 255);
+
+globalvar Number colorModifier = 1;
+globalvar Number colorModifierDestination = 1;
+
+playervar Boolean meterTopLeft = false;
+globalvar Boolean hideMeter = WorkshopSettingToggle("Meter", "Hide Modifier charge meter", false, 6);
+
+globalvar Number charge = 0;
+globalvar Number chargeDestination = WorkshopSettingInteger("Meter", "Points required to trigger modifier", 50, 5, 100, 0);
+globalvar Number modifierDuration = 0;
+globalvar Number chargeDescreaseStart = (WorkshopSettingInteger("Meter", "Percentage above which to decrease points over time", 75, 1, 100, 1) + 1) / 100;
+globalvar Number chargeDescreaseRate = WorkshopSettingReal("Meter", "Rate at which decrease points over time", 0.5, 0, 10, 2);
+
+globalvar Number damageChargeScalar = WorkshopSettingReal("Meter", "Percentage of damage done that will be converted to Points", 1.25, 0, 100, 3) / 100;
+globalvar Number healingChargeScalar = WorkshopSettingReal("Meter", "Percentage of healing done that will be converted to Points", 1, 0, 100, 4) / 100;
+globalvar Number ultimateChargeScalar = WorkshopSettingReal("Meter", "Points to grant per Ultimate usage", 2, 0, 100, 5);
+
+globalvar Number modifierDurationModifier = WorkshopSettingReal("Modifier", "Global modifier duration scalar", 1, 0.2, 5);
+globalvar Number[] modifierHistory = [];
+globalvar Number modifierIdx = -1;
+globalvar Modifier modifier: enabledModifiers[modifierIdx];
+
+globalvar Boolean[] modifierEnabled = [];
+
+rule: 'Workshop Settings'
+{
+  if(!WorkshopSettingToggle("Debug", "Enable Inspector", false))
+    DisableInspectorRecording();
+}
+
+rule: 'Initialize modifier list'
+{
+  enabledModifiers = allModifiers.FilteredArray((mod) => mod.enabled);
+  
+  if(enabledModifiers.Length <= historySize)
+    historySize = 0;
+}
+
+void ChaseTransparency() {
+  ChaseVariableOverTime(colorModifier, colorModifierDestination, 0.5 - 0.25 * (charge / chargeDestination), TimeChaseReevaluation.DestinationAndDuration);
+}
+
+rule: 'Flashing meter - up'
+if(colorModifier <= colorModifierDestination && colorModifierDestination < 1)
+{
+  colorModifierDestination = 1;
+  ChaseTransparency();
+}
+
+rule: 'Flashing meter - down'
+if(colorModifier >= colorModifierDestination && colorModifierDestination == 1)
+{
+  colorModifierDestination = 0.9999 - (Max(0, charge / chargeDestination - 0.75) * (1 / (1 - 0.75)));
+  ChaseTransparency();
+}
+
+rule: 'Create UI'
+{
+  Number CHARGE_PERCENTAGE: charge / chargeDestination * 100;
+  Number MODIFIER_PERCENTAGE: modifierDuration / (modifier.duration * modifierDurationModifier) * 100;
+  Number MODIFIER_DURATION: modifierDuration;
+  Color COLOR_ORANGE_TO_WHITE: CustomColor(
+    237 * (1 - colorModifier) + 255 * colorModifier, 
+    104 * (1 - colorModifier) + 255 * colorModifier, 
+    56 * (1 - colorModifier) + 255 * colorModifier, 
+  255);
+
+  // hud
+  CreateProgressBarHudText(
+    hideMeter && state != State.WAIT_FOR_MODIFIER ? null : 
+      IsHUDPreferred(LocalPlayer()) || LocalPlayer().meterTopLeft ? LocalPlayer() : null, 
+    state == State.WAIT_FOR_MODIFIER ? MODIFIER_PERCENTAGE : CHARGE_PERCENTAGE, 
+    state == State.WAIT_FOR_MODIFIER ?
+      $"{modifier.icon}​ {modifier.name}​ ends in: {MODIFIER_DURATION.Ceil()}​ sec" :
+      $"Modifier charge at {CHARGE_PERCENTAGE.Floor()}%", 
+    Location.Left, 
+    100, 
+    state == State.WAIT_FOR_MODIFIER ? COLOR_OVERWATCH : COLOR_ORANGE_TO_WHITE, 
+    Color.White,
+    ProgressBarHudEvaluation.VisibleToValuesAndColor,
+    Spectators.VisibleAlways
+  );
+
+  // world progressbar
+  CreateProgressBarInWorldText(
+    hideMeter && state != State.WAIT_FOR_MODIFIER ? null :
+      !IsHUDPreferred(LocalPlayer()) && !LocalPlayer().meterTopLeft ? LocalPlayer() : null, 
+    state == State.WAIT_FOR_MODIFIER ? MODIFIER_PERCENTAGE : CHARGE_PERCENTAGE, 
+    "", 
+    UpdateEveryFrame(ScreenPositionToWorld(0, -0.9)),
+    0.75,
+    Clipping.DoNotClip, 
+    state == State.WAIT_FOR_MODIFIER ? COLOR_OVERWATCH : COLOR_ORANGE_TO_WHITE, 
+    Color.White,
+    ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor,
+    Spectators.VisibleAlways
+  );
+
+  // world name
+  CreateInWorldText(
+    hideMeter && state != State.WAIT_FOR_MODIFIER ? null :
+      !IsHUDPreferred(LocalPlayer()) && !LocalPlayer().meterTopLeft ? LocalPlayer() : null, 
+    state == State.WAIT_FOR_MODIFIER ?
+      $"{modifier.icon}​ {modifier.name}" :
+      $"Modifier charge",
+    UpdateEveryFrame(ScreenPositionToWorld(0, -0.8)),
+    1.5,
+    Clipping.DoNotClip, 
+    InworldTextRev.VisibleToPositionAndString, 
+    Color.White,
+    Spectators.VisibleAlways
+  );
+
+  // world duration/percentage
+  CreateInWorldText(
+    hideMeter && state != State.WAIT_FOR_MODIFIER ? null :
+      !IsHUDPreferred(LocalPlayer()) && !LocalPlayer().meterTopLeft ? LocalPlayer() : null, 
+    state == State.WAIT_FOR_MODIFIER ?
+      MODIFIER_DURATION.Ceil() :
+      $"{CHARGE_PERCENTAGE.Floor()}%", 
+    UpdateEveryFrame(ScreenPositionToWorld(0, -0.69)),
+    2,
+    Clipping.DoNotClip, 
+    InworldTextRev.VisibleToPositionAndString, 
+    Color.White,
+    Spectators.VisibleAlways
+  );
+
+  CreateHudText(LocalPlayer(), " 7HBSA ", "Mystery Modifiers", "By Patriq", Location.Right, 0, Color.Blue, Spectators: Spectators.VisibleAlways);
+}
+
+rule: 'Start countdown'
+if(IsGameInProgress() || IsWaitingForPlayers())
+{
+  state = State.COUNTDOWN;
+}
+
+rule: 'Stop countdown'
+if(!IsGameInProgress() && !IsWaitingForPlayers())
+{  
+  if(state == State.WAIT_FOR_MODIFIER)
+    modifier.disable();
+  
+  charge = 0; 
+  state = State.NOT_STARTED;
+}
+
+rule: 'Handle countdown'
+if(state == State.COUNTDOWN)
+{
+  ChaseVariableAtRate(charge, 0, charge < chargeDestination * chargeDescreaseStart ? 0 : chargeDescreaseRate, RateChaseReevaluation.DestinationAndRate);
+
+  // select next modifier so we can preload it
+  // make sure to not apply the same status again
+  Number[] filteredModifiersIdxs = enabledModifiers.Map((mod, idx) => idx).FilteredArray((idx) => !modifierHistory.Contains(idx));
+  modifierIdx = RandomValueInArray(filteredModifiersIdxs);
+  
+  // TODO: move effects creation to per player rule so stuff doesn't break for people who join or leave mid-game
+  WaitUntil(charge >= chargeDestination * 0.75, 999);
+  LogToInspector($'[G] Preloading {modifier.name}');
+  modifier.preload();
+
+  WaitUntil(charge >= chargeDestination, 999);
+
+  StopChasingVariable(charge);
+  charge = 0;
+
+  state = State.ENABLE_MODIFIER;
+}
+
+rule: 'Apply modifier'
+if(state == State.ENABLE_MODIFIER)
+{
+  LogToInspector($'[G] Enabling {modifier.name}');
+  modifier.enable();
+
+  if(modifier.notification) 
+    BigMessage(AllPlayers(), $"{modifier.icon}​ {modifier.notification}");
+
+  modifierDuration = modifier.duration * modifierDurationModifier;
+  state = State.WAIT_FOR_MODIFIER;
+}
+
+rule: 'Wait for modifier to end'
+if(state == State.WAIT_FOR_MODIFIER)
+{
+  ChaseVariableOverTime(modifierDuration, 0, modifierDuration, TimeChaseReevaluation.None);
+  WaitUntil(modifierDuration <= 0, 999);
+
+  modifierHistory = modifierHistory.Append(modifierIdx);
+  
+  if(modifierHistory.Length > historySize)
+    modifierHistory = modifierHistory.Slice(modifierHistory.Length - historySize, historySize);
+
+  LogToInspector($'[G] Disabling {modifier.name}');
+
+  modifier.disable();
+  charge = 0;
+  state = State.COUNTDOWN;
+}
+
+rule: 'Add points on Ultimate usage'
+Event.OngoingPlayer
+if(IsUsingUltimate(EventPlayer()))
+{
+  if(state == State.COUNTDOWN)
+    charge += ultimateChargeScalar;
+}
+
+rule: 'Add points on damage dealt'
+Event.OnDamageDealt
+if(state == State.COUNTDOWN)
+{
+  charge += damageChargeScalar * EventDamage();
+}
+
+rule: 'Add points on healing dealt'
+Event.OnHealingDealt
+if(state == State.COUNTDOWN)
+{
+  if(Healer() != Healee())
+    charge += healingChargeScalar * EventHealing();
+}
+
+rule: 'Switch hero'
+Event.OngoingPlayer
+if(IsButtonHeld(EventPlayer(), Button.Crouch))
+if(IsButtonHeld(EventPlayer(), Button.Interact))
+if(WorkshopSettingToggle("Debug", "Enable send to Hero selection (Crouch + Interact)", false))
+{
+  SetAllowedHeroes(EventPlayer(), AllHeroes().FilteredArray((i) => i != EventPlayer().Hero()));
+  ResetHeroAvailability(EventPlayer());
+}
+
+rule: 'Change meter position when holding Interact for 3s'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Interact))
+{
+  WaitUntil(!EventPlayer().IsButtonHeld(Button.Interact), 3);
+  AbortIfConditionIsFalse();
+  meterTopLeft = !meterTopLeft;
+}
+
+rule: 'Show tooltip about ability to change position of the meter'
+Event.OngoingPlayer
+if(HasSpawned(EventPlayer()))
+{
+  Any id = CreateHudText(EventPlayer(), null, $"Change meter position by holding [{InputBindingString(Button.Interact)}] for 3 sec", null, Location.Left);
+  Wait(10);
+  DestroyHudText(id);
+
+  WaitUntil(!IsInSpawnRoom(EventPlayer()), 9999);
+  WaitUntil(IsInSpawnRoom(EventPlayer()), 9999);
+  Loop();
+}

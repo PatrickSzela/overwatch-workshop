@@ -1,0 +1,18 @@
+import '../modifier.del';
+
+String HACKED_NAME: 'Hacked';
+
+Modifier hacked: {
+  name: HACKED_NAME,
+  notification: HACKED_NAME,
+  icon: AbilityIconString(Hero.Sombra, Button.SecondaryFire),
+  duration: 5, 
+  enabled: SettingToggle(HACKED_NAME),
+  enable: () => {
+    SetStatus(AllPlayers(), null, Status.Hacked, 999);
+  },
+  disable: () => {
+    ClearStatus(AllPlayers(), Status.Hacked);
+  },
+  ..MODIFIER_BASE
+};

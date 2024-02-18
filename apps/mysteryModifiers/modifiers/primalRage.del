@@ -1,0 +1,49 @@
+import '../modifier.del';
+import '../duplicate.del';
+
+String PRIMAL_RAGE_NAME: 'Primal Rage';
+
+playervar Boolean primalRageEnabled = false;
+
+Modifier primalRage: {
+  name: PRIMAL_RAGE_NAME,
+  notification: PRIMAL_RAGE_NAME,
+  icon: AbilityIconString(Hero.Winston, Button.Ultimate),
+  duration: 10, 
+  enabled: SettingToggle(PRIMAL_RAGE_NAME),
+  preload: () => {
+    foreach(Player player in AllPlayers()) {
+      PreloadDuplicate(player, Hero.Winston, false, true);
+      Wait();
+    }
+  },
+  enable: () => {
+    foreach(Player player in AllPlayers()) {
+      if(player.IsAlive()) {
+        StartDuplicate(player);
+        player.primalRageEnabled = true;
+      }
+    }
+  },
+  disable: () => {
+    foreach(Player player in AllPlayers()) {
+      player.primalRageEnabled = false;
+    }
+  },
+};
+
+rule: '[Primal Rage] Press Button'
+Event.OngoingPlayer
+if(primalRageEnabled && duplicationState == DuplicateState.ENABLED)
+{
+  CancelPrimaryAction(EventPlayer());
+  SetUltimateCharge(EventPlayer(), 100);
+  PressButton(EventPlayer(), Button.Ultimate);
+  SetMaxHealth(EventPlayer(), 50);
+
+  WaitUntil(!primalRageEnabled || duplicationState == DuplicateState.DISABLED, 999);
+  WaitUntil(!IsUsingUltimate(EventPlayer()), 10);
+
+  SetMaxHealth(EventPlayer(), 100);
+  StopDuplicate(EventPlayer());
+}

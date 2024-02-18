@@ -1,0 +1,39 @@
+import '../modifier.del';
+import '../effects.del';
+
+String FLOOR_IS_LAVA_NAME: 'Floor Is Lava';
+
+playervar Boolean floorIsLavaEnabled = false;
+
+Modifier floorIsLava: {
+  name: FLOOR_IS_LAVA_NAME,
+  notification: FLOOR_IS_LAVA_NAME,
+  icon: AbilityIconString(Hero.Torbjorn, Button.Ultimate),
+  duration: 10, 
+  enabled: SettingToggle(FLOOR_IS_LAVA_NAME),
+  enable: () => {
+    foreach(Player player in AllPlayers()) {
+      player.floorIsLavaEnabled = true;
+    }
+  },
+  disable: () => {
+    foreach(Player player in AllPlayers()) {
+      DestroyPlayerEffects(player);
+      player.floorIsLavaEnabled = false;
+    }
+  },
+  ..MODIFIER_BASE
+};
+
+rule: '[Floor Is Lava] Handle logic'
+Event.OngoingPlayer
+if(floorIsLavaEnabled && EventPlayer().IsOnGround())
+{
+  SetStatus(EventPlayer(), EventPlayer(), Status.Burning, 10);
+  Any dmg = StartDamageOverTime(EventPlayer(), null, 999, 25);
+
+  WaitUntil(!floorIsLavaEnabled || !EventPlayer().IsOnGround(), 999);
+
+  StopDamageOverTime(dmg);
+  ClearStatus(EventPlayer(), Status.Burning);
+}

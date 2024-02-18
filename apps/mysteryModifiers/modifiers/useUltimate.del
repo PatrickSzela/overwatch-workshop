@@ -1,0 +1,22 @@
+import '../modifier.del';
+import '../prevHeroInfo.del';
+
+String USE_ULTIMATE_NAME: 'Use Ultimate';
+
+Modifier useUltimate: {
+  name: USE_ULTIMATE_NAME,
+  notification: USE_ULTIMATE_NAME,
+  icon: AbilityIconString(Hero.Reaper, Button.Ultimate),
+  duration: 10, 
+  enabled: SettingToggle(USE_ULTIMATE_NAME),
+  enable: () => {
+    foreach(Player player in AllPlayers()) {
+      if(player.IsAlive()) {
+        SetUltimateCharge(player, 100);
+        PressButton(player, Button.Ultimate);
+        PressButton(player, Button.PrimaryFire);
+      }
+    }
+  },
+  ..MODIFIER_BASE
+};

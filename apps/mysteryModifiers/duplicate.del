@@ -1,0 +1,121 @@
+import './variables.del';
+import './effects.del';
+import './buttons.del';
+
+enum DuplicateState {
+  DISABLED,
+  FROZEN,
+  ENABLED
+}
+
+playervar Boolean duplicationEchoEffect = false;
+playervar Boolean duplicationEchoFreeze = false;
+playervar Boolean duplicationRestoreHealth = false;
+playervar DuplicateState duplicationState = DuplicateState.DISABLED;
+playervar Hero duplicationHero;
+
+void PreloadDuplicate(in Player player, in Hero hero, in Boolean echoEffect, in Boolean freeze) {
+  PreloadHero(player, hero);
+
+  player.duplicationEchoEffect = echoEffect;
+  player.duplicationHero = hero;
+  player.duplicationEchoFreeze = freeze;
+
+  if(echoEffect) {
+    CreatePlayerEffect(player, Effect.EchoCloningEffect, 1);
+    CreatePlayerEffect(player, Effect.EchoCloningSound, 100);
+  }
+}
+
+void StartDuplicate(in Player player) {
+  if(player.IsAlive()) {
+    player.prevHeroInfo = PrevHeroInfo.MakeSnapshot(player);
+
+    // sometimes ability can go through even with the rule enabled
+    if(player.duplicationEchoFreeze) {
+      DisallowAllButtons(player);
+      player.duplicationState = DuplicateState.FROZEN;
+    } else {
+      player.duplicationState = DuplicateState.ENABLED;
+    }
+
+    ForcePlayerHero(player, player.duplicationHero);
+
+    SetAbilityCooldown(player, Button.Ability1, 0);
+    SetAbilityCooldown(player, Button.Ability2, 0);
+    SetAbilityCooldown(player, Button.Crouch, 0);
+    SetAbilityCooldown(player, Button.Interact, 0);
+    SetAbilityCooldown(player, Button.Jump, 0);
+    SetAbilityCooldown(player, Button.Melee, 0);
+    SetAbilityCooldown(player, Button.PrimaryFire, 0);
+    SetAbilityCooldown(player, Button.SecondaryFire, 0);
+    SetAbilityCooldown(player, Button.Reload, 0);
+  } else {
+    DestroyPlayerEffects(player);
+  }
+}
+
+void StopDuplicate(in Player player, in Boolean restoreHealth = true) {
+  player.duplicationRestoreHealth = restoreHealth;
+  player.duplicationState = DuplicateState.DISABLED;
+}
+
+rule: '[Duplicate] Freeze in the air when switching'
+Event.OngoingPlayer
+if(duplicationState == DuplicateState.FROZEN)
+// if(EventPlayer().Hero() == duplicationHero)
+{
+  FreezeInAir(EventPlayer());
+  duplicationState = DuplicateState.ENABLED;
+  // workaround the ult charge preserve on hero swap
+  SetUltimateCharge(EventPlayer(), 0);
+
+  WaitUntil(duplicationState == DuplicateState.DISABLED, 999);
+  FreezeInAir(EventPlayer());
+
+  // AbortIfConditionIsFalse();
+  // duplicationState = DuplicateState.ENABLED;
+  // WaitUntil(duplicationState == DuplicateState.DISABLED, 999);
+  // Loop();
+}
+
+void FreezeInAir(Player player) {
+  // SetStatus(player, null, Status.Rooted, 1);
+  CancelPrimaryAction();
+  SetGravity(player, 0);
+  SetMoveSpeed(player, 0);
+  SetAimSpeed(player, 0);
+  DisallowAllButtons(player);
+
+  Wait(player.duplicationState != DuplicateState.DISABLED ? 0.5 : 0.1, WaitBehavior.IgnoreCondition);
+  // Wait();
+  
+  SetGravity(player, 100);
+  SetMoveSpeed(player, 100);
+  SetAimSpeed(player, 100);
+  AllowAllButtons(player);
+}
+
+rule: '[Duplicate] Player died while duplicating'
+Event.OnDeath
+if(duplicationState != DuplicateState.DISABLED)
+{
+  WaitUntil(EventPlayer().IsAlive(), 999);
+  StopDuplicate(EventPlayer(), false);
+}
+
+rule: '[Duplicate] Delay StopDuplicate until player respawns'
+Event.OngoingPlayer
+if(duplicationState != DuplicateState.DISABLED)
+{
+  Player player: EventPlayer();
+  WaitUntil(duplicationState == DuplicateState.DISABLED && player.IsAlive(), 999);
+  
+  DestroyPlayerEffects(player);
+
+  // let other rules execute first
+  if(player.duplicationEchoFreeze) 
+    Wait();
+
+  PrevHeroInfo.RestoreSnapshot(player, player.prevHeroInfo, player.duplicationRestoreHealth);
+}

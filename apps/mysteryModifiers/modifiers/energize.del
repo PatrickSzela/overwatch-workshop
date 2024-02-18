@@ -1,0 +1,149 @@
+import '../modifier.del';
+import '../effects.del';
+import '../cooldownResourceCharge.del';
+
+String ENERGIZE_NAME: 'Energize';
+
+// TODO: spped up rate of fire when workshop adds that; 
+// TODO: use Kitsune effects when are added to workshop and rename
+playervar Boolean energizeEnabled = false;
+
+Modifier energize: {
+  name: ENERGIZE_NAME,
+  notification: ENERGIZE_NAME,
+  icon: AbilityIconString(Hero.Dva, Button.Ultimate),
+  duration: 10, 
+  enabled: SettingToggle(ENERGIZE_NAME),
+  preload: () => {
+    foreach(Player player in AllPlayers()) {
+      CreatePlayerEffect(player, Effect.Sparkles, 2);
+      CreatePlayerEffect(player, Effect.WinstonTeslaCannonTargetSound, 100);
+
+      Wait();
+    }
+  },
+  enable: () => {
+    foreach(Player player in AllPlayers()) {
+      player.energizeEnabled = true;
+    }
+
+    SetMoveSpeed(AllPlayers(), 130);
+  },
+  disable: () => {
+    foreach(Player player in AllPlayers()) {
+      DestroyPlayerEffects(player);
+      player.energizeEnabled = false;
+    }
+
+    SetMoveSpeed(AllPlayers(), 100);
+  },
+  ..MODIFIER_BASE
+};
+
+struct AbilityData {
+  public Number PrimaryFire;
+  public Number SecondaryFire;
+  public Number Ability1;
+  public Number Ability2;
+  public Number Ultimate;
+  public Number Reload;
+  public Number Melee;
+  public Number Jump;
+  public Number Crouch;
+  public Number Interact;
+}
+
+// cooldowns
+rule: '[Energize] Speed up Ability 1 cooldown'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpCooldown(EventPlayer(), Button.Ability1, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Ability 2 cooldown'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpCooldown(EventPlayer(), Button.Ability2, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Primary Fire cooldown'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpCooldown(EventPlayer(), Button.PrimaryFire, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Secondary Fire cooldown'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpCooldown(EventPlayer(), Button.SecondaryFire, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Jump cooldown'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpCooldown(EventPlayer(), Button.Jump, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Crouch cooldown'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpCooldown(EventPlayer(), Button.Crouch, energizeEnabled);
+}
+
+// resources
+
+rule: '[Energize] Speed up Ability 1 resource'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpResource(EventPlayer(), Button.Ability1, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Ability 2 resource'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpResource(EventPlayer(), Button.Ability2, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Primary Fire resource'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpResource(EventPlayer(), Button.PrimaryFire, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Secondary Fire resource'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpResource(EventPlayer(), Button.SecondaryFire, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Jump resource'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpResource(EventPlayer(), Button.Jump, energizeEnabled);
+}
+
+rule: '[Energize] Speed up Crouch resource'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpResource(EventPlayer(), Button.Crouch, energizeEnabled);
+}
+
+// charge
+rule: '[Energize] Speed up Ultimate charge'
+Event.OngoingPlayer
+if(energizeEnabled)
+{
+  SpeedUpUltimateCharge(EventPlayer(), energizeEnabled);
+}

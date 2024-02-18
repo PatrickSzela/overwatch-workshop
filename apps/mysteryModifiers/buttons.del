@@ -1,0 +1,25 @@
+void DisallowAllButtons(Player player) "Disallow All Buttons" {
+  DisallowButton(player, Button.PrimaryFire);
+  DisallowButton(player, Button.SecondaryFire);
+  DisallowButton(player, Button.Ability1);
+  DisallowButton(player, Button.Ability2);
+  DisallowButton(player, Button.Ultimate);
+  DisallowButton(player, Button.Reload);
+  DisallowButton(player, Button.Melee);
+  DisallowButton(player, Button.Jump);
+  DisallowButton(player, Button.Crouch);
+  DisallowButton(player, Button.Interact);
+}
+
+void AllowAllButtons(Player player) "Disallow All Buttons" {
+  AllowButton(player, Button.PrimaryFire);
+  AllowButton(player, Button.SecondaryFire);
+  AllowButton(player, Button.Ability1);
+  AllowButton(player, Button.Ability2);
+  AllowButton(player, Button.Ultimate);
+  AllowButton(player, Button.Reload);
+  AllowButton(player, Button.Melee);
+  AllowButton(player, Button.Jump);
+  AllowButton(player, Button.Crouch);
+  AllowButton(player, Button.Interact);
+}

@@ -1,0 +1,31 @@
+import '../modifier.del';
+import '../effects.del';
+
+String GO_FORWARD_NAME: 'Go Forward';
+
+Modifier goForward: {
+  name: GO_FORWARD_NAME,
+  notification: GO_FORWARD_NAME,
+  icon: AbilityIconString(Hero.Mauga, Button.Ability1),
+  duration: 10, 
+  enabled: SettingToggle(GO_FORWARD_NAME),
+  preload: () => {
+    foreach(Player player in AllPlayers()) {
+      CreatePlayerEffect(player, Effect.BadAura, 0.25);
+      CreatePlayerEffect(player, Effect.BadAuraSound, 100);
+
+      Wait();
+    }
+  },
+  enable: () => {
+    StartThrottleInDirection(AllPlayers(), Forward(), 2, Relative.ToPlayer, ThrottleBehavior.AddToExistingThrottle);
+  },
+  disable: () => {
+    foreach(Player player in AllPlayers()) {
+      DestroyPlayerEffects(player);
+    }
+    
+    StopThrottleInDirection(AllPlayers());
+  },
+  ..MODIFIER_BASE
+};

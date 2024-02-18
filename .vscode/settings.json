@@ -1,5 +1,6 @@
 {
   "conventionalCommits.scopes": [
-    "menu"
+    "menu",
+    "mysteryModifiers"
   ]
 }

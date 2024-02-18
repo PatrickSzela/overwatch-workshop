@@ -1,0 +1,20 @@
+import '../modifier.del';
+
+String PLAYER_SIZE_SMALL_NAME: 'Player Size: Small';
+
+Modifier playerSizeSmall: {
+  name: PLAYER_SIZE_SMALL_NAME,
+  notification: PLAYER_SIZE_SMALL_NAME,
+  icon: AbilityIconString(Hero.WreckingBall, Button.Crouch),
+  duration: 10, 
+  enabled: SettingToggle('Player Size - Small'),
+  enable: () => {
+    StartScalingPlayer(AllPlayers(), 0.5);
+    StartModifyingHeroVoiceLines(AllPlayers(), 1.5);
+  },
+  disable: () => {
+    StopScalingPlayer(AllPlayers());
+    StopModifyingHeroVoiceLines(AllPlayers());
+  },
+  ..MODIFIER_BASE
+};

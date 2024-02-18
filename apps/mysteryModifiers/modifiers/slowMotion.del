@@ -1,0 +1,20 @@
+import '../modifier.del';
+
+String SLOW_MOTION_NAME: 'Slow Motion';
+
+Modifier slowMotion: {
+  name: SLOW_MOTION_NAME,
+  notification: SLOW_MOTION_NAME,
+  icon: AbilityIconString(Hero.Tracer, Button.Ability2),
+  duration: 5, 
+  enabled: SettingToggle(SLOW_MOTION_NAME),
+  enable: () => {    
+    SetSlowMotion(50);
+    StartModifyingHeroVoiceLines(AllPlayers(), 0.1);
+  },
+  disable: () => {    
+    SetSlowMotion(100);
+    StopModifyingHeroVoiceLines(AllPlayers());
+  },
+  ..MODIFIER_BASE
+};
