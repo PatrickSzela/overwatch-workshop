@@ -1,3 +1,5 @@
+import '../menuState.del';
+
 single struct Description {
   public String text;
   public Color color = Color.White;
@@ -18,6 +20,8 @@ class Component {
   public Description[] description;
   public Boolean disabled;
   public Component child;
+  public String name;
+  public MenuState _menuState;
   public ((Component) => String) textFormatter;
   static private ((Component) => String) defaultTextFormatter = (Component it) => it.text;
 
@@ -44,7 +48,7 @@ class Component {
     this.textFormatter = defaultTextFormatter;
     this.child = _child;
   }
-
+  
   public void AddDescription(in String description!, in Color color! = Color.White, in Boolean visible! = true, in Number order! = 0) {
     this.description += {text: description, color: color, visible: visible, order: order};
   }

@@ -8,7 +8,7 @@ Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 
 rule: 'Generate Menu'
 {
-  DisableInspectorRecording();
+  // DisableInspectorRecording();
   menu = new Menu(LocalPlayer().menuState);
 }
 
@@ -19,25 +19,4 @@ rule: 'Status'
   CreateDiagnosticText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed(), 900, 800, statusEnabled);
   CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount(), 112, 96, statusEnabled);
   CreateDiagnosticText($"Entity count: {EntityCount()}/128", EntityCount(), 112, 96, statusEnabled);
-}
-
-struct Test {
-  public String name;
-  public Number number1;
-  public Number number2;
-}
-
-rule: 'My Rule'
-{
-  EnableInspectorRecording();
-
-  Test[] test = [];
-  test += {name: '1', number1: 1, number2: 2};
-  test += {name: '2', number1: 2, number2: 3};
-
-  test = test.Slice(0, 1);
-
-  LogToInspector($'{test.Length}, {test[0].name}, {test[0].number1}, {test[0].number2}');
-
-  DisableInspectorRecording();
 }

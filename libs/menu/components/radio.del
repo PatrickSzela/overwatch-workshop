@@ -6,16 +6,24 @@ class Radio: Checkbox
     in MenuState menuState!,
     in String text!, 
     in String name!,
-    in Any value!,
     in Boolean defaultChecked! = null,
     in Component child! = null
   ) {
-    ConstructorCheckbox([menuState, text, name, value, defaultChecked, child]);
+    ConstructorCheckbox([menuState, text, name, defaultChecked, child]);
   }
 
   public override void SetSelected(Boolean selected!) "[Radio] SetSelected" {
     if(selected != checked) {
-      SetValue([value]);
+      if(selected) {
+        foreach(ComponentParent sibling! in _menuState.namedComponentToMenuItem.Get(name)) {
+          if((<Checkbox>sibling.component).checked) {
+            (<Checkbox>sibling.component).value = false;
+            _menuState.rerenderItems += sibling.parentIdx;
+          }
+        }
+      }
+
+      value = selected;
       OnChange();
     }
   }

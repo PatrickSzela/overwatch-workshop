@@ -1,14 +1,12 @@
 import '../menuState.del';
 import './componentWithValue.del';
 
-class Checkbox: ComponentWithValue 
+class Checkbox: ComponentWithValue
 {
   public static Button BUTTON_TOGGLE: Button.Ability2;
-  public MenuState _menuState;
-  public String name;
-  public Any[] values: _menuState.variables.Get(name);
-  public Boolean checked: values.Contains(value);
-  public Boolean defaultChecked;
+  public Boolean checked: value;
+  public Boolean defaultChecked: defaultValue;
+  // public Checkbox[] siblings: _menuState.sharedItems.Get(name).Remove(this);
 
   // events
   public ((Boolean, Checkbox) => void) onChange;
@@ -17,47 +15,30 @@ class Checkbox: ComponentWithValue
     in MenuState menuState!,
     in String text!, 
     in String name!,
-    in Any value!,
     in Boolean defaultChecked! = null,
     in Component child! = null
   ) {
-    ConstructorCheckbox([menuState, text, name, value, defaultChecked, child]);
+    ConstructorCheckbox([menuState, text, name, defaultChecked, child]);
   }
 
   protected void ConstructorCheckbox(Any[] arr!) "[Checkbox] Constructor Helper" {
     MenuState menuState: arr[0];
     String text: arr[1];
     String name: arr[2];
-    Any value: arr[3];
-    Any defaultChecked: arr[4];
-    Component child: arr[5];
+    Any defaultChecked: arr[3];
+    Component child: arr[4];
 
-    ConstructorWithValue([text, value, child]);
+    ConstructorWithValue([text, defaultChecked, child]);
 
     this._menuState = menuState;
     this.name = name;
-    this.defaultChecked = defaultChecked;
-
-    if(values == null)
-      SetValue([]);
-
-    SetSelected(defaultChecked);
 
     AddDescription($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle selection");
   }
 
-  public void SetValue(Any value!) "[Checkbox] SetValue" {
-    Dictionary<String, Any>.SetOrAdd(_menuState.variables, name, value);
-  }
-
   public virtual void SetSelected(Boolean selected!) "[Checkbox] SetSelected" {
     if(selected != checked) {
-      Any[] values! = values;
-
-      if(checked) ModifyVariable(values, Operation.RemoveFromArrayByValue, value);
-      else ModifyVariable(values, Operation.AppendToArray, value);
-
-      SetValue(values);
+      value = selected;
       OnChange();
     }
   }
@@ -82,6 +63,6 @@ class Checkbox: ComponentWithValue
   }
 
   public virtual void OnChange() "[Checkbox] OnChange" {
-    onChange(value, this);
+    onChange(checked, this);
   }
 }

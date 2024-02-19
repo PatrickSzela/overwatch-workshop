@@ -13,10 +13,9 @@ MenuItem[] PageDebugCheckboxItems() {
       menuState: menuState,
       text: $"Item {i}", 
       name: PAGE_DEBUG_CHECKBOX_ID, 
-      value: i, 
       defaultChecked: i == 5
     );
-    checkbox.onChange = (checked, it) => LogToInspector($'Currently selected: {Join(it.values, ", ")}');
+    checkbox.onChange = (checked, it) => LogToInspector($'Toggled {it.text}: {checked}');
 
     menuItems[i - 1] = new MenuItem(child: checkbox);
   }
