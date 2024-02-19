@@ -2,6 +2,7 @@ import '../../utils/number.del';
 import '../menuState.del';
 import './componentWithValue.del';
 
+# NOTE: number passed in `defaultValue` will lose its precision because of Workshop limitations
 class Spinner: ComponentWithValue
 {
   public String DESCRIPTION: $'Press {ButtonFormatterSingle(BUTTON_EDIT_MODE)}​ to {editMode ? "disable" : "enable"}​ Edit Mode';
@@ -11,7 +12,7 @@ class Spinner: ComponentWithValue
   public Boolean negative;
   public Number integralLength;
   public Number fractionalLength;
-  public Number length: 1 + integralLength + (fractionalLength ? 1 + fractionalLength : 0);
+  public Number length;
   public Number[] parts;
   public String unit;
   protected Number index;
@@ -19,7 +20,7 @@ class Spinner: ComponentWithValue
   public constructor(
     in MenuState menuState!,
     in String text!, 
-    in Any defaultValue! = null,
+    in Any defaultValue! = 0,
     in Boolean negative! = false,
     in Number integralLength! = 3,
     in Number fractionalLength! = 0,
@@ -31,28 +32,32 @@ class Spinner: ComponentWithValue
   protected void SpinnerConstructor(
     MenuState menuState!,
     String text!, 
-    Any defaultValue! = null,
+    Any defaultValue! = 0,
     Boolean negative! = false,
     Number integralLength! = 3,
     Number fractionalLength! = 0,
     String unit! = null
   ) "[Spinner] Constructor" {
-    this.defaultValue = defaultValue == null ? 0 : defaultValue;
-
-    ComponentWithValueConstructor(text, this.defaultValue, null);
+    ComponentWithValueConstructor(text, defaultValue, null);
 
     this._menuState = menuState;
     this.editMode = false;
-    this.parts = NumberToParts(this.defaultValue, integralLength, fractionalLength);
+    this.parts = SplitNumber(defaultValue, integralLength, fractionalLength);
     this.index = negative ? 0 : 1;
     this.negative = negative;
     this.integralLength = integralLength;
     this.fractionalLength = fractionalLength;
     this.unit = unit;
 
+    CalculateLength();
+
     AddDescription(DESCRIPTION, Color.Green);
     AddDescription('Use [↑] or [↓] to increase/decrease current number', visible: false);
     AddDescription('Use [←] or [→] to change currenty edited number', visible: false);
+  }
+
+  public void CalculateLength() {
+    length = 1 + integralLength + (fractionalLength ? 1 + fractionalLength : 0);
   }
 
   public override void OnNavigate(Vector direction!) "[Spinner] OnNavigate" {
@@ -65,7 +70,7 @@ class Spinner: ComponentWithValue
       index += offset;
 
       // selected dot
-      if(index > 0 && parts[index] == -1)
+      if(index > 0 && parts[index] == -2)
         index += offset;
 
       if(index < (negative ? 0 : 1)) index = length - 1;
@@ -83,7 +88,7 @@ class Spinner: ComponentWithValue
         else if(parts[index] < 0) parts[index] = 9;
       }
 
-      value = NumberFromParts(parts);
+      value = JoinNumber(parts);
 
       if(oldVal != value) {
         OnChange();
@@ -110,20 +115,16 @@ class Spinner: ComponentWithValue
     if(length <= 0) renderedText = $"{renderedText}: Empty";
     else {
       String text!;
-      if(editMode) {
-        String[] vals! = parts.Map((i, idx) => 
-          idx == 0 ? 
-            i == -1 ? '-' : '+' :
-            i == -1 ? '.' : i
-        ).Map((i, idx) => idx == index && editMode ? $"[{i}]" : i);
+      String[] vals! = parts.Map((i, idx) => 
+        idx == 0 ? 
+          i == -1 ? '-' : '+' :
+          i == -2 ? '.' : i
+      ).Map((i, idx) => idx == index && editMode ? $"[{i}]" : i);
 
-        if(!negative) 
-          vals = vals.Slice(1, vals.Length);
+      // if(!negative) 
+      //   vals = vals.Slice(1, vals.Length);
 
-        text = Join(vals, " ");
-      } else {
-        text = value;
-      }
+      text = Join(vals, editMode ? " " : '');
       renderedText = $"{renderedText}: {text}​{unit ? unit : ''}";
     }
   }

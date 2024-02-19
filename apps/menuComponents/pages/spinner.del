@@ -31,10 +31,10 @@ MenuItem[] PageDebugSpinnerItems() {
 
   Spinner floatLongSpinner = new Spinner(
     menuState: menuState, 
-    text: "Float with 4+1 length, default value and unit",
-    defaultValue: -1234.5,
-    integralLength: 4,
-    fractionalLength: 1,
+    text: "Float with 4+4 length, default value and unit",
+    defaultValue: -1234.5678,
+    integralLength: 5,
+    fractionalLength: 5,
     negative: true,
     unit: '%'
   );
