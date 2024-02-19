@@ -1,7 +1,7 @@
 import '../menuState.del';
 import './menuItem.del';
 
-class MenuItemSubmenu: MenuItem 
+class Link: MenuItem 
 {
   public static Button BUTTON_OPEN: Button.Ability2;
   public MenuState _menuState;
@@ -12,15 +12,15 @@ class MenuItemSubmenu: MenuItem
     in String text!, 
     in String submenuID!
   ) {
-    ConstructorMenuItemSubmenu([menuState, text, submenuID]);
+    LinkConstructor( menuState, text, submenuID);
   }
 
-  protected void ConstructorMenuItemSubmenu(Any[] arr!) "[MenuItemSubmenu] Constructor Base" {
-    MenuState menuState: arr[0];
-    String text: arr[1];
-    String submenuID: arr[2];
-
-    ConstructorMenuItem([text, null]);
+  protected void LinkConstructor(
+    MenuState menuState!,
+    String text!, 
+    String submenuID!
+  ) "[Link] Constructor" {
+    MenuItemConstructor(text, null);
     
     this._menuState = menuState;
     this.submenuID = submenuID;

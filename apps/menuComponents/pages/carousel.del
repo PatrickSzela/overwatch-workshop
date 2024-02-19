@@ -22,7 +22,7 @@ MenuItem[] PageDebugCarouselItems() {
     )
   ];
 
-  carousels.Last.AddDescription("Every possible interaction will be logged to Inspector");
+  carousels.Last.AddDescription("Every possible interaction will be logged to Inspector", Color.SkyBlue);
   carousels.Last.valueFormatter = (it) => HeroWithIconFormatter(it.value);
   carousels.Last.onChange = (value, it) => LogToInspector($"{it.text}: value changed to \"{value}\"");
   carousels.Last.onButtonDown = (button, it) => LogToInspector($"{it.text}: {button}​ button down");
@@ -35,8 +35,8 @@ MenuItem[] PageDebugCarouselItems() {
     menuItems[i] = new MenuItem(child: carousels[i]);
   }
 
-  menuItems.Last.onEnter = (it) => LogToInspector($"{it.text}: enter");
-  menuItems.Last.onLeave = (it) => LogToInspector($"{it.text}: left");
+  menuItems.Last.onEnter = (it) => LogToInspector($"{it.child.text}: enter");
+  menuItems.Last.onLeave = (it) => LogToInspector($"{it.child.text}: left");
 
   return menuItems;
 }

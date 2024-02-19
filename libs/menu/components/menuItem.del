@@ -3,7 +3,6 @@ import './component.del';
 class MenuItem: Component
 {
   public String id;
-  public Any[] dependencies;
   public Color color;
   public Boolean updateEveryFrame;
 
@@ -15,14 +14,16 @@ class MenuItem: Component
     in String text! = null,
     in Component child! = null
   ) {
-    ConstructorMenuItem([text, child]);
+    MenuItemConstructor(text, child);
   }
 
-  protected void ConstructorMenuItem(Any[] arr!) "[MenuItem] Constructor Base" {
-    ConstructorBase(arr);
+  protected void MenuItemConstructor(
+    String text! = null,
+    Component child! = null
+  ) "[MenuItem] Constructor" {
+    ComponentConstructor(text, child);
 
     this.color = Color.White;
-    this.dependencies = [];
   }
 
   // events

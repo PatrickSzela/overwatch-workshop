@@ -3,7 +3,6 @@ import '../utils/formatters.del';
 import '../utils/button.del';
 import './menu.del';
 import './components/menuItem.del';
-import './components/checkbox.del';
 
 # List of currently pressed buttons by a player.
 playervar Button[] buttonsHeld = [];
@@ -122,7 +121,7 @@ class MenuState {
     }
   } 
 
-  private void AddItemWithName(Component item, Number parentIdx) "[MenuState] Add Item With Name" {
+  private void AddItemWithName(Component item!, Number parentIdx!) "[MenuState] Add Item With Name" {
     if(item.name) {
       ComponentParent[] old! = namedComponentToMenuItem.Contains(item.name) ? namedComponentToMenuItem.Get(item.name) : [];
       old += [<ComponentParent>{ component: item, parentIdx: parentIdx }];
@@ -187,8 +186,8 @@ class MenuState {
       AddDescription(desc);
 
     if(history.Length == 1 && isLocked) {
-      Description desc1: {text: "Use [↑] or [↓] to navigate menu", order: -1, ..DESCRIPTION_BASE};
-      Description desc2: {text: $"Press {ButtonFormatterSingle(BUTTON_GO_BACK)}​ to go back", order: -1, ..DESCRIPTION_BASE};
+      Description desc1: {text: "Use [↑] or [↓] to navigate menu", order: -1, ..Description.BASE};
+      Description desc2: {text: $"Press {ButtonFormatterSingle(BUTTON_GO_BACK)}​ to go back", order: -1, ..Description.BASE};
       AddDescription(desc1);
       AddDescription(desc2);
     }
@@ -336,7 +335,7 @@ class MenuState {
     foreach(Description arr! in descriptions)
       descriptionArr += arr;
 
-    Any[][] descr = descriptionArr.Map((i) => <Any[]>[i.text, i.color, i.visible, i.order]).FilteredArray((i) => i[2]).SortedArray((i) => i[3]);
+    Any[][] descr! = descriptionArr.Map((i) => <Any[]>[i.text, i.color, i.visible, i.order]).FilteredArray((i) => i[2]).SortedArray((i) => i[3]);
 
     renderedTexts.description = descr.Map((i) => <RenderedText>{text: i[0], color: i[1]});
   }
@@ -345,7 +344,7 @@ class MenuState {
     // LogToInspector($"Rerendering: {rerenderItems.Length}");
 
     foreach(Number itemIdx! in rerenderItems) {
-      MenuItem item = currentMenuItems[itemIdx];
+      MenuItem item! = currentMenuItems[itemIdx];
       // called here, not in Component because it won't work
       if(item.child) {
         if(item.child.child)

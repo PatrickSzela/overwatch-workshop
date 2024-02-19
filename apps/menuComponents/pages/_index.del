@@ -1,4 +1,5 @@
-import '../../../libs/menu/components/menuItemSubmenu.del';
+import '../../../libs/menu/components/link.del';
+import '../../../libs/menu/components/text.del';
 import '../_variables.del';
 import './menuItem.del';
 import './toggle.del';
@@ -14,18 +15,18 @@ String PAGE_DEBUG_NAME: 'Components List';
 
 MenuItem[] PageDebugItems() {
   return <MenuItem[]>[
-    new MenuItemNonInteractive("Items:"),
-    new MenuItemSubmenu(menuState, PAGE_DEBUG_MENU_ITEM_NAME, PAGE_DEBUG_MENU_ITEM_ID),
-    new MenuItemSubmenu(menuState, PAGE_DEBUG_TOGGLE_NAME, PAGE_DEBUG_TOGGLE_ID),
-    new MenuItemSubmenu(menuState, PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
-    new MenuItemSubmenu(menuState, PAGE_DEBUG_SPINNER_NAME, PAGE_DEBUG_SPINNER_ID),
-    new MenuItemSubmenu(menuState, PAGE_DEBUG_CHECKBOX_NAME, PAGE_DEBUG_CHECKBOX_ID),
-    new MenuItemSubmenu(menuState, PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),
-    new MenuItemNonInteractive(),
+    new Text("Items:"),
+    new Link(menuState, PAGE_DEBUG_MENU_ITEM_NAME, PAGE_DEBUG_MENU_ITEM_ID),
+    new Link(menuState, PAGE_DEBUG_TOGGLE_NAME, PAGE_DEBUG_TOGGLE_ID),
+    new Link(menuState, PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
+    new Link(menuState, PAGE_DEBUG_SPINNER_NAME, PAGE_DEBUG_SPINNER_ID),
+    new Link(menuState, PAGE_DEBUG_CHECKBOX_NAME, PAGE_DEBUG_CHECKBOX_ID),
+    new Link(menuState, PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),
+    new Text(),
 
-    new MenuItemNonInteractive("Lists:"),
-    new MenuItemSubmenu(menuState, PAGE_DEBUG_LIST_LONG_NAME, PAGE_DEBUG_LIST_LONG_ID),
-    new MenuItemSubmenu(menuState, PAGE_DEBUG_LIST_DYNAMIC_NAME, PAGE_DEBUG_LIST_DYNAMIC_ID)
+    new Text("Lists:"),
+    new Link(menuState, PAGE_DEBUG_LIST_LONG_NAME, PAGE_DEBUG_LIST_LONG_ID),
+    new Link(menuState, PAGE_DEBUG_LIST_DYNAMIC_NAME, PAGE_DEBUG_LIST_DYNAMIC_ID)
   ];
 }
 

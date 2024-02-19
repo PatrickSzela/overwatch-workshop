@@ -9,18 +9,19 @@ class Carousel: ComponentWithValue
     in Any[] options!,
     in Any defaultValue! = null
   ) {
-    ConstructorCarousel([text, options, defaultValue]);
+    CarouselConstructor(text, options, defaultValue);
   }
 
-  protected void ConstructorCarousel(Any[] arr!) "[Carousel] Constructor Helper" {
-    String text: arr[0];
-    Any[] options: arr[1];
-    Any defaultValue: arr[2];
-
+  protected void CarouselConstructor(
+    String text!,
+    Any[] options!,
+    Any defaultValue! = null
+  ) "[Carousel] Constructor" {
     this.defaultValue = defaultValue == null ? options.First : defaultValue;
     this.options = options;
     
-    ConstructorWithValue([text, this.defaultValue, null]);
+    ComponentWithValueConstructor(text, this.defaultValue, null);
+
     AddDescription('Use [←] or [→] to select an option');
   }
 

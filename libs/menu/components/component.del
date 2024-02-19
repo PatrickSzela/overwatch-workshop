@@ -1,29 +1,27 @@
-import '../menuState.del';
-
 single struct Description {
   public String text;
-  public Color color = Color.White;
-  public Boolean visible = true;
-  public Number order = 0;
+  public Color color;
+  public Boolean visible;
+  public Number order;
+
+  public static Description BASE: {
+    text: '',
+    color: Color.White,
+    visible: true,
+    order: 0
+  };
 }
 
-Description DESCRIPTION_BASE: {
-  text: '',
-  color: Color.White,
-  visible: true,
-  order: 0
-};
-
 class Component {
+  public String name;
   public String text;
   public String renderedText;
   public Description[] description;
   public Boolean disabled;
   public Component child;
-  public String name;
-  public MenuState _menuState;
+  
   public ((Component) => String) textFormatter;
-  static private ((Component) => String) defaultTextFormatter = (Component it) => it.text;
+  static private ((Component) => String) defaultTextFormatter: (it) => it.text;
 
   // events
   public ((Button, Component) => void) onButtonDown;
@@ -34,19 +32,17 @@ class Component {
     in String text!,
     in Component child! = null
   ) {
-    ConstructorBase([text, child]);
+    ComponentConstructor(text, child);
   }
 
-  protected void ConstructorBase(Any[] arr!) "[Component] ConstructorBase" {
-    String text: arr[0];
-    Component _child: arr[1];
-
+  protected void ComponentConstructor(
+    String text!,
+    Component child! = null
+  ) "[Component] Constructor" {
     this.text = text;
-    this.disabled = false;
     this.description = [];
-    this.text = text;
     this.textFormatter = defaultTextFormatter;
-    this.child = _child;
+    this.child = child;
   }
   
   public void AddDescription(in String description!, in Color color! = Color.White, in Boolean visible! = true, in Number order! = 0) {

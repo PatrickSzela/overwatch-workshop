@@ -9,7 +9,7 @@ class Radio: Checkbox
     in Boolean defaultChecked! = null,
     in Component child! = null
   ) {
-    ConstructorCheckbox([menuState, text, name, defaultChecked, child]);
+    CheckboxConstructor(menuState, text, name, defaultChecked, child);
   }
 
   public override void SetSelected(Boolean selected!) "[Radio] SetSelected" {

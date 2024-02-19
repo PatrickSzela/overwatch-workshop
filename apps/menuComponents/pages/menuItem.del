@@ -1,4 +1,4 @@
-import '../../../libs/menu/components/menuItemNonInteractive.del';
+import '../../../libs/menu/components/text.del';
 import '../_variables.del';
 
 String PAGE_DEBUG_MENU_ITEM_ID: 'menuItem';
@@ -9,7 +9,7 @@ MenuItem[] PageDebugMenuDisplayItems() {
   MenuItem[] nonInteractive = [];
 
   for(Number i! = 1; i <= 5; i++) {
-    nonInteractive[i - 1] = new MenuItemNonInteractive($"Non-interactive {i}");
+    nonInteractive[i - 1] = new Text($"Non-interactive {i}");
 
     interactive[i - 1] = new MenuItem($"Interactive {i}");
     interactive[i - 1].onEnter = (it) => LogToInspector($"{it.text}: enter");
@@ -19,13 +19,13 @@ MenuItem[] PageDebugMenuDisplayItems() {
     interactive[i - 1].onNavigate = (direction, it) => LogToInspector($"{it.text}: navigated {direction}");
   }
 
-  return nonInteractive + new MenuItemNonInteractive() + interactive;
+  return nonInteractive + new Text() + interactive;
 }
 
 rule: 'Player Settings'
 Event.OngoingPlayer
 if(menuState.currentPage == PAGE_DEBUG_MENU_ITEM_ID)
 {
-  Description[] desc: [{ text: "Every possible interaction will be logged to the Workshop Inspector", ..DESCRIPTION_BASE }];
+  Description[] desc: [{ text: "Every possible interaction will be logged to the Workshop Inspector", ..Description.BASE }];
   menuState.CreatePage(PAGE_DEBUG_MENU_ITEM_NAME, PageDebugMenuDisplayItems, desc);
 }

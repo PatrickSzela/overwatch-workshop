@@ -14,14 +14,14 @@ class Toggle: ComponentWithValue
     in String text!,
     in Boolean defaultChecked! = null
   ) {
-    ConstructorToggle([text, defaultChecked]);
+    ToggleConstructor(text, defaultChecked);
   }
 
-  protected void ConstructorToggle(Any[] arr!) "[Toggle] Constructor Helper" {
-    String text: arr[0];
-    Any defaultChecked: arr[1];
-
-    ConstructorWithValue([text, defaultChecked]);
+  protected void ToggleConstructor(
+    String text!,
+    Boolean defaultChecked! = null
+  ) "[Toggle] Constructor" {
+    ComponentWithValueConstructor(text, defaultChecked);
 
     this.valueFormatter = (it) => BooleanFormatter(it.value);
 

@@ -4,8 +4,9 @@ class ComponentWithValue: Component
 {
   public Any value;
   public Any defaultValue;
+
   public ((ComponentWithValue) => String) valueFormatter;
-  static public ((ComponentWithValue) => String) defaultValueFormatter = (ComponentWithValue it) => it.value;
+  static public ((ComponentWithValue) => String) defaultValueFormatter: (ComponentWithValue it) => it.value;
   
   // events
   public ((Button, ComponentWithValue) => void) onButtonDown;
@@ -17,20 +18,19 @@ class ComponentWithValue: Component
     in String text!,
     in Any defaultValue! = null
   ) {
-    ConstructorWithValue([text, defaultValue, null]);
+    ComponentWithValueConstructor(text, defaultValue, null);
   }
 
-  protected void ConstructorWithValue(Any[] arr!) "[ComponentWithValue] Constructor Helper" {
-    String text: arr[0];
-    Any defaultValue: arr[1];
-    Component child: arr[2];
-    
-    ConstructorBase([text, child]);
+  protected void ComponentWithValueConstructor(
+    String text!,
+    Any defaultValue! = null,
+    Component child! = null
+  ) "[ComponentWithValue] Constructor" {
+    ComponentConstructor(text, child);
 
-    this.text = text;
     this.defaultValue = defaultValue;
+    this.value = this.defaultValue;
     this.valueFormatter = defaultValueFormatter;
-    value = this.defaultValue;
   }
 
   public override void FormatText() "[ComponentWithValue] FormatText" {

@@ -25,21 +25,21 @@ class Spinner: ComponentWithValue
     in Number fractionalLength! = 0,
     in String unit! = null
   ) {
-    ConstructorSpinner([menuState, text, defaultValue, negative, integralLength, fractionalLength, unit]);
+    SpinnerConstructor(menuState, text, defaultValue, negative, integralLength, fractionalLength, unit);
   }
 
-  protected void ConstructorSpinner(Any[] arr!) "[Spinner] Constructor Base" {
-    MenuState menuState: arr[0];
-    String text: arr[1];
-    Any defaultValue: arr[2];
-    Boolean negative: arr[3];
-    Number integralLength: arr[4];
-    Number fractionalLength: arr[5];
-    String unit: arr[6];
-
+  protected void SpinnerConstructor(
+    MenuState menuState!,
+    String text!, 
+    Any defaultValue! = null,
+    Boolean negative! = false,
+    Number integralLength! = 3,
+    Number fractionalLength! = 0,
+    String unit! = null
+  ) "[Spinner] Constructor" {
     this.defaultValue = defaultValue == null ? 0 : defaultValue;
 
-    ConstructorWithValue([text, this.defaultValue, null]);
+    ComponentWithValueConstructor(text, this.defaultValue, null);
 
     this._menuState = menuState;
     this.editMode = false;

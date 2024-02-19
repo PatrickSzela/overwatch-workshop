@@ -6,7 +6,7 @@ String PAGE_DEBUG_LIST_LONG_NAME: 'Long List';
 MenuItem[] PageDebugListLongItems() {
   MenuItem[] list = [];
 
-  for(Number i = 1; i <= 50; i++)
+  for(Number i! = 1; i <= 50; i++)
     list += new MenuItem($"Item {i}");
 
   return list;

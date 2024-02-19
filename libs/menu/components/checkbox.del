@@ -3,6 +3,7 @@ import './componentWithValue.del';
 
 class Checkbox: ComponentWithValue
 {
+  public MenuState _menuState;
   public static Button BUTTON_TOGGLE: Button.Ability2;
   public Boolean checked: value;
   public Boolean defaultChecked: defaultValue;
@@ -18,17 +19,17 @@ class Checkbox: ComponentWithValue
     in Boolean defaultChecked! = null,
     in Component child! = null
   ) {
-    ConstructorCheckbox([menuState, text, name, defaultChecked, child]);
+    CheckboxConstructor(menuState, text, name, defaultChecked, child);
   }
 
-  protected void ConstructorCheckbox(Any[] arr!) "[Checkbox] Constructor Helper" {
-    MenuState menuState: arr[0];
-    String text: arr[1];
-    String name: arr[2];
-    Any defaultChecked: arr[3];
-    Component child: arr[4];
-
-    ConstructorWithValue([text, defaultChecked, child]);
+  protected void CheckboxConstructor(
+    MenuState menuState!,
+    String text!, 
+    String name!,
+    Boolean defaultChecked! = null,
+    Component child! = null
+  ) "[Checkbox] Constructor" {
+    ComponentWithValueConstructor(text, defaultChecked, child);
 
     this._menuState = menuState;
     this.name = name;
