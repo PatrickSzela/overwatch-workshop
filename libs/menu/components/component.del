@@ -13,24 +13,29 @@ single struct Description {
 }
 
 class Component {
+  public String id;
+  public Color color;
   public String name;
   public String text;
   public String renderedText;
   public Description[] description;
   public Boolean disabled;
   public Component child;
+  public Boolean updateEveryFrame;
   
   public ((Component) => String) textFormatter;
   static private ((Component) => String) defaultTextFormatter: (it) => it.text;
 
-  // events
+// events
+  public ((Component) => void) onEnter;
+  public ((Component) => void) onLeave;
   public ((Button, Component) => void) onButtonDown;
   public ((Button, Component) => void) onButtonUp;
   public ((Vector, Component) => void) onNavigate;
 
   public constructor(
-    in String text!,
-    in Component child! = null
+    in String text,
+    in Component child = null
   ) {
     ComponentConstructor(text, child);
   }
@@ -43,6 +48,7 @@ class Component {
     this.description = [];
     this.textFormatter = defaultTextFormatter;
     this.child = child;
+    this.color = Color.White;
   }
   
   public void AddDescription(in String description!, in Color color! = Color.White, in Boolean visible! = true, in Number order! = 0) {
@@ -54,6 +60,14 @@ class Component {
   }
 
   // events
+  public virtual void OnEnter() "[Component] OnEnter" {
+    onEnter(this);
+  }
+
+  public virtual void OnLeave() "[Component] OnLeave" {
+    onLeave(this);
+  }
+  
   public virtual void OnButtonDown(Button button!) "[Component] OnButtonDown" {
     onButtonDown(button, this);
     if(child != null)

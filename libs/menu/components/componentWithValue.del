@@ -15,8 +15,8 @@ class ComponentWithValue: Component
   public ((Any, ComponentWithValue) => void) onChange;
 
   public constructor(
-    in String text!,
-    in Any defaultValue! = null
+    in String text,
+    in Any defaultValue = null
   ) {
     ComponentWithValueConstructor(text, defaultValue, null);
   }

@@ -4,32 +4,26 @@ import '../_variables.del';
 String PAGE_DEBUG_SPINNER_ID: 'spinner';
 String PAGE_DEBUG_SPINNER_NAME: 'Spinner';
 
-MenuItem[] PageDebugSpinnerItems() {
-  Spinner integerSpinner = new Spinner(menuState, "Integer");
-  integerSpinner.onChange = (value, it) => LogToInspector($"{it.text}: {value}");
+Component[] PageDebugSpinnerItems() {
+  Spinner[] list = [new Spinner(menuState, "Integer")];
+  list.Last.onChange = (value, it) => LogToInspector($"{it.text}: {value}");
 
-  MenuItem integer = new MenuItem(child: integerSpinner);
-
-  Spinner floatSpinner = new Spinner(
+  list += new Spinner(
     menuState: menuState, 
     text: "Float",
     fractionalLength: 2
   );
-  floatSpinner.onChange = (value, it) => LogToInspector($"{it.text}: {value}");
+  list.Last.onChange = (value, it) => LogToInspector($"{it.text}: {value}");
 
-  MenuItem float = new MenuItem(child: floatSpinner);
-
-  Spinner integerLongSpinner = new Spinner(
+  list += new Spinner(
     menuState: menuState, 
     text: "Integer with 5 length and default value",
     integralLength: 5,
     defaultValue: 12345
   );
-  integerLongSpinner.onChange = (value, it) => LogToInspector($"{it.text}: {value}");
+  list.Last.onChange = (value, it) => LogToInspector($"{it.text}: {value}");
 
-  MenuItem integerLong = new MenuItem(child: integerLongSpinner);
-
-  Spinner floatLongSpinner = new Spinner(
+  list += new Spinner(
     menuState: menuState, 
     text: "Float with 4+3 length, default value and unit",
     defaultValue: -1234.5678,
@@ -38,11 +32,9 @@ MenuItem[] PageDebugSpinnerItems() {
     negative: true,
     unit: '%'
   );
-  floatLongSpinner.onChange = (value, it) => LogToInspector($"{it.text}: {value}");
+  list.Last.onChange = (value, it) => LogToInspector($"{it.text}: {value}");
 
-  MenuItem floatLong = new MenuItem(child: floatLongSpinner);
-
-  return [integer, float, integerLong, floatLong];
+  return list;
 }
 
 rule: 'Debug/Spinner'

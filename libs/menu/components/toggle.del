@@ -11,8 +11,8 @@ class Toggle: ComponentWithValue
   public ((Boolean, Toggle) => void) onChange;
 
   public constructor(
-    in String text!,
-    in Boolean defaultChecked! = null
+    in String text,
+    in Boolean defaultChecked = null
   ) {
     ToggleConstructor(text, defaultChecked);
   }
@@ -45,9 +45,6 @@ class Toggle: ComponentWithValue
 
     if(button == BUTTON_TOGGLE)
       Toggle();
-
-    if(child != null)
-      child.OnButtonDown(button);
   }
 
   public virtual void OnChange() "[Toggle] OnChange" {

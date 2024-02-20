@@ -3,11 +3,11 @@ import './checkbox.del';
 class Radio: Checkbox
 {
   public constructor(
-    in MenuState menuState!,
-    in String text!, 
-    in String name!,
-    in Boolean defaultChecked! = null,
-    in Component child! = null
+    in MenuState menuState,
+    in String text, 
+    in String name,
+    in Boolean defaultChecked = null,
+    in Component child = null
   ) {
     CheckboxConstructor(menuState, text, name, defaultChecked, child);
   }
@@ -15,7 +15,7 @@ class Radio: Checkbox
   public override void SetSelected(Boolean selected!) "[Radio] SetSelected" {
     if(selected != checked) {
       if(selected) {
-        foreach(ComponentParent sibling! in _menuState.namedComponentToMenuItem.Get(name)) {
+        foreach(ComponentParent sibling! in _menuState.namedComponentToItem.Get(name)) {
           if((<Checkbox>sibling.component).checked) {
             (<Checkbox>sibling.component).value = false;
             _menuState.rerenderItems += sibling.parentIdx;

@@ -8,7 +8,9 @@ Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 
 rule: 'Generate Menu'
 {
-  // DisableInspectorRecording();
+  if(!WorkshopSettingToggle("Debug", "Enable Inspector", false))
+    DisableInspectorRecording();
+  
   menu = new Menu(LocalPlayer().menuState);
 }
 

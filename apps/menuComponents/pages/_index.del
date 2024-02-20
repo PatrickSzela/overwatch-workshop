@@ -1,7 +1,7 @@
 import '../../../libs/menu/components/link.del';
 import '../../../libs/menu/components/text.del';
 import '../_variables.del';
-import './menuItem.del';
+import './component.del';
 import './toggle.del';
 import './carousel.del';
 import './spinner.del';
@@ -13,10 +13,10 @@ import './listDynamic.del';
 String PAGE_DEBUG_ID: 'root';
 String PAGE_DEBUG_NAME: 'Components List';
 
-MenuItem[] PageDebugItems() {
-  return <MenuItem[]>[
-    new Text("Items:"),
-    new Link(menuState, PAGE_DEBUG_MENU_ITEM_NAME, PAGE_DEBUG_MENU_ITEM_ID),
+Component[] PageDebugItems() {
+  return <Component[]>[
+    new Text("Components:"),
+    new Link(menuState, PAGE_DEBUG_COMPONENT_NAME, PAGE_DEBUG_COMPONENT_ID),
     new Link(menuState, PAGE_DEBUG_TOGGLE_NAME, PAGE_DEBUG_TOGGLE_ID),
     new Link(menuState, PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
     new Link(menuState, PAGE_DEBUG_SPINNER_NAME, PAGE_DEBUG_SPINNER_ID),

@@ -5,9 +5,9 @@ class Carousel: ComponentWithValue
   public Any[] options;  
 
   public constructor(
-    in String text!,
-    in Any[] options!,
-    in Any defaultValue! = null
+    in String text,
+    in Any[] options,
+    in Any defaultValue = null
   ) {
     CarouselConstructor(text, options, defaultValue);
   }

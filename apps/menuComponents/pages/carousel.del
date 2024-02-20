@@ -5,8 +5,8 @@ import '../_variables.del';
 String PAGE_DEBUG_CAROUSEL_ID: 'carousel';
 String PAGE_DEBUG_CAROUSEL_NAME: 'Carousel';
 
-MenuItem[] PageDebugCarouselItems() {
-  Carousel[] carousels! = [
+Component[] PageDebugCarouselItems() {
+  Carousel[] items = [
     new Carousel("Empty", []),
     new Carousel("One option", ["1"]),
     new Carousel("Two options", ["1", "2"]),
@@ -22,23 +22,16 @@ MenuItem[] PageDebugCarouselItems() {
     )
   ];
 
-  carousels.Last.AddDescription("Every possible interaction will be logged to Inspector", Color.SkyBlue);
-  carousels.Last.valueFormatter = (it) => HeroWithIconFormatter(it.value);
-  carousels.Last.onChange = (value, it) => LogToInspector($"{it.text}: value changed to \"{value}\"");
-  carousels.Last.onButtonDown = (button, it) => LogToInspector($"{it.text}: {button}​ button down");
-  carousels.Last.onButtonUp = (button, it) => LogToInspector($"{it.text}: {button}​ button up");
-  carousels.Last.onNavigate = (direction, it) => LogToInspector($"{it.text}: navigated {direction}");
-  
-  MenuItem[] menuItems! = [];
+  items.Last.AddDescription("Every possible interaction will be logged to Inspector", Color.SkyBlue);
+  items.Last.valueFormatter = (it) => HeroWithIconFormatter(it.value);
+  items.Last.onChange = (value, it) => LogToInspector($"{it.text}: value changed to \"{value}\"");
+  items.Last.onButtonDown = (button, it) => LogToInspector($"{it.text}: {button}​ button down");
+  items.Last.onButtonUp = (button, it) => LogToInspector($"{it.text}: {button}​ button up");
+  items.Last.onNavigate = (direction, it) => LogToInspector($"{it.text}: navigated {direction}");
+  items.Last.onEnter = (it) => LogToInspector($"{it.text}: enter");
+  items.Last.onLeave = (it) => LogToInspector($"{it.text}: left");
 
-  for(Number i! = 0; i < carousels.Length; i++) {
-    menuItems[i] = new MenuItem(child: carousels[i]);
-  }
-
-  menuItems.Last.onEnter = (it) => LogToInspector($"{it.child.text}: enter");
-  menuItems.Last.onLeave = (it) => LogToInspector($"{it.child.text}: left");
-
-  return menuItems;
+  return items;
 }
 
 rule: 'Debug/Carousel'

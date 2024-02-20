@@ -5,22 +5,21 @@ import '../_variables.del';
 String PAGE_DEBUG_RADIO_ID: 'radio';
 String PAGE_DEBUG_RADIO_NAME: 'Radio';
 
-MenuItem[] PageDebugRadioItems() {
-  MenuItem[] menuItems! = [];
+Component[] PageDebugRadioItems() {
+  Radio[] items = [];
 
   for(Number i! = 1; i <= 10; i++) {
-    Radio radio = new Radio(
+    items += new Radio(
       menuState: menuState,
       text: $"Item {i}", 
       name: PAGE_DEBUG_RADIO_ID, 
       defaultChecked: i == 5
     );
-    radio.onChange = (checked, it) => LogToInspector($'Toggled radio {it.text}: {checked}');
 
-    menuItems[i - 1] = new MenuItem(child: radio);
+    items.Last.onChange = (checked, it) => LogToInspector($'Toggled radio {it.text}: {checked}');
   }
 
-  return menuItems;
+  return items;
 }
 
 rule: 'Debug/Radio'

@@ -1,17 +1,17 @@
 import '../../../libs/menu/components/text.del';
 import '../_variables.del';
 
-String PAGE_DEBUG_MENU_ITEM_ID: 'menuItem';
-String PAGE_DEBUG_MENU_ITEM_NAME: 'Menu Item';
+String PAGE_DEBUG_COMPONENT_ID: 'component';
+String PAGE_DEBUG_COMPONENT_NAME: 'Base Component';
 
-MenuItem[] PageDebugMenuDisplayItems() {
-  MenuItem[] interactive = [];
-  MenuItem[] nonInteractive = [];
+Component[] PageDebugComponentItems() {
+  Component[] interactive = [];
+  Component[] nonInteractive = [];
 
   for(Number i! = 1; i <= 5; i++) {
     nonInteractive[i - 1] = new Text($"Non-interactive {i}");
 
-    interactive[i - 1] = new MenuItem($"Interactive {i}");
+    interactive[i - 1] = new Component($"Interactive {i}");
     interactive[i - 1].onEnter = (it) => LogToInspector($"{it.text}: enter");
     interactive[i - 1].onLeave = (it) => LogToInspector($"{it.text}: left");
     interactive[i - 1].onButtonDown = (button, it) => LogToInspector($"{it.text}: {button}​ button down");
@@ -24,8 +24,8 @@ MenuItem[] PageDebugMenuDisplayItems() {
 
 rule: 'Player Settings'
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_MENU_ITEM_ID)
+if(menuState.pageId == PAGE_DEBUG_COMPONENT_ID)
 {
   Description[] desc: [{ text: "Every possible interaction will be logged to the Workshop Inspector", color: Color.SkyBlue, ..Description.BASE }];
-  menuState.CreatePage(PAGE_DEBUG_MENU_ITEM_NAME, PageDebugMenuDisplayItems, desc);
+  menuState.CreatePage(PAGE_DEBUG_COMPONENT_NAME, PageDebugComponentItems, desc);
 }

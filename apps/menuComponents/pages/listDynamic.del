@@ -3,11 +3,11 @@ import '../_variables.del';
 String PAGE_DEBUG_LIST_DYNAMIC_ID: 'listDynamic';
 String PAGE_DEBUG_LIST_DYNAMIC_NAME: 'Dynamic List';
 
-MenuItem[] PageDebugListDynamicItems() {
-  MenuItem[] list = [];
+Component[] PageDebugListDynamicItems() {
+  Component[] list = [];
 
   foreach(Player p in AllPlayers()) 
-    list += new MenuItem($"{HeroIconString(HeroOf(p))}​ {p}");
+    list += new Component($"{HeroIconString(HeroOf(p))}​ {p}");
 
   return list;
 }

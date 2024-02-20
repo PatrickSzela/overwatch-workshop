@@ -1,16 +1,16 @@
 import '../menuState.del';
-import './menuItem.del';
+import './component.del';
 
-class Link: MenuItem 
+class Link: Component 
 {
   public static Button BUTTON_OPEN: Button.Ability2;
   public MenuState _menuState;
   public Any submenuID;
 
   public constructor(
-    in MenuState menuState!,
-    in String text!, 
-    in String submenuID!
+    in MenuState menuState,
+    in String text, 
+    in String submenuID
   ) {
     LinkConstructor( menuState, text, submenuID);
   }
@@ -20,7 +20,7 @@ class Link: MenuItem
     String text!, 
     String submenuID!
   ) "[Link] Constructor" {
-    MenuItemConstructor(text, null);
+    ComponentConstructor(text, null);
     
     this._menuState = menuState;
     this.submenuID = submenuID;
@@ -34,8 +34,6 @@ class Link: MenuItem
 
   public override void OnButtonDown(Button button!) "[MenuItemSubmenu] OnButtonDown" {
     onButtonDown(button, this);
-    if(child != null)
-      child.OnButtonDown(button);
 
     if(button == BUTTON_OPEN)
       _menuState.GoTo(submenuID);

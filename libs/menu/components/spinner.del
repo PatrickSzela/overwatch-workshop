@@ -3,6 +3,8 @@ import '../../utils/number.join.del';
 import '../menuState.del';
 import './componentWithValue.del';
 
+// TODO: remake into Spinner that allows arbitrary items and NumberSpinner
+
 # NOTE: number passed in `defaultValue` will lose its precision because of Workshop limitations
 class Spinner: ComponentWithValue
 {
@@ -19,13 +21,13 @@ class Spinner: ComponentWithValue
   protected Number index;
 
   public constructor(
-    in MenuState menuState!,
-    in String text!, 
-    in Any defaultValue! = 0,
-    in Boolean negative! = false,
-    in Number integralLength! = 3,
-    in Number fractionalLength! = 0,
-    in String unit! = null
+    in MenuState menuState,
+    in String text, 
+    in Any defaultValue = 0,
+    in Boolean negative = false,
+    in Number integralLength = 3,
+    in Number fractionalLength = 0,
+    in String unit = null
   ) {
     SpinnerConstructor(menuState, text, defaultValue, negative, integralLength, fractionalLength, unit);
   }

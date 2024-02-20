@@ -1,9 +1,9 @@
-import './menuItem.del';
+import './component.del';
 
-class Text: MenuItem 
+class Text: Component 
 {
   public constructor(
-    in String text! = ' '
+    in String text = ' '
   ) {
     TextConstructor(text);
   }
@@ -11,7 +11,7 @@ class Text: MenuItem
   protected void TextConstructor(
     String text! = ' '
   ) "[Text] Constructor" {
-    MenuItemConstructor(text, null);
+    ComponentConstructor(text, null);
     
     this.disabled = true;
   }

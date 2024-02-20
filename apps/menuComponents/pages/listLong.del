@@ -3,11 +3,11 @@ import '../_variables.del';
 String PAGE_DEBUG_LIST_LONG_ID: 'listLong';
 String PAGE_DEBUG_LIST_LONG_NAME: 'Long List';
 
-MenuItem[] PageDebugListLongItems() {
-  MenuItem[] list = [];
+Component[] PageDebugListLongItems() {
+  Component[] list = [];
 
   for(Number i! = 1; i <= 50; i++)
-    list += new MenuItem($"Item {i}");
+    list += new Component($"Item {i}");
 
   return list;
 }

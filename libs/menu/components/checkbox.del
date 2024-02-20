@@ -13,11 +13,11 @@ class Checkbox: ComponentWithValue
   public ((Boolean, Checkbox) => void) onChange;
 
   public constructor(
-    in MenuState menuState!,
-    in String text!, 
-    in String name!,
-    in Boolean defaultChecked! = null,
-    in Component child! = null
+    in MenuState menuState,
+    in String text, 
+    in String name,
+    in Boolean defaultChecked = null,
+    in Component child = null
   ) {
     CheckboxConstructor(menuState, text, name, defaultChecked, child);
   }

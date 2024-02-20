@@ -5,22 +5,21 @@ import '../_variables.del';
 String PAGE_DEBUG_CHECKBOX_ID: 'checkbox';
 String PAGE_DEBUG_CHECKBOX_NAME: 'Checkbox';
 
-MenuItem[] PageDebugCheckboxItems() {
-  MenuItem[] menuItems! = [];
+Component[] PageDebugCheckboxItems() {
+  Checkbox[] items = [];
 
   for(Number i! = 1; i <= 10; i++) {
-    Checkbox checkbox = new Checkbox(
+    items += new Checkbox(
       menuState: menuState,
       text: $"Item {i}", 
       name: PAGE_DEBUG_CHECKBOX_ID, 
       defaultChecked: i == 5
     );
-    checkbox.onChange = (checked, it) => LogToInspector($'Toggled checkbox {it.text}: {checked}');
 
-    menuItems[i - 1] = new MenuItem(child: checkbox);
+    items.Last.onChange = (checked, it) => LogToInspector($'Toggled checkbox {it.text}: {checked}');
   }
 
-  return menuItems;
+  return items;
 }
 
 rule: 'Debug/Checkbox'
