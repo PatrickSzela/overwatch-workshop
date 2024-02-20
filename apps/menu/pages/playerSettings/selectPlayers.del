@@ -1,4 +1,4 @@
-import '../../../../libs/utils/formatters.del';
+import '../../../../libs/utils/string/formatters.del';
 import '../../../../libs/utils/other.del';
 import '../../_variables.del';
 
@@ -40,7 +40,7 @@ MenuItem[] PageSelectPlayersItems() {
 
 rule: 'Player Settings/Select Players'
 Event.OngoingPlayer
-if(menuState.currentPage == PAGE_SELECT_PLAYERS_ID)
+if(menuState.page == PAGE_SELECT_PLAYERS_ID)
 {
   menuState.SetTitle(PAGE_SELECT_PLAYERS_NAME);
   menuState.AddItems(PageSelectPlayersItems());

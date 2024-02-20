@@ -1,16 +1,24 @@
-Player[][] SortedAllPlayers() "Sorted All Players" {
-  Player[][] perTeam! = [[], [], []];
+Boolean IsScopedIn(Player player): 
+  [Hero.Ana, Hero.Ashe, Hero.Widowmaker].Contains(player.Hero()) && player.IsFiringSecondary();
 
-  foreach(Player player! in AllPlayers()) {
-    perTeam[TeamOf(player) == Team.Team1 ? 0 : TeamOf(player) == Team.Team2 ? 1 : 2] += player;
-  }
+Boolean IsEmoting(Player player):
+  $" {IsCommunicatingAnyEmote(player)}" != " 0";
 
-  for(Number i! = 0; i < perTeam.Length; i++)
-    perTeam[i] = perTeam[i].SortedArray((c) => SlotOf(c));
+Boolean IsHUDPreferred(Player player): 
+  IsScopedIn(player) || IsEmoting(player) || IsDead(player) ||
+    player.Hero() == Hero.Reinhardt && IsFiringSecondary(player) ||
+    player.Hero() == Hero.Bastion && IsUsingUltimate(player) ||
+    player.Hero() == Hero.Junkrat && IsUsingUltimate(player) ||
+    player.Hero() == Hero.Mei && IsUsingAbility1(player) ||
+    player.Hero() == Hero.Brigitte && IsFiringSecondary(player);
 
-  return perTeam;
-}
-
-Player[] SortedAllPlayersFlat() "Sorted All Players Flat" {
-  return AllPlayers().SortedArray((i) => (TeamOf(i) == Team.Team1 ? 0 : TeamOf(i) == Team.Team2 ? 100 : 10000) + SlotOf(i));
-}
+Boolean IsUsingAbility(Player player, Button button):
+  // button == Button.PrimaryFire ? IsFiringPrimary(player) :
+  // button == Button.SecondaryFire ? IsFiringSecondary(player) :
+  button == Button.Ability1 ? IsUsingAbility1(player) :
+  button == Button.Ability2 ? IsUsingAbility2(player) :
+  button == Button.Ultimate ? IsUsingUltimate(player) :
+  button == Button.Reload ? IsReloading(player) :
+  button == Button.Melee ? IsMeleeing(player) :
+  button == Button.Jump ? IsJumping(player) :
+  button == Button.Crouch ? IsCrouching(player) : false;

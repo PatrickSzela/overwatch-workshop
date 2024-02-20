@@ -1,4 +1,4 @@
-import './other.del';
+import './string.alphabet.del';
 
 String HeroWithIconFormatter(Hero hero): $"{HeroIconString(hero)}​ {hero}";
 

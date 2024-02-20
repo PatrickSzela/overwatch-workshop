@@ -1,4 +1,4 @@
-import '../utils/formatters.del';
+import '../utils/string/formatters.del';
 import '../utils/vector.del';
 
 playervar String playerName = $"{EventPlayer()}";

@@ -1,28 +1,32 @@
+// source: https://github.com/ItsDeltin/Overwatch-Script-To-Workshop/wiki/Dictionary
+
 struct Dictionary<K, V> {
   public K[] Keys;
   public V[] Values;
 
-  public V Get(K key!) {
+  # Returns value associated with the `key`.
+  public V Get(in K key) {
     return Values[Keys.IndexOf(key)];
   }
 
-  public Boolean Contains(K key!) {
+  # Checks whether `key` exists in the dictionary.
+  public Boolean Contains(in K key) {
     return Keys.Contains(key);
   }
   
-  # Sets a value in the dictionary.
-  public static void Set(ref Dictionary<K, V> dictionary!, in K key!, in V value!) {
+  # Sets a `value` in the `dictionary` at `key`.
+  public static void Set(ref Dictionary<K, V> dictionary, in K key, in V value) {
     dictionary.Values[dictionary.Keys.IndexOf(key)] = value;
   }
   
-  # Adds a value to the dictionary.
-  public static void Add(ref Dictionary<K, V> dictionary!, in K key!, in V value!) {
+  # Adds a `value` to the `dictionary` at `key`.
+  public static void Add(ref Dictionary<K, V> dictionary, in K key, in V value) {
     dictionary.Keys[dictionary.Keys.Length] = key;
     dictionary.Values[dictionary.Values.Length] = value;
   }
 
-  # Sets a value in the dictionary. Will add the key if it doesn't exist.
-  public static void SetOrAdd(ref Dictionary<K, V> dictionary!, in K key!, in V value!) {
+  # Sets a `value` in the `dictionary` at `key`. Will add the `key` if it doesn't exist.
+  public static void SetOrAdd(ref Dictionary<K, V> dictionary, in K key, in V value) {
     Number index! = dictionary.Keys.IndexOf(key);
     if (index == -1) // Key not found; add it.
       Add(dictionary, key, value);

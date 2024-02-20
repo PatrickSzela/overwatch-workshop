@@ -35,15 +35,12 @@ class Menu {
   public static Number MAX_MENU_ITEMS: 20;
 
   public MenuLocation location;
-  public Any[] hudTexts = [];
-
-  // static public Menu[] menus = [];
+  public Any[] hudTexts;
 
   public constructor(ref MenuState state, in MenuLocation location = MenuLocation.Left) {
     this.location = location;
 
     GenerateHUDTexts(state);
-    // this.menus += this;
   }
 
   private Any CreateHudTextHelper(ref MenuState state, in Number i, Location location) { 

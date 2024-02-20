@@ -7,7 +7,7 @@ Button PAGE_ABILITIES_RELOAD_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Reload'
 Event.OngoingPlayer
-if(menuState.currentPage == PAGE_ABILITIES_RELOAD_ID)
+if(menuState.page == PAGE_ABILITIES_RELOAD_ID)
 {
   PageAbilitiesRuleGenerator(PAGE_ABILITIES_RELOAD_NAME, Button.Reload, PAGE_ABILITIES_RELOAD_APPLY);
 }

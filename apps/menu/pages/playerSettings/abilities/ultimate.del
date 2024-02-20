@@ -7,7 +7,7 @@ Button PAGE_ABILITIES_ULTIMATE_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Ultimate'
 Event.OngoingPlayer
-if(menuState.currentPage == PAGE_ABILITIES_ULTIMATE_ID)
+if(menuState.page == PAGE_ABILITIES_ULTIMATE_ID)
 {
   PageAbilitiesRuleGenerator(PAGE_ABILITIES_ULTIMATE_NAME, Button.Ultimate, PAGE_ABILITIES_ULTIMATE_APPLY);
 }

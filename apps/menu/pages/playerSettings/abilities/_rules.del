@@ -147,7 +147,7 @@ if(pageAbilitiesKeepPressingButton.IsTrueForAny((i) => i))
 rule: 'Draw currently pressed buttons above players'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.currentPage == PAGE_ABILITIES_ID)
+if(menuState.page == PAGE_ABILITIES_ID)
 {
   // "Draw current ability info above players" will remove these texts when exiting submenu
   MinWait();
@@ -173,7 +173,7 @@ if(menuState.currentPage == PAGE_ABILITIES_ID)
     MinWait();
   }
 
-  WaitUntil(menuState.currentPage != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.page != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
   
   playerText.Remove();
 }

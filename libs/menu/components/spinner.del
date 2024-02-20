@@ -1,4 +1,5 @@
-import '../../utils/number.del';
+import '../../utils/number.split.del';
+import '../../utils/number.join.del';
 import '../menuState.del';
 import './componentWithValue.del';
 
@@ -102,7 +103,7 @@ class Spinner: ComponentWithValue
     if(button == BUTTON_EDIT_MODE) {
       editMode = !editMode;
 
-      _menuState.isLocked = !editMode;
+      _menuState.isLocked = editMode;
       this.description[0].color = editMode ? Color.Red : Color.Green;
       this.description[0].text = DESCRIPTION;
       this.description[1].visible = editMode;

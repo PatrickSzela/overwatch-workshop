@@ -1,4 +1,4 @@
-import '../../../../libs/utils/formatters.del';
+import '../../../../libs/utils/string/formatters.del';
 import '../../_variables.del';
 
 String PAGE_CHANGE_HERO_ID: 'changeHero';

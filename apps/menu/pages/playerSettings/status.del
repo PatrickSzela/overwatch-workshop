@@ -40,7 +40,7 @@ MenuItem[] PageStatusItems() {
 
 rule: 'Player Settings/Status'
 Event.OngoingPlayer
-if(menuState.currentPage == PAGE_STATUS_ID)
+if(menuState.page == PAGE_STATUS_ID)
 {
   menuState.SetTitle(PAGE_STATUS_NAME);
   menuState.AddDescription(PAGE_STATUS_DESCRIPTION[0]);
@@ -51,7 +51,7 @@ if(menuState.currentPage == PAGE_STATUS_ID)
 rule: 'Draw current statuses info above players'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.currentPage == PAGE_STATUS_ID)
+if(menuState.page == PAGE_STATUS_ID)
 {
   foreach(Player player in AllPlayers()) {
     Player pl: EvaluateOnce(player);
@@ -72,7 +72,7 @@ if(menuState.currentPage == PAGE_STATUS_ID)
     MinWait();
   }
 
-  WaitUntil(menuState.currentPage != PAGE_STATUS_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.page != PAGE_STATUS_ID || !menuState.isOpen, 99999);
   
   playerText.Remove();
 }

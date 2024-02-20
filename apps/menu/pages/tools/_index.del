@@ -16,7 +16,7 @@ MenuItem[] PageToolsItems() {
 
 rule: 'Player Settings'
 Event.OngoingPlayer
-if(menuState.currentPage == PAGE_TOOLS_ID)
+if(menuState.page == PAGE_TOOLS_ID)
 {
   menuState.SetTitle(PAGE_TOOLS_NAME);
   menuState.AddItems(PageToolsItems());

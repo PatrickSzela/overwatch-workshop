@@ -1,6 +1,6 @@
 import '../_variables.del';
 import '../../../libs/utils/other.del';
-import '../../../libs/utils/formatters.del';
+import '../../../libs/utils/string/formatters.del';
 
 String PAGE_CREATE_BOT_ID: 'createBot';
 String PAGE_CREATE_BOT_NAME: 'Create Bot';
@@ -88,7 +88,7 @@ MenuItem[] PageCreateBotItems() {
 
 rule: 'Create Bot'
 Event.OngoingPlayer
-if(menuState.currentPage == PAGE_CREATE_BOT_ID)
+if(menuState.page == PAGE_CREATE_BOT_ID)
 {
   if(!spawnBotPosition)
     spawnBotPosition = PickPosition.RayCast(EventPlayer());
@@ -100,7 +100,7 @@ if(menuState.currentPage == PAGE_CREATE_BOT_ID)
 rule: 'Create Bot: Create Sphere'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.currentPage == PAGE_CREATE_BOT_ID)
+if(menuState.page == PAGE_CREATE_BOT_ID)
 {
   pickPosition.CreateAdditionalSphere(
     color: Color.Green,
@@ -108,7 +108,7 @@ if(menuState.currentPage == PAGE_CREATE_BOT_ID)
     text: $"Spawn position: {spawnBotPosition}"
   );
 
-  WaitUntil(menuState.currentPage != PAGE_CREATE_BOT_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.page != PAGE_CREATE_BOT_ID || !menuState.isOpen, 99999);
 
   pickPosition.DestroyAdditionalSpheres();
 }

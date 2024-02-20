@@ -1,6 +1,6 @@
 import './_variables.del';
 import './pages/_index.del';
-import '../../libs/utils/pauseMatchTime.del';
+import '../../libs/utils/rules/pauseMatchTime.del';
 import '../../libs/utils/diagnostic.del';
 import '../menu/customGameSettings.lobby';
 
@@ -14,9 +14,9 @@ rule: 'Generate Menu'
 
 rule: 'Status'
 {
-  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad(), 100, 80, statusEnabled);
-  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak(), 100, 80, statusEnabled);
-  CreateDiagnosticText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed(), 900, 800, statusEnabled);
-  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount(), 112, 96, statusEnabled);
-  CreateDiagnosticText($"Entity count: {EntityCount()}/128", EntityCount(), 112, 96, statusEnabled);
+  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
+  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoad() > 100);
+  CreateDiagnosticText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed() > 800, ClassMemoryUsed() > 900);
+  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
+  CreateDiagnosticText($"Entity count: {EntityCount()}/128", EntityCount() > 96, EntityCount() > 112);
 }

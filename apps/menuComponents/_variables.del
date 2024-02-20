@@ -1,6 +1,4 @@
 import '../../libs/menu/_index.del';
 
 globalvar Menu menu;
-globalvar Boolean statusEnabled = true;
-
 playervar MenuState menuState = new MenuState(menu, 'root', [Button.Crouch, Button.Interact]);

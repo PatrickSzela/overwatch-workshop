@@ -1,4 +1,4 @@
-import '../../../../../libs/utils/formatters.del';
+import '../../../../../libs/utils/string/formatters.del';
 import '../../../_variables.del';
 
 Button PAGE_ABILITIES_BUTTON_HOLD: Button.Reload;

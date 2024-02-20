@@ -43,7 +43,7 @@ MenuItem[] PagePlayerSettingsItems() {
 
 rule: 'Player Settings'
 Event.OngoingPlayer
-if(menuState.currentPage == PAGE_PLAYER_SETTINGS_ID)
+if(menuState.page == PAGE_PLAYER_SETTINGS_ID)
 {
   menuState.SetTitle(PAGE_PLAYER_SETTINGS_NAME);
   menuState.AddItems(PagePlayerSettingsItems());

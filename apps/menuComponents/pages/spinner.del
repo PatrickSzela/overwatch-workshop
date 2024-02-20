@@ -31,10 +31,10 @@ MenuItem[] PageDebugSpinnerItems() {
 
   Spinner floatLongSpinner = new Spinner(
     menuState: menuState, 
-    text: "Float with 4+4 length, default value and unit",
+    text: "Float with 4+3 length, default value and unit",
     defaultValue: -1234.5678,
-    integralLength: 5,
-    fractionalLength: 5,
+    integralLength: 4,
+    fractionalLength: 3,
     negative: true,
     unit: '%'
   );
@@ -47,7 +47,7 @@ MenuItem[] PageDebugSpinnerItems() {
 
 rule: 'Debug/Spinner'
 Event.OngoingPlayer
-if(menuState.currentPage == PAGE_DEBUG_SPINNER_ID)
+if(menuState.pageId == PAGE_DEBUG_SPINNER_ID)
 {
   menuState.CreatePage(PAGE_DEBUG_SPINNER_NAME, PageDebugSpinnerItems);
 }

@@ -1,6 +1,6 @@
 import '../utils/dictionary.del';
-import '../utils/formatters.del';
-import '../utils/button.del';
+import '../utils/string.formatters.del';
+import '../utils/button.allButtons.del';
 import './menu.del';
 import './components/menuItem.del';
 
@@ -60,48 +60,46 @@ class MenuState {
   # Combination of buttons used to toggle menu on and off.
   public Button[] _toggleMenu;
   # List of available items on current page.
-  public MenuItem[] currentMenuItems = [];
-  # Index of currently hovered item in `currentMenuItems`.
-  public Number hoveredItemIdx = 0;
-  # Currently hovered item.
-  public MenuItem hoveredItem: currentMenuItems[hoveredItemIdx];
+  public MenuItem[] items;
+  # Index of currently hovered item in `items`.
+  public Number hoveredItemIdx;
+  # Currently hovered menu item.
+  public MenuItem hoveredItem: items[hoveredItemIdx];
   # Stack of IDs of visited pages.
-  public HistoryItem[] history = [];
+  public HistoryItem[] history;
   # ID of currently open page.
-  public String currentPage: history.Last.id;
+  public String pageId: history.Last.id;
   # ID of root page.
-  public String _rootID;
+  public String _rootPageId;
   # List of menu items that should be re-rendered.
-  public Number[] rerenderItems = [];
+  public Number[] rerenderItems;
   # List of rendered menu items.
-  public RenderedTexts renderedTexts = RenderedTexts.BASE;
+  public RenderedTexts renderedTexts;
   # List of additional descriptions that will be show on current page.
   public Description[] descriptions;
-  # Dictionary to store custom variables created at runtime.
-  # TODO: remove it.
-  // public Dictionary<String, Any> variables = {Keys: [], Values: []};
-  MenuItem[] visibleItems: currentMenuItems.Slice(history.Last.outerScroll, MAX_MENU_ITEMS);
+  # List of currently visible menu items.
+  public MenuItem[] visibleMenuItems: items.Slice(history.Last.outerScroll, MAX_MENU_ITEMS);
 
   # Stores relation of named component to menu item. 
   public Dictionary<String, ComponentParent[]> namedComponentToMenuItem = { Keys: [], Values: [] };
 
-  Number firstItemIdx: currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled).First);
-  Number lastItemIdx: currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled).Last);
+  Number firstItemIdx: items.IndexOf(items.FilteredArray((i, idx) => !i.disabled).First);
+  Number lastItemIdx: items.IndexOf(items.FilteredArray((i, idx) => !i.disabled).Last);
 
   # Currently assigned global menu.
   protected Menu _menu;
   # Player to which this `MenuState` is assigned to.
   protected Player _player;
 
-  public constructor(ref Menu menu, in String rootID, in Button[] toggleMenu, in Boolean enabled = true) {
+  public constructor(ref Menu menu, in String rootPageId, in Button[] toggleMenu, in Boolean enabled = true) {
     _menu = menu;
     _player = EventPlayer();
     _toggleMenu = toggleMenu;
-    _rootID = rootID;
+    _rootPageId = rootPageId;
 
-    history = [{ id: rootID, ..HistoryItem.BASE }];
-    currentMenuItems = [];
-    isLocked = true;
+    history = [{ id: rootPageId, ..HistoryItem.BASE }];
+    items = [];
+    isLocked = false;
     isEnabled = enabled;
 
     rerenderItems = [];
@@ -131,7 +129,7 @@ class MenuState {
   }
 
   public void AddItems(in MenuItem[] items) {
-    currentMenuItems += items;
+    this.items += items;
     rerenderItems = items.Map((_, idx) => idx);
 
     for(Number i! = 0; i < items.Length; i++) {
@@ -185,7 +183,7 @@ class MenuState {
     foreach(Description desc! in descriptions)
       AddDescription(desc);
 
-    if(history.Length == 1 && isLocked) {
+    if(history.Length == 1 && !isLocked) {
       Description desc1: {text: "Use [↑] or [↓] to navigate menu", order: -1, ..Description.BASE};
       Description desc2: {text: $"Press {ButtonFormatterSingle(BUTTON_GO_BACK)}​ to go back", order: -1, ..Description.BASE};
       AddDescription(desc1);
@@ -207,7 +205,7 @@ class MenuState {
     descriptions = [];
     namedComponentToMenuItem = { Keys: [], Values: [] };
 
-    foreach(MenuItem menuItem! in currentMenuItems) {
+    foreach(MenuItem menuItem! in items) {
       if(menuItem.child) {
         if(menuItem.child.child)
           delete(menuItem.child.child);
@@ -217,23 +215,23 @@ class MenuState {
       delete(menuItem);
     }
 
-    currentMenuItems = [];
+    items = [];
   }
   
   public virtual void Navigate(Vector direction!) "[MenuState]: Navigate" {
     hoveredItem.OnNavigate(direction);
     rerenderItems += hoveredItemIdx;
 
-    if(isLocked && (direction == Down() || direction == Up())) {
+    if(!isLocked && (direction == Down() || direction == Up())) {
       Number offset! = 0;
       Number hov! = hoveredItemIdx;
 
       if(direction == Down()) {
-        Number nextItemIdx! = currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled && idx > hov).First);
+        Number nextItemIdx! = items.IndexOf(items.FilteredArray((i, idx) => !i.disabled && idx > hov).First);
 
         offset = (nextItemIdx == -1 ? firstItemIdx : nextItemIdx) - hov;
       } else if(direction == Up()) {
-        Number prevItemIdx! = currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled && idx < hov).Last);
+        Number prevItemIdx! = items.IndexOf(items.FilteredArray((i, idx) => !i.disabled && idx < hov).Last);
 
         offset = (prevItemIdx == -1 ? lastItemIdx : prevItemIdx) - hov;
       }
@@ -260,7 +258,7 @@ class MenuState {
     } else {
       hoveredItem.OnButtonDown(button);
 
-      if(isLocked) {
+      if(!isLocked) {
         if(buttonsHeld == _toggleMenu) {
           Close();
         } else if(buttonsHeld == [BUTTON_GO_BACK]) {
@@ -310,11 +308,11 @@ class MenuState {
   public void RenderSeparators() "[MenuState] Render Separators" {
     renderedTexts.separators = [
       { 
-        text: $"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : history.Last.outerScroll == 0 ? '△' : '▲'}──────────────────────", 
+        text: $"──────────────────────{items.Length < MAX_MENU_ITEMS ? '─' : history.Last.outerScroll == 0 ? '△' : '▲'}──────────────────────", 
         color: Color.White 
       },
       {
-        text: $"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : history.Last.outerScroll == currentMenuItems.Length - MAX_MENU_ITEMS ? '▽' : '▼'}──────────────────────",
+        text: $"──────────────────────{items.Length < MAX_MENU_ITEMS ? '─' : history.Last.outerScroll == items.Length - MAX_MENU_ITEMS ? '▽' : '▼'}──────────────────────",
         color: Color.White
       }
     ];
@@ -340,11 +338,11 @@ class MenuState {
     renderedTexts.description = descr.Map((i) => <RenderedText>{text: i[0], color: i[1]});
   }
 
-  public void PrepareVisibleItems() {
+  public void PreparevisibleMenuItems() {
     // LogToInspector($"Rerendering: {rerenderItems.Length}");
 
     foreach(Number itemIdx! in rerenderItems) {
-      MenuItem item! = currentMenuItems[itemIdx];
+      MenuItem item! = items[itemIdx];
       // called here, not in Component because it won't work
       if(item.child) {
         if(item.child.child)
@@ -361,28 +359,18 @@ class MenuState {
     rerenderItems = [];
   }
 
-  public void RenderVisibleItems() {
+  public void RendervisibleMenuItems() {
     // TODO: edit only rerendered items
-    renderedTexts.items = visibleItems.Map((i, idx) => <RenderedText>{ 
+    renderedTexts.items = visibleMenuItems.Map((i, idx) => <RenderedText>{ 
       text: $"{!i.disabled ? hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{i.renderedText}",
       color: i.color 
     });
-
-    // foreach(Number idx! in rerenderItems) {
-    //   MenuItem i: currentMenuItems[idx];
-    //   renderedTexts.items[idx - history.Last.outerScroll] = <RenderedText>{ 
-    //     text: $"{!i.disabled ? hoveredItemIdx == idx ? '● ' : '○ ' : ''}{i.renderedText}",
-    //     color: i.color 
-    //   };
-    // }
-    // rerenderItems = [];
-
   }
 
   public void MergeTexts() {
     renderedTexts.merged = renderedTexts.title + [renderedTexts.separators[0]] + renderedTexts.items;
 
-    if(currentMenuItems.Length > MAX_MENU_ITEMS || renderedTexts.description.Length)
+    if(items.Length > MAX_MENU_ITEMS || renderedTexts.description.Length)
       renderedTexts.merged += [renderedTexts.separators[1]];
 
     renderedTexts.merged += renderedTexts.description;
@@ -390,8 +378,8 @@ class MenuState {
 
   public void Render() "[MenuState] Render" {
     if(isOpen) {
-      PrepareVisibleItems();
-      RenderVisibleItems();
+      PreparevisibleMenuItems();
+      RendervisibleMenuItems();
       MergeTexts();
     } else {
       RenderClosedItems();

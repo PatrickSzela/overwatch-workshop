@@ -1,4 +1,4 @@
-import '../../../../libs/utils/formatters.del';
+import '../../../../libs/utils/string/formatters.del';
 import '../../../../libs/utils/other.del';
 import '../../_variables.del';
 
@@ -92,7 +92,7 @@ MenuItem[] PageLookAtItems() {
 
 rule: 'Player Settings/Look At'
 Event.OngoingPlayer
-if(menuState.currentPage == PAGE_LOOK_AT_ID)
+if(menuState.page == PAGE_LOOK_AT_ID)
 {
   menuState.SetTitle(PAGE_LOOK_AT_NAME);
   menuState.AddDescription(PAGE_LOOK_AT_DESCRIPTION[0]);
@@ -103,7 +103,7 @@ if(menuState.currentPage == PAGE_LOOK_AT_ID)
 rule: 'Player Settings/Look At: Create Sphere'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.currentPage == PAGE_LOOK_AT_ID)
+if(menuState.page == PAGE_LOOK_AT_ID)
 {
   foreach(Player p! in AllPlayers()) {
     if(p == EventPlayer()) continue;
@@ -118,7 +118,7 @@ if(menuState.currentPage == PAGE_LOOK_AT_ID)
     Wait(0.05);
   }
 
-  WaitUntil(menuState.currentPage != PAGE_LOOK_AT_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.page != PAGE_LOOK_AT_ID || !menuState.isOpen, 99999);
 
   pickPosition.DestroyAdditionalSpheres();
 }
