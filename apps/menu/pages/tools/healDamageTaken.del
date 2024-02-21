@@ -1,5 +1,5 @@
 import '../../../../libs/utils/vector.del';
-// import '../../../../libs/playerText/playerText.del';
+import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 
 // TODO: migrate to playerText when multiple texts are supported properly
@@ -15,7 +15,7 @@ playervar Number damagedBySum = 0;
 playervar Number damagedByLast = 0;
 globalvar Any[] healDamageTexts = [];
 
-MenuItem PageHealDamageTakenMenuItem() {
+Component PageHealDamageTakenMenuItem() {
   Toggle toggle = new Toggle(
     text: PAGE_HEAL_DAMAGE_TAKEN_NAME,
     defaultChecked: showHealDamageTaken
@@ -24,9 +24,7 @@ MenuItem PageHealDamageTakenMenuItem() {
     showHealDamageTaken = checked;
   };
 
-  MenuItem menuItem = new MenuItem(child: toggle);
-
-  return new MenuItem(child: menuItem);
+  return toggle;
 }
 
 rule: 'Heal info'

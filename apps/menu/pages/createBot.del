@@ -1,6 +1,8 @@
 import '../_variables.del';
-import '../../../libs/utils/other.del';
-import '../../../libs/utils/string/formatters.del';
+import '../../../libs/utils/string.formatters.del';
+import '../../../libs/utils/team.availableTeams.del';
+import '../../../libs/menu/components/carousel.del';
+import '../../../libs/menu/components/text.del';
 
 String PAGE_CREATE_BOT_ID: 'createBot';
 String PAGE_CREATE_BOT_NAME: 'Create Bot';
@@ -26,37 +28,31 @@ playervar Team spawnBotTeam = Team.Team1;
 playervar Number spawnBotSlot = -1;
 playervar Vector spawnBotPosition = null;
 
-MenuItem[] PageCreateBotItems() {
-  Carousel heroCarousel = new Carousel(
+Component[] PageCreateBotItems() {
+  Carousel hero = new Carousel(
     text: PAGE_CREATE_BOT_HERO_NAME,
     options: AllTankHeroes() + AllDamageHeroes() + AllSupportHeroes(),
     defaultValue: spawnBotHero
   );
-  heroCarousel.onChange = (value, it) => spawnBotHero = value;
-  heroCarousel.valueFormatter = (it) => HeroWithIconFormatter(it.value);
+  hero.onChange = (value, it) => spawnBotHero = value;
+  hero.valueFormatter = (it) => HeroWithIconFormatter(it.value);
 
-  MenuItem hero = new MenuItem(child: heroCarousel);
-
-  Carousel teamCarousel = new Carousel(
+  Carousel team = new Carousel(
     text: PAGE_CREATE_BOT_TEAM_NAME,
     options: availableTeams,
     defaultValue: spawnBotTeam
   );
-  teamCarousel.onChange = (value, it) => spawnBotTeam = value;
+  team.onChange = (value, it) => spawnBotTeam = value;
 
-  MenuItem team = new MenuItem(child: teamCarousel);
-
-  Carousel slotCarousel = new Carousel(
+  Carousel slot = new Carousel(
     text: PAGE_CREATE_BOT_SLOT_NAME,
     options: [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
     defaultValue: spawnBotSlot
   );
-  slotCarousel.valueFormatter = (it) => SlotFormatter(it.value);
-  slotCarousel.onChange = (value, it) => spawnBotSlot = value;
+  slot.valueFormatter = (it) => SlotFormatter(it.value);
+  slot.onChange = (value, it) => spawnBotSlot = value;
 
-  MenuItem slot = new MenuItem(child: slotCarousel);
-
-  MenuItem position = new MenuItem(PAGE_CREATE_BOT_POSITION_NAME);
+  Component position = new Component(PAGE_CREATE_BOT_POSITION_NAME);
   position.AddDescription(PickPosition.CHANGE_DISTANCE_DESCRIPTION);
   position.AddDescription($"Press {ButtonFormatterSingle(PAGE_CREATE_BOT_POSITION_BUTTON_SELECT)}​ to select the position");
   position.textFormatter = (it) => $"{it.text}: {spawnBotPosition}";
@@ -73,7 +69,7 @@ MenuItem[] PageCreateBotItems() {
       spawnBotPosition = pickPosition.position;
   };
 
-  MenuItem spawnBot = new MenuItem(PAGE_CREATE_BOT_SPAWN_NAME);
+  Component spawnBot = new Component(PAGE_CREATE_BOT_SPAWN_NAME);
   spawnBot.AddDescription($"Press {ButtonFormatterSingle(PAGE_CREATE_BOT_SPAWN_BUTTON)}​ to spawn the bot");
   spawnBot.onButtonDown = (button, it) => {
     if(buttonsHeld == [Button.Ability2]) {
@@ -83,24 +79,23 @@ MenuItem[] PageCreateBotItems() {
     }
   };
 
-  return [hero, team, slot, position, new MenuItemNonInteractive(), spawnBot];
+  return [hero, team, slot, position, new Text(), spawnBot];
 }
 
 rule: 'Create Bot'
 Event.OngoingPlayer
-if(menuState.page == PAGE_CREATE_BOT_ID)
+if(menuState.pageId == PAGE_CREATE_BOT_ID)
 {
   if(!spawnBotPosition)
     spawnBotPosition = PickPosition.RayCast(EventPlayer());
 
-  menuState.SetTitle(PAGE_CREATE_BOT_NAME);
-  menuState.AddItems(PageCreateBotItems());
+  menuState.CreatePage(PAGE_CREATE_BOT_NAME, PageCreateBotItems());
 }
 
 rule: 'Create Bot: Create Sphere'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.page == PAGE_CREATE_BOT_ID)
+if(menuState.pageId == PAGE_CREATE_BOT_ID)
 {
   pickPosition.CreateAdditionalSphere(
     color: Color.Green,
@@ -108,7 +103,7 @@ if(menuState.page == PAGE_CREATE_BOT_ID)
     text: $"Spawn position: {spawnBotPosition}"
   );
 
-  WaitUntil(menuState.page != PAGE_CREATE_BOT_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.pageId != PAGE_CREATE_BOT_ID || !menuState.isOpen, 99999);
 
   pickPosition.DestroyAdditionalSpheres();
 }

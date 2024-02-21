@@ -1,4 +1,3 @@
-import '../../../../libs/utils/other.del';
 import '../../_variables.del';
 
 String PAGE_STATUS_ID: 'status';
@@ -14,15 +13,15 @@ String PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION: "Selected players will not be
 // since HasStatus doesn't work properly in some statuses, gotta workaround that
 playervar String[] pageStatusAppliedStatuses = [];
 
-void PageStatusItemsHelper(ref MenuItem[] list, in String id, in String text, in Boolean navigationWarning = false, in Boolean brokenWarning = false) {
-  list += new MenuItem(text);
+void PageStatusItemsHelper(ref Component[] list, in String id, in String text, in Boolean navigationWarning = false, in Boolean brokenWarning = false) {
+  list += new Component(text);
   list.Last.id = PAGE_STATUS_ID + id;
   if(navigationWarning)
     list.Last.AddDescription(PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION, Color.Orange, order: 10);
 }
 
-MenuItem[] PageStatusItems() {
-  MenuItem[] list = [];
+Component[] PageStatusItems() {
+  Component[] list = [];
  
   PageStatusItemsHelper(list, 'Asleep', 'Asleep', true);
   PageStatusItemsHelper(list, 'Burning', 'Burning', false, true);
@@ -40,18 +39,18 @@ MenuItem[] PageStatusItems() {
 
 rule: 'Player Settings/Status'
 Event.OngoingPlayer
-if(menuState.page == PAGE_STATUS_ID)
+if(menuState.pageId == PAGE_STATUS_ID)
 {
-  menuState.SetTitle(PAGE_STATUS_NAME);
-  menuState.AddDescription(PAGE_STATUS_DESCRIPTION[0]);
-  menuState.AddDescription(PAGE_STATUS_DESCRIPTION[1], Color.SkyBlue);
-  menuState.AddItems(PageStatusItems());
+  Description desc1: { text: PAGE_STATUS_DESCRIPTION[0], ..Description.BASE };
+  Description desc2: { text: PAGE_STATUS_DESCRIPTION[1], color: Color.SkyBlue, ..Description.BASE };
+
+  menuState.CreatePage(PAGE_STATUS_NAME, PageStatusItems(), [desc1, desc2]);
 }
 
 rule: 'Draw current statuses info above players'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.page == PAGE_STATUS_ID)
+if(menuState.pageId == PAGE_STATUS_ID)
 {
   foreach(Player player in AllPlayers()) {
     Player pl: EvaluateOnce(player);
@@ -72,7 +71,7 @@ if(menuState.page == PAGE_STATUS_ID)
     MinWait();
   }
 
-  WaitUntil(menuState.page != PAGE_STATUS_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.pageId != PAGE_STATUS_ID || !menuState.isOpen, 99999);
   
   playerText.Remove();
 }

@@ -5,8 +5,8 @@ String PAGE_RESURRECT_NAME: 'Resurrect';
 
 Button PAGE_RESURRECT_BUTTON_APPLY: Button.Ability2;
 
-MenuItem PageResurrectMenuItem() {
-  MenuItem resurrect = new MenuItem(PAGE_RESURRECT_NAME);
+Component PageResurrectMenuItem() {
+  Component resurrect = new Component(PAGE_RESURRECT_NAME);
   resurrect.AddDescription($"Press {ButtonFormatterSingle(PAGE_RESURRECT_BUTTON_APPLY)}​ to apply");
   resurrect.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_RESURRECT_BUTTON_APPLY])

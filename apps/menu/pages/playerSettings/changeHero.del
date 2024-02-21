@@ -1,4 +1,5 @@
-import '../../../../libs/utils/string/formatters.del';
+import '../../../../libs/menu/components/carousel.del';
+import '../../../../libs/utils/string.formatters.del';
 import '../../_variables.del';
 
 String PAGE_CHANGE_HERO_ID: 'changeHero';
@@ -7,7 +8,7 @@ String PAGE_CHANGE_HERO_NAME: 'Change Hero';
 Button PAGE_CHANGE_HERO_BUTTON_APPLY: Button.Ability2;
 Button PAGE_CHANGE_HERO_BUTTON_HERO_SELECT: Button.Reload;
 
-MenuItem PageChangeHeroMenuItem() {
+Component PageChangeHeroMenuItem() {
   Carousel carousel! = new Carousel(
     text: PAGE_CHANGE_HERO_NAME, 
     options: AllTankHeroes() + AllDamageHeroes() + AllSupportHeroes(),
@@ -18,7 +19,7 @@ MenuItem PageChangeHeroMenuItem() {
   carousel.valueFormatter = (it) => HeroWithIconFormatter(it.value);
   carousel.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_CHANGE_HERO_BUTTON_APPLY])
-      ForcePlayerHero(selectedPlayers, it.value);
+      ForcePlayerHero(selectedPlayers, (<Carousel>it).value);
     else if(buttonsHeld == [PAGE_CHANGE_HERO_BUTTON_HERO_SELECT]) {
       StopForcingHero(selectedPlayers);
       // based on https://workshop.codes/wiki/articles/send+a+player+back+to+hero+select
@@ -28,8 +29,6 @@ MenuItem PageChangeHeroMenuItem() {
       ResetHeroAvailability(selectedPlayers);
     }
   };
-
-  MenuItem changeHero = new MenuItem(child: carousel);
   
-  return changeHero;
+  return carousel;
 }

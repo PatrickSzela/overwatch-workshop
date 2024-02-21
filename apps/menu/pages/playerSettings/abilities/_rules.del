@@ -1,5 +1,5 @@
+import '../../../../../libs/utils/player.del';
 import './_index.del';
-
 
 // infinite/no cooldowns
 rule: 'Infinite Ammo'
@@ -147,7 +147,7 @@ if(pageAbilitiesKeepPressingButton.IsTrueForAny((i) => i))
 rule: 'Draw currently pressed buttons above players'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.page == PAGE_ABILITIES_ID)
+if(menuState.pageId == PAGE_ABILITIES_ID)
 {
   // "Draw current ability info above players" will remove these texts when exiting submenu
   MinWait();
@@ -173,7 +173,7 @@ if(menuState.page == PAGE_ABILITIES_ID)
     MinWait();
   }
 
-  WaitUntil(menuState.page != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.pageId != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
   
   playerText.Remove();
 }
@@ -181,7 +181,7 @@ if(menuState.page == PAGE_ABILITIES_ID)
 rule: 'Draw current ability info above players'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.stack[menuState.stack.Length - 2] == PAGE_ABILITIES_ID)
+if(menuState.history[menuState.history.Length - 2].id == PAGE_ABILITIES_ID)
 {
   foreach(Player player in AllPlayers()) {
     if(player == EventPlayer()) continue;
@@ -191,21 +191,21 @@ if(menuState.stack[menuState.stack.Length - 2] == PAGE_ABILITIES_ID)
     playerText.Add(pl, PageAbilitiesInfo(
       player: pl,
       button: 
-        menuState.stack.Last == PAGE_ABILITIES_PRIMARY_FIRE_ID ? Button.PrimaryFire :
-        menuState.stack.Last == PAGE_ABILITIES_SECONDARY_FIRE_ID ? Button.SecondaryFire :
-        menuState.stack.Last == PAGE_ABILITIES_ABILITY_1_ID ? Button.Ability1 :
-        menuState.stack.Last == PAGE_ABILITIES_ABILITY_2_ID ? Button.Ability2 :
-        menuState.stack.Last == PAGE_ABILITIES_ULTIMATE_ID ? Button.Ultimate :
-        menuState.stack.Last == PAGE_ABILITIES_RELOAD_ID ? Button.Reload :
-        menuState.stack.Last == PAGE_ABILITIES_MELEE_ID ? Button.Melee :
-        menuState.stack.Last == PAGE_ABILITIES_JUMP_ID ? Button.Jump :
+        menuState.history.Last.id == PAGE_ABILITIES_PRIMARY_FIRE_ID ? Button.PrimaryFire :
+        menuState.history.Last.id == PAGE_ABILITIES_SECONDARY_FIRE_ID ? Button.SecondaryFire :
+        menuState.history.Last.id == PAGE_ABILITIES_ABILITY_1_ID ? Button.Ability1 :
+        menuState.history.Last.id == PAGE_ABILITIES_ABILITY_2_ID ? Button.Ability2 :
+        menuState.history.Last.id == PAGE_ABILITIES_ULTIMATE_ID ? Button.Ultimate :
+        menuState.history.Last.id == PAGE_ABILITIES_RELOAD_ID ? Button.Reload :
+        menuState.history.Last.id == PAGE_ABILITIES_MELEE_ID ? Button.Melee :
+        menuState.history.Last.id == PAGE_ABILITIES_JUMP_ID ? Button.Jump :
         Button.Crouch
     ));
 
     MinWait();
   }
 
-  WaitUntil(menuState.stack[menuState.stack.Length - 2] != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.history[menuState.history.Length - 2].id != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
 
   playerText.Remove();
 }

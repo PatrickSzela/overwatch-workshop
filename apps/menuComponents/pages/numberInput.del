@@ -41,5 +41,5 @@ rule: 'Debug/NumberInput'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_DEBUG_NUMBER_INPUT_ID)
 {
-  menuState.CreatePage(PAGE_DEBUG_NUMBER_INPUT_NAME, PageDebugNumberInputItems);
+  menuState.CreatePage(PAGE_DEBUG_NUMBER_INPUT_NAME, PageDebugNumberInputItems());
 }

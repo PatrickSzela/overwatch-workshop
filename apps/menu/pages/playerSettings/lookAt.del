@@ -1,5 +1,6 @@
-import '../../../../libs/utils/string/formatters.del';
-import '../../../../libs/utils/other.del';
+import '../../../../libs/menu/components/carousel.del';
+import '../../../../libs/utils/string.formatters.del';
+import '../../../../libs/utils/player.sortedAllPlayers.del';
 import '../../_variables.del';
 
 String PAGE_LOOK_AT_ID: 'lookAt';
@@ -28,8 +29,8 @@ String[] PAGE_LOOK_AT_DESCRIPTION: [
 Vector GetDirectionFromPlayerEyes(Player player, Vector vector): 
   player.EyePosition().DirectionTowards(vector);
 
-MenuItem[] PageLookAtItems() {
-  MenuItem position = new MenuItem(PAGE_LOOK_AT_POSITION_NAME);
+Component[] PageLookAtItems() {
+  Component position = new Component(PAGE_LOOK_AT_POSITION_NAME);
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
   };
@@ -46,21 +47,19 @@ MenuItem[] PageLookAtItems() {
   };
   position.AddDescription(PickPosition.CHANGE_DISTANCE_DESCRIPTION);
 
-  Carousel objectiveCarousel = new Carousel(
+  Carousel objective = new Carousel(
     text: PAGE_LOOK_AT_OBJECTIVE_NAME,
     options: [-1, 0, 1, 2, 3, 4]
   );
-  objectiveCarousel.valueFormatter = (it) => ObjectiveFormatter(it.value);
-  objectiveCarousel.onButtonDown = (button, it) => {
+  objective.valueFormatter = (it) => ObjectiveFormatter(it.value);
+  objective.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
-      PageLookAtApplyHelper(false, ObjectivePosition(it.value == -1 ? ObjectiveIndex() : it.value));
+      PageLookAtApplyHelper(false, ObjectivePosition((<Carousel>it).value == -1 ? ObjectiveIndex() : (<Carousel>it).value));
     else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
-      PageLookAtApplyHelper(true, ObjectivePosition(EvaluateOnce(it.value) == -1 ? ObjectiveIndex() : EvaluateOnce(it.value)));
+      PageLookAtApplyHelper(true, ObjectivePosition(EvaluateOnce((<Carousel>it).value) == -1 ? ObjectiveIndex() : EvaluateOnce((<Carousel>it).value)));
   };
 
-  MenuItem objective = new MenuItem(child: objectiveCarousel);
-
-  MenuItem payload = new MenuItem(PAGE_LOOK_AT_PAYLOAD_NAME);
+  Component payload = new Component(PAGE_LOOK_AT_PAYLOAD_NAME);
    payload.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
       PageLookAtApplyHelper(false, PayloadPosition());
@@ -68,19 +67,17 @@ MenuItem[] PageLookAtItems() {
       PageLookAtApplyHelper(true, PayloadPosition());
   };
 
-  Carousel playerCarousel = new Carousel(
+  Carousel player = new Carousel(
     text: PAGE_LOOK_AT_PLAYER_NAME,
     options: SortedAllPlayersFlat()
   );
-  playerCarousel.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
-  playerCarousel.onButtonDown = (button, it) => {
+  player.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
+  player.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
-      PageLookAtApplyHelper(false, EyePosition(it.value));
+      PageLookAtApplyHelper(false, EyePosition((<Carousel>it).value));
     else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
-      PageLookAtApplyHelper(true, EyePosition(EvaluateOnce(it.value)));
+      PageLookAtApplyHelper(true, EyePosition(EvaluateOnce((<Carousel>it).value)));
   };
-
-  MenuItem player = new MenuItem(child: playerCarousel);
 
   return [
     position,
@@ -92,18 +89,18 @@ MenuItem[] PageLookAtItems() {
 
 rule: 'Player Settings/Look At'
 Event.OngoingPlayer
-if(menuState.page == PAGE_LOOK_AT_ID)
+if(menuState.pageId == PAGE_LOOK_AT_ID)
 {
-  menuState.SetTitle(PAGE_LOOK_AT_NAME);
-  menuState.AddDescription(PAGE_LOOK_AT_DESCRIPTION[0]);
-  menuState.AddDescription(PAGE_LOOK_AT_DESCRIPTION[1]);
-  menuState.AddItems(PageLookAtItems());
+  Description desc1: { text: PAGE_LOOK_AT_DESCRIPTION[0], ..Description.BASE };
+  Description desc2: { text: PAGE_LOOK_AT_DESCRIPTION[1], ..Description.BASE };
+
+  menuState.CreatePage(PAGE_LOOK_AT_NAME, PageLookAtItems(), [desc1, desc2]);
 }
 
 rule: 'Player Settings/Look At: Create Sphere'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.page == PAGE_LOOK_AT_ID)
+if(menuState.pageId == PAGE_LOOK_AT_ID)
 {
   foreach(Player p! in AllPlayers()) {
     if(p == EventPlayer()) continue;
@@ -118,7 +115,7 @@ if(menuState.page == PAGE_LOOK_AT_ID)
     Wait(0.05);
   }
 
-  WaitUntil(menuState.page != PAGE_LOOK_AT_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.pageId != PAGE_LOOK_AT_ID || !menuState.isOpen, 99999);
 
   pickPosition.DestroyAdditionalSpheres();
 }

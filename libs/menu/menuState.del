@@ -174,9 +174,9 @@ class MenuState {
     }
   }
 
-  public void CreatePage(String title!, () => Component[] items!, Description[] descriptions! = []) "[MenuState]: Create Page" {
+  public void CreatePage(String title!, Component[] items!, Description[] descriptions! = []) "[MenuState]: Create Page" {
     SetTitle(title);
-    AddItems(items());
+    AddItems(items);
 
     foreach(Description desc! in descriptions)
       AddDescription(desc);

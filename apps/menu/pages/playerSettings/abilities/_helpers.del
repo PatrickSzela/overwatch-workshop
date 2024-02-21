@@ -1,4 +1,7 @@
-import '../../../../../libs/utils/string/formatters.del';
+import '../../../../../libs/menu/components/text.del';
+import '../../../../../libs/menu/components/toggle.del';
+import '../../../../../libs/menu/components/numberInput.del';
+import '../../../../../libs/utils/string.formatters.del';
 import '../../../_variables.del';
 
 Button PAGE_ABILITIES_BUTTON_HOLD: Button.Reload;
@@ -33,7 +36,7 @@ String PageAbilitiesInfo(Player player, Button button):
 //   $"Resource: {AbilityResource(player, button)}%{pageAbilitiesInfiniteResource[allButtons.IndexOf(button)] ? ' (Infinite)' : ''}\n"
 // : '');
 
-void PageAbilitiesHoldButtonMenuItemEnhancer(ref MenuItem item, in Button ability) {
+void PageAbilitiesHoldButtonMenuItemEnhancer(ref Component item, in Button ability) {
   item.onButtonDown = (_button, it) => {
     if(buttonsHeld == [PAGE_ABILITIES_BUTTON_HOLD]) {
       StartHoldingButton(pageAbilitiesFilteredPlayers, ability);        
@@ -67,29 +70,29 @@ void PageAbilitiesHoldButtonMenuItemEnhancer(ref MenuItem item, in Button abilit
   item.AddDescription($"Press {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING)}​ to toggle forced button spamming (hold for 1 sec, release, repeat)");
 }
 void PageAbilitiesRuleGenerator(String title!, Button ability!, Button buttonApply!) "PageAbilitiesRuleGenerator" {
-  menuState.SetTitle(title);
-  menuState.AddDescription(PAGE_ABILITIES_WARNING_BROKEN, Color.Orange);
-  menuState.AddItems(PageAbilitiesMenuItemsGenerator(ability, buttonApply));
+  Description desc: { text: PAGE_ABILITIES_WARNING_BROKEN, color: Color.Orange, ..Description.BASE };
+
+  menuState.CreatePage(title, PageAbilitiesMenuItemsGenerator(ability, buttonApply), [desc]);
 }
 
-MenuItem PageAbilitiesSpinnerGenerator(Button ability!, Button buttonApply!, String text!, String unit! = null, Number value!, ((Number) => void) onApply!) "PageAbilitiesSpinnerGenerator" {
-  Spinner spinner! = new Spinner(
+Component PageAbilitiesSpinnerGenerator(Button ability!, Button buttonApply!, String text!, String unit! = null, Number value!, ((Number) => void) onApply!) "PageAbilitiesSpinnerGenerator" {
+  NumberInput numberInput! = new NumberInput(
     menuState: menuState, 
     text: text,
     defaultValue: value,
     integralLength: 5,
     unit: unit
   );
-  spinner.onButtonDown = (button, it) => {
+  numberInput.onButtonDown = (button, it) => {
     if(buttonsHeld == [buttonApply])
-      onApply(it.value);
+      onApply((<NumberInput>it).value);
   };
-  spinner.AddDescription($"Press {ButtonFormatterSingle(buttonApply)}​ to apply");
+  numberInput.AddDescription($"Press {ButtonFormatterSingle(buttonApply)}​ to apply");
 
-  return new MenuItem(child: spinner);
+  return numberInput;
 }
 
-MenuItem PageAbilitiesToggleGenerator(String text!, Number defaultChecked!, ((Boolean) => void) onApply!) "PageAbilitiesToggleGenerator" {
+Component PageAbilitiesToggleGenerator(String text!, Number defaultChecked!, ((Boolean) => void) onApply!) "PageAbilitiesToggleGenerator" {
   Toggle toggle! = new Toggle(
     text: text,
     defaultChecked: defaultChecked
@@ -98,11 +101,11 @@ MenuItem PageAbilitiesToggleGenerator(String text!, Number defaultChecked!, ((Bo
     onApply(checked);
   };
 
-  return new MenuItem(child: toggle);
+  return toggle;
 }
 
-MenuItem[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!) "PageAbilitiesMenuItemsGenerator" {
-  MenuItem[] list = [];
+Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!) "PageAbilitiesMenuItemsGenerator" {
+  Component[] list = [];
 
   // enabled
   // since we can't disable Interact button...
@@ -127,11 +130,11 @@ MenuItem[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!)
       }
     );
 
-    list += new MenuItemNonInteractive();
+    list += new Text();
   }
 
   // use
-  MenuItem use! = new MenuItem('Use');
+  Component use! = new Component('Use');
   use.onButtonDown = (button, it) => {
     if(buttonsHeld == [buttonApply])
       PressButton(selectedPlayers.FilteredArray((i) => i != EventPlayer()), ability);
@@ -148,7 +151,7 @@ MenuItem[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!)
       onApply: (value) => SetUltimateCharge(selectedPlayers, value)
     );
 
-    list += new MenuItemNonInteractive();
+    list += new Text();
 
     list += PageAbilitiesToggleGenerator(
       text: 'Infinite Charge',
@@ -159,7 +162,7 @@ MenuItem[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!)
       }
     );
 
-    list += new MenuItemNonInteractive();
+    list += new Text();
     list += use;
 
     return list;
@@ -210,7 +213,7 @@ MenuItem[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!)
     onApply: (value) => SetAbilityResource(selectedPlayers, ability, value)
   );
 
-  list += new MenuItemNonInteractive();
+  list += new Text();
 
   // infinite
   if(ability == Button.PrimaryFire || ability == Button.SecondaryFire) {
@@ -251,7 +254,7 @@ MenuItem[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!)
     }
   );
 
-  list += new MenuItemNonInteractive();
+  list += new Text();
   list += use;
 
   return list;

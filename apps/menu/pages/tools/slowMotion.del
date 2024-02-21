@@ -1,3 +1,4 @@
+import '../../../../libs/menu/components/numberInput.del';
 import '../../../../libs/utils/vector.del';
 import '../../_variables.del';
 
@@ -8,8 +9,8 @@ globalvar Number slowMotion = 100;
 Button PAGE_SLOW_MOTION_BUTTON_APPLY: Button.Ability2;
 Button PAGE_SLOW_MOTION_BUTTON_RESET: Button.Reload;
 
-MenuItem PageSlowMotionMenuItem() {
-  Spinner slowMotionSpinner = new Spinner(
+Component PageSlowMotionMenuItem() {
+  NumberInput slowMotionInput = new NumberInput(
     menuState: menuState, 
     text: PAGE_SLOW_MOTION_NAME,
     integralLength: 3,
@@ -17,9 +18,9 @@ MenuItem PageSlowMotionMenuItem() {
     unit: '%'
   );
 
-  slowMotionSpinner.onButtonDown = (button, it) => {
+  slowMotionInput.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_SLOW_MOTION_BUTTON_APPLY]) {
-      slowMotion = it.value;
+      slowMotion = (<NumberInput>it).value;
     } else if(buttonsHeld == [PAGE_SLOW_MOTION_BUTTON_RESET]) {
       slowMotion = 100;
     }
@@ -27,12 +28,10 @@ MenuItem PageSlowMotionMenuItem() {
     SetSlowMotion(slowMotion);
   };
 
-  slowMotionSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_SLOW_MOTION_BUTTON_APPLY)}​ to apply");
-  slowMotionSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_SLOW_MOTION_BUTTON_RESET)}​ to reset");
-  slowMotionSpinner.AddDescription($"Value will be clamped to be in range of 0-100%", Color.Orange);
-  slowMotionSpinner.AddDescription($"Slow motion will affect the responsiveness of the menu", Color.Orange);
+  slowMotionInput.AddDescription($"Press {ButtonFormatterSingle(PAGE_SLOW_MOTION_BUTTON_APPLY)}​ to apply");
+  slowMotionInput.AddDescription($"Press {ButtonFormatterSingle(PAGE_SLOW_MOTION_BUTTON_RESET)}​ to reset");
+  slowMotionInput.AddDescription($"Value will be clamped to be in range of 0-100%", Color.Orange);
+  slowMotionInput.AddDescription($"Slow motion will affect the responsiveness of the menu", Color.Orange);
 
-  MenuItem menuItem = new MenuItem(child: slowMotionSpinner);
-
-  return new MenuItem(child: menuItem);
+  return slowMotionInput;
 }

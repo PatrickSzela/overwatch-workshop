@@ -1,3 +1,6 @@
+import '../../../../libs/menu/components/text.del';
+import '../../../../libs/menu/components/toggle.del';
+import '../../../../libs/menu/components/numberInput.del';
 import '../../_variables.del';
 
 String PAGE_HEALTH_ID: 'health';
@@ -16,30 +19,28 @@ playervar Boolean pageHealthAutoHeal = false;
 
 // TODO: health pool
 
-MenuItem[] PageHealthItems() {
-  Spinner currentHealthSpinner = new Spinner(
+Component[] PageHealthItems() {
+  NumberInput currentHealth = new NumberInput(
     menuState: menuState, 
     text: PAGE_HEALTH_CURRENT_HEALTH_NAME,
     integralLength: 5,
     defaultValue: selectedPlayers.First.Health(),
     unit: ' HP'
   );
-  currentHealthSpinner.onButtonDown = (button, it) => {
+  currentHealth.onButtonDown = (button, it) => {
     if(buttonsHeld == [PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY])
-      SetPlayerHealth(selectedPlayers, it.value);
+      SetPlayerHealth(selectedPlayers, (<NumberInput>it).value);
   };
-  currentHealthSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY)}​ to apply");
+  currentHealth.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY)}​ to apply");
 
-  MenuItem currentHealth = new MenuItem(child: currentHealthSpinner);
-
-  Spinner maxHealthSpinner = new Spinner(
+  NumberInput maxHealth = new NumberInput(
     menuState: menuState, 
     text: PAGE_HEALTH_MAX_HEALTH_NAME,
     integralLength: 5,
     defaultValue: selectedPlayers.First.MaxHealth(),
     unit: ' HP'
   );
-  maxHealthSpinner.onButtonDown = (button, it) => {
+  maxHealth.onButtonDown = (button, it) => {
     foreach(Player pl! in selectedPlayers) {
       // who thought it was a good idea to use percentages when setting max health? and what's worse, percentages of original max health!?
 
@@ -49,43 +50,39 @@ MenuItem[] PageHealthItems() {
       
       if(buttonsHeld == [PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY]) {
         MinWait();
-        SetMaxHealth(pl, it.value / pl.MaxHealth() * 100);
+        SetMaxHealth(pl, (<NumberInput>it).value / pl.MaxHealth() * 100);
       }
     }
   };
-  maxHealthSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY)}​ to apply");
-  maxHealthSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET)}​ to reset to original value");
-  maxHealthSpinner.AddDescription("Applied Max Health value might differ because of Workshop limitations", Color.Orange);
+  maxHealth.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY)}​ to apply");
+  maxHealth.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET)}​ to reset to original value");
+  maxHealth.AddDescription("Applied Max Health value might differ because of Workshop limitations", Color.Orange);
   
-  MenuItem maxHealth = new MenuItem(child: maxHealthSpinner);
-
-  Toggle autoHealToggle = new Toggle(
+  Toggle autoHeal = new Toggle(
     text: "Auto Heal",
     defaultChecked: selectedPlayers[0].pageHealthAutoHeal
   );
-  autoHealToggle.onChange = (checked, it) => {
+  autoHeal.onChange = (checked, it) => {
     foreach(Player pl! in selectedPlayers)
       pl.pageHealthAutoHeal = checked;
   };
 
-  MenuItem autoHeal = new MenuItem(child: autoHealToggle);
-
-  return [currentHealth, maxHealth, new MenuItemNonInteractive(), autoHeal];
+  return [currentHealth, maxHealth, new Text(), autoHeal];
 }
 
 rule: 'Player Settings/Health'
 Event.OngoingPlayer
-if(menuState.page == PAGE_HEALTH_ID)
+if(menuState.pageId == PAGE_HEALTH_ID)
 {
-  menuState.SetTitle(PAGE_HEALTH_NAME);
-  menuState.AddDescription(PAGE_HEALTH_DESCRIPTION_INFO, Color.SkyBlue);
-  menuState.AddItems(PageHealthItems());
+  Description desc: { text: PAGE_HEALTH_DESCRIPTION_INFO, color: Color.SkyBlue, ..Description.BASE};
+
+  menuState.CreatePage(PAGE_HEALTH_NAME, PageHealthItems(), [desc]);
 }
 
 rule: 'Draw current health info above players'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.page == PAGE_HEALTH_ID)
+if(menuState.pageId == PAGE_HEALTH_ID)
 {
   foreach(Player player in AllPlayers()) {
     if(player == EventPlayer()) continue;
@@ -97,7 +94,7 @@ if(menuState.page == PAGE_HEALTH_ID)
     MinWait();
   }
 
-  WaitUntil(menuState.page != PAGE_HEALTH_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.pageId != PAGE_HEALTH_ID || !menuState.isOpen, 99999);
   
   playerText.Remove();
 }

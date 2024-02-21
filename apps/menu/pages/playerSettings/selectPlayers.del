@@ -1,37 +1,37 @@
-import '../../../../libs/utils/string/formatters.del';
-import '../../../../libs/utils/other.del';
+import '../../../../libs/menu/components/text.del';
+import '../../../../libs/menu/components/checkbox.del';
+import '../../../../libs/utils/string.formatters.del';
+import '../../../../libs/utils/player.sortedAllPlayers.del';
 import '../../_variables.del';
 
 String PAGE_SELECT_PLAYERS_ID: 'selectPlayers';
 String PAGE_SELECT_PLAYERS_NAME: 'Select Players';
 
-MenuItem[] PageSelectPlayersItems() {  
-  MenuItem[] list = [];
+Component[] PageSelectPlayersItems() {  
+  Component[] list = [];
   Player[][] sorterPlayers = SortedAllPlayers();
 
   for(Number i! = 0; i < sorterPlayers.Length; i++) {    
     if(sorterPlayers[i].Length) {
       if(list.Length)
-        list += new MenuItemNonInteractive();
+        list += new Text();
 
-      list += new MenuItemNonInteractive($"{i == 0 ? Team.Team1 : i == 1 ? Team.Team2 : Team.All}:");
+      list += new Text($"{i == 0 ? Team.Team1 : i == 1 ? Team.Team2 : Team.All}:");
       list.Last.color = i == 0 ? Color.Team1 : Color.Team2;
     }
 
     foreach(Player player! in sorterPlayers[i]) {
       Checkbox checkbox = new Checkbox(
-        menuState: menuState,
         text: $"{player}",
-        name: 'selectedPlayers',
-        value: player, 
         defaultChecked: selectedPlayers.Contains(player)
       );
       checkbox.textFormatter = (it) => $"{PlayerWithHeroIconFormatter(player)}​ (Slot {SlotFormatter(SlotOf(player))})";
       checkbox.onChange = (checked, it) => {
-        selectedPlayers = it.values.FilteredArray((p) => EntityExists(p));
+        if(checked) selectedPlayers.ModAppend(player);
+        else selectedPlayers.ModRemoveByValue(player);
       };
 
-      list += new MenuItem(child: checkbox);
+      list += checkbox;
     }
   }
 
@@ -40,8 +40,7 @@ MenuItem[] PageSelectPlayersItems() {
 
 rule: 'Player Settings/Select Players'
 Event.OngoingPlayer
-if(menuState.page == PAGE_SELECT_PLAYERS_ID)
+if(menuState.pageId == PAGE_SELECT_PLAYERS_ID)
 {
-  menuState.SetTitle(PAGE_SELECT_PLAYERS_NAME);
-  menuState.AddItems(PageSelectPlayersItems());
+  menuState.CreatePage(PAGE_SELECT_PLAYERS_NAME, PageSelectPlayersItems());
 }

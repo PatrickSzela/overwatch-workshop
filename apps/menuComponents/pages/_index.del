@@ -34,5 +34,5 @@ rule: 'Debug'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_DEBUG_ID)
 {
-  menuState.CreatePage(PAGE_DEBUG_NAME, PageDebugItems);
+  menuState.CreatePage(PAGE_DEBUG_NAME, PageDebugItems());
 }

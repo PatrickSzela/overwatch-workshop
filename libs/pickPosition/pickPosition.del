@@ -1,4 +1,4 @@
-import '../utils/string/formatters.del';
+import '../utils/string.formatters.del';
 
 class PickPosition {
   public static Number MAX_DISTANCE: 100;

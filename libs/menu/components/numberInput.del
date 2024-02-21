@@ -6,6 +6,7 @@ import './componentWithValue.del';
 // TODO: split main logic into shared Input
 
 // TODO: min, max?
+// TODO: trim zeros if not nedded
 
 # NOTE: number passed in `defaultValue` will lose its precision because of Workshop limitations
 class NumberInput: ComponentWithValue

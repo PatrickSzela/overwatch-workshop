@@ -1,3 +1,4 @@
+import '../../../../../libs/menu/components/link.del';
 import './_rules.del';
 import './primaryFire.del';
 import './secondaryFire.del';
@@ -26,11 +27,11 @@ globalvar (String | Button)[][] buttonToPage = [
   [Button.Interact, PAGE_ABILITIES_INTERACT_NAME, PAGE_ABILITIES_INTERACT_ID]
 ];
 
-MenuItem[] PageAbilitiesItems() {
-  MenuItem[] list = [];
+Component[] PageAbilitiesItems() {
+  Component[] list = [];
 
   foreach((String | Button)[] arr in buttonToPage) {
-    list += new MenuItemSubmenu(menuState, arr[1], submenuID: arr[2]);
+    list += new Link(menuState, arr[1], submenuID: arr[2]);
     PageAbilitiesHoldButtonMenuItemEnhancer(list.Last, arr[0]);
   }
 
@@ -39,13 +40,13 @@ MenuItem[] PageAbilitiesItems() {
 
 rule: 'Player Settings/Abilities'
 Event.OngoingPlayer
-if(menuState.page == PAGE_ABILITIES_ID)
+if(menuState.pageId == PAGE_ABILITIES_ID)
 {
   pageAbilitiesFilteredPlayers = selectedPlayers.FilteredArray((i) => i != EventPlayer());
 
-  menuState.SetTitle(PAGE_ABILITIES_NAME);
-  menuState.AddDescription("All Players have a list of currently pressed buttons above them", Color.SkyBlue);
-  menuState.AddDescription("To avoid potential bugs, you won't be able to trigger using abilities for yourself", Color.Orange);
-  menuState.AddItems(PageAbilitiesItems());
+  Description desc1: {text: "All Players have a list of currently pressed buttons above them", color: Color.SkyBlue, ..Description.BASE};
+  Description desc2: {text: "To avoid potential bugs, you won't be able to trigger using abilities for yourself", color: Color.Orange, ..Description.BASE};
+
+  menuState.CreatePage(PAGE_ABILITIES_NAME, PageAbilitiesItems(), [desc1, desc2]);
 }
 

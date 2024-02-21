@@ -7,7 +7,7 @@ Button PAGE_ABILITIES_JUMP_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Jump'
 Event.OngoingPlayer
-if(menuState.page == PAGE_ABILITIES_JUMP_ID)
+if(menuState.pageId == PAGE_ABILITIES_JUMP_ID)
 {
   PageAbilitiesRuleGenerator(PAGE_ABILITIES_JUMP_NAME, Button.Jump, PAGE_ABILITIES_JUMP_APPLY);
 }

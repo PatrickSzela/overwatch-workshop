@@ -6,7 +6,7 @@ import './diagnostics.del';
 String PAGE_TOOLS_ID: 'tools';
 String PAGE_TOOLS_NAME: 'Tools';
 
-MenuItem[] PageToolsItems() {
+Component[] PageToolsItems() {
   return [
     PageHealDamageTakenMenuItem(),
     PageSlowMotionMenuItem(),
@@ -16,8 +16,7 @@ MenuItem[] PageToolsItems() {
 
 rule: 'Player Settings'
 Event.OngoingPlayer
-if(menuState.page == PAGE_TOOLS_ID)
+if(menuState.pageId == PAGE_TOOLS_ID)
 {
-  menuState.SetTitle(PAGE_TOOLS_NAME);
-  menuState.AddItems(PageToolsItems());
+  menuState.CreatePage(PAGE_TOOLS_NAME, PageToolsItems());
 }

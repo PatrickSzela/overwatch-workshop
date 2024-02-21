@@ -1,31 +1,28 @@
 import '../../../../libs/utils/vector.del';
-import '../../../../libs/utils/status.del';
+import '../../../../libs/utils/diagnostic.del';
+import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 
 String PAGE_DIAGNOSTICS_ID: 'diagnostics';
 String PAGE_DIAGNOSTICS_NAME: 'Diagnostics';
 
-playervar Boolean showDiagnostics = false;
-
-MenuItem PageDiagnosticsMenuItem() {
+Component PageDiagnosticsMenuItem() {
   Toggle toggle = new Toggle(
     text: PAGE_DIAGNOSTICS_NAME,
-    defaultChecked: showDiagnostics
+    defaultChecked: diagnosticsEnabled
   );
   toggle.onChange = (checked, it) => {
-    showDiagnostics = checked;
+    diagnosticsEnabled = checked;
   };
 
-  MenuItem menuItem = new MenuItem(child: toggle);
-
-  return new MenuItem(child: menuItem);
+  return toggle;
 }
 
 rule: 'Status'
 {
-  StatusHelper($"Server Load: {ServerLoad()}%", ServerLoad(), 100, 80, LocalPlayer().showDiagnostics);
-  StatusHelper($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak(), 100, 80, LocalPlayer().showDiagnostics);
-  StatusHelper($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed(), 900, 800, LocalPlayer().showDiagnostics);
-  StatusHelper($"Text count: {TextCount()}/128", TextCount(), 112, 96, LocalPlayer().showDiagnostics);
-  StatusHelper($"Entity count: {EntityCount()}/128", EntityCount(), 112, 96, LocalPlayer().showDiagnostics);
+  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
+  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoad() > 100);
+  CreateDiagnosticText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed() > 800, ClassMemoryUsed() > 900);
+  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
+  CreateDiagnosticText($"Entity count: {EntityCount()}/128", EntityCount() > 96, EntityCount() > 112);
 }

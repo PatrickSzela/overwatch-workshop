@@ -24,5 +24,5 @@ rule: 'Debug/Checkbox'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_DEBUG_CHECKBOX_ID)
 {
-  menuState.CreatePage(PAGE_DEBUG_CHECKBOX_NAME, PageDebugCheckboxItems);
+  menuState.CreatePage(PAGE_DEBUG_CHECKBOX_NAME, PageDebugCheckboxItems());
 }

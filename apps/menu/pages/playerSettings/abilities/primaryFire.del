@@ -7,7 +7,7 @@ Button PAGE_ABILITIES_PRIMARY_FIRE_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Primary Fire'
 Event.OngoingPlayer
-if(menuState.page == PAGE_ABILITIES_PRIMARY_FIRE_ID)
+if(menuState.pageId == PAGE_ABILITIES_PRIMARY_FIRE_ID)
 {
   PageAbilitiesRuleGenerator(PAGE_ABILITIES_PRIMARY_FIRE_NAME, Button.PrimaryFire, PAGE_ABILITIES_PRIMARY_FIRE_APPLY);
 }

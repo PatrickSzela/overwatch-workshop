@@ -62,7 +62,9 @@ if(ThrottleOf(EventPlayer()).X > 0.5)
 //
 // button interactions
 //
-void ButtonHelper(Button button!) "[MenuState] Button Helper" {
+
+// cant be a subroutine
+void ButtonHelper(in Button button!) {
   STATE.ButtonDown(button);
   WaitUntil(!EventPlayer().IsButtonHeld(button), 99999);
   STATE.ButtonUp(button);

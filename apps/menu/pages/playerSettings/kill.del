@@ -5,8 +5,8 @@ String PAGE_KILL_NAME: 'Kill';
 
 Button PAGE_KILL_BUTTON_APPLY: Button.Ability2;
 
-MenuItem PageKillMenuItem() {
-  MenuItem kill = new MenuItem(PAGE_KILL_NAME);
+Component PageKillMenuItem() {
+  Component kill = new Component(PAGE_KILL_NAME);
 
   kill.AddDescription($"Press {ButtonFormatterSingle(PAGE_KILL_BUTTON_APPLY)}​ to apply");
   kill.onButtonDown = (button, it) => {
