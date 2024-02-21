@@ -78,7 +78,7 @@ class MenuState {
   # List of additional descriptions that will be show on current page.
   public Description[] descriptions;
   # List of currently visible items.
-  public Component[] visibleMenuItems: items.Slice(history.Last.outerScroll, MAX_ITEMS);
+  public Component[] visibleItems: items.Slice(history.Last.outerScroll, MAX_ITEMS);
 
   # Stores relation of named component to item in `items`. 
   public Dictionary<String, ComponentParent[]> namedComponentToItem = { Keys: [], Values: [] };
@@ -120,7 +120,7 @@ class MenuState {
   } 
 
   // TODO: instead of adding every item in a loop, gather them all in an array manually and set dictionary
-  private void HandleNamedItem(Component item!, Number parentIdx!) "[MenuState] Handle Named Item" {
+  private void RegisterNamedItem(Component item!, Number parentIdx!) "[MenuState] Handle Named Item" {
     if(item.name) {
       ComponentParent[] old! = namedComponentToItem.Contains(item.name) ? namedComponentToItem.Get(item.name) : [];
       old += [<ComponentParent>{ component: item, parentIdx: parentIdx }];
@@ -135,9 +135,9 @@ class MenuState {
 
     for(Number i! = 0; i < items.Length; i++) {
       Component item: items[i];
-      HandleNamedItem(item, i);
+      RegisterNamedItem(item, i);
       if(item.child) {
-        HandleNamedItem(item.child, i);
+        RegisterNamedItem(item.child, i);
       }
     }
 
@@ -329,7 +329,7 @@ class MenuState {
     renderedTexts.description = descr.Map((i) => <RenderedText>{text: i[0], color: i[1]});
   }
 
-  public void PreparevisibleMenuItems() {
+  public void PrepareVisibleItems() {
     // LogToInspector($"Rerendering: {rerenderItems.Length}");
 
     foreach(Number itemIdx! in rerenderItems) {
@@ -348,9 +348,9 @@ class MenuState {
     rerenderItems = [];
   }
 
-  public void RendervisibleMenuItems() {
+  public void RenderVisibleItems() {
     // TODO: edit only rerendered items
-    renderedTexts.items = visibleMenuItems.Map((i, idx) => <RenderedText>{ 
+    renderedTexts.items = visibleItems.Map((i, idx) => <RenderedText>{ 
       text: $"{!i.disabled ? hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{i.renderedText}",
       color: i.color 
     });
@@ -367,8 +367,8 @@ class MenuState {
 
   public void Render() "[MenuState] Render" {
     if(isOpen) {
-      PreparevisibleMenuItems();
-      RendervisibleMenuItems();
+      PrepareVisibleItems();
+      RenderVisibleItems();
       MergeTexts();
     } else {
       RenderClosedItems();
