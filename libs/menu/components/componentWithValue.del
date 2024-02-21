@@ -6,7 +6,7 @@ class ComponentWithValue: Component
   public Any defaultValue;
 
   public ((ComponentWithValue) => String) valueFormatter;
-  static public ((ComponentWithValue) => String) defaultValueFormatter: (ComponentWithValue it) => it.value;
+  public static ((ComponentWithValue) => String) VALUE_FORMATTER: (it) => it.value;
   
   // events
   public ((Button, ComponentWithValue) => void) onButtonDown;
@@ -30,7 +30,7 @@ class ComponentWithValue: Component
 
     this.defaultValue = defaultValue;
     this.value = this.defaultValue;
-    this.valueFormatter = defaultValueFormatter;
+    this.valueFormatter = VALUE_FORMATTER;
   }
 
   public override void FormatText() "[ComponentWithValue] FormatText" {

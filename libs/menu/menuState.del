@@ -49,7 +49,7 @@ class MenuState {
   # Button used to go back to the previous page (or close menu when in root).
   public static Button BUTTON_GO_BACK: Button.Ultimate;
   # Maximum number of visible items.
-  public static Number MAX_ITEMS: Menu.MAX_MENU_ITEMS;
+  public static Number MAX_ITEMS: Menu.MAX_ITEMS;
 
   # Whether player has access to menu.
   public Boolean isEnabled;
@@ -119,6 +119,7 @@ class MenuState {
     }
   } 
 
+  // TODO: instead of adding every item in a loop, gather them all in an array manually and set dictionary
   private void HandleNamedItem(Component item!, Number parentIdx!) "[MenuState] Handle Named Item" {
     if(item.name) {
       ComponentParent[] old! = namedComponentToItem.Contains(item.name) ? namedComponentToItem.Get(item.name) : [];

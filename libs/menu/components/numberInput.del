@@ -25,7 +25,7 @@ class NumberInput: ComponentWithValue
   public constructor(
     in MenuState menuState,
     in String text, 
-    in Any defaultValue = 0,
+    in Number defaultValue = 0,
     in Boolean negative = false,
     in Number integralLength = 3,
     in Number fractionalLength = 0,
@@ -37,7 +37,7 @@ class NumberInput: ComponentWithValue
   protected void NumberInputConstructor(
     MenuState menuState!,
     String text!, 
-    Any defaultValue! = 0,
+    Number defaultValue! = 0,
     Boolean negative! = false,
     Number integralLength! = 3,
     Number fractionalLength! = 0,

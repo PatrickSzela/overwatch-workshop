@@ -24,9 +24,9 @@ class Component {
   public Boolean updateEveryFrame;
   
   public ((Component) => String) textFormatter;
-  static private ((Component) => String) defaultTextFormatter: (it) => it.text;
+  public static ((Component) => String) TEXT_FORMATTER: (it) => it.text;
 
-// events
+  // events
   public ((Component) => void) onEnter;
   public ((Component) => void) onLeave;
   public ((Button, Component) => void) onButtonDown;
@@ -46,7 +46,7 @@ class Component {
   ) "[Component] Constructor" {
     this.text = text;
     this.description = [];
-    this.textFormatter = defaultTextFormatter;
+    this.textFormatter = TEXT_FORMATTER;
     this.child = child;
     this.color = Color.White;
   }

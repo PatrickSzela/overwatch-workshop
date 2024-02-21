@@ -2,7 +2,7 @@ import './componentWithValue.del';
 
 class Carousel: ComponentWithValue
 {
-  public Any[] options;  
+  public Any[] options;
 
   public constructor(
     in String text,
