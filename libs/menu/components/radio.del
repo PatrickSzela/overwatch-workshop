@@ -1,6 +1,7 @@
-import './checkbox.del';
+import '../menuState.del';
+import './toggle.del';
 
-class Radio: Checkbox
+class Radio: Toggle
 {
   public constructor(
     in MenuState menuState,
@@ -9,21 +10,34 @@ class Radio: Checkbox
     in Boolean defaultChecked = null,
     in Component child = null
   ) {
-    CheckboxConstructor(menuState, text, name, defaultChecked, child);
+    RadioConstructor(menuState, text, name, defaultChecked, child);
   }
 
-  public override void SetSelected(Boolean selected!) "[Radio] SetSelected" {
-    if(selected != checked) {
-      if(selected) {
+  protected void RadioConstructor(
+    MenuState menuState!,
+    String text!, 
+    String name!,
+    Boolean defaultChecked! = null,
+    Component child! = null
+  ) "[Radio] Constructor" {
+    ToggleConstructor(text, defaultChecked, child);
+
+    this.name = name;
+    this._menuState = menuState;
+  }
+
+  public override void SetChecked(Boolean checked!) "[Radio] Set Checked" {
+    if(this.checked != checked) {
+      if(checked) {
         foreach(ComponentParent sibling! in _menuState.namedComponentToItem.Get(name)) {
-          if((<Checkbox>sibling.component).checked) {
-            (<Checkbox>sibling.component).value = false;
+          if((<Toggle>sibling.component).checked) {
+            (<Toggle>sibling.component).value = false;
             _menuState.rerenderItems += sibling.parentIdx;
           }
         }
       }
 
-      value = selected;
+      value = checked;
       OnChange();
     }
   }

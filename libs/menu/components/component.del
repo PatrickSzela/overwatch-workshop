@@ -1,3 +1,5 @@
+import '../menuState.del';
+
 single struct Description {
   public String text;
   public Color color;
@@ -22,11 +24,11 @@ class Component {
   public Boolean disabled;
   public Component child;
   public Boolean updateEveryFrame;
+  public MenuState _menuState;
   
   public ((Component) => String) textFormatter;
   public static ((Component) => String) TEXT_FORMATTER: (it) => it.text;
 
-  // events
   public ((Component) => void) onEnter;
   public ((Component) => void) onLeave;
   public ((Button, Component) => void) onButtonDown;

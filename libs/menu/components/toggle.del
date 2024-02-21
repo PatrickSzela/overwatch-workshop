@@ -7,36 +7,32 @@ class Toggle: ComponentWithValue
   public Boolean checked: value;
   public Boolean defaultChecked: defaultValue;
 
-  // events
-  public ((Boolean, Toggle) => void) onChange;
 
   public constructor(
     in String text,
-    in Boolean defaultChecked = null
+    in Boolean defaultChecked = null,
+    in Component child = null
   ) {
     ToggleConstructor(text, defaultChecked);
   }
 
   protected void ToggleConstructor(
     String text!,
-    Boolean defaultChecked! = null
+    Boolean defaultChecked! = null,
+    Component child! = null
   ) "[Toggle] Constructor" {
-    ComponentWithValueConstructor(text, defaultChecked);
+    ComponentWithValueConstructor(text, defaultChecked, child);
 
     this.valueFormatter = (it) => BooleanFormatter(it.value);
 
     AddDescription($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle");
   }
 
-  public virtual void SetSelected(Boolean selected!) "[Toggle] SetSelected" {
-    if(selected != checked) {
-      value = selected;
+  public virtual void SetChecked(Boolean checked!) "[Toggle] Set Checked" {    
+    if(this.checked != checked) {
+      value = checked;
       OnChange();
     }
-  }
-
-  public virtual void Toggle() "[Toggle] Toggle" {
-    SetSelected(!checked);
   }
 
   // events
@@ -44,10 +40,9 @@ class Toggle: ComponentWithValue
     onButtonDown(button, this);
 
     if(button == BUTTON_TOGGLE)
-      Toggle();
-  }
+      SetChecked(!checked);
 
-  public virtual void OnChange() "[Toggle] OnChange" {
-    onChange(value, this);
+    if(child != null)
+      child.OnButtonDown(button);
   }
 }

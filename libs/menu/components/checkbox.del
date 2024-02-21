@@ -1,69 +1,18 @@
-import '../menuState.del';
-import './componentWithValue.del';
+import './toggle.del';
 
-class Checkbox: ComponentWithValue
+class Checkbox: Toggle
 {
-  public MenuState _menuState;
   public static Button BUTTON_TOGGLE: Button.Ability2;
-  public Boolean checked: value;
-  public Boolean defaultChecked: defaultValue;
-  // public Checkbox[] siblings: _menuState.sharedItems.Get(name).Remove(this);
-
-  // events
-  public ((Boolean, Checkbox) => void) onChange;
 
   public constructor(
-    in MenuState menuState,
     in String text, 
-    in String name,
     in Boolean defaultChecked = null,
     in Component child = null
   ) {
-    CheckboxConstructor(menuState, text, name, defaultChecked, child);
-  }
-
-  protected void CheckboxConstructor(
-    MenuState menuState!,
-    String text!, 
-    String name!,
-    Boolean defaultChecked! = null,
-    Component child! = null
-  ) "[Checkbox] Constructor" {
-    ComponentWithValueConstructor(text, defaultChecked, child);
-
-    this._menuState = menuState;
-    this.name = name;
-
-    AddDescription($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle selection");
-  }
-
-  public virtual void SetSelected(Boolean selected!) "[Checkbox] SetSelected" {
-    if(selected != checked) {
-      value = selected;
-      OnChange();
-    }
-  }
-
-  public virtual void Toggle() "[Checkbox] Toggle" {
-    SetSelected(!checked);
+    ToggleConstructor(text, defaultChecked, child);
   }
 
   public override void FormatText() "[Checkbox] FormatText" {
     renderedText = $"{checked ? "[✓]" : "[    ]"}​ {child ? child.renderedText : textFormatter(this)}";
-  }
-
-  // events
-  public override void OnButtonDown(Button button!) "[Checkbox] OnButtonDown" {
-    onButtonDown(button, this);
-
-    if(button == BUTTON_TOGGLE)
-      Toggle();
-
-    if(child != null)
-      child.OnButtonDown(button);
-  }
-
-  public virtual void OnChange() "[Checkbox] OnChange" {
-    onChange(checked, this);
   }
 }

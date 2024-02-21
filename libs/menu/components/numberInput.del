@@ -133,8 +133,4 @@ class NumberInput: ComponentWithValue
       renderedText = $"{renderedText}: {text}​{unit ? unit : ''}";
     }
   }
-
-  public virtual void OnChange() "[NumberInput] OnChange" {
-    onChange(value, this);
-  }
 }

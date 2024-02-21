@@ -1,5 +1,6 @@
 import './component.del';
 
+// unfortunately OSTW doesn't really like generic classes in callbacks 😞
 class ComponentWithValue: Component 
 {
   public Any value;
@@ -8,10 +9,6 @@ class ComponentWithValue: Component
   public ((ComponentWithValue) => String) valueFormatter;
   public static ((ComponentWithValue) => String) VALUE_FORMATTER: (it) => it.value;
   
-  // events
-  public ((Button, ComponentWithValue) => void) onButtonDown;
-  public ((Button, ComponentWithValue) => void) onButtonUp;
-  public ((Vector, ComponentWithValue) => void) onNavigate;
   public ((Any, ComponentWithValue) => void) onChange;
 
   public constructor(
@@ -29,7 +26,7 @@ class ComponentWithValue: Component
     ComponentConstructor(text, child);
 
     this.defaultValue = defaultValue;
-    this.value = this.defaultValue;
+    this.value = defaultValue;
     this.valueFormatter = VALUE_FORMATTER;
   }
 
@@ -39,24 +36,6 @@ class ComponentWithValue: Component
   }
 
   // events
-  public override void OnButtonDown(Button button!) "[ComponentWithValue] OnButtonDown" {
-    onButtonDown(button, this);
-    if(child != null)
-      child.OnButtonDown(button);
-  }
-
-  public override void OnButtonUp(Button button!) "[ComponentWithValue] OnButtonUp" {
-    onButtonUp(button, this);
-    if(child != null)
-      child.OnButtonUp(button);
-  }
-
-  public override void OnNavigate(Vector direction!) "[ComponentWithValue] OnNavigate" {
-    onNavigate(direction, this);
-    if(child != null)
-      child.OnNavigate(direction);
-  }
-
   public virtual void OnChange() "[ComponentWithValue] OnChange" {
     onChange(value, this);
   }
