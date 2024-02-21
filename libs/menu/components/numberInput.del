@@ -3,10 +3,12 @@ import '../../utils/number.join.del';
 import '../menuState.del';
 import './componentWithValue.del';
 
-// TODO: remake into Spinner that allows arbitrary items and NumberSpinner
+// TODO: split main logic into shared Input
+
+// TODO: min, max?
 
 # NOTE: number passed in `defaultValue` will lose its precision because of Workshop limitations
-class Spinner: ComponentWithValue
+class NumberInput: ComponentWithValue
 {
   public String DESCRIPTION: $'Press {ButtonFormatterSingle(BUTTON_EDIT_MODE)}​ to {editMode ? "disable" : "enable"}​ Edit Mode';
   public static Button BUTTON_EDIT_MODE: Button.Melee;
@@ -29,10 +31,10 @@ class Spinner: ComponentWithValue
     in Number fractionalLength = 0,
     in String unit = null
   ) {
-    SpinnerConstructor(menuState, text, defaultValue, negative, integralLength, fractionalLength, unit);
+    NumberInputConstructor(menuState, text, defaultValue, negative, integralLength, fractionalLength, unit);
   }
 
-  protected void SpinnerConstructor(
+  protected void NumberInputConstructor(
     MenuState menuState!,
     String text!, 
     Any defaultValue! = 0,
@@ -40,7 +42,7 @@ class Spinner: ComponentWithValue
     Number integralLength! = 3,
     Number fractionalLength! = 0,
     String unit! = null
-  ) "[Spinner] Constructor" {
+  ) "[NumberInput] Constructor" {
     ComponentWithValueConstructor(text, defaultValue, null);
 
     this._menuState = menuState;
@@ -63,7 +65,7 @@ class Spinner: ComponentWithValue
     length = 1 + integralLength + (fractionalLength ? 1 + fractionalLength : 0);
   }
 
-  public override void OnNavigate(Vector direction!) "[Spinner] OnNavigate" {
+  public override void OnNavigate(Vector direction!) "[NumberInput] OnNavigate" {
     if(!editMode) return;
 
     onNavigate(direction, this);
@@ -99,7 +101,7 @@ class Spinner: ComponentWithValue
     }
   }
 
-  public override void OnButtonDown(Button button!) "[Spinner] OnButtonDown" {
+  public override void OnButtonDown(Button button!) "[NumberInput] OnButtonDown" {
     onButtonDown(button, this);
 
     if(button == BUTTON_EDIT_MODE) {
@@ -113,7 +115,7 @@ class Spinner: ComponentWithValue
     }
   }
 
-  public override void FormatText() "[Spinner] FormatText" {
+  public override void FormatText() "[NumberInput] FormatText" {
     renderedText = textFormatter(this);
     if(length <= 0) renderedText = $"{renderedText}: Empty";
     else {
@@ -124,15 +126,15 @@ class Spinner: ComponentWithValue
           i == -2 ? '.' : i
       ).Map((i, idx) => idx == index && editMode ? $"[{i}]" : i);
 
-      // if(!negative) 
-      //   vals = vals.Slice(1, vals.Length);
+      if(!negative && parts[0] != -1) 
+        vals = vals.Slice(1, vals.Length);
 
       text = Join(vals, editMode ? " " : '');
       renderedText = $"{renderedText}: {text}​{unit ? unit : ''}";
     }
   }
 
-  public virtual void OnChange() "[Spinner] OnChange" {
+  public virtual void OnChange() "[NumberInput] OnChange" {
     onChange(value, this);
   }
 }

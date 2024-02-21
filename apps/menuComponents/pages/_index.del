@@ -4,7 +4,7 @@ import '../_variables.del';
 import './component.del';
 import './toggle.del';
 import './carousel.del';
-import './spinner.del';
+import './numberInput.del';
 import './checkbox.del';
 import './radio.del';
 import './listLong.del';
@@ -19,7 +19,7 @@ Component[] PageDebugItems() {
     new Link(menuState, PAGE_DEBUG_COMPONENT_NAME, PAGE_DEBUG_COMPONENT_ID),
     new Link(menuState, PAGE_DEBUG_TOGGLE_NAME, PAGE_DEBUG_TOGGLE_ID),
     new Link(menuState, PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
-    new Link(menuState, PAGE_DEBUG_SPINNER_NAME, PAGE_DEBUG_SPINNER_ID),
+    new Link(menuState, PAGE_DEBUG_NUMBER_INPUT_NAME, PAGE_DEBUG_NUMBER_INPUT_ID),
     new Link(menuState, PAGE_DEBUG_CHECKBOX_NAME, PAGE_DEBUG_CHECKBOX_ID),
     new Link(menuState, PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),
     new Text(),
