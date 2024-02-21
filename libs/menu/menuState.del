@@ -273,7 +273,7 @@ class MenuState {
     // when changing page `buttonsHeld` is being cleared
     if(!buttonsHeld.Contains(button)) return;
 
-    ModifyVariable(buttonsHeld, Operation.RemoveFromArrayByValue, button);
+    buttonsHeld.ModRemoveByValue(button);
 
     if(isOpen) {
       hoveredItem.OnButtonUp(button);
