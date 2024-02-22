@@ -157,18 +157,7 @@ if(menuState.pageId == PAGE_ABILITIES_ID)
     
     Player pl: EvaluateOnce(player);
 
-    playerText.Add(pl, 
-      (pl.buttonsHeld.Contains(Button.PrimaryFire) ? $'{Button.PrimaryFire}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.SecondaryFire) ? $'{Button.SecondaryFire}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Ability1) ? $'{Button.Ability1}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Ability2) ? $'{Button.Ability2}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Ultimate) ? $'{Button.Ultimate}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Reload) ? $'{Button.Reload}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Melee) ? $'{Button.Melee}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Jump) ? $'{Button.Jump}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Crouch) ? $'{Button.Crouch}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Interact) ? $'{Button.Interact}\n' :  '')
-    );
+    playerText.Add(pl, InlineJoin10(pl.buttonsHeld, '\n'));
 
     MinWait();
   }
@@ -190,16 +179,7 @@ if(menuState.history[menuState.history.Length - 2].id == PAGE_ABILITIES_ID)
 
     playerText.Add(pl, PageAbilitiesInfo(
       player: pl,
-      button: 
-        menuState.history.Last.id == PAGE_ABILITIES_PRIMARY_FIRE_ID ? Button.PrimaryFire :
-        menuState.history.Last.id == PAGE_ABILITIES_SECONDARY_FIRE_ID ? Button.SecondaryFire :
-        menuState.history.Last.id == PAGE_ABILITIES_ABILITY_1_ID ? Button.Ability1 :
-        menuState.history.Last.id == PAGE_ABILITIES_ABILITY_2_ID ? Button.Ability2 :
-        menuState.history.Last.id == PAGE_ABILITIES_ULTIMATE_ID ? Button.Ultimate :
-        menuState.history.Last.id == PAGE_ABILITIES_RELOAD_ID ? Button.Reload :
-        menuState.history.Last.id == PAGE_ABILITIES_MELEE_ID ? Button.Melee :
-        menuState.history.Last.id == PAGE_ABILITIES_JUMP_ID ? Button.Jump :
-        Button.Crouch
+      button: selectedButton
     ));
 
     MinWait();

@@ -55,18 +55,7 @@ if(menuState.pageId == PAGE_STATUS_ID)
   foreach(Player player in AllPlayers()) {
     Player pl: EvaluateOnce(player);
 
-    playerText.Add(pl,
-      (pl.pageStatusAppliedStatuses.Contains('Asleep') ? $'Asleep\n' : '') +
-        (pl.pageStatusAppliedStatuses.Contains('Burning') ? $'Burning\n' : '') +
-        (pl.pageStatusAppliedStatuses.Contains('Frozen') ? $'Frozen\n' : '') +
-        (pl.pageStatusAppliedStatuses.Contains('Hacked') ? $'Hacked\n' : '') +
-        (pl.pageStatusAppliedStatuses.Contains('Invincible') ? $'Invincible\n' : '') +
-        (pl.pageStatusAppliedStatuses.Contains('KnockedDown') ? $'Knocked Down\n' : '') +
-        (pl.pageStatusAppliedStatuses.Contains('PhasedOut') ? $'Phased Out\n' : '') +
-        (pl.pageStatusAppliedStatuses.Contains('Rooted') ? $'Rooted\n' : '') +
-        (pl.pageStatusAppliedStatuses.Contains('Stunned') ? $'Stunned\n' : '') +
-        (pl.pageStatusAppliedStatuses.Contains('Unkillable') ? $'Unkillable\n' : '')
-    );
+    playerText.Add(pl, InlineJoin10(pl.pageStatusAppliedStatuses, '\n'));
 
     MinWait();
   }

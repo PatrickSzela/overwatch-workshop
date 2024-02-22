@@ -2,6 +2,7 @@ import '../../_variables.del';
 import './healDamageTaken.del';
 import './slowMotion.del';
 import './diagnostics.del';
+import './playerInfo.del';
 
 String PAGE_TOOLS_ID: 'tools';
 String PAGE_TOOLS_NAME: 'Tools';
@@ -10,6 +11,7 @@ Component[] PageToolsItems() {
   return [
     PageHealDamageTakenMenuItem(),
     PageSlowMotionMenuItem(),
+    PagePlayerInfoMenuItem(),
     PageDiagnosticsMenuItem()
   ];
 }

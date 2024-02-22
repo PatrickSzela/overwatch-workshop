@@ -29,6 +29,8 @@ playervar Number spawnBotSlot = -1;
 playervar Vector spawnBotPosition = null;
 globalvar Number createdBots = 0;
 playervar Number botIdx = 0;
+// workaround because the bots will have their original names on client-side
+playervar String playerName = $"{EventPlayer()}";
 
 Component[] PageCreateBotItems() {
   Carousel hero = new Carousel(
@@ -128,7 +130,9 @@ if(IsDummyBot(EventPlayer()))
     botIdx = createdBots;
   }
 
-  StartForcingDummyBotName(EventPlayer(), $"[BOT {botIdx}] {EventPlayer().Hero()}");
+  playerName = $"[BOT {botIdx}] {EventPlayer().Hero()}";
+
+  StartForcingDummyBotName(EventPlayer(), playerName);
 
   WaitUntil(EvaluateOnce(EventPlayer().Hero()) != EventPlayer().Hero(), 99999);
   LoopIfConditionIsTrue();

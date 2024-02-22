@@ -4,6 +4,8 @@ import './menuState.del';
 // TODO: mention support for up to 1 children in Component
 // TODO: meniton about lambda size limit and why its better to use rules for longer code (but there might be some race conditions happening, so better call subroutine in callback)
 // TODO: add info that if child is provided in Component, text will be ignored
+// TODO: support multiple title rows & closed titles rows
+// TODO: automatically handle scrollable height instead of always forced value (calculate based on amount of hud items and size of description & title)
 
 enum MenuLocation {
   Left,

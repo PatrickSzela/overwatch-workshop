@@ -1,0 +1,47 @@
+import './utils/string.formatters.del';
+import './utils/array.del';
+
+playervar Boolean showPlayerInfo = false;
+
+void PlayerInfo(in String playerName, in Button[] buttonsHeld = [], in String[] appliedStatuses = []) {
+  String hero: HeroWithIconFormatter(EventPlayer().Hero());
+  String health: $"{EventPlayer().Health()}​ / {EventPlayer().MaxHealth()}​ HP";
+  String position: $"Pos: {EventPlayer().Position()}";
+  String facing: $"Fac: {EventPlayer().FacingDirection()}";
+  String speed: $"Spd: ({HorizontalSpeedOf(EventPlayer())}, {VerticalSpeedOf(EventPlayer())})​ m/s";
+  String buttons: $"Buttons: {InlineJoin10(buttonsHeld, ', ')}";
+  String statuses: $"Statuses: {InlineJoin10(appliedStatuses, ', ')}";
+
+  CreateHudText(
+    LocalPlayer().showPlayerInfo ? LocalPlayer() : null,
+    null,
+    $"{playerName}: {hero}, {health}",
+    null,
+    Location.Right,
+    50
+  );
+  CreateHudText(
+    LocalPlayer().showPlayerInfo ? LocalPlayer() : null,
+    null,
+    $"{position}, {facing}, {speed}",
+    null,
+    Location.Right,
+    50
+  );
+  // CreateHudText(
+  //   LocalPlayer().showPlayerInfo ? LocalPlayer() : null,
+  //   null,
+  //   (buttonsHeld.Length ? buttons : ''),
+  //   null,
+  //   Location.Right,
+  //   50
+  // );
+  // CreateHudText(
+  //   LocalPlayer().showPlayerInfo ? LocalPlayer() : null,
+  //   null,
+  //   (appliedStatuses.Length ? statuses : ''),
+  //   null,
+  //   Location.Right,
+  //   50
+  // );
+}

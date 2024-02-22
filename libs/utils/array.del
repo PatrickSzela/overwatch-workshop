@@ -16,3 +16,15 @@ String Join(in Any[] array, in String separator) {
   }
   return ret;
 }
+
+String InlineJoin10(Any[] array, String separator): 
+  (array[0] ? $"{array[0]}" : '') +
+  (array[1] ? $"{separator}{array[1]}" : '') +
+  (array[2] ? $"{separator}{array[2]}" : '') +
+  (array[3] ? $"{separator}{array[3]}" : '') +
+  (array[4] ? $"{separator}{array[4]}" : '') +
+  (array[5] ? $"{separator}{array[5]}" : '') +
+  (array[6] ? $"{separator}{array[6]}" : '') +
+  (array[7] ? $"{separator}{array[7]}" : '') +
+  (array[8] ? $"{separator}{array[8]}" : '') +
+  (array[9] ? $"{separator}{array[9]}" : '');

@@ -12,13 +12,11 @@ import './pages/_index.del';
 import './pages2/index.del';
 import '../../libs/utils/rules/pauseMatchTime.del';
 import './customGameSettings.lobby';
+import '../../libs/playerInfo.del';
 
 // TODO: teleport/look at flag
 // TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
 // TODO: tools - ruler, spheres
-//
-// TODO: support multiple title rows & closed titles rows
-// TODO: automatically handle scrollable height instead of always forced value (calculate based on amount of hud items and size of description & title)
 
 Button SWITCH_FOCUS_BUTTON: Button.Ability1;
 playervar Number switchFocusDescriptionIdx;
@@ -29,7 +27,9 @@ Event.OngoingPlayer
   menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
   menuState.SetFocused();
 
+  Description desc: { text: '\n', order: 9999, ..Description.BASE };
   menuState2 = new MenuState(null, [], false, true);
+  menuState2.AddMenuDescription(desc);
 }
 
 rule: 'Generate Menu'
@@ -102,4 +102,10 @@ if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
   menuState2.GoTo(PAGE_SELECT_PLAYERS_ID);
   WaitUntil(!menuState.isOpen || !menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID), 99999);
   menuState2.SetEnabled(false);
+}
+
+rule: 'Player Info'
+Event.OngoingPlayer
+{
+  PlayerInfo(playerName, buttonsHeld, pageStatusAppliedStatuses);
 }

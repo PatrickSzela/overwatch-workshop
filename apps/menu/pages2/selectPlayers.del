@@ -46,32 +46,21 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 }
 
 // because `Event.OnPlayerJoin`/`Event.OnPlayerLeave` doesn't work with dummy bots...
-rule: 'Player Settings/Select Players: Handle logic when Player joins or leaves'
-Event.OngoingPlayer
-if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
-{
-  WaitUntil(AllPlayers() != EvaluateOnce(AllPlayers()), 99999);
-
-  selectedPlayers = selectedPlayers.FilteredArray((i) => EntityExists(i));
-
-  AbortIfConditionIsFalse();
-  menuState2.Refresh();
-  LoopIfConditionIsTrue();
-}
-
 rule: 'Player Settings/Select Players: Rerender when hero is swapped'
 Event.OngoingPlayer
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
   WaitUntil(
-    AllPlayers() == EvaluateOnce(AllPlayers()) && 
+    AllPlayers() != EvaluateOnce(AllPlayers()) ||
     AllPlayers().Map((i) => i.Hero()) != EvaluateOnce(AllPlayers().Map((i) => i.Hero())), 
   99999);
+
+  selectedPlayers = selectedPlayers.FilteredArray((i) => EntityExists(i));
 
   // renaming bots waits 0.1s, wait a bit more
   Wait(0.2);
 
   AbortIfConditionIsFalse();
-  menuState2.RerenderAllItems();
+  menuState2.Refresh();
   LoopIfConditionIsTrue();
 }

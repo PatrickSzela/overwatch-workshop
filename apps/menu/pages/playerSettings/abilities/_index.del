@@ -42,8 +42,6 @@ rule: 'Player Settings/Abilities'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_ABILITIES_ID)
 {
-  pageAbilitiesFilteredPlayers = selectedPlayers.FilteredArray((i) => i != EventPlayer());
-
   Description desc1: {text: "All Players have a list of currently pressed buttons above them", color: Color.SkyBlue, ..Description.BASE};
   Description desc2: {text: "To avoid potential bugs, you won't be able to trigger using abilities for yourself", color: Color.Orange, ..Description.BASE};
 

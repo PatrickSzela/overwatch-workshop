@@ -1,0 +1,17 @@
+import '../../../../libs/playerInfo.del';
+import '../../../../libs/menu/components/toggle.del';
+
+String PAGE_PLAYER_INFO_ID: 'playerInfo';
+String PAGE_PLAYER_INFO_NAME: 'Show Player Info';
+
+Component PagePlayerInfoMenuItem() {
+  Toggle toggle = new Toggle(
+    text: PAGE_PLAYER_INFO_NAME,
+    defaultChecked: showPlayerInfo
+  );
+  toggle.onChange = (checked, it) => {
+    showPlayerInfo = checked;
+  };
+
+  return toggle;
+}

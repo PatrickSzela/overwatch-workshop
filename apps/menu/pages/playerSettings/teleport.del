@@ -69,3 +69,23 @@ if(menuState.pageId == PAGE_TELEPORT_ID)
   Description desc: { text: $"Press {ButtonFormatterSingle(PAGE_TELEPORT_BUTTON_APPLY)}​ to apply", ..Description.BASE };
   menuState.CreatePage(PAGE_TELEPORT_NAME, PageTeleportItems(), [desc]);
 }
+
+rule: 'Draw current health info above players'
+Event.OngoingPlayer
+if(menuState.isOpen)
+if(menuState.pageId == PAGE_TELEPORT_ID)
+{
+  foreach(Player player in AllPlayers()) {
+    if(player == EventPlayer()) continue;
+
+    Player pl: EvaluateOnce(player);
+    
+    playerText.Add(pl, $"{pl.Position()}");
+
+    MinWait();
+  }
+
+  WaitUntil(menuState.pageId != PAGE_TELEPORT_ID || !menuState.isOpen, 99999);
+  
+  playerText.Remove();
+}
