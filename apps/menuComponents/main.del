@@ -17,7 +17,7 @@ rule: 'Generate Menu'
 rule: 'Diagnostics'
 {
   CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
-  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoad() > 100);
+  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
   CreateDiagnosticText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed() > 800, ClassMemoryUsed() > 900);
   CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
   CreateDiagnosticText($"Entity count: {EntityCount()}/128", EntityCount() > 96, EntityCount() > 112);

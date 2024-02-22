@@ -26,6 +26,10 @@
     },
     "Deathmatch": {
       "Enabled": false
+    },
+    "Practice Range": {
+      "Enabled": true,
+      "Enabled Maps": []
     }
   },
   "Mode Name": "(Not So) Simple Menu",
