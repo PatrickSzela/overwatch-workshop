@@ -10,6 +10,12 @@ rule: 'Generate Menu'
   menu = new Menu(LocalPlayer().menuState);
 }
 
+rule: 'Hide diagnostics by default'
+Event.OngoingPlayer
+{
+  diagnosticsEnabled = false;
+}
+
 // creating SelectedPlayers contains loop
 rule: 'Generate SelectedPlayers'
 {
