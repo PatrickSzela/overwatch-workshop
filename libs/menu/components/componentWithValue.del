@@ -30,7 +30,7 @@ class ComponentWithValue: Component
     this.valueFormatter = VALUE_FORMATTER;
   }
 
-  public override void FormatText() "[ComponentWithValue] FormatText" {
+  public override void Render() "[ComponentWithValue] Render" {
     renderedText = textFormatter(this);
     renderedText = $"{renderedText}: {valueFormatter(this)}";
   }

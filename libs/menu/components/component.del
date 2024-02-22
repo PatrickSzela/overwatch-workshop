@@ -57,7 +57,7 @@ class Component {
     this.description += {text: description, color: color, visible: visible, order: order};
   }
 
-  public virtual void FormatText() "[Component] FormatText" {
+  public virtual void Render() "[Component] Render" {
     renderedText = child ? child.renderedText : textFormatter(this);
   }
 

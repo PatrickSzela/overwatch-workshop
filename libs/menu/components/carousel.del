@@ -48,7 +48,7 @@ class Carousel: ComponentWithValue
     }
   }
 
-  public override void FormatText() "[Carousel] FormatText" {
+  public override void Render() "[Carousel] Render" {
     renderedText = textFormatter(this);
     if(options.Length == 0) renderedText = $"{renderedText}: Empty";
     else renderedText = $"{renderedText}: ← {valueFormatter(this)}​ →";

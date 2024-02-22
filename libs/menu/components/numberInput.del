@@ -116,7 +116,7 @@ class NumberInput: ComponentWithValue
     }
   }
 
-  public override void FormatText() "[NumberInput] FormatText" {
+  public override void Render() "[NumberInput] Render" {
     renderedText = textFormatter(this);
     if(length <= 0) renderedText = $"{renderedText}: Empty";
     else {

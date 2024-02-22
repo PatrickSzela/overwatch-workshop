@@ -336,10 +336,10 @@ class MenuState {
       Component item! = items[itemIdx];
       // called here, not in Component because it won't work
       if(item.child) {
-        item.child.FormatText();
+        item.child.Render();
       }
 
-      item.FormatText();
+      item.Render();
     }
 
     if(rerenderItems.Contains(hoveredItemIdx))
@@ -433,10 +433,10 @@ class MenuState {
    
   public Boolean onEnter(in String id): isOpen && hoveredItem.id == id;
 
-  public Boolean onNavigate(in String pageId, in Vector direction) {
+  public Boolean onNavigate(in String id, in Vector direction) {
     Vector diff = ThrottleOf(EventPlayer()) - direction * 0.5;
     Boolean x = AbsoluteValue(diff.X) > 0.5;
     Boolean y = AbsoluteValue(diff.Y) > 0.5;
-    return isOpen && hoveredItem.id == pageId && (x && !y || !x && y);
+    return isOpen && hoveredItem.id == id && (x && !y || !x && y);
   }
 }

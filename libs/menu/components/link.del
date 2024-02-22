@@ -28,7 +28,7 @@ class Link: Component
     AddDescription($"Press {ButtonFormatterSingle(BUTTON_OPEN)}​ to open submenu");
   }
 
-  public override void FormatText() "[Link] FormatText" {
+  public override void Render() "[Link] Render" {
     renderedText = $"{textFormatter(this)}​ ▶";
   }
 

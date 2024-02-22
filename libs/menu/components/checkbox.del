@@ -12,7 +12,7 @@ class Checkbox: Toggle
     ToggleConstructor(text, defaultChecked, child);
   }
 
-  public override void FormatText() "[Checkbox] FormatText" {
+  public override void Render() "[Checkbox] Render" {
     renderedText = $"{checked ? "[✓]" : "[    ]"}​ {child ? child.renderedText : textFormatter(this)}";
   }
 }
