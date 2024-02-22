@@ -17,7 +17,7 @@ class Carousel: ComponentWithValue
     Any[] options!,
     Any defaultValue! = null
   ) "[Carousel] Constructor" {
-    this.defaultValue = defaultValue == null ? options.First : defaultValue;
+    this.defaultValue = !options.Contains(defaultValue) ? options.First : defaultValue;
     this.options = options;
     
     ComponentWithValueConstructor(text, this.defaultValue, null);

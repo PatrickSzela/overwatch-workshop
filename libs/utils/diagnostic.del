@@ -9,5 +9,6 @@ Any CreateDiagnosticText(String text, Boolean colorOrange, Boolean colorRed, Boo
     colorRed ? Color.Red : 
     colorOrange ? Color.Orange : 
     Color.White,
-  Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
+  Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,
+  SortOrder: 99
 );

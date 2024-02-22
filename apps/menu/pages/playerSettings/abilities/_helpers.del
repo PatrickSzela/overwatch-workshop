@@ -6,7 +6,7 @@ import '../../../_variables.del';
 
 Button PAGE_ABILITIES_BUTTON_HOLD: Button.Reload;
 Button PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING: Button.Interact;
-Button PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING: Button.Jump;
+Button PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING: Button.Melee;
 
 playervar Player[] pageAbilitiesFilteredPlayers = [];
 playervar Boolean[] pageAbilitiesEnabled = [true, true, true, true, true, true, true, true, true, true];
