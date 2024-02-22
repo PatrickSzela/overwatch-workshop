@@ -1,5 +1,4 @@
 import '../../_variables.del';
-import './selectPlayers.del';
 import './changeHero.del';
 import './teleport.del';
 import './lookAt.del';
@@ -15,18 +14,8 @@ import './menuAccess.del';
 String PAGE_PLAYER_SETTINGS_ID: 'playerSettings';
 String PAGE_PLAYER_SETTINGS_NAME: 'Player Settings';
 
-Component[] PageSelectPlayersMenuItems() {
-  Component selectPlayer = new Link(menuState, $"Select Players ({selectedPlayers.Length}/{AllPlayers().Length})", PAGE_SELECT_PLAYERS_ID);
-  selectPlayer.AddDescription('Selected Players have a hero portrait and their name above them', Color.SkyBlue);
-
-  return [
-    selectPlayer,
-    new Text()
-  ];
-}
-
 Component[] PagePlayerSettingsItems() {
-  return PageSelectPlayersMenuItems() + [
+  return [
     PageChangeHeroMenuItem(),
     new Link(menuState, PAGE_TELEPORT_NAME, PAGE_TELEPORT_ID),
     new Link(menuState, PAGE_LOOK_AT_NAME, PAGE_LOOK_AT_ID),

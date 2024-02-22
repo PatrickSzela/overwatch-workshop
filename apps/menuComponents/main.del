@@ -1,3 +1,14 @@
+// TODO: mention importing all used components in proper order because of some weird OSTW bug
+import '../../libs/menu/components/component.del'; 
+import '../../libs/menu/components/componentWithValue.del'; 
+import '../../libs/menu/components/text.del'; 
+import '../../libs/menu/components/link.del'; 
+import '../../libs/menu/components/numberInput.del'; 
+import '../../libs/menu/components/toggle.del';
+import '../../libs/menu/components/checkbox.del'; 
+import '../../libs/menu/components/radio.del'; 
+import '../../libs/menu/components/carousel.del'; 
+
 import './_variables.del';
 import './pages/_index.del';
 import '../../libs/utils/rules/pauseMatchTime.del';
@@ -5,6 +16,14 @@ import '../../libs/utils/diagnostic.del';
 import '../menu/customGameSettings.lobby';
 
 Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
+
+// TODO: info that this must be called for bots too
+rule: 'Generate Menu State'
+Event.OngoingPlayer
+{
+  menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
+  menuState.SetFocused();
+}
 
 rule: 'Generate Menu'
 {

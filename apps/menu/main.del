@@ -1,13 +1,37 @@
+import '../../libs/menu/components/component.del'; 
+import '../../libs/menu/components/componentWithValue.del'; 
+import '../../libs/menu/components/text.del'; 
+import '../../libs/menu/components/link.del'; 
+import '../../libs/menu/components/numberInput.del'; 
+import '../../libs/menu/components/toggle.del';
+import '../../libs/menu/components/checkbox.del'; 
+import '../../libs/menu/components/radio.del'; 
+import '../../libs/menu/components/carousel.del'; 
 import './_variables.del';
 import './pages/_index.del';
+import './pages2/index.del';
 import '../../libs/utils/rules/pauseMatchTime.del';
 import './customGameSettings.lobby';
+
+Button SWITCH_FOCUS_BUTTON: Button.Ability1;
+playervar Number switchFocusDescriptionIdx;
+
+rule: 'Generate Menu State'
+Event.OngoingPlayer
+{
+  menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
+  menuState.SetFocused();
+
+  menuState2 = new MenuState(null, [], false, true);
+}
 
 rule: 'Generate Menu'
 {
   DisableInspectorRecording();
+
   // TODO: add info about state being a variable of LocalPlayer
   menu = new Menu(LocalPlayer().menuState);
+  menu2 = new Menu(LocalPlayer().menuState2, MenuLocation.Right);
 }
 
 rule: 'Hide diagnostics by default'
@@ -19,5 +43,50 @@ Event.OngoingPlayer
 // creating SelectedPlayers contains loop
 rule: 'Generate SelectedPlayers'
 {
-  selectedPlayersInstance = new SelectedPlayers(LocalPlayer().selectedPlayers, LocalPlayer().menuState.isOpen && LocalPlayer().menuState.history.Map((i) => i.id).Contains(PAGE_PLAYER_SETTINGS_ID));
+  selectedPlayersInstance = new SelectedPlayers(LocalPlayer().selectedPlayers, LocalPlayer().menuState.isOpen && LocalPlayer().menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID));
+}
+
+rule: 'Switch focused menu'
+Event.OngoingPlayer
+if(currentMenuState.isOpen)
+if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
+if(EventPlayer().IsButtonHeld(SWITCH_FOCUS_BUTTON))
+{
+  if(currentMenuState == menuState) {
+    menuState2.SetFocused();
+  } else {
+    menuState.SetFocused();
+  }
+}
+
+rule: 'Show description on currently focused menu'
+Event.OngoingPlayer
+if(currentMenuState.isFocused)
+if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
+{
+  Description desc: { text: $'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to other menu', color: Color.Green, order: 99, ..Description.BASE };
+
+  switchFocusDescriptionIdx = currentMenuState.AddMenuDescription(desc);
+  currentMenuState.Rerender();
+
+  MenuState cur! = currentMenuState;
+  WaitUntil(cur != currentMenuState || !menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID), 99999);
+
+  cur.RemoveMenuDescription(switchFocusDescriptionIdx);
+  cur.Rerender();
+
+  AbortIfConditionIsFalse();
+  LoopIfConditionIsTrue();
+}
+
+rule: 'Open Select Players menu'
+Event.OngoingPlayer
+if(menuState.isOpen)
+if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
+{
+  menuState2.SetEnabled(true);
+  menuState2.Open();
+  menuState2.GoTo(PAGE_SELECT_PLAYERS_ID);
+  WaitUntil(!menuState.isOpen || !menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID), 99999);
+  menuState2.SetEnabled(false);
 }

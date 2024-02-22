@@ -2,6 +2,7 @@ import '../utils/dictionary.del';
 import '../utils/string.formatters.del';
 import '../utils/button.allButtons.del';
 import './menu.del';
+import './_rules.del';
 import './components/component.del';
 
 # List of currently pressed buttons by a player.
@@ -57,6 +58,10 @@ class MenuState {
   public Boolean isOpen;
   # Whether player can navigate the menu. Items will still receive navigation events.
   public Boolean isLocked;
+  # Whether opening and closing menu logic is handled from outside.
+  public Boolean isPuppet;
+  # Whether this menu is currently used menu.
+  public Boolean isFocused: currentMenuState == this;
   # Combination of buttons used to toggle menu on and off.
   public Button[] _toggleMenu;
   # List of available items on current page.
@@ -71,45 +76,52 @@ class MenuState {
   public String pageId: history.Last.id;
   # ID of root page.
   public String _rootPageId;
-  # List of items that should be re-rendered.
-  public Number[] rerenderItems;
+  # List of indexes of items that should be re-rendered.
+  public Number[] rerenderItemIdxs;
   # List of rendered items.
   public RenderedTexts renderedTexts;
   # List of additional descriptions that will be show on current page.
-  public Description[] descriptions;
+  public Description[] descriptionsPage;
+  # List of additional descriptions that will be shown until manually removed.
+  public Description[] descriptionsMenu;
   # List of currently visible items.
   public Component[] visibleItems: items.Slice(history.Last.outerScroll, MAX_ITEMS);
-
+  # List of components that aren't disabled (can be hovered).
+  public Component[] enabledItems: items.FilteredArray((i, idx) => !i.disabled);
   # Stores relation of named component to item in `items`. 
   public Dictionary<String, ComponentParent[]> namedComponentToItem = { Keys: [], Values: [] };
 
-  Number firstItemIdx: items.IndexOf(items.FilteredArray((i, idx) => !i.disabled).First);
-  Number lastItemIdx: items.IndexOf(items.FilteredArray((i, idx) => !i.disabled).Last);
-
-  # Currently assigned global menu.
-  protected Menu _menu;
-  # Player to which this `MenuState` is assigned to.
-  protected Player _player;
-
-  public constructor(ref Menu menu, in String rootPageId, in Button[] toggleMenu, in Boolean enabled = true) {
-    _menu = menu;
-    _player = EventPlayer();
+  public constructor(in String rootPageId, in Button[] toggleMenu, in Boolean enabled = true, in Boolean puppet = false) {
     _toggleMenu = toggleMenu;
     _rootPageId = rootPageId;
 
-    history = [{ id: rootPageId, ..HistoryItem.BASE }];
+    if(rootPageId != null)
+      history = [{ id: rootPageId, ..HistoryItem.BASE }];
+    else 
+      history = [];
+    
     items = [];
     isLocked = false;
     isEnabled = enabled;
+    isPuppet = puppet;
 
-    rerenderItems = [];
+    rerenderItemIdxs = [];
 
     Render();
   }
 
   // helpers
+  public Boolean HistoryContains(in String pageId): 
+    history.Map((i) => i.id).Contains(pageId);
+
   public void SetTitle(in String title) {
     RenderTitle(title);
+  }
+
+  # Forcefully rerenders currently hovered item. Call after manually adding description.
+  public void Rerender() "[MenuState] Rerender" {
+    rerenderItemIdxs += hoveredItemIdx;
+    Render();
   }
   
   public void SetEnabled(Boolean enabled!) "[MenuState] Set Enabled" {
@@ -117,7 +129,22 @@ class MenuState {
       if(isOpen) Close();
       isEnabled = enabled;
     }
-  } 
+  }
+
+  public void SetFocused() "[MenuState] Set Focused" {
+    if(currentMenuState != this) {
+      if(currentMenuState.isOpen) {
+        currentMenuState.hoveredItem.OnLeave();
+        currentMenuState.Rerender();
+      }
+      
+      currentMenuState = this;
+      if(isOpen) {
+        hoveredItem.OnEnter();
+        Rerender();
+      }
+    }
+  }
 
   // TODO: instead of adding every item in a loop, gather them all in an array manually and set dictionary
   private void RegisterNamedItem(Component item!, Number parentIdx!) "[MenuState] Handle Named Item" {
@@ -131,7 +158,7 @@ class MenuState {
 
   public void AddItems(in Component[] items) {
     this.items += items;
-    rerenderItems = items.Map((_, idx) => idx);
+    rerenderItemIdxs = items.Map((_, idx) => idx);
 
     for(Number i! = 0; i < items.Length; i++) {
       Component item: items[i];
@@ -140,6 +167,9 @@ class MenuState {
         RegisterNamedItem(item.child, i);
       }
     }
+
+    Component[] i! = enabledItems;
+    history[history.Length - 1].innerScroll = Max(items.IndexOf(enabledItems.First), Min(items.IndexOf(enabledItems.Last), history[history.Length - 1].innerScroll));
 
     HandleScroll();
   }
@@ -150,12 +180,7 @@ class MenuState {
       isOpen = true;
 
       hoveredItem.OnEnter();
-      Render();
-
-      _player.SetMoveSpeed(0);
-
-      foreach (Button button! in allButtons)
-        DisallowButton(_player, button);
+      Rerender();
     }
   }
 
@@ -164,43 +189,31 @@ class MenuState {
       isOpen = false;
       
       hoveredItem.OnLeave();
-      Render();
-
-      // TODO: store & restore previous speed in case it was modified - how?
-      _player.SetMoveSpeed(100);
-
-      foreach (Button button! in allButtons)
-        AllowButton(_player, button);
+      Rerender();
     }
   }
 
-  public void CreatePage(String title!, Component[] items!, Description[] descriptions! = []) "[MenuState]: Create Page" {
+  public void CreatePage(String title!, Component[] items!, Description[] descriptions! = []) "[MenuState] Create Page" {
     SetTitle(title);
     AddItems(items);
 
     foreach(Description desc! in descriptions)
-      AddDescription(desc);
-
-    if(history.Length == 1 && !isLocked) {
-      Description desc1: {text: "Use [↑] or [↓] to navigate menu", order: -1, ..Description.BASE};
-      Description desc2: {text: $"Press {ButtonFormatterSingle(BUTTON_GO_BACK)}​ to go back", order: -1, ..Description.BASE};
-      AddDescription(desc1);
-      AddDescription(desc2);
-    }
+      descriptionsPage += desc;
 
     if(isOpen) {
       hoveredItem.OnEnter();
+      // `AddItems` already adds items to render queue
       Render();
     }
   }
 
-  public void DestroyPage() "[MenuState]: Destroy Page" {
+  public void DestroyPage() "[MenuState] Destroy Page" {
     if(isOpen) {
       hoveredItem.OnLeave();
     }
 
     buttonsHeld = [];
-    descriptions = [];
+    descriptionsPage = [];
     namedComponentToItem = { Keys: [], Values: [] };
 
     foreach(Component component! in items) {
@@ -213,23 +226,24 @@ class MenuState {
 
     items = [];
   }
-  
-  public virtual void Navigate(Vector direction!) "[MenuState]: Navigate" {
+
+  public virtual void Navigate(Vector direction!) "[MenuState] Navigate" {
     hoveredItem.OnNavigate(direction);
-    rerenderItems += hoveredItemIdx;
+    rerenderItemIdxs += hoveredItemIdx;
 
     if(!isLocked && (direction == Down() || direction == Up())) {
       Number offset! = 0;
       Number hov! = hoveredItemIdx;
+      Component[] it! = enabledItems;
 
       if(direction == Down()) {
         Number nextItemIdx! = items.IndexOf(items.FilteredArray((i, idx) => !i.disabled && idx > hov).First);
 
-        offset = (nextItemIdx == -1 ? firstItemIdx : nextItemIdx) - hov;
+        offset = (nextItemIdx == -1 ? items.IndexOf(it.First) : nextItemIdx) - hov;
       } else if(direction == Up()) {
         Number prevItemIdx! = items.IndexOf(items.FilteredArray((i, idx) => !i.disabled && idx < hov).Last);
 
-        offset = (prevItemIdx == -1 ? lastItemIdx : prevItemIdx) - hov;
+        offset = (prevItemIdx == -1 ? items.IndexOf(it.Last) : prevItemIdx) - hov;
       }
 
       if(offset != 0) {
@@ -237,25 +251,25 @@ class MenuState {
         history[history.Length - 1].innerScroll += offset;
         HandleScroll(); 
         hoveredItem.OnEnter();
-        rerenderItems += hoveredItemIdx;
+        rerenderItemIdxs += hoveredItemIdx;
       }
     }
 
     Render();
   }
 
-  public virtual void ButtonDown(in Button button) {
+  public virtual void ButtonDown(Button button!) "[MenuState] Button Down" {
     buttonsHeld += button;
 
     if(!isOpen) {
-      if(buttonsHeld == _toggleMenu) {
+      if(buttonsHeld == _toggleMenu && !isPuppet) {
         Open();
       }
     } else {
       hoveredItem.OnButtonDown(button);
 
       if(!isLocked) {
-        if(buttonsHeld == _toggleMenu) {
+        if(buttonsHeld == _toggleMenu && !isPuppet) {
           Close();
         } else if(buttonsHeld == [BUTTON_GO_BACK]) {
           GoBack();
@@ -264,12 +278,12 @@ class MenuState {
     }
 
     if(isOpen) {
-      rerenderItems += hoveredItemIdx;
+      rerenderItemIdxs += hoveredItemIdx;
       Render();
     }
   }
 
-  public virtual void ButtonUp(Button button!) "[MenuState]: Button Up" {
+  public virtual void ButtonUp(Button button!) "[MenuState] Button Up" {
     // when changing page `buttonsHeld` is being cleared
     if(!buttonsHeld.Contains(button)) return;
 
@@ -277,7 +291,7 @@ class MenuState {
 
     if(isOpen) {
       hoveredItem.OnButtonUp(button);
-      rerenderItems += hoveredItemIdx;
+      rerenderItemIdxs += hoveredItemIdx;
       Render();
     }
   }
@@ -301,7 +315,7 @@ class MenuState {
     ];
   }
 
-  public void RenderSeparators() "[MenuState] Render Separators" {
+  public void RenderSeparators() {
     renderedTexts.separators = [
       { 
         text: $"──────────────────────{items.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == 0 ? '△' : '▲'}──────────────────────", 
@@ -321,7 +335,10 @@ class MenuState {
         descriptionArr += arr;
     }
 
-    foreach(Description arr! in descriptions)
+    foreach(Description arr! in descriptionsPage)
+      descriptionArr += arr;
+
+    foreach(Description arr! in descriptionsMenu)
       descriptionArr += arr;
 
     Any[][] descr! = descriptionArr.Map((i) => <Any[]>[i.text, i.color, i.visible, i.order]).FilteredArray((i) => i[2]).SortedArray((i) => i[3]);
@@ -332,7 +349,7 @@ class MenuState {
   public void PrepareVisibleItems() {
     // LogToInspector($"Rerendering: {rerenderItems.Length}");
 
-    foreach(Number itemIdx! in rerenderItems) {
+    foreach(Number itemIdx! in rerenderItemIdxs) {
       Component item! = items[itemIdx];
       // called here, not in Component because it won't work
       if(item.child) {
@@ -342,16 +359,16 @@ class MenuState {
       item.Render();
     }
 
-    if(rerenderItems.Contains(hoveredItemIdx))
+    if(rerenderItemIdxs.Contains(hoveredItemIdx))
       RenderDescription();
     
-    rerenderItems = [];
+    rerenderItemIdxs = [];
   }
 
   public void RenderVisibleItems() {
     // TODO: edit only rerendered items
     renderedTexts.items = visibleItems.Map((i, idx) => <RenderedText>{ 
-      text: $"{!i.disabled ? hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{i.renderedText}",
+      text: $"{!i.disabled ? currentMenuState == this && hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{i.renderedText}",
       color: i.color 
     });
   }
@@ -375,7 +392,7 @@ class MenuState {
     }
   }
 
-  private void HandleScroll() "[MenuState]: Handle Scroll" {
+  private void HandleScroll() "[MenuState] Handle Scroll" {
     Number idx! = history.Length - 1;
     Number offset! = 0;
 
@@ -387,37 +404,47 @@ class MenuState {
       history[idx] = {innerScroll: 0, outerScroll: history.Last.outerScroll + offset, ..history[idx]};
     }
 
-    if(hoveredItem.disabled) {
-      history[idx].innerScroll = firstItemIdx;
-    }
-
-    CalculateCurrentIdx();
+    hoveredItemIdx = history.Last.innerScroll + history.Last.outerScroll;
     RenderSeparators();
   }
 
-  private void CalculateCurrentIdx() {
-    hoveredItemIdx = history.Last.innerScroll + history.Last.outerScroll;
-  }
-
-  public virtual void GoTo(Any id!) "[MenuState]: Go To" {
+  public void Refresh() "[MenuState] Refresh" {
+    HistoryItem prevHistory! = history.Last;
+    history.ModRemoveByIndex(history.Length - 1);
+    Wait();
     DestroyPage();
-    history += { id: id, ..HistoryItem.BASE };
+    history[history.Length - 1] = prevHistory;
   }
 
-  public virtual void GoBack() "[MenuState]: Go Back" {    
+  public virtual void GoTo(String pageId!) "[MenuState] Go To" {
+    if(this.pageId != pageId) {
+      DestroyPage();
+      history += { id: pageId, ..HistoryItem.BASE };
+    }
+  }
+
+  public virtual void GoBack() "[MenuState] Go Back" {
     if(history.Length == 1) {
-      Close();
+      if(!isPuppet) Close();
       return;
     }
 
     DestroyPage();
     history.ModRemoveByIndex(history.Length - 1);
-
-    CalculateCurrentIdx();
   }
 
-  public void AddDescription(in Description desc) {
-    this.descriptions += desc;
+  public Number AddPageDescription(Description desc!) "[MenuState] Add Page Description" {
+    descriptionsPage += desc;
+    return descriptionsPage.Length - 1;
+  }
+
+  public Number AddMenuDescription(Description desc!) "[MenuState] Add Menu Description" {
+    descriptionsMenu += desc;
+    return descriptionsMenu.Length - 1;
+  }
+
+  public void RemoveMenuDescription(Number idx!) "[MenuState] Remove Page Description" {
+    descriptionsMenu.ModRemoveByIndex(idx);
   }
 
   public void WaitUntilButtonDown(in String id, in Button button) {

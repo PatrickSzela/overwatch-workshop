@@ -1,13 +1,13 @@
-import '../../../../libs/menu/components/text.del';
-import '../../../../libs/menu/components/checkbox.del';
-import '../../../../libs/utils/string.formatters.del';
-import '../../../../libs/utils/player.sortedAllPlayers.del';
-import '../../_variables.del';
+import '../../../libs/menu/components/text.del';
+import '../../../libs/menu/components/checkbox.del';
+import '../../../libs/utils/string.formatters.del';
+import '../../../libs/utils/player.sortedAllPlayers.del';
+import '../_variables.del';
 
 String PAGE_SELECT_PLAYERS_ID: 'selectPlayers';
 String PAGE_SELECT_PLAYERS_NAME: 'Select Players';
 
-Component[] PageSelectPlayersItems() {  
+Component[] PageSelectPlayersItems() {
   Component[] list = [];
   Player[][] sorterPlayers = SortedAllPlayers();
 
@@ -40,7 +40,19 @@ Component[] PageSelectPlayersItems() {
 
 rule: 'Player Settings/Select Players'
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_SELECT_PLAYERS_ID)
+if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
-  menuState.CreatePage(PAGE_SELECT_PLAYERS_NAME, PageSelectPlayersItems());
+  Description desc: { text: 'Selected Players have a hero portrait and their name above them', color: Color.SkyBlue, ..Description.BASE };
+
+  menuState2.CreatePage(PAGE_SELECT_PLAYERS_NAME, PageSelectPlayersItems(), [desc]);
+}
+
+rule: 'Player Settings/Select Players: Rerender on Player Join/Leave'
+Event.OngoingPlayer
+if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
+{
+  WaitUntil(AllPlayers() != EvaluateOnce(AllPlayers()), 99999);
+  AbortIfConditionIsFalse();
+  menuState2.Refresh();
+  LoopIfConditionIsTrue();
 }

@@ -4,8 +4,10 @@ import '../../libs/playerText/playerText.del';
 import '../../libs/selectedPlayers/selectedPlayers.del';
 
 globalvar Menu menu;
+globalvar Menu menu2;
 playervar Player[] selectedPlayers = [EventPlayer()];
-playervar MenuState menuState = new MenuState(menu, 'root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
+playervar MenuState menuState;
+playervar MenuState menuState2;
 
 globalvar SelectedPlayers selectedPlayersInstance;
 
@@ -18,6 +20,7 @@ globalvar Player __player!;
 rule: "Fix \"selectedPlayers\" when player leaves"
 Event.OnPlayerLeave
 {
+  // what the fuck I was thinking when I wrote this!? but it works?
   for(__i = 0; AllPlayers().Length; 1) {
     __player = AllPlayers()[__i];
     ModifyVariable(__player.selectedPlayers, Operation.RemoveFromArrayByValue, EventPlayer());
