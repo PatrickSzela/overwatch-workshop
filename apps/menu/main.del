@@ -13,6 +13,13 @@ import './pages2/index.del';
 import '../../libs/utils/rules/pauseMatchTime.del';
 import './customGameSettings.lobby';
 
+// TODO: teleport/look at flag
+// TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
+// TODO: tools - ruler, spheres
+//
+// TODO: support multiple title rows & closed titles rows
+// TODO: automatically handle scrollable height instead of always forced value (calculate based on amount of hud items and size of description & title)
+
 Button SWITCH_FOCUS_BUTTON: Button.Ability1;
 playervar Number switchFocusDescriptionIdx;
 
@@ -40,12 +47,6 @@ Event.OngoingPlayer
   diagnosticsEnabled = false;
 }
 
-// creating SelectedPlayers contains loop
-rule: 'Generate SelectedPlayers'
-{
-  selectedPlayersInstance = new SelectedPlayers(LocalPlayer().selectedPlayers, LocalPlayer().menuState.isOpen && LocalPlayer().menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID));
-}
-
 rule: 'Switch focused menu'
 Event.OngoingPlayer
 if(currentMenuState.isOpen)
@@ -59,6 +60,18 @@ if(EventPlayer().IsButtonHeld(SWITCH_FOCUS_BUTTON))
   }
 }
 
+rule: 'Close main menu when trying to do that in the 2nd one'
+Event.OngoingPlayer
+if(menuState2.isFocused)
+if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
+if(buttonsHeld == menuState._toggleMenu)
+{
+  if(menuState.isOpen)
+    menuState.Close();
+  else
+    menuState.Open();
+}
+
 rule: 'Show description on currently focused menu'
 Event.OngoingPlayer
 if(currentMenuState.isFocused)
@@ -67,13 +80,13 @@ if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
   Description desc: { text: $'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to other menu', color: Color.Green, order: 99, ..Description.BASE };
 
   switchFocusDescriptionIdx = currentMenuState.AddMenuDescription(desc);
-  currentMenuState.Rerender();
+  currentMenuState.RerenderHoveredItem();
 
   MenuState cur! = currentMenuState;
   WaitUntil(cur != currentMenuState || !menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID), 99999);
 
   cur.RemoveMenuDescription(switchFocusDescriptionIdx);
-  cur.Rerender();
+  cur.RerenderHoveredItem();
 
   AbortIfConditionIsFalse();
   LoopIfConditionIsTrue();

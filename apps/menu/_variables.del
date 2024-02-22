@@ -1,28 +1,13 @@
 import '../../libs/menu/_index.del';
 import '../../libs/pickPosition/pickPosition.del';
 import '../../libs/playerText/playerText.del';
-import '../../libs/selectedPlayers/selectedPlayers.del';
 
 globalvar Menu menu;
 globalvar Menu menu2;
-playervar Player[] selectedPlayers = [EventPlayer()];
 playervar MenuState menuState;
 playervar MenuState menuState2;
 
-globalvar SelectedPlayers selectedPlayersInstance;
+playervar Player[] selectedPlayers = [EventPlayer()];
 
 playervar PickPosition pickPosition = new PickPosition();
 playervar PlayerText playerText = new PlayerText();
-
-globalvar Number __i!;
-globalvar Player __player!;
-
-rule: "Fix \"selectedPlayers\" when player leaves"
-Event.OnPlayerLeave
-{
-  // what the fuck I was thinking when I wrote this!? but it works?
-  for(__i = 0; AllPlayers().Length; 1) {
-    __player = AllPlayers()[__i];
-    ModifyVariable(__player.selectedPlayers, Operation.RemoveFromArrayByValue, EventPlayer());
-  }
-}

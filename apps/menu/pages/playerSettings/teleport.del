@@ -33,7 +33,8 @@ Component[] PageTeleportItems() {
 
   Carousel objective = new Carousel(
     text: PAGE_TELEPORT_OBJECTIVE_NAME,
-    options: [-1, 0, 1, 2, 3, 4]
+    options: [-1, 0, 1, 2, 3, 4],
+    defaultValue: -1
   );
   objective.valueFormatter = (it) => ObjectiveFormatter(it.value);
   objective.onButtonDown = (button, it) => {

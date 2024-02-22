@@ -23,11 +23,12 @@ Button PAGE_CREATE_BOT_SPAWN_BUTTON: Button.Ability2;
 // TODO: remember position & other values when exiting (same for other menus)
 // TODO: store in array
 // TODO: add warning if player in that slot and on that team already exists
-// TODO: add number to bot's name
 playervar Hero spawnBotHero = Hero.Reinhardt;
 playervar Team spawnBotTeam = Team.Team1;
 playervar Number spawnBotSlot = -1;
 playervar Vector spawnBotPosition = null;
+globalvar Number createdBots = 0;
+playervar Number botIdx = 0;
 
 Component[] PageCreateBotItems() {
   Carousel hero = new Carousel(
@@ -74,9 +75,15 @@ Component[] PageCreateBotItems() {
   spawnBot.AddDescription($"Press {ButtonFormatterSingle(PAGE_CREATE_BOT_SPAWN_BUTTON)}​ to spawn the bot");
   spawnBot.onButtonDown = (button, it) => {
     if(buttonsHeld == [Button.Ability2]) {
-      CreateDummyBot(spawnBotHero, spawnBotTeam, spawnBotSlot, spawnBotPosition);
-      if(!IsDummyBot(LastCreatedEntity()))
+      Player bot! = CreateDummyBot(spawnBotHero, spawnBotTeam, spawnBotSlot, spawnBotPosition);
+
+      if(!EntityExists(bot)) {
         SmallMessage(EventPlayer(), "Failed to create a bot");
+      } else {
+        // idk why this doesn't work
+        // createdBots += 1;
+        // bot.botIdx = createdBots;
+      }
     }
   };
 
@@ -110,13 +117,18 @@ if(menuState.pageId == PAGE_CREATE_BOT_ID)
 }
 
 rule: 'Create Bot: Set Name'
-Event.OnPlayerJoin
+Event.OngoingPlayer
+if(IsDummyBot(EventPlayer()))
 {
-  // fix first spawn
-  MinWait();
+  // workaround for a bug that uses old hero info in `StartForcingDummyBotName`
+  Wait(0.1);
 
-  playerName = $"[BOT] {EventPlayer().Hero()}";
-  StartForcingDummyBotName(EventPlayer(), playerName);
+  if(!botIdx) {
+    createdBots += 1;
+    botIdx = createdBots;
+  }
+
+  StartForcingDummyBotName(EventPlayer(), $"[BOT {botIdx}] {EventPlayer().Hero()}");
 
   WaitUntil(EvaluateOnce(EventPlayer().Hero()) != EventPlayer().Hero(), 99999);
   LoopIfConditionIsTrue();

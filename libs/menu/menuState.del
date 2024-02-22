@@ -5,14 +5,10 @@ import './menu.del';
 import './_rules.del';
 import './components/component.del';
 
+// TODO: make `PuppetMenuState`?
+
 # List of currently pressed buttons by a player.
 playervar Button[] buttonsHeld = [];
-
-// TODO: remove?
-struct Previous<T> {
-  public T current;
-  public T previous;
-}
 
 single struct RenderedText {
   public Color color;
@@ -119,8 +115,14 @@ class MenuState {
   }
 
   # Forcefully rerenders currently hovered item. Call after manually adding description.
-  public void Rerender() "[MenuState] Rerender" {
+  public void RerenderHoveredItem() "[MenuState] Rerender Hovered Item" {
     rerenderItemIdxs += hoveredItemIdx;
+    Render();
+  }
+
+  # Forcefully rerenders all items.
+  public void RerenderAllItems() "[MenuState] Rerender All Items" {
+    rerenderItemIdxs += items.Map((_, idx) => idx);
     Render();
   }
   
@@ -135,13 +137,13 @@ class MenuState {
     if(currentMenuState != this) {
       if(currentMenuState.isOpen) {
         currentMenuState.hoveredItem.OnLeave();
-        currentMenuState.Rerender();
+        currentMenuState.RerenderHoveredItem();
       }
       
       currentMenuState = this;
       if(isOpen) {
         hoveredItem.OnEnter();
-        Rerender();
+        RerenderHoveredItem();
       }
     }
   }
@@ -158,7 +160,7 @@ class MenuState {
 
   public void AddItems(in Component[] items) {
     this.items += items;
-    rerenderItemIdxs = items.Map((_, idx) => idx);
+    rerenderItemIdxs += items.Map((_, idx) => idx);
 
     for(Number i! = 0; i < items.Length; i++) {
       Component item: items[i];
@@ -179,8 +181,8 @@ class MenuState {
     if(!isOpen && isEnabled) {
       isOpen = true;
 
-      hoveredItem.OnEnter();
-      Rerender();
+      if(isFocused) hoveredItem.OnEnter();
+      RerenderHoveredItem();
     }
   }
 
@@ -188,8 +190,8 @@ class MenuState {
     if(isOpen) {
       isOpen = false;
       
-      hoveredItem.OnLeave();
-      Rerender();
+      if(isFocused) hoveredItem.OnLeave();
+      RerenderHoveredItem();
     }
   }
 
