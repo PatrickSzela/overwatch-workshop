@@ -1,9 +1,11 @@
 import '../../../../../libs/menu/components/text.del';
 import '../../../../../libs/menu/components/toggle.del';
 import '../../../../../libs/menu/components/numberInput.del';
+import '../../../../../libs/menu/components/carousel.del';
 import '../../../../../libs/utils/string.formatters.del';
 import '../../../_variables.del';
 
+Button PAGE_ABILITIES_BUTTON_ENABLE: Button.Ability2;
 Button PAGE_ABILITIES_BUTTON_HOLD: Button.Reload;
 Button PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING: Button.Interact;
 Button PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING: Button.Melee;
@@ -17,7 +19,8 @@ playervar Boolean[] pageAbilitiesInfiniteAmmo = [];
 playervar Boolean[] pageAbilitiesNoCooldown = [];
 playervar Boolean[] pageAbilitiesInfiniteCharge = [];
 playervar Boolean[] pageAbilitiesInfiniteResource = [];
-playervar Boolean[] pageAbilitiesKeepPressingButton = [];
+playervar Boolean[] pageAbilitiesKeepHoldingButton = [];
+playervar Boolean[] pageAbilitiesKeepSpammingButton = [];
 
 String PAGE_ABILITIES_WARNING_BROKEN: "Due to Workshop bugs, some settings might not work correctly for some heroes";
 
@@ -25,43 +28,36 @@ String PageAbilitiesInfo(Player player, Button button):
   $"Enabled: {BooleanFormatter(player.pageAbilitiesEnabled[allButtons.IndexOf(button)])}\n" +
   $"Button held: {BooleanFormatter(player.buttonsHeld.Contains(EvaluateOnce(button)))}\n";
 
-void PageAbilitiesHoldButtonMenuItemEnhancer(ref Component item, in Button ability) {
-  item.onButtonDown = (_button, it) => {
+Carousel PageAbilitiesCarousel(in String text, in Button ability) {
+  Carousel item! = new Carousel(
+    text: text,
+    options: ['off', 'hold', 'spam'],
+    defaultValue: 
+      selectedPlayers[0].pageAbilitiesKeepHoldingButton[allButtons.IndexOf(ability)] ? 'hold' :
+      selectedPlayers[0].pageAbilitiesKeepSpammingButton[allButtons.IndexOf(ability)] ? 'spam' :
+      'off'
+  );
+
+  item.onChange = (value, it) => {
     filteredPlayers = selectedPlayers.FilteredArray((i) => i != EventPlayer());
 
-    if(buttonsHeld == [PAGE_ABILITIES_BUTTON_HOLD]) {
-      StartHoldingButton(filteredPlayers, ability);        
-    } else if(buttonsHeld == [PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING]) {
-      foreach(Player pl in filteredPlayers)
-        pl.pageAbilitiesKeepPressingButton[allButtons.IndexOf(ability)] = false;
-
-      if(filteredPlayers[0].IsButtonHeld(ability)) {
-        StopHoldingButton(filteredPlayers, ability);
-      } else {
-        StartHoldingButton(filteredPlayers, ability);
-      }
-    } else if(buttonsHeld == [PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING]) {
-      foreach(Player pl in filteredPlayers) {
-        pl.pageAbilitiesKeepPressingButton[allButtons.IndexOf(ability)] = !pl.pageAbilitiesKeepPressingButton[allButtons.IndexOf(ability)];
-
-        if(!pl.pageAbilitiesKeepPressingButton[allButtons.IndexOf(ability)]) {
-          StopHoldingButton(pl, ability);
-        }
+    foreach(Player pl in filteredPlayers) {
+      pl.pageAbilitiesKeepSpammingButton[allButtons.IndexOf(ability)] = false;
+      pl.pageAbilitiesKeepHoldingButton[allButtons.IndexOf(ability)] = false;
+      StopHoldingButton(pl, ability);
+      
+      if(it.value == 'hold') {
+        pl.pageAbilitiesKeepHoldingButton[allButtons.IndexOf(ability)] = true;
+        StartHoldingButton(pl, ability);
+      } else if(it.value == 'spam') {
+        pl.pageAbilitiesKeepSpammingButton[allButtons.IndexOf(ability)] = true;
       }
     }
   };
-  item.onButtonUp = (_button, it) => {
-    filteredPlayers = selectedPlayers.FilteredArray((i) => i != EventPlayer());
 
-    if(_button == PAGE_ABILITIES_BUTTON_HOLD && buttonsHeld == []) {
-      StopHoldingButton(selectedPlayers, EvaluateOnce(ability));
-    }
-  };
-  
-  item.AddDescription($"Hold {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_HOLD)}​ to force players to hold the button");
-  item.AddDescription($"Press {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING)}​ to toggle forced button holding");
-  item.AddDescription($"Press {ButtonFormatterSingle(PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING)}​ to toggle forced button spamming (hold for 1 sec, release, repeat)");
+  return item;
 }
+
 void PageAbilitiesRuleGenerator(String title!, Button ability!, Button buttonApply!) "PageAbilitiesRuleGenerator" {
   selectedButton = ability;
 
@@ -129,12 +125,7 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
   }
 
   // use
-  Component use! = new Component('Use');
-  use.onButtonDown = (button, it) => {
-    if(buttonsHeld == [buttonApply])
-      PressButton(selectedPlayers.FilteredArray((i) => i != EventPlayer()), ability);
-  };
-  PageAbilitiesHoldButtonMenuItemEnhancer(use, ability);
+  Carousel use! = PageAbilitiesCarousel('Use', ability);
 
   if(ability == Button.Ultimate) {
     list += PageAbilitiesSpinnerGenerator(

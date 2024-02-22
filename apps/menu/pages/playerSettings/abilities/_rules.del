@@ -103,12 +103,12 @@ if(pageAbilitiesInfiniteResource.IsTrueForAny((i) => i))
 
 rule: 'Repeat button'
 Event.OngoingPlayer
-if(pageAbilitiesKeepPressingButton.IsTrueForAny((i) => i))
+if(pageAbilitiesKeepSpammingButton.IsTrueForAny((i) => i))
 {
-  Boolean abilityThenFire! = pageAbilitiesKeepPressingButton.Slice(0, 2).IsTrueForAny((i) => i) && pageAbilitiesKeepPressingButton.Slice(2, pageAbilitiesKeepPressingButton.Length).IsTrueForAny((i) => i);
+  Boolean abilityThenFire! = pageAbilitiesKeepSpammingButton.Slice(0, 2).IsTrueForAny((i) => i) && pageAbilitiesKeepSpammingButton.Slice(2, pageAbilitiesKeepSpammingButton.Length).IsTrueForAny((i) => i);
 
-  for(Number i! = abilityThenFire ? 2 : 0; i < pageAbilitiesKeepPressingButton.Length; i++) {
-    if(!pageAbilitiesKeepPressingButton[i]) continue;
+  for(Number i! = abilityThenFire ? 2 : 0; i < pageAbilitiesKeepSpammingButton.Length; i++) {
+    if(!pageAbilitiesKeepSpammingButton[i]) continue;
     
     StartHoldingButton(EventPlayer(), allButtons[i]);
   }
@@ -116,15 +116,15 @@ if(pageAbilitiesKeepPressingButton.IsTrueForAny((i) => i))
   Wait(abilityThenFire ? 1 : 0);
 
   for(Number i! = 0; i < 2; i++) {
-    if(!pageAbilitiesKeepPressingButton[i]) continue;
+    if(!pageAbilitiesKeepSpammingButton[i]) continue;
     
     StartHoldingButton(EventPlayer(), allButtons[i]);
   }
   
   Wait(1);
 
-  for(Number i! = 0; i < pageAbilitiesKeepPressingButton.Length; i++) {
-    if(!pageAbilitiesKeepPressingButton[i]) continue;
+  for(Number i! = 0; i < pageAbilitiesKeepSpammingButton.Length; i++) {
+    if(!pageAbilitiesKeepSpammingButton[i]) continue;
     
     StopHoldingButton(EventPlayer(), allButtons[i]);
   }
@@ -133,7 +133,7 @@ if(pageAbilitiesKeepPressingButton.IsTrueForAny((i) => i))
 
   WaitUntil(
     allButtons
-      .FilteredArray((button, idx) => pageAbilitiesKeepPressingButton[idx])
+      .FilteredArray((button, idx) => pageAbilitiesKeepSpammingButton[idx])
       .Map((button, idx) => !IsUsingAbility(EventPlayer(), button))
       .IsTrueForAny((i) => i), 
     99999);

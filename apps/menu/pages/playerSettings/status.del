@@ -1,38 +1,42 @@
+import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 
 String PAGE_STATUS_ID: 'status';
 String PAGE_STATUS_NAME: 'Status';
 Button PAGE_STATUS_BUTTON_TOGGLE: Button.Ability2;
 
-String[] PAGE_STATUS_DESCRIPTION: [
-  $"Press {ButtonFormatterSingle(PAGE_STATUS_BUTTON_TOGGLE)}​ to toggle",
-  'All Players have a list of currently active statuses above them'
-];
+// TODO: figure out a better way to handle this mess...
+
+String PAGE_STATUS_DESCRIPTION: 'All Players have a list of currently active statuses above them';
 String PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION: "Selected players will not be able to navigate the menu";
 
 // since HasStatus doesn't work properly in some statuses, gotta workaround that
 playervar String[] pageStatusAppliedStatuses = [];
 
-void PageStatusItemsHelper(ref Component[] list, in String id, in String text, in Boolean navigationWarning = false, in Boolean brokenWarning = false) {
-  list += new Component(text);
+void PageStatusItemsHelper(ref Toggle[] list, Status status, in String id, in String text, in Boolean navigationWarning = false, in Boolean brokenWarning = false) {
+  list += new Toggle(
+    text: text,
+    defaultChecked: HasStatus(selectedPlayers[0], status)
+  );
   list.Last.id = PAGE_STATUS_ID + id;
+
   if(navigationWarning)
     list.Last.AddDescription(PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION, Color.Orange, order: 10);
 }
 
 Component[] PageStatusItems() {
-  Component[] list = [];
+  Toggle[] list = [];
  
-  PageStatusItemsHelper(list, 'Asleep', 'Asleep', true);
-  PageStatusItemsHelper(list, 'Burning', 'Burning', false, true);
-  PageStatusItemsHelper(list, 'Frozen', 'Frozen', true);
-  PageStatusItemsHelper(list, 'Hacked', 'Hacked');
-  PageStatusItemsHelper(list, 'Invincible', 'Invincible');
-  PageStatusItemsHelper(list, 'KnockedDown', 'Knocked Down', true, true);
-  PageStatusItemsHelper(list, 'PhasedOut', 'Phased Out');
-  PageStatusItemsHelper(list, 'Rooted', 'Rooted', true, true);
-  PageStatusItemsHelper(list, 'Stunned', 'Stunned', true);
-  PageStatusItemsHelper(list, 'Unkillable', 'Unkillable', false, true);
+  PageStatusItemsHelper(list, Status.Asleep, 'Asleep', 'Asleep', true);
+  PageStatusItemsHelper(list, Status.Burning, 'Burning', 'Burning', false, true);
+  PageStatusItemsHelper(list, Status.Frozen, 'Frozen', 'Frozen', true);
+  PageStatusItemsHelper(list, Status.Hacked, 'Hacked', 'Hacked');
+  PageStatusItemsHelper(list, Status.Invincible, 'Invincible', 'Invincible');
+  PageStatusItemsHelper(list, Status.KnockedDown, 'KnockedDown', 'Knocked Down', true, true);
+  PageStatusItemsHelper(list, Status.PhasedOut, 'PhasedOut', 'Phased Out');
+  PageStatusItemsHelper(list, Status.Rooted, 'Rooted', 'Rooted', true, true);
+  PageStatusItemsHelper(list, Status.Stunned, 'Stunned', 'Stunned', true);
+  PageStatusItemsHelper(list, Status.Unkillable, 'Unkillable', 'Unkillable', false, true);
 
   return list;
 }
@@ -41,10 +45,9 @@ rule: 'Player Settings/Status'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_STATUS_ID)
 {
-  Description desc1: { text: PAGE_STATUS_DESCRIPTION[0], ..Description.BASE };
-  Description desc2: { text: PAGE_STATUS_DESCRIPTION[1], color: Color.SkyBlue, ..Description.BASE };
+  Description desc: { text: PAGE_STATUS_DESCRIPTION, color: Color.SkyBlue, ..Description.BASE };
 
-  menuState.CreatePage(PAGE_STATUS_NAME, PageStatusItems(), [desc1, desc2]);
+  menuState.CreatePage(PAGE_STATUS_NAME, PageStatusItems(), [desc]);
 }
 
 rule: 'Draw current statuses info above players'

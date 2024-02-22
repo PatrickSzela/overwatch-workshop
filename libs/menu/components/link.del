@@ -29,7 +29,7 @@ class Link: Component
   }
 
   public override void Render() "[Link] Render" {
-    renderedText = $"{textFormatter(this)}​ ▶";
+    renderedText = $"{child ? child.renderedText : textFormatter(this)}​ ▶";
   }
 
   public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {

@@ -81,11 +81,11 @@ Component[] PageCreateBotItems() {
 
       if(!EntityExists(bot)) {
         SmallMessage(EventPlayer(), "Failed to create a bot");
-      } else {
+      } /*else {
         // idk why this doesn't work
-        // createdBots += 1;
-        // bot.botIdx = createdBots;
-      }
+        createdBots += 1;
+        bot.botIdx = createdBots;
+      }*/
     }
   };
 
