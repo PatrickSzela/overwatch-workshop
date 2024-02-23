@@ -9,10 +9,10 @@ String PAGE_SELECT_PLAYERS_NAME: 'Select Players';
 
 Component[] PageSelectPlayersItems() {
   Component[] list = [];
-  Player[][] sorterPlayers = SortedAllPlayers();
+  Player[][] sortedPlayers = SortedAllPlayers();
 
-  for(Number i! = 0; i < sorterPlayers.Length; i++) {    
-    if(sorterPlayers[i].Length) {
+  for(Number i! = 0; i < sortedPlayers.Length; i++) {    
+    if(sortedPlayers[i].Length) {
       if(list.Length)
         list += new Text();
 
@@ -20,7 +20,7 @@ Component[] PageSelectPlayersItems() {
       list.Last.color = i == 0 ? Color.Team1 : Color.Team2;
     }
 
-    foreach(Player player! in sorterPlayers[i]) {
+    foreach(Player player! in sortedPlayers[i]) {
       Checkbox checkbox = new Checkbox(
         text: $"{player}",
         defaultChecked: selectedPlayers.Contains(player)

@@ -45,20 +45,18 @@ Carousel PageAbilitiesCarousel(in String text, in Button ability) {
   );
 
   item.onChange = (value, it) => {
-    filteredPlayers = selectedPlayers.FilteredArray((i) => i != EventPlayer());
+    filteredPlayers = selectedPlayers.Remove(EventPlayer());
 
-    foreach(Player pl! in filteredPlayers) {
-      pl.pageAbilitiesKeepSpammingButton.ModRemoveByValue(ability);
-      pl.pageAbilitiesKeepHoldingButton.ModRemoveByValue(ability);
+    filteredPlayers.pageAbilitiesKeepSpammingButton.ModRemoveByValue(ability);
+    filteredPlayers.pageAbilitiesKeepHoldingButton.ModRemoveByValue(ability);
 
-      StopHoldingButton(pl, ability);
-      
-      if(it.value == 'hold') {
-        pl.pageAbilitiesKeepHoldingButton.ModAppend(ability);
-        StartHoldingButton(pl, ability);
-      } else if(it.value == 'spam') {
-        pl.pageAbilitiesKeepSpammingButton.ModAppend(ability);
-      }
+    StopHoldingButton(filteredPlayers, ability);
+    
+    if(it.value == 'hold') {
+      filteredPlayers.pageAbilitiesKeepHoldingButton.ModAppend(ability);
+      StartHoldingButton(filteredPlayers, ability);
+    } else if(it.value == 'spam') {
+      filteredPlayers.pageAbilitiesKeepSpammingButton.ModAppend(ability);
     }
   };
 
@@ -102,22 +100,20 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
       text: 'Enabled',
       defaultChecked: selectedPlayers[0].pageAbilitiesEnabled.Contains(ability),
       onApply: (value) => {
-        foreach(Player pl! in selectedPlayers) {
-          if(value)
-            pl.pageAbilitiesEnabled.ModAppend(ability);
-          else
-            pl.pageAbilitiesEnabled.ModRemoveByValue(ability);
+        if(value)
+          selectedPlayers.pageAbilitiesEnabled.ModAppend(ability);
+        else
+          selectedPlayers.pageAbilitiesEnabled.ModRemoveByValue(ability);
 
-          if(ability == Button.PrimaryFire) SetPrimaryFireEnabled(pl, value);
-          else if(ability == Button.SecondaryFire) SetSecondaryFireEnabled(pl, value);
-          else if(ability == Button.Ability1) SetAbility1Enabled(pl, value);
-          else if(ability == Button.Ability2) SetAbility2Enabled(pl, value);
-          else if(ability == Button.Ultimate) SetUltimateAbilityEnabled(pl, value);
-          else if(ability == Button.Reload) SetReloadEnabled(pl, value);
-          else if(ability == Button.Melee) SetMeleeEnabled(pl, value);
-          else if(ability == Button.Jump) SetJumpEnabled(pl, value);
-          else SetCrouchEnabled(pl, value);
-        }
+        if(ability == Button.PrimaryFire) SetPrimaryFireEnabled(selectedPlayers, value);
+        else if(ability == Button.SecondaryFire) SetSecondaryFireEnabled(selectedPlayers, value);
+        else if(ability == Button.Ability1) SetAbility1Enabled(selectedPlayers, value);
+        else if(ability == Button.Ability2) SetAbility2Enabled(selectedPlayers, value);
+        else if(ability == Button.Ultimate) SetUltimateAbilityEnabled(selectedPlayers, value);
+        else if(ability == Button.Reload) SetReloadEnabled(selectedPlayers, value);
+        else if(ability == Button.Melee) SetMeleeEnabled(selectedPlayers, value);
+        else if(ability == Button.Jump) SetJumpEnabled(selectedPlayers, value);
+        else SetCrouchEnabled(selectedPlayers, value);
       }
     );
 
@@ -142,12 +138,10 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
       text: 'Infinite Charge',
       defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteCharge.Contains(ability),
       onApply: (value) => {
-        foreach(Player pl! in selectedPlayers) {
-          if(value)
-            pl.pageAbilitiesInfiniteCharge.ModAppend(ability);
-          else
-            pl.pageAbilitiesInfiniteCharge.ModRemoveByValue(ability);
-        }
+        if(value)
+          selectedPlayers.pageAbilitiesInfiniteCharge.ModAppend(ability);
+        else
+          selectedPlayers.pageAbilitiesInfiniteCharge.ModRemoveByValue(ability);
       }
     );
 
@@ -200,12 +194,10 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
       text: 'Infinite Ammo',
       defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteAmmo.Contains(ability),
       onApply: (value) => {
-        foreach(Player pl! in selectedPlayers) {
-          if(value)
-            pl.pageAbilitiesInfiniteAmmo.ModAppend(ability);
-          else
-            pl.pageAbilitiesInfiniteAmmo.ModRemoveByValue(ability);
-        }
+        if(value)
+          selectedPlayers.pageAbilitiesInfiniteAmmo.ModAppend(ability);
+        else
+          selectedPlayers.pageAbilitiesInfiniteAmmo.ModRemoveByValue(ability);
       }
     );
   }
@@ -214,12 +206,10 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
     text: 'No Cooldown',
     defaultChecked: selectedPlayers[0].pageAbilitiesNoCooldown.Contains(ability),
     onApply: (value) => {
-      foreach(Player pl! in selectedPlayers) {
-        if(value)
-          pl.pageAbilitiesNoCooldown.ModAppend(ability);
-        else
-          pl.pageAbilitiesNoCooldown.ModRemoveByValue(ability);
-      }
+      if(value)
+        selectedPlayers.pageAbilitiesNoCooldown.ModAppend(ability);
+      else
+        selectedPlayers.pageAbilitiesNoCooldown.ModRemoveByValue(ability);
     }
   );
 
@@ -227,12 +217,10 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
     text: 'Infinite Charge',
     defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteCharge.Contains(ability),
     onApply: (value) => {
-      foreach(Player pl! in selectedPlayers) {
-        if(value)
-          pl.pageAbilitiesInfiniteCharge.ModAppend(ability);
-        else
-          pl.pageAbilitiesInfiniteCharge.ModRemoveByValue(ability);
-      }
+      if(value)
+        selectedPlayers.pageAbilitiesInfiniteCharge.ModAppend(ability);
+      else
+        selectedPlayers.pageAbilitiesInfiniteCharge.ModRemoveByValue(ability);
     }
   );
 
@@ -240,12 +228,10 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
     text: 'Infinite Resource',
     defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteResource.Contains(ability),
     onApply: (value) => {
-      foreach(Player pl! in selectedPlayers) {
-        if(value)
-          pl.pageAbilitiesInfiniteResource.ModAppend(ability);
-        else
-          pl.pageAbilitiesInfiniteResource.ModRemoveByValue(ability);
-      }
+      if(value)
+        selectedPlayers.pageAbilitiesInfiniteResource.ModAppend(ability);
+      else
+        selectedPlayers.pageAbilitiesInfiniteResource.ModRemoveByValue(ability);
     }
   );
 

@@ -52,8 +52,7 @@ Component[] PageHealthItems() {
     defaultChecked: selectedPlayers[0].pageHealthAutoHeal
   );
   autoHeal.onChange = (checked, it) => {
-    foreach(Player pl! in selectedPlayers)
-      pl.pageHealthAutoHeal = checked;
+    selectedPlayers.pageHealthAutoHeal = checked;
   };
 
   return [currentHealth, maxHealth, new Text(), autoHeal];

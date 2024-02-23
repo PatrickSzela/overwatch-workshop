@@ -16,7 +16,7 @@ Component PageRemoveMenuItem() {
       if(p.IsDummy())
         DestroyDummyBot(TeamOf(p), SlotOf(p));
       else
-        RemovePlayer(selectedPlayers);
+        RemovePlayer(p);
     }
   });
 

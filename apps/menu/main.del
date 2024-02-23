@@ -14,8 +14,6 @@ import '../../libs/utils/rules/pauseMatchTime.del';
 import './customGameSettings.lobby';
 import '../../libs/playerInfo.del';
 
-// TODO: do not foreach array of players!!!
-
 // TODO: teleport/look at flag
 // TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
 // TODO: tools - ruler, spheres
