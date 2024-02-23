@@ -133,7 +133,7 @@ class NumberInput: ComponentWithValue
         vals = vals.Slice(1, vals.Length);
 
       text = Join(vals, editMode ? " " : '');
-      renderedText = $"{renderedText}: {text}​{unit ? unit : ''}";
+      renderedText = $"{renderedText}: {text}{unit ? unit : ''}";
     }
   }
 }

@@ -18,6 +18,8 @@ import '../../libs/playerInfo.del';
 // TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
 // TODO: tools - ruler, spheres
 
+// TODO: test selected players with 2nd client
+
 Button SWITCH_FOCUS_BUTTON: Button.Ability1;
 playervar Number switchFocusDescriptionIdx;
 
@@ -103,5 +105,5 @@ if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
 rule: 'Player Info'
 Event.OngoingPlayer
 {
-  PlayerInfo(playerName, buttonsHeld, pageStatusAppliedStatuses);
+  PlayerInfo(playerName);
 }

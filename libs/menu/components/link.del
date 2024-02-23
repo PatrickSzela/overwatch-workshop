@@ -35,7 +35,11 @@ class Link: Component
   public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {
     onButtonDown(button, this);
 
+    HandleActions();
+
     if(button == BUTTON_OPEN)
       _menuState.GoTo(submenuID);
+    else if(child != null)
+      child.OnButtonDown(button);
   }
 }

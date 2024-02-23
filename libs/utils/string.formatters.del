@@ -12,4 +12,4 @@ String ObjectiveFormatter(Number objective): $"{objective == -1 ? 'Current' : al
 String BooleanFormatter(Boolean bool): $"{bool ? 'On' : 'Off'}";
 
 String ButtonFormatterSingle(Button button): $"[_{button}_]";
-String ButtonFormatter(Button[] buttons): $"[_{buttons[0]}_{buttons[1] ? $' + _{buttons[1]}_' : ''}{buttons[2] ? $' + _{buttons[2]}_' : ''}]";
+String ButtonFormatter(Button[] buttons): $"[_{buttons[0]}_{buttons[1] != null ? $' + _{buttons[1]}_' : ''}{buttons[2] ? $' + _{buttons[2]}_' : ''}]";
