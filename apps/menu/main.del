@@ -41,7 +41,6 @@ rule: 'Generate Menu'
 }
 
 rule: 'Hide diagnostics by default'
-Event.OngoingPlayer
 {
   diagnosticsEnabled = false;
 }
