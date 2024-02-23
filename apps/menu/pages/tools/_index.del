@@ -20,5 +20,8 @@ rule: 'Player Settings'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_TOOLS_ID)
 {
-  menuState.CreatePage(PAGE_TOOLS_NAME, PageToolsItems());
+  menuState.CreatePage(
+    title: PAGE_TOOLS_NAME, 
+    items: PageToolsItems()
+  );
 }

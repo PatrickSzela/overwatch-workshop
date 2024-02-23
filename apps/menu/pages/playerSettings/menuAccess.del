@@ -4,12 +4,12 @@ import '../../_variables.del';
 String PAGE_MENU_ACCESS_ID: 'menuAccess';
 String PAGE_MENU_ACCESS_NAME: 'Menu Enabled';
 
-
 Component PageMenuAccessMenuItem() {
   Toggle menuAccess = new Toggle(
     text: PAGE_MENU_ACCESS_NAME,
     defaultChecked: selectedPlayers[0].menuState.isEnabled
   );
+  
   menuAccess.onChange = (checked, it) => {
     foreach(Player pl! in selectedPlayers) {
       if(pl == HostPlayer() && !checked) {

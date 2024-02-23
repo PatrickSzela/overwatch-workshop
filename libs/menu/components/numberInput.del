@@ -57,9 +57,9 @@ class NumberInput: ComponentWithValue
 
     CalculateLength();
 
-    AddDescription(DESCRIPTION, Color.Green);
-    AddDescription('Use [↑] or [↓] to increase/decrease current number', visible: false);
-    AddDescription('Use [←] or [→] to change currenty edited number', visible: false);
+    AddDescription(Description.New(DESCRIPTION, COLOR_SWITCH));
+    AddDescription(Description.New('Use [↑] or [↓] to increase/decrease current number', visible: false));
+    AddDescription(Description.New('Use [←] or [→] to change currenty edited number', visible: false));
   }
 
   public void CalculateLength() {
@@ -105,11 +105,13 @@ class NumberInput: ComponentWithValue
   public override void OnButtonDown(Button button!) "[NumberInput] OnButtonDown" {
     onButtonDown(button, this);
 
+    HandleActions();
+
     if(button == BUTTON_EDIT_MODE) {
       editMode = !editMode;
 
       _menuState.isLocked = editMode;
-      this.description[0].color = editMode ? Color.Red : Color.Green;
+      this.description[0].color = editMode ? COLOR_ERROR : COLOR_SWITCH;
       this.description[0].text = DESCRIPTION;
       this.description[1].visible = editMode;
       this.description[2].visible = editMode;

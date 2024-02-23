@@ -71,7 +71,6 @@ if(pageAbilitiesInfiniteCharge)
   LoopIfConditionIsTrue();
 }
 
-
 rule: 'Infinite Resource'
 Event.OngoingPlayer
 if(pageAbilitiesInfiniteResource)
@@ -97,6 +96,8 @@ rule: 'Spam button'
 Event.OngoingPlayer
 if(pageAbilitiesKeepSpammingButton)
 {
+  // TODO: require confirmation input setting instead of forcing multiple buttons spamming
+
   Button[] abilities! = pageAbilitiesKeepSpammingButton.FilteredArray((i) => i != Button.PrimaryFire && i != Button.SecondaryFire);
   Button[] fires! = pageAbilitiesKeepSpammingButton.FilteredArray((i) => i == Button.PrimaryFire || i == Button.SecondaryFire);
 

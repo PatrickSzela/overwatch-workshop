@@ -16,7 +16,7 @@ Component[] PageDebugRadioItems() {
       defaultChecked: i == 5
     );
 
-    items.Last.onChange = (checked, it) => LogToInspector($'Toggled radio {it.text}: {checked}');
+    items.Last.onChange = (checked, it) => LogToInspector($'{it.text}: value changed to {checked}');
   }
 
   return items;
@@ -26,5 +26,8 @@ rule: 'Debug/Radio'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_DEBUG_RADIO_ID)
 {
-  menuState.CreatePage(PAGE_DEBUG_RADIO_NAME, PageDebugRadioItems());
+  menuState.CreatePage(
+    title: PAGE_DEBUG_RADIO_NAME, 
+    items: PageDebugRadioItems()
+  );
 }

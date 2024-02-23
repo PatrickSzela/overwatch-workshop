@@ -22,7 +22,7 @@ class Carousel: ComponentWithValue
     
     ComponentWithValueConstructor(text, this.defaultValue, null);
 
-    AddDescription('Use [←] or [→] to select an option');
+    AddDescription(Description.New('Use [←] or [→] to select an option'));
   }
 
   public override void OnNavigate(Vector direction!) "[Carousel] OnNavigate" {

@@ -3,15 +3,12 @@ import '../../_variables.del';
 String PAGE_RESURRECT_ID: 'resurrect';
 String PAGE_RESURRECT_NAME: 'Resurrect';
 
-Button PAGE_RESURRECT_BUTTON_APPLY: Button.Ability2;
-
 Component PageResurrectMenuItem() {
   Component resurrect = new Component(PAGE_RESURRECT_NAME);
-  resurrect.AddDescription($"Press {ButtonFormatterSingle(PAGE_RESURRECT_BUTTON_APPLY)}​ to apply");
-  resurrect.onButtonDown = (button, it) => {
-    if(buttonsHeld == [PAGE_RESURRECT_BUTTON_APPLY])
+
+  resurrect.SetPrimaryAction("Apply", (it) => {
       Resurrect(selectedPlayers);
-  };
+  });
 
   return resurrect;
 }

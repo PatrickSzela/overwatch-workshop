@@ -3,11 +3,10 @@ import './_index.del';
 
 String PAGE_ABILITIES_JUMP_ID: PAGE_ABILITIES_ID + 'jump';
 String PAGE_ABILITIES_JUMP_NAME: 'Jump';
-Button PAGE_ABILITIES_JUMP_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Jump'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_ABILITIES_JUMP_ID)
 {
-  PageAbilitiesRuleGenerator(PAGE_ABILITIES_JUMP_NAME, Button.Jump, PAGE_ABILITIES_JUMP_APPLY);
+  PageAbilitiesRuleGenerator(PAGE_ABILITIES_JUMP_NAME, Button.Jump);
 }

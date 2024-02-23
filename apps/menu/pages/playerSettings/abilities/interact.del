@@ -3,11 +3,10 @@ import './_index.del';
 
 String PAGE_ABILITIES_INTERACT_ID: PAGE_ABILITIES_ID + 'interact';
 String PAGE_ABILITIES_INTERACT_NAME: 'Interact';
-Button PAGE_ABILITIES_INTERACT_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Interact'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_ABILITIES_INTERACT_ID)
 {
-  PageAbilitiesRuleGenerator(PAGE_ABILITIES_INTERACT_NAME, Button.Interact, PAGE_ABILITIES_INTERACT_APPLY);
+  PageAbilitiesRuleGenerator(PAGE_ABILITIES_INTERACT_NAME, Button.Interact);
 }

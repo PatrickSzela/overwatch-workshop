@@ -3,6 +3,8 @@ import '../../_variables.del';
 
 String PAGE_STATUS_ID: 'status';
 String PAGE_STATUS_NAME: 'Status';
+
+// TODO: use Workshop Setting
 Button PAGE_STATUS_BUTTON_TOGGLE: Button.Ability2;
 
 // TODO: figure out a better way to handle this mess...
@@ -21,7 +23,7 @@ void PageStatusItemsHelper(ref Toggle[] list, Status status, in String id, in St
   list.Last.id = PAGE_STATUS_ID + id;
 
   if(navigationWarning)
-    list.Last.AddDescription(PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION, Color.Orange, order: 10);
+    list.Last.AddDescription(Description.New(PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION, COLOR_WARNING, order: 10));
 }
 
 Component[] PageStatusItems() {
@@ -45,9 +47,13 @@ rule: 'Player Settings/Status'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_STATUS_ID)
 {
-  Description desc: { text: PAGE_STATUS_DESCRIPTION, color: Color.SkyBlue, ..Description.BASE };
-
-  menuState.CreatePage(PAGE_STATUS_NAME, PageStatusItems(), [desc]);
+  menuState.CreatePage(
+    title: PAGE_STATUS_NAME, 
+    items: PageStatusItems(), 
+    descriptions: [
+      Description.New(PAGE_STATUS_DESCRIPTION, COLOR_INFO)
+    ]
+  );
 }
 
 rule: 'Draw current statuses info above players'

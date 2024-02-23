@@ -14,7 +14,7 @@ Component[] PageDebugToggleItems() {
       defaultChecked: i == 1
     );
 
-    list.Last.onChange = (checked, it) => LogToInspector($'{it.text}: {checked}');
+    list.Last.onChange = (checked, it) => LogToInspector($'{it.text}: value changed to {checked}');
   }
 
   return list;
@@ -24,5 +24,8 @@ rule: 'Debug/Toggle'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_DEBUG_TOGGLE_ID)
 {
-  menuState.CreatePage(PAGE_DEBUG_TOGGLE_NAME, PageDebugToggleItems());
+  menuState.CreatePage(
+    title: PAGE_DEBUG_TOGGLE_NAME, 
+    items: PageDebugToggleItems()
+  );
 }

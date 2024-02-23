@@ -7,17 +7,13 @@ String PAGE_HEALTH_ID: 'health';
 String PAGE_HEALTH_NAME: 'Health';
 String PAGE_HEALTH_CURRENT_HEALTH_ID: PAGE_HEALTH_ID + 'current';
 String PAGE_HEALTH_CURRENT_HEALTH_NAME: 'Current Health';
-Button PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY: Button.Ability2;
 String PAGE_HEALTH_MAX_HEALTH_ID: PAGE_HEALTH_ID + 'max';
 String PAGE_HEALTH_MAX_HEALTH_NAME: 'Max Health';
-Button PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY: Button.Ability2;
-Button PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET: Button.Reload;
-
 String PAGE_HEALTH_DESCRIPTION_INFO: "All players have Current and Max Health above their heads";
 
 playervar Boolean pageHealthAutoHeal = false;
 
-// TODO: health pool
+// TODO: create health pool
 
 Component[] PageHealthItems() {
   NumberInput currentHealth = new NumberInput(
@@ -27,11 +23,9 @@ Component[] PageHealthItems() {
     defaultValue: selectedPlayers.First.Health(),
     unit: ' HP'
   );
-  currentHealth.onButtonDown = (button, it) => {
-    if(buttonsHeld == [PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY])
-      SetPlayerHealth(selectedPlayers, (<NumberInput>it).value);
-  };
-  currentHealth.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY)}​ to apply");
+  currentHealth.SetPrimaryAction('Apply', (it) => {
+    SetPlayerHealth(selectedPlayers, (<NumberInput>it).value);
+  });
 
   NumberInput maxHealth = new NumberInput(
     menuState: menuState, 
@@ -40,23 +34,18 @@ Component[] PageHealthItems() {
     defaultValue: selectedPlayers.First.MaxHealth(),
     unit: ' HP'
   );
-  maxHealth.onButtonDown = (button, it) => {
+  // who thought it was a good idea to use percentages when setting max health? and what's worse, percentages of original max health!?
+  maxHealth.SetPrimaryAction("Apply", (it) => {
+    SetMaxHealth(selectedPlayers, 100);
+    MinWait();
     foreach(Player pl! in selectedPlayers) {
-      // who thought it was a good idea to use percentages when setting max health? and what's worse, percentages of original max health!?
-
-      if(buttonsHeld == [PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET] || buttonsHeld == [PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY]) {
-        SetMaxHealth(pl, 100);
-      }
-      
-      if(buttonsHeld == [PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY]) {
-        MinWait();
-        SetMaxHealth(pl, (<NumberInput>it).value / pl.MaxHealth() * 100);
-      }
+      SetMaxHealth(pl, (<NumberInput>it).value / pl.MaxHealth() * 100);
     }
-  };
-  maxHealth.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY)}​ to apply");
-  maxHealth.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET)}​ to reset to original value");
-  maxHealth.AddDescription("Applied Max Health value might differ because of Workshop limitations", Color.Orange);
+  });
+  maxHealth.SetSecondaryAction("Reset to Hero's original health", (it) => {
+    SetMaxHealth(selectedPlayers, 100);
+  });
+  maxHealth.AddDescription(Description.New("Applied Max Health value might differ because of Workshop limitations", COLOR_WARNING));
   
   Toggle autoHeal = new Toggle(
     text: "Auto Heal",
@@ -74,9 +63,13 @@ rule: 'Player Settings/Health'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_HEALTH_ID)
 {
-  Description desc: { text: PAGE_HEALTH_DESCRIPTION_INFO, color: Color.SkyBlue, ..Description.BASE};
-
-  menuState.CreatePage(PAGE_HEALTH_NAME, PageHealthItems(), [desc]);
+  menuState.CreatePage(
+    title: PAGE_HEALTH_NAME, 
+    items: PageHealthItems(), 
+    descriptions: [
+      Description.New(PAGE_HEALTH_DESCRIPTION_INFO, COLOR_INFO)
+    ]
+  );
 }
 
 rule: 'Draw current health info above players'

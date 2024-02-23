@@ -15,19 +15,15 @@ String PAGE_CREATE_BOT_SLOT_ID: PAGE_CREATE_BOT_ID + 'slot';
 String PAGE_CREATE_BOT_SLOT_NAME: 'Slot';
 String PAGE_CREATE_BOT_POSITION_ID: PAGE_CREATE_BOT_ID + 'position';
 String PAGE_CREATE_BOT_POSITION_NAME: 'Position';
-Button PAGE_CREATE_BOT_POSITION_BUTTON_SELECT: Button.Ability2;
 String PAGE_CREATE_BOT_SPAWN_ID: PAGE_CREATE_BOT_ID + 'spawn';
 String PAGE_CREATE_BOT_SPAWN_NAME: 'Spawn bot';
-Button PAGE_CREATE_BOT_SPAWN_BUTTON: Button.Ability2;
 
-// TODO: remember position & other values when exiting (same for other menus)
-// TODO: store in array
 // TODO: add warning if player in that slot and on that team already exists
 playervar Hero spawnBotHero = Hero.Reinhardt;
 playervar Team spawnBotTeam = Team.Team1;
 playervar Number spawnBotSlot = -1;
 playervar Vector spawnBotPosition = null;
-globalvar Number createdBots = 0;
+globalvar Number createdBotsIdx = 0;
 playervar Number botIdx = 0;
 // workaround because the bots will have their original names on client-side
 playervar String playerName = $"{EventPlayer()}";
@@ -57,9 +53,9 @@ Component[] PageCreateBotItems() {
   slot.onChange = (value, it) => spawnBotSlot = value;
 
   Component position = new Component(PAGE_CREATE_BOT_POSITION_NAME);
-  position.AddDescription(PickPosition.CHANGE_DISTANCE_DESCRIPTION);
-  position.AddDescription($"Press {ButtonFormatterSingle(PAGE_CREATE_BOT_POSITION_BUTTON_SELECT)}​ to select the position");
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION));
   position.textFormatter = (it) => $"{it.text}: {spawnBotPosition}";
+  
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
   };
@@ -68,26 +64,19 @@ Component[] PageCreateBotItems() {
   };
   position.onButtonDown = (button, it) => {
     pickPosition.ChangeDistance(button);
-
-    if(buttonsHeld == [Button.Ability2])
-      spawnBotPosition = pickPosition.position;
   };
+  position.SetPrimaryAction("Choose the position", (it) => {
+    spawnBotPosition = pickPosition.position;
+  });
 
   Component spawnBot = new Component(PAGE_CREATE_BOT_SPAWN_NAME);
-  spawnBot.AddDescription($"Press {ButtonFormatterSingle(PAGE_CREATE_BOT_SPAWN_BUTTON)}​ to spawn the bot");
-  spawnBot.onButtonDown = (button, it) => {
-    if(buttonsHeld == [Button.Ability2]) {
-      Player bot! = CreateDummyBot(spawnBotHero, spawnBotTeam, spawnBotSlot, spawnBotPosition);
+  spawnBot.SetPrimaryAction("Spawn the bot", (it) => {
+    Player bot! = CreateDummyBot(spawnBotHero, spawnBotTeam, spawnBotSlot, spawnBotPosition);
 
-      if(!EntityExists(bot)) {
-        SmallMessage(EventPlayer(), "Failed to create a bot");
-      } /*else {
-        // idk why this doesn't work
-        createdBots += 1;
-        bot.botIdx = createdBots;
-      }*/
+    if(!EntityExists(bot)) {
+      SmallMessage(EventPlayer(), "Failed to create a bot");
     }
-  };
+  });
 
   return [hero, team, slot, position, new Text(), spawnBot];
 }
@@ -126,8 +115,8 @@ if(IsDummyBot(EventPlayer()))
   Wait(0.1);
 
   if(!botIdx) {
-    createdBots += 1;
-    botIdx = createdBots;
+    createdBotsIdx += 1;
+    botIdx = createdBotsIdx;
   }
 
   playerName = $"[BOT {botIdx}] {EventPlayer().Hero()}";

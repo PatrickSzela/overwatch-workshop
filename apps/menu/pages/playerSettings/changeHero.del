@@ -5,30 +5,29 @@ import '../../_variables.del';
 String PAGE_CHANGE_HERO_ID: 'changeHero';
 String PAGE_CHANGE_HERO_NAME: 'Change Hero';
 
-Button PAGE_CHANGE_HERO_BUTTON_APPLY: Button.Ability2;
-Button PAGE_CHANGE_HERO_BUTTON_HERO_SELECT: Button.Reload;
-
 Component PageChangeHeroMenuItem() {
   Carousel carousel! = new Carousel(
     text: PAGE_CHANGE_HERO_NAME, 
     options: AllTankHeroes() + AllDamageHeroes() + AllSupportHeroes(),
     defaultValue: selectedPlayers.First.Hero()
   );
-  carousel.AddDescription($"Press {ButtonFormatterSingle(PAGE_CHANGE_HERO_BUTTON_APPLY)}​ to apply");
-  carousel.AddDescription($"Press {ButtonFormatterSingle(PAGE_CHANGE_HERO_BUTTON_HERO_SELECT)}​ to send to Hero Select screen");
+
   carousel.valueFormatter = (it) => HeroWithIconFormatter(it.value);
-  carousel.onButtonDown = (button, it) => {
-    if(buttonsHeld == [PAGE_CHANGE_HERO_BUTTON_APPLY])
-      ForcePlayerHero(selectedPlayers, (<Carousel>it).value);
-    else if(buttonsHeld == [PAGE_CHANGE_HERO_BUTTON_HERO_SELECT]) {
-      StopForcingHero(selectedPlayers);
-      // based on https://workshop.codes/wiki/articles/send+a+player+back+to+hero+select
-      // this won't work if Respawn as random hero is enabled
-      foreach(Player pl! in selectedPlayers)
-        SetAllowedHeroes(pl, AllHeroes().FilteredArray((i) => i != pl.Hero()));
-      ResetHeroAvailability(selectedPlayers);
-    }
-  };
+
+  carousel.SetPrimaryAction("Apply", (it) => {
+    ForcePlayerHero(selectedPlayers, (<Carousel>it).value);
+  });
+
+  // based on https://workshop.codes/wiki/articles/send+a+player+back+to+hero+select
+  // this won't work if Respawn as random hero is enabled
+  carousel.SetSecondaryAction("Send to Hero Select screen", (it) => {
+    StopForcingHero(selectedPlayers);
+
+    foreach(Player pl! in selectedPlayers)
+      SetAllowedHeroes(pl, AllHeroes().FilteredArray((i) => i != pl.Hero()));
+
+    ResetHeroAvailability(selectedPlayers);
+  });
   
   return carousel;
 }

@@ -7,6 +7,11 @@ import './components/component.del';
 
 // TODO: make `PuppetMenuState`?
 
+Color COLOR_INFO: Color.SkyBlue;
+Color COLOR_WARNING: Color.Orange;
+Color COLOR_ERROR: Color.Red;
+Color COLOR_SWITCH: Color.Green;
+
 # List of currently pressed buttons by a player.
 playervar Button[] buttonsHeld = [];
 

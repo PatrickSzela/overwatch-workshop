@@ -3,11 +3,10 @@ import './_index.del';
 
 String PAGE_ABILITIES_MELEE_ID: PAGE_ABILITIES_ID + 'melee';
 String PAGE_ABILITIES_MELEE_NAME: 'Melee';
-Button PAGE_ABILITIES_MELEE_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Melee'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_ABILITIES_MELEE_ID)
 {
-  PageAbilitiesRuleGenerator(PAGE_ABILITIES_MELEE_NAME, Button.Melee, PAGE_ABILITIES_MELEE_APPLY);
+  PageAbilitiesRuleGenerator(PAGE_ABILITIES_MELEE_NAME, Button.Melee);
 }

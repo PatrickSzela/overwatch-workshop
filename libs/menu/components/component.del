@@ -6,6 +6,9 @@ single struct Description {
   public Boolean visible;
   public Number order;
 
+  public static Description New(in String description, in Color color = Color.White, in Boolean visible = true, in Number order = 0): 
+    {text: description, color: color, visible: visible, order: order};
+
   public static Description BASE: {
     text: '',
     color: Color.White,
@@ -36,6 +39,9 @@ class Component {
   public ((Button, Component) => void) onButtonDown;
   public ((Button, Component) => void) onButtonUp;
   public ((Vector, Component) => void) onNavigate;
+  public ((Component) => void) onPrimaryAction;
+  public ((Component) => void) onSecondaryAction;
+  public ((Component) => void) onTertiaryAction;
 
   public constructor(
     in String text,
@@ -55,8 +61,30 @@ class Component {
     this.color = Color.White;
   }
   
-  public void AddDescription(in String description!, in Color color! = Color.White, in Boolean visible! = true, in Number order! = 0) {
-    this.description += {text: description, color: color, visible: visible, order: order};
+  public void AddDescription(in Description description) {
+    this.description += description;
+  }
+
+  public virtual void SetPrimaryAction(String description!, (Component) => void action!) "t" {
+    onPrimaryAction = action;
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(Button.Ability2)}​ to {description}"));
+  }
+
+  public virtual void SetSecondaryAction(String description!, (Component) => void action!) "t" {
+    onSecondaryAction = action;
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(Button.Reload)}​ to {description}"));
+  }
+
+  public virtual void SetTertiaryAction(String description!, (Component) => void action!) "t" {
+    onTertiaryAction = action;
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(Button.Interact)}​ to {description}"));
+  }
+
+  public virtual void HandleActions() "[Component] Handle Action" {
+    // TOOD: set these in Workshop Settings
+    if(buttonsHeld == [Button.Ability2]) onPrimaryAction(this);
+    if(buttonsHeld == [Button.Reload]) onSecondaryAction(this);
+    if(buttonsHeld == [Button.Interact]) onTertiaryAction(this);
   }
 
   public virtual void Render() "[Component] Render" {
@@ -74,18 +102,23 @@ class Component {
   
   public virtual void OnButtonDown(Button button!) "[Component] OnButtonDown" {
     onButtonDown(button, this);
+
+    HandleActions();
+    
     if(child != null)
       child.OnButtonDown(button);
   }
 
   public virtual void OnButtonUp(Button button!) "[Component] OnButtonUp" {
     onButtonUp(button, this);
+
     if(child != null)
       child.OnButtonUp(button);
   }
 
   public virtual void OnNavigate(Vector direction!) "[Component] OnNavigate" {
     onNavigate(direction, this);
+
     if(child != null)
       child.OnNavigate(direction);
   }

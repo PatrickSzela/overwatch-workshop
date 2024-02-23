@@ -8,9 +8,9 @@ String PAGE_ROOT_NAME: 'Main Menu';
 
 Component[] PageRootItems() {
   return <Component[]>[
-    new Link(menuState, PAGE_PLAYER_SETTINGS_NAME, submenuID: PAGE_PLAYER_SETTINGS_ID),
-    new Link(menuState, PAGE_CREATE_BOT_NAME, submenuID: PAGE_CREATE_BOT_ID),
-    new Link(menuState, PAGE_TOOLS_NAME, submenuID: PAGE_TOOLS_ID)
+    new Link(menuState, PAGE_PLAYER_SETTINGS_NAME, PAGE_PLAYER_SETTINGS_ID),
+    new Link(menuState, PAGE_CREATE_BOT_NAME, PAGE_CREATE_BOT_ID),
+    new Link(menuState, PAGE_TOOLS_NAME, PAGE_TOOLS_ID)
   ];
 }
 
@@ -18,5 +18,8 @@ rule: 'Root'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_ROOT_ID)
 {
-  menuState.CreatePage(PAGE_ROOT_NAME, PageRootItems());
+  menuState.CreatePage(
+    title: PAGE_ROOT_NAME, 
+    items: PageRootItems()
+  );
 }

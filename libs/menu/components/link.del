@@ -25,7 +25,7 @@ class Link: Component
     this._menuState = menuState;
     this.submenuID = submenuID;
 
-    AddDescription($"Press {ButtonFormatterSingle(BUTTON_OPEN)}​ to open submenu");
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_OPEN)}​ to open submenu"));
   }
 
   public override void Render() "[Link] Render" {

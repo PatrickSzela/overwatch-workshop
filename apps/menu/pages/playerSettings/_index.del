@@ -34,5 +34,8 @@ rule: 'Player Settings'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_PLAYER_SETTINGS_ID)
 {
-  menuState.CreatePage(PAGE_PLAYER_SETTINGS_NAME, PagePlayerSettingsItems());
+  menuState.CreatePage(
+    title: PAGE_PLAYER_SETTINGS_NAME, 
+    items: PagePlayerSettingsItems()
+  );
 }

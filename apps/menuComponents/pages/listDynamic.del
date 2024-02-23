@@ -8,7 +8,6 @@ Component[] PageDebugListDynamicItems() {
 
   foreach(Player p in AllPlayers()) {
     list += new Component($"{HeroIconString(HeroOf(p))}​ {p}");
-    list.Last.onEnter = (it) => LogToInspector("Entered: {p}");
   }
 
   return list;
@@ -18,5 +17,8 @@ rule: 'Debug/Dynamic List'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_DEBUG_LIST_DYNAMIC_ID)
 {
-  menuState.CreatePage(PAGE_DEBUG_LIST_DYNAMIC_NAME, PageDebugListDynamicItems());
+  menuState.CreatePage(
+    title: PAGE_DEBUG_LIST_DYNAMIC_NAME, 
+    items: PageDebugListDynamicItems()
+  );
 }

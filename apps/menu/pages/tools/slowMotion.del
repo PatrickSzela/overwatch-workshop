@@ -6,8 +6,6 @@ String PAGE_SLOW_MOTION_ID: 'slowMotion';
 String PAGE_SLOW_MOTION_NAME: 'Slow motion';
 
 globalvar Number slowMotion = 100;
-Button PAGE_SLOW_MOTION_BUTTON_APPLY: Button.Ability2;
-Button PAGE_SLOW_MOTION_BUTTON_RESET: Button.Reload;
 
 Component PageSlowMotionMenuItem() {
   NumberInput slowMotionInput = new NumberInput(
@@ -18,20 +16,17 @@ Component PageSlowMotionMenuItem() {
     unit: '%'
   );
 
-  slowMotionInput.onButtonDown = (button, it) => {
-    if(buttonsHeld == [PAGE_SLOW_MOTION_BUTTON_APPLY]) {
-      slowMotion = (<NumberInput>it).value;
-    } else if(buttonsHeld == [PAGE_SLOW_MOTION_BUTTON_RESET]) {
-      slowMotion = 100;
-    }
-
+  slowMotionInput.SetPrimaryAction('Apply', (it) => {
+    slowMotion = (<NumberInput>it).value;
     SetSlowMotion(slowMotion);
-  };
+  });
+  slowMotionInput.SetSecondaryAction('Reset', (it) => {
+    slowMotion = 100;
+    SetSlowMotion(slowMotion);
+  });
 
-  slowMotionInput.AddDescription($"Press {ButtonFormatterSingle(PAGE_SLOW_MOTION_BUTTON_APPLY)}​ to apply");
-  slowMotionInput.AddDescription($"Press {ButtonFormatterSingle(PAGE_SLOW_MOTION_BUTTON_RESET)}​ to reset");
-  slowMotionInput.AddDescription($"Value will be clamped to be in range of 0-100%", Color.Orange);
-  slowMotionInput.AddDescription($"Slow motion will affect the responsiveness of the menu", Color.Orange);
+  slowMotionInput.AddDescription(Description.New("Value will be clamped to be in range of 0-100%", COLOR_WARNING));
+  slowMotionInput.AddDescription(Description.New("Slow motion will affect the responsiveness of the menu", COLOR_WARNING));
 
   return slowMotionInput;
 }

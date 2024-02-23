@@ -22,6 +22,18 @@ String PageAbilitiesInfo(Player player, Button button):
   $"Enabled: {BooleanFormatter(player.pageAbilitiesEnabled.Contains(button))}\n" +
   $"Button held: {BooleanFormatter(player.buttonsHeld.Contains(button))}\n";
 
+void PageAbilitiesRuleGenerator(String title!, Button ability!) "PageAbilitiesRuleGenerator" {
+  selectedButton = ability;
+
+  menuState.CreatePage(
+    title: title,
+    items: PageAbilitiesMenuItemsGenerator(ability), 
+    descriptions: [
+      Description.New(PAGE_ABILITIES_WARNING_BROKEN, COLOR_WARNING)
+    ]
+  );
+}
+
 Carousel PageAbilitiesCarousel(in String text, in Button ability) {
   Carousel item! = new Carousel(
     text: text,
@@ -38,6 +50,7 @@ Carousel PageAbilitiesCarousel(in String text, in Button ability) {
     foreach(Player pl! in filteredPlayers) {
       pl.pageAbilitiesKeepSpammingButton.ModRemoveByValue(ability);
       pl.pageAbilitiesKeepHoldingButton.ModRemoveByValue(ability);
+
       StopHoldingButton(pl, ability);
       
       if(it.value == 'hold') {
@@ -52,15 +65,7 @@ Carousel PageAbilitiesCarousel(in String text, in Button ability) {
   return item;
 }
 
-void PageAbilitiesRuleGenerator(String title!, Button ability!, Button buttonApply!) "PageAbilitiesRuleGenerator" {
-  selectedButton = ability;
-
-  Description desc: { text: PAGE_ABILITIES_WARNING_BROKEN, color: Color.Orange, ..Description.BASE };
-
-  menuState.CreatePage(title, PageAbilitiesMenuItemsGenerator(ability, buttonApply), [desc]);
-}
-
-NumberInput PageAbilitiesNumberInputGenerator(Button ability!, Button buttonApply!, String text!, String unit! = null, Number value!, ((Number) => void) onApply!) "PageAbilitiesNumberInputGenerator" {
+NumberInput PageAbilitiesNumberInputGenerator(String text!, String unit! = null, Number value!, ((Number) => void) onApply!) "PageAbilitiesNumberInputGenerator" {
   NumberInput numberInput! = new NumberInput(
     menuState: menuState, 
     text: text,
@@ -68,11 +73,9 @@ NumberInput PageAbilitiesNumberInputGenerator(Button ability!, Button buttonAppl
     integralLength: 5,
     unit: unit
   );
-  numberInput.onButtonDown = (button, it) => {
-    if(buttonsHeld == [buttonApply])
-      onApply((<NumberInput>it).value);
-  };
-  numberInput.AddDescription($"Press {ButtonFormatterSingle(buttonApply)}​ to apply");
+  numberInput.SetPrimaryAction("Apply", (it) => {
+    onApply((<NumberInput>it).value);
+  });
 
   return numberInput;
 }
@@ -89,7 +92,7 @@ Toggle PageAbilitiesToggleGenerator(String text!, Number defaultChecked!, ((Bool
   return toggle;
 }
 
-Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!) "PageAbilitiesMenuItemsGenerator" {
+Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuItemsGenerator" {
   Component[] list = [];
 
   // enabled
@@ -124,10 +127,9 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
   // use
   Carousel use = PageAbilitiesCarousel('Use', ability);
 
+  // TOOD: merge with other Charge
   if(ability == Button.Ultimate) {
     list += PageAbilitiesNumberInputGenerator(
-      ability: ability,
-      buttonApply: buttonApply,
       text: 'Charge',
       unit: '%',
       value: UltimateChargePercent(selectedPlayers[0]),
@@ -159,15 +161,11 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
     Number clip! = ability == Button.SecondaryFire ? 1 : 0;
 
     list += PageAbilitiesNumberInputGenerator(
-      ability: ability,
-      buttonApply: buttonApply,
       text: 'Ammo',
       value: Ammo(selectedPlayers[0], clip),
       onApply: (value) => SetAmmo(selectedPlayers, clip, value)
     );
     list += PageAbilitiesNumberInputGenerator(
-      ability: ability,
-      buttonApply: buttonApply,
       text: 'Max Ammo',
       value: MaxAmmo(selectedPlayers[0], clip),
       onApply: (value) => SetMaxAmmo(selectedPlayers, clip, value)
@@ -175,8 +173,6 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
   }
 
   list += PageAbilitiesNumberInputGenerator(
-    ability: ability,
-    buttonApply: buttonApply,
     text: 'Cooldown',
     unit: ' sec',
     value: AbilityCooldown(selectedPlayers[0], ability),
@@ -184,16 +180,12 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
   );
 
   list += PageAbilitiesNumberInputGenerator(
-    ability: ability,
-    buttonApply: buttonApply,
     text: 'Charge',
     value: AbilityCharge(selectedPlayers[0], ability),
     onApply: (value) => SetAbilityCharge(selectedPlayers, ability, value)
   );
 
   list += PageAbilitiesNumberInputGenerator(
-    ability: ability,
-    buttonApply: buttonApply,
     text: 'Resource',
     unit: '%',
     value: AbilityResource(selectedPlayers[0], ability),

@@ -3,11 +3,10 @@ import './_index.del';
 
 String PAGE_ABILITIES_RELOAD_ID: PAGE_ABILITIES_ID + 'reload';
 String PAGE_ABILITIES_RELOAD_NAME: 'Reload';
-Button PAGE_ABILITIES_RELOAD_APPLY: Button.Ability2;
 
 rule: 'Player Settings/Abilities/Reload'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_ABILITIES_RELOAD_ID)
 {
-  PageAbilitiesRuleGenerator(PAGE_ABILITIES_RELOAD_NAME, Button.Reload, PAGE_ABILITIES_RELOAD_APPLY);
+  PageAbilitiesRuleGenerator(PAGE_ABILITIES_RELOAD_NAME, Button.Reload);
 }
