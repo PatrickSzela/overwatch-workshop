@@ -17,9 +17,7 @@ if(pageAbilitiesInfiniteAmmo)
       .IsTrueForAny((i) => i), 
     99999);
 
-  Wait(1);
-
-  AbortIfConditionIsFalse();
+  Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
 }
 
@@ -38,9 +36,7 @@ if(pageAbilitiesNoCooldown)
       .IsTrueForAny((i) => i), 
     99999);
   
-  Wait(0.1);
-
-  AbortIfConditionIsFalse();
+  Wait(0.1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
 }
 
@@ -65,9 +61,7 @@ if(pageAbilitiesInfiniteCharge)
       .IsTrueForAny((i) => i), 
     99999);
 
-  Wait(1);
-
-  AbortIfConditionIsFalse();
+  Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
 }
 
@@ -86,9 +80,7 @@ if(pageAbilitiesInfiniteResource)
       .IsTrueForAny((i) => i), 
     99999);
   
-  Wait(1);
-
-  AbortIfConditionIsFalse();
+  Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
 }
 
@@ -106,13 +98,13 @@ if(pageAbilitiesKeepSpammingButton)
   }
 
   if(abilities.Length)
-    Wait(1);
+    Wait(1, WaitBehavior.AbortWhenFalse);
 
   foreach(Button button! in fires) {
     StartHoldingButton(EventPlayer(), button);
   }
   
-  Wait(1);
+  Wait(1, WaitBehavior.AbortWhenFalse);
 
   foreach(Button button! in pageAbilitiesKeepSpammingButton) {
     StopHoldingButton(EventPlayer(), button);
@@ -125,9 +117,23 @@ if(pageAbilitiesKeepSpammingButton)
       .IsTrueForAny((i) => i),
     99999);
 
-  Wait(1);
+  Wait(1, WaitBehavior.AbortWhenFalse);
+  LoopIfConditionIsTrue();
+}
+
+// TODO: figure out a better way to handle that without refreshing the whole menu
+rule: 'Refresh menu when selected players change'
+Event.OngoingPlayer
+if(menuState.isOpen)
+if(menuState.HistoryContains(PAGE_ABILITIES_ID))
+{
+  WaitUntil(
+    menuState.isFocused && selectedPlayers != EvaluateOnce(selectedPlayers) || 
+    !menuState.HistoryContains(PAGE_ABILITIES_ID),
+  99999);
 
   AbortIfConditionIsFalse();
+  menuState.Refresh();
   LoopIfConditionIsTrue();
 }
 
@@ -148,7 +154,10 @@ if(menuState.pageId == PAGE_ABILITIES_ID)
     MinWait();
   }
 
-  WaitUntil(menuState.pageId != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
+  WaitUntil(
+    menuState.pageId != PAGE_ABILITIES_ID && !menuState.isRefreshing || 
+    !menuState.isOpen, 
+  99999);
   
   playerText.Remove();
 }
@@ -156,7 +165,8 @@ if(menuState.pageId == PAGE_ABILITIES_ID)
 rule: 'Draw current ability info above players'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.history[menuState.history.Length - 2].id == PAGE_ABILITIES_ID)
+if(menuState.history[2].id == PAGE_ABILITIES_ID)
+if(menuState.history.Length > 3 && !menuState.isRefreshing)
 {
   foreach(Player player in AllPlayers()) {
     if(player == EventPlayer()) continue;
@@ -171,7 +181,11 @@ if(menuState.history[menuState.history.Length - 2].id == PAGE_ABILITIES_ID)
     MinWait();
   }
 
-  WaitUntil(menuState.history[menuState.history.Length - 2].id != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
+  WaitUntil(
+    menuState.history[2].id != PAGE_ABILITIES_ID || 
+    menuState.history.Length <= 3 || 
+    !menuState.isOpen, 
+  99999);
 
   playerText.Remove();
 }

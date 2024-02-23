@@ -63,6 +63,8 @@ class MenuState {
   public Boolean isPuppet;
   # Whether this menu is currently used menu.
   public Boolean isFocused: currentMenuState == this;
+  # Whether menu is currently in refresh stage.
+  public Boolean isRefreshing: pageId == '<REFRESH>';
   # Combination of buttons used to toggle menu on and off.
   public Button[] _toggleMenu;
   # List of available items on current page.
@@ -416,11 +418,10 @@ class MenuState {
   }
 
   public void Refresh() "[MenuState] Refresh" {
-    HistoryItem prevHistory! = history.Last;
-    history.ModRemoveByIndex(history.Length - 1);
+    history += [{ id: '<REFRESH>', innerScroll: 0, outerScroll: 0 }];
     Wait();
     DestroyPage();
-    history[history.Length - 1] = prevHistory;
+    history.ModRemoveByIndex(history.Length - 1);
   }
 
   public virtual void GoTo(String pageId!) "[MenuState] Go To" {

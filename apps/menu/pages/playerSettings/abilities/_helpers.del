@@ -51,6 +51,9 @@ Carousel PageAbilitiesCarousel(in String text, in Button ability) {
     filteredPlayers.pageAbilitiesKeepHoldingButton.ModRemoveByValue(ability);
 
     StopHoldingButton(filteredPlayers, ability);
+
+    // let spam finish its rule
+    MinWait();
     
     if(it.value == 'hold') {
       filteredPlayers.pageAbilitiesKeepHoldingButton.ModAppend(ability);
