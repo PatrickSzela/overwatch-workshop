@@ -5,52 +5,46 @@ import '../../../../../libs/menu/components/carousel.del';
 import '../../../../../libs/utils/string.formatters.del';
 import '../../../_variables.del';
 
-Button PAGE_ABILITIES_BUTTON_ENABLE: Button.Ability2;
-Button PAGE_ABILITIES_BUTTON_HOLD: Button.Reload;
-Button PAGE_ABILITIES_BUTTON_TOGGLE_HOLDING: Button.Interact;
-Button PAGE_ABILITIES_BUTTON_TOGGLE_PRESSING: Button.Melee;
-
 playervar Button selectedButton;
 // its kinda buggy when definied in the function
 playervar Player[] filteredPlayers = [];
-playervar Boolean[] pageAbilitiesEnabled = [true, true, true, true, true, true, true, true, true, true];
-// apparently IsButtonHeld doesn't work for players other than EventPlayer() on client side...
-playervar Boolean[] pageAbilitiesInfiniteAmmo = [];
-playervar Boolean[] pageAbilitiesNoCooldown = [];
-playervar Boolean[] pageAbilitiesInfiniteCharge = [];
-playervar Boolean[] pageAbilitiesInfiniteResource = [];
-playervar Boolean[] pageAbilitiesKeepHoldingButton = [];
-playervar Boolean[] pageAbilitiesKeepSpammingButton = [];
+playervar Button[] pageAbilitiesEnabled = allButtons;
+playervar Button[] pageAbilitiesInfiniteAmmo = [];
+playervar Button[] pageAbilitiesNoCooldown = [];
+playervar Button[] pageAbilitiesInfiniteCharge = [];
+playervar Button[] pageAbilitiesInfiniteResource = [];
+playervar Button[] pageAbilitiesKeepHoldingButton = [];
+playervar Button[] pageAbilitiesKeepSpammingButton = [];
 
 String PAGE_ABILITIES_WARNING_BROKEN: "Due to Workshop bugs, some settings might not work correctly for some heroes";
 
 String PageAbilitiesInfo(Player player, Button button): 
-  $"Enabled: {BooleanFormatter(player.pageAbilitiesEnabled[allButtons.IndexOf(button)])}\n" +
-  $"Button held: {BooleanFormatter(player.buttonsHeld.Contains(EvaluateOnce(button)))}\n";
+  $"Enabled: {BooleanFormatter(player.pageAbilitiesEnabled.Contains(button))}\n" +
+  $"Button held: {BooleanFormatter(player.buttonsHeld.Contains(button))}\n";
 
 Carousel PageAbilitiesCarousel(in String text, in Button ability) {
   Carousel item! = new Carousel(
     text: text,
     options: ['off', 'hold', 'spam'],
     defaultValue: 
-      selectedPlayers[0].pageAbilitiesKeepHoldingButton[allButtons.IndexOf(ability)] ? 'hold' :
-      selectedPlayers[0].pageAbilitiesKeepSpammingButton[allButtons.IndexOf(ability)] ? 'spam' :
+      selectedPlayers[0].pageAbilitiesKeepHoldingButton.Contains(ability) ? 'hold' :
+      selectedPlayers[0].pageAbilitiesKeepSpammingButton.Contains(ability) ? 'spam' :
       'off'
   );
 
   item.onChange = (value, it) => {
     filteredPlayers = selectedPlayers.FilteredArray((i) => i != EventPlayer());
 
-    foreach(Player pl in filteredPlayers) {
-      pl.pageAbilitiesKeepSpammingButton[allButtons.IndexOf(ability)] = false;
-      pl.pageAbilitiesKeepHoldingButton[allButtons.IndexOf(ability)] = false;
+    foreach(Player pl! in filteredPlayers) {
+      pl.pageAbilitiesKeepSpammingButton.ModRemoveByValue(ability);
+      pl.pageAbilitiesKeepHoldingButton.ModRemoveByValue(ability);
       StopHoldingButton(pl, ability);
       
       if(it.value == 'hold') {
-        pl.pageAbilitiesKeepHoldingButton[allButtons.IndexOf(ability)] = true;
+        pl.pageAbilitiesKeepHoldingButton.ModAppend(ability);
         StartHoldingButton(pl, ability);
       } else if(it.value == 'spam') {
-        pl.pageAbilitiesKeepSpammingButton[allButtons.IndexOf(ability)] = true;
+        pl.pageAbilitiesKeepSpammingButton.ModAppend(ability);
       }
     }
   };
@@ -66,7 +60,7 @@ void PageAbilitiesRuleGenerator(String title!, Button ability!, Button buttonApp
   menuState.CreatePage(title, PageAbilitiesMenuItemsGenerator(ability, buttonApply), [desc]);
 }
 
-Component PageAbilitiesSpinnerGenerator(Button ability!, Button buttonApply!, String text!, String unit! = null, Number value!, ((Number) => void) onApply!) "PageAbilitiesSpinnerGenerator" {
+NumberInput PageAbilitiesNumberInputGenerator(Button ability!, Button buttonApply!, String text!, String unit! = null, Number value!, ((Number) => void) onApply!) "PageAbilitiesNumberInputGenerator" {
   NumberInput numberInput! = new NumberInput(
     menuState: menuState, 
     text: text,
@@ -83,7 +77,7 @@ Component PageAbilitiesSpinnerGenerator(Button ability!, Button buttonApply!, St
   return numberInput;
 }
 
-Component PageAbilitiesToggleGenerator(String text!, Number defaultChecked!, ((Boolean) => void) onApply!) "PageAbilitiesToggleGenerator" {
+Toggle PageAbilitiesToggleGenerator(String text!, Number defaultChecked!, ((Boolean) => void) onApply!) "PageAbilitiesToggleGenerator" {
   Toggle toggle! = new Toggle(
     text: text,
     defaultChecked: defaultChecked
@@ -103,11 +97,14 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
   if(ability != Button.Interact) {
     list += PageAbilitiesToggleGenerator(
       text: 'Enabled',
-      defaultChecked: selectedPlayers[0].pageAbilitiesEnabled[allButtons.IndexOf(ability)],
+      defaultChecked: selectedPlayers[0].pageAbilitiesEnabled.Contains(ability),
       onApply: (value) => {
         foreach(Player pl! in selectedPlayers) {
-          pl.pageAbilitiesEnabled[allButtons.IndexOf(ability)] = value;
-          
+          if(value)
+            pl.pageAbilitiesEnabled.ModAppend(ability);
+          else
+            pl.pageAbilitiesEnabled.ModRemoveByValue(ability);
+
           if(ability == Button.PrimaryFire) SetPrimaryFireEnabled(pl, value);
           else if(ability == Button.SecondaryFire) SetSecondaryFireEnabled(pl, value);
           else if(ability == Button.Ability1) SetAbility1Enabled(pl, value);
@@ -125,10 +122,10 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
   }
 
   // use
-  Carousel use! = PageAbilitiesCarousel('Use', ability);
+  Carousel use = PageAbilitiesCarousel('Use', ability);
 
   if(ability == Button.Ultimate) {
-    list += PageAbilitiesSpinnerGenerator(
+    list += PageAbilitiesNumberInputGenerator(
       ability: ability,
       buttonApply: buttonApply,
       text: 'Charge',
@@ -141,10 +138,14 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
 
     list += PageAbilitiesToggleGenerator(
       text: 'Infinite Charge',
-      defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteCharge[allButtons.IndexOf(ability)],
+      defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteCharge.Contains(ability),
       onApply: (value) => {
-        foreach(Player pl! in selectedPlayers)
-          pl.pageAbilitiesInfiniteCharge[allButtons.IndexOf(ability)] = value;
+        foreach(Player pl! in selectedPlayers) {
+          if(value)
+            pl.pageAbilitiesInfiniteCharge.ModAppend(ability);
+          else
+            pl.pageAbilitiesInfiniteCharge.ModRemoveByValue(ability);
+        }
       }
     );
 
@@ -157,14 +158,14 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
   if(ability == Button.PrimaryFire || ability == Button.SecondaryFire) {
     Number clip! = ability == Button.SecondaryFire ? 1 : 0;
 
-    list += PageAbilitiesSpinnerGenerator(
+    list += PageAbilitiesNumberInputGenerator(
       ability: ability,
       buttonApply: buttonApply,
       text: 'Ammo',
       value: Ammo(selectedPlayers[0], clip),
       onApply: (value) => SetAmmo(selectedPlayers, clip, value)
     );
-    list += PageAbilitiesSpinnerGenerator(
+    list += PageAbilitiesNumberInputGenerator(
       ability: ability,
       buttonApply: buttonApply,
       text: 'Max Ammo',
@@ -173,7 +174,7 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
     );
   }
 
-  list += PageAbilitiesSpinnerGenerator(
+  list += PageAbilitiesNumberInputGenerator(
     ability: ability,
     buttonApply: buttonApply,
     text: 'Cooldown',
@@ -182,7 +183,7 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
     onApply: (value) => SetAbilityCooldown(selectedPlayers, ability, value)
   );
 
-  list += PageAbilitiesSpinnerGenerator(
+  list += PageAbilitiesNumberInputGenerator(
     ability: ability,
     buttonApply: buttonApply,
     text: 'Charge',
@@ -190,7 +191,7 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
     onApply: (value) => SetAbilityCharge(selectedPlayers, ability, value)
   );
 
-  list += PageAbilitiesSpinnerGenerator(
+  list += PageAbilitiesNumberInputGenerator(
     ability: ability,
     buttonApply: buttonApply,
     text: 'Resource',
@@ -205,38 +206,54 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!, Button buttonApply!
   if(ability == Button.PrimaryFire || ability == Button.SecondaryFire) {
     list += PageAbilitiesToggleGenerator(
       text: 'Infinite Ammo',
-      defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteAmmo[allButtons.IndexOf(ability)],
+      defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteAmmo.Contains(ability),
       onApply: (value) => {
-        foreach(Player pl! in selectedPlayers)
-          pl.pageAbilitiesInfiniteAmmo[allButtons.IndexOf(ability)] = value;
+        foreach(Player pl! in selectedPlayers) {
+          if(value)
+            pl.pageAbilitiesInfiniteAmmo.ModAppend(ability);
+          else
+            pl.pageAbilitiesInfiniteAmmo.ModRemoveByValue(ability);
+        }
       }
     );
   }
 
   list += PageAbilitiesToggleGenerator(
     text: 'No Cooldown',
-    defaultChecked: selectedPlayers[0].pageAbilitiesNoCooldown[allButtons.IndexOf(ability)],
+    defaultChecked: selectedPlayers[0].pageAbilitiesNoCooldown.Contains(ability),
     onApply: (value) => {
-      foreach(Player pl! in selectedPlayers)
-        pl.pageAbilitiesNoCooldown[allButtons.IndexOf(ability)] = value;
+      foreach(Player pl! in selectedPlayers) {
+        if(value)
+          pl.pageAbilitiesNoCooldown.ModAppend(ability);
+        else
+          pl.pageAbilitiesNoCooldown.ModRemoveByValue(ability);
+      }
     }
   );
 
   list += PageAbilitiesToggleGenerator(
     text: 'Infinite Charge',
-    defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteCharge[allButtons.IndexOf(ability)],
+    defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteCharge.Contains(ability),
     onApply: (value) => {
-      foreach(Player pl! in selectedPlayers)
-        pl.pageAbilitiesInfiniteCharge[allButtons.IndexOf(ability)] = value;
+      foreach(Player pl! in selectedPlayers) {
+        if(value)
+          pl.pageAbilitiesInfiniteCharge.ModAppend(ability);
+        else
+          pl.pageAbilitiesInfiniteCharge.ModRemoveByValue(ability);
+      }
     }
   );
 
   list += PageAbilitiesToggleGenerator(
     text: 'Infinite Resource',
-    defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteResource[allButtons.IndexOf(ability)],
+    defaultChecked: selectedPlayers[0].pageAbilitiesInfiniteResource.Contains(ability),
     onApply: (value) => {
-      foreach(Player pl! in selectedPlayers)
-        pl.pageAbilitiesInfiniteResource[allButtons.IndexOf(ability)] = value;
+      foreach(Player pl! in selectedPlayers) {
+        if(value)
+          pl.pageAbilitiesInfiniteResource.ModAppend(ability);
+        else
+          pl.pageAbilitiesInfiniteResource.ModRemoveByValue(ability);
+      }
     }
   );
 
