@@ -1,6 +1,6 @@
 import '../modifier.del';
 import '../buttons.del';
-import '../../../libs/utils/heroes.del';
+import '../../../libs/utils/player.del';
 
 String EMOTE_NAME: 'Emote';
 

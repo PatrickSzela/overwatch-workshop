@@ -4,7 +4,9 @@ import './customGameSettings.prod.lobby';
 import './variables.del';
 import './modifiers/index.del';
 import '../../libs/utils/vector.del';
-import '../../libs/utils/heroes.del';
+import '../../libs/utils/player.del';
+
+// TODO: do not foreach array of players!!!
 
 // TODO: call functions in Ongoing.OngoingPlayer rule instead using foreach everywhere
 // TODO: reduce lambdas size
