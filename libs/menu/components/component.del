@@ -6,12 +6,12 @@ single struct Description {
   public Boolean visible;
   public Number order;
 
-  public static Description New(in String description, in Color color = Color.White, in Boolean visible = true, in Number order = 0): 
+  public static Description New(in String description, in Color color = COLOR_NEUTRAL, in Boolean visible = true, in Number order = 0): 
     {text: description, color: color, visible: visible, order: order};
 
   public static Description BASE: {
     text: '',
-    color: Color.White,
+    color: COLOR_NEUTRAL,
     visible: true,
     order: 0
   };
@@ -58,7 +58,7 @@ class Component {
     this.description = [];
     this.textFormatter = TEXT_FORMATTER;
     this.child = child;
-    this.color = Color.White;
+    this.color = COLOR_NEUTRAL;
   }
   
   public void AddDescription(in Description description) {

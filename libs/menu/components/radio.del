@@ -32,7 +32,7 @@ class Radio: Toggle
         foreach(ComponentParent sibling! in _menuState.namedComponentToItem.Get(name)) {
           if((<Toggle>sibling.component).checked) {
             (<Toggle>sibling.component).value = false;
-            _menuState.rerenderItemIdxs += sibling.parentIdx;
+            _menuState.rerenderItems += sibling.parent;
           }
         }
       }

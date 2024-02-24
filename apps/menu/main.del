@@ -14,6 +14,9 @@ import '../../libs/utils/rules/pauseMatchTime.del';
 import './customGameSettings.lobby';
 import '../../libs/playerInfo.del';
 
+// TODO: mark menu as dirty
+// TODO: page creation on currentMenuState
+
 // TODO: teleport/look at flag
 // TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
 // TODO: tools - ruler, spheres
@@ -29,7 +32,7 @@ Event.OngoingPlayer
   menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
   menuState.SetFocused();
 
-  menuState2 = new MenuState(null, [], false, true);
+  menuState2 = new MenuState(null, [], puppet: true);
   menuState2.AddMenuDescription(Description.New('\n', order: 9999));
 }
 
@@ -49,8 +52,7 @@ rule: 'Hide diagnostics by default'
 
 rule: 'Switch focused menu'
 Event.OngoingPlayer
-if(currentMenuState.isOpen)
-if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
+if(menuState2.isOpen)
 if(EventPlayer().IsButtonHeld(SWITCH_FOCUS_BUTTON))
 {
   if(currentMenuState == menuState) {
@@ -63,7 +65,6 @@ if(EventPlayer().IsButtonHeld(SWITCH_FOCUS_BUTTON))
 rule: 'Close main menu when trying to do that in the 2nd one'
 Event.OngoingPlayer
 if(menuState2.isFocused)
-if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
 if(buttonsHeld == menuState._toggleMenu)
 {
   if(menuState.isOpen)
@@ -74,14 +75,13 @@ if(buttonsHeld == menuState._toggleMenu)
 
 rule: 'Show description on currently focused menu'
 Event.OngoingPlayer
-if(currentMenuState.isFocused)
-if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
+if(menuState2.isOpen)
 {
   switchFocusDescriptionIdx = currentMenuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to other menu', COLOR_SWITCH, order: 99));
   currentMenuState.RerenderHoveredItem();
 
   MenuState cur! = currentMenuState;
-  WaitUntil(cur != currentMenuState || !menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID), 99999);
+  WaitUntil(!cur.isFocused || !menuState2.isOpen, 99999);
 
   cur.RemoveMenuDescription(switchFocusDescriptionIdx);
   cur.RerenderHoveredItem();
@@ -95,11 +95,10 @@ Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
 {
-  menuState2.SetEnabled(true);
   menuState2.Open();
-  menuState2.GoTo(PAGE_SELECT_PLAYERS_ID);
+  menuState2.GoTo(PAGE_SELECT_PLAYERS_ID, true);
   WaitUntil(!menuState.isOpen || !menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID), 99999);
-  menuState2.SetEnabled(false);
+  menuState2.Close();
 }
 
 rule: 'Player Info'
