@@ -7,6 +7,7 @@ import './components/component.del';
 
 // TODO: make `PuppetMenuState`?
 
+Color COLOR_NEUTRAL: Color.White;
 Color COLOR_INFO: Color.SkyBlue;
 Color COLOR_WARNING: Color.Orange;
 Color COLOR_ERROR: Color.Red;
@@ -42,7 +43,7 @@ struct RenderedTexts {
 }
 
 single struct ComponentParent {
-  public Number parentIdx;
+  public Component parent;
   public Component component;
 }
 
@@ -62,41 +63,43 @@ class MenuState {
   # Whether opening and closing menu logic is handled from outside.
   public Boolean isPuppet;
   # Whether this menu is currently used menu.
-  public Boolean isFocused: currentMenuState == this;
+  public Boolean isFocused;
   # Whether menu is currently in refresh stage.
   public Boolean isRefreshing: pageId == '<REFRESH>';
   # Combination of buttons used to toggle menu on and off.
   public Button[] _toggleMenu;
+  # ID of root page.
+  public String _rootPageId;
   # List of available items on current page.
   public Component[] items;
   # Index of currently hovered item in `items`.
   public Number hoveredItemIdx;
+  # List of currently visible items.
+  public Component[] visibleItems: items.Slice(history.Last.outerScroll, MAX_ITEMS);
+  # List of components that aren't disabled (can be hovered).
+  public Component[] enabledItems: items.FilteredArray((i, idx) => !i.disabled);
+  # List of items that should be re-rendered.
+  public Component[] rerenderItems;
   # Currently hovered item.
   public Component hoveredItem: items[hoveredItemIdx];
   # Stack of IDs of visited pages.
   public HistoryItem[] history;
   # ID of currently open page.
   public String pageId: history.Last.id;
-  # ID of root page.
-  public String _rootPageId;
-  # List of indexes of items that should be re-rendered.
-  public Number[] rerenderItemIdxs;
   # List of rendered items.
   public RenderedTexts renderedTexts;
   # List of additional descriptions that will be show on current page.
   public Description[] descriptionsPage;
   # List of additional descriptions that will be shown until manually removed.
   public Description[] descriptionsMenu;
-  # List of currently visible items.
-  public Component[] visibleItems: items.Slice(history.Last.outerScroll, MAX_ITEMS);
-  # List of components that aren't disabled (can be hovered).
-  public Component[] enabledItems: items.FilteredArray((i, idx) => !i.disabled);
   # Stores relation of named component to item in `items`. 
-  public Dictionary<String, ComponentParent[]> namedComponentToItem = { Keys: [], Values: [] };
+  public Dictionary<String, ComponentParent[]> namedComponentToItem;
 
   public constructor(in String rootPageId, in Button[] toggleMenu, in Boolean enabled = true, in Boolean puppet = false) {
     _toggleMenu = toggleMenu;
     _rootPageId = rootPageId;
+
+    namedComponentToItem = { Keys: [], Values: [] };
 
     if(rootPageId != null)
       history = [{ id: rootPageId, ..HistoryItem.BASE }];
@@ -105,10 +108,12 @@ class MenuState {
     
     items = [];
     isLocked = false;
+    isFocused = false;
     isEnabled = enabled;
     isPuppet = puppet;
+    hoveredItemIdx = -1;
 
-    rerenderItemIdxs = [];
+    rerenderItems = [];
 
     Render();
   }
@@ -123,13 +128,13 @@ class MenuState {
 
   # Forcefully rerenders currently hovered item. Call after manually adding description.
   public void RerenderHoveredItem() "[MenuState] Rerender Hovered Item" {
-    rerenderItemIdxs += hoveredItemIdx;
+    rerenderItems += hoveredItem;
     Render();
   }
 
-  # Forcefully rerenders all items.
+  # Forcefully rerenders all visible items.
   public void RerenderAllItems() "[MenuState] Rerender All Items" {
-    rerenderItemIdxs += items.Map((_, idx) => idx);
+    rerenderItems = visibleItems;
     Render();
   }
   
@@ -142,12 +147,16 @@ class MenuState {
 
   public void SetFocused() "[MenuState] Set Focused" {
     if(currentMenuState != this) {
+      currentMenuState.isFocused = false;
+
       if(currentMenuState.isOpen) {
         currentMenuState.hoveredItem.OnLeave();
         currentMenuState.RerenderHoveredItem();
       }
       
       currentMenuState = this;
+      isFocused = true;
+
       if(isOpen) {
         hoveredItem.OnEnter();
         RerenderHoveredItem();
@@ -155,30 +164,38 @@ class MenuState {
     }
   }
 
+  # NOTE: This won't rerender the menu
+  public void SetHoveredItemIdx(Number index!) "[MenuState] Set Hovered Item Index" {
+    history[history.Length - 1] = { innerScroll: index, outerScroll: 0, ..history.Last };
+
+    HandleScroll();
+  }
+
   // TODO: instead of adding every item in a loop, gather them all in an array manually and set dictionary
-  private void RegisterNamedItem(Component item!, Number parentIdx!) "[MenuState] Handle Named Item" {
+  private void RegisterNamedItem(Component item!, Component parent!) "[MenuState] Handle Named Item" {
     if(item.name) {
-      ComponentParent[] old! = namedComponentToItem.Contains(item.name) ? namedComponentToItem.Get(item.name) : [];
-      old += [<ComponentParent>{ component: item, parentIdx: parentIdx }];
+      ComponentParent[] old! = namedComponentToItem.Get(item.name) || [];
+      old += <ComponentParent>{ component: item, parent: parent };
 
       Dictionary<String, ComponentParent[]>.SetOrAdd(namedComponentToItem, item.name, old);
     }
   }
 
   public void AddItems(in Component[] items) {
+    rerenderItems += items;
     this.items += items;
-    rerenderItemIdxs += items.Map((_, idx) => idx);
 
-    for(Number i! = 0; i < items.Length; i++) {
-      Component item: items[i];
-      RegisterNamedItem(item, i);
+    foreach(Component item! in items) {
+      RegisterNamedItem(item, item);
       if(item.child) {
-        RegisterNamedItem(item.child, i);
+        RegisterNamedItem(item.child, item);
       }
     }
 
-    Component[] i! = enabledItems;
-    history[history.Length - 1].innerScroll = Max(items.IndexOf(enabledItems.First), Min(items.IndexOf(enabledItems.Last), history[history.Length - 1].innerScroll));
+    if(this.items.Length && hoveredItemIdx == -1) {
+      Component[] enabled! = enabledItems;
+      history[history.Length - 1].innerScroll = Max(this.items.IndexOf(enabled.First), Min(this.items.IndexOf(enabled.Last), history.Last.innerScroll));
+    }
 
     HandleScroll();
   }
@@ -224,6 +241,7 @@ class MenuState {
     buttonsHeld = [];
     descriptionsPage = [];
     namedComponentToItem = { Keys: [], Values: [] };
+    hoveredItemIdx = -1;
 
     foreach(Component component! in items) {
       if(component.child) {
@@ -238,11 +256,11 @@ class MenuState {
 
   public virtual void Navigate(Vector direction!) "[MenuState] Navigate" {
     hoveredItem.OnNavigate(direction);
-    rerenderItemIdxs += hoveredItemIdx;
+    rerenderItems += hoveredItem;
 
     if(!isLocked && (direction == Down() || direction == Up())) {
       Number offset! = 0;
-      Number hov! = hoveredItemIdx;
+      Number hov: hoveredItemIdx;
       Component[] it! = enabledItems;
 
       if(direction == Down()) {
@@ -260,7 +278,7 @@ class MenuState {
         history[history.Length - 1].innerScroll += offset;
         HandleScroll(); 
         hoveredItem.OnEnter();
-        rerenderItemIdxs += hoveredItemIdx;
+        rerenderItems += hoveredItem;
       }
     }
 
@@ -287,7 +305,7 @@ class MenuState {
     }
 
     if(isOpen) {
-      rerenderItemIdxs += hoveredItemIdx;
+      rerenderItems += hoveredItem;
       Render();
     }
   }
@@ -300,17 +318,17 @@ class MenuState {
 
     if(isOpen) {
       hoveredItem.OnButtonUp(button);
-      rerenderItemIdxs += hoveredItemIdx;
+      rerenderItems += hoveredItem;
       Render();
     }
   }
 
-  // phase 3: render
+  // phase 2: render
   public void RenderClosedItems() {
-    renderedTexts.merged = [
+    renderedTexts.merged = isPuppet ? [] : [
       { 
         text: $"Press {ButtonFormatter(_toggleMenu)}​ to toggle Menu", 
-        color: Color.White
+        color: COLOR_NEUTRAL
       }
     ];
   }
@@ -319,7 +337,7 @@ class MenuState {
     renderedTexts.title = [
       { 
         text: title,
-        color: Color.White
+        color: COLOR_NEUTRAL
       }
     ];
   }
@@ -328,39 +346,34 @@ class MenuState {
     renderedTexts.separators = [
       { 
         text: $"──────────────────────{items.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == 0 ? '△' : '▲'}──────────────────────", 
-        color: Color.White 
+        color: COLOR_NEUTRAL 
       },
       {
         text: $"──────────────────────{items.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == items.Length - MAX_ITEMS ? '▽' : '▼'}──────────────────────",
-        color: Color.White
+        color: COLOR_NEUTRAL
       }
     ];
   }
 
   public void RenderDescription() {
     Description[] descriptionArr! = hoveredItem.description;
+
     if(hoveredItem.child) {
-      foreach(Description arr! in hoveredItem.child.description)
-        descriptionArr += arr;
+      descriptionArr += hoveredItem.child.description;
     }
 
-    foreach(Description arr! in descriptionsPage)
-      descriptionArr += arr;
+    descriptionArr += descriptionsPage;
+    descriptionArr += descriptionsMenu;
 
-    foreach(Description arr! in descriptionsMenu)
-      descriptionArr += arr;
-
-    Any[][] descr! = descriptionArr.Map((i) => <Any[]>[i.text, i.color, i.visible, i.order]).FilteredArray((i) => i[2]).SortedArray((i) => i[3]);
-
-    renderedTexts.description = descr.Map((i) => <RenderedText>{text: i[0], color: i[1]});
+    renderedTexts.description = descriptionArr
+      .FilteredArray((i) => i.visible)
+      .SortedArray((i) => i.order)
+      .Map((i) => <RenderedText>{text: i[0], color: i[1]});
   }
 
   public void PrepareVisibleItems() {
-    // LogToInspector($"Rerendering: {rerenderItems.Length}");
-
-    foreach(Number itemIdx! in rerenderItemIdxs) {
-      Component item! = items[itemIdx];
-      // called here, not in Component because it won't work
+    foreach(Component item! in rerenderItems) {
+      // called here, not in Component because it breaks stuff
       if(item.child) {
         item.child.Render();
       }
@@ -368,18 +381,22 @@ class MenuState {
       item.Render();
     }
 
-    if(rerenderItemIdxs.Contains(hoveredItemIdx))
-      RenderDescription();
-    
-    rerenderItemIdxs = [];
+    RenderDescription();
+
+    rerenderItems = [];
   }
 
   public void RenderVisibleItems() {
-    // TODO: edit only rerendered items
-    renderedTexts.items = visibleItems.Map((i, idx) => <RenderedText>{ 
-      text: $"{!i.disabled ? currentMenuState == this && hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{i.renderedText}",
-      color: i.color 
-    });
+    renderedTexts.items = 
+      items ? 
+        visibleItems.Map((item, idx) => <RenderedText>{ 
+          text: $"{!item.disabled ? isFocused && hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{item.renderedText}",
+          color: item.color 
+        }) :
+        [{ 
+          text: "It's a bit empty in here...",
+          color: COLOR_NEUTRAL 
+        }];
   }
 
   public void MergeTexts() {
@@ -424,10 +441,14 @@ class MenuState {
     history.ModRemoveByIndex(history.Length - 1);
   }
 
-  public virtual void GoTo(String pageId!) "[MenuState] Go To" {
+  public virtual void GoTo(String pageId!, Boolean historyReplace! = false) "[MenuState] Go To" {
     if(this.pageId != pageId) {
       DestroyPage();
-      history += { id: pageId, ..HistoryItem.BASE };
+
+      if(historyReplace)
+        history[history.Length - 1] = { id: pageId, ..HistoryItem.BASE };
+      else
+        history += { id: pageId, ..HistoryItem.BASE };
     }
   }
 

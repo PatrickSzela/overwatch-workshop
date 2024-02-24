@@ -13,7 +13,7 @@ class Toggle: ComponentWithValue
     in Boolean defaultChecked = null,
     in Component child = null
   ) {
-    ToggleConstructor(text, defaultChecked);
+    ToggleConstructor(text, defaultChecked, child);
   }
 
   protected void ToggleConstructor(
@@ -38,6 +38,8 @@ class Toggle: ComponentWithValue
   // events
   public override void OnButtonDown(Button button!) "[Toggle] OnButtonDown" {
     onButtonDown(button, this);
+
+    HandleActions();
 
     if(button == BUTTON_TOGGLE)
       SetChecked(!checked);

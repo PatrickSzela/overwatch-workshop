@@ -14,12 +14,17 @@ import '../../libs/utils/rules/pauseMatchTime.del';
 import './customGameSettings.lobby';
 import '../../libs/playerInfo.del';
 
+// TODO: mark menu as dirty
+// TODO: page creation on currentMenuState
+
 // TODO: teleport/look at flag
 // TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
 // TODO: tools - ruler, spheres
 
+// TODO: test selected players with 2nd client
+
 Button SWITCH_FOCUS_BUTTON: Button.Ability1;
-playervar Number switchFocusDescriptionIdx;
+playervar Number[] switchFocusDescriptionIdx = [];
 
 rule: 'Generate Menu State'
 Event.OngoingPlayer
@@ -27,7 +32,7 @@ Event.OngoingPlayer
   menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
   menuState.SetFocused();
 
-  menuState2 = new MenuState(null, [], false, true);
+  menuState2 = new MenuState(null, [], puppet: true);
   menuState2.AddMenuDescription(Description.New('\n', order: 9999));
 }
 
@@ -47,8 +52,7 @@ rule: 'Hide diagnostics by default'
 
 rule: 'Switch focused menu'
 Event.OngoingPlayer
-if(currentMenuState.isOpen)
-if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
+if(menuState2.isOpen)
 if(EventPlayer().IsButtonHeld(SWITCH_FOCUS_BUTTON))
 {
   if(currentMenuState == menuState) {
@@ -58,10 +62,33 @@ if(EventPlayer().IsButtonHeld(SWITCH_FOCUS_BUTTON))
   }
 }
 
+rule: 'Create description about switching menu'
+Event.OngoingPlayer
+{
+  switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to right side', COLOR_SWITCH, order: 99));
+  switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to left side', COLOR_SWITCH, order: 99));
+}
+
+rule: 'Show description on currently focused menu'
+Event.OngoingPlayer
+{
+  menuState.descriptionsMenu[switchFocusDescriptionIdx[0]].visible = menuState.isFocused && menuState2.isOpen;
+  menuState2.descriptionsMenu[switchFocusDescriptionIdx[1]].visible = menuState2.isFocused;
+
+  menuState.RerenderHoveredItem();
+  menuState2.RerenderHoveredItem();
+
+  WaitUntil(
+    menuState.isFocused != EvaluateOnce(menuState.isFocused) ||
+    menuState2.isOpen != EvaluateOnce(menuState2.isOpen),
+  99999);
+
+  Loop();
+}
+
 rule: 'Close main menu when trying to do that in the 2nd one'
 Event.OngoingPlayer
 if(menuState2.isFocused)
-if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
 if(buttonsHeld == menuState._toggleMenu)
 {
   if(menuState.isOpen)
@@ -70,38 +97,19 @@ if(buttonsHeld == menuState._toggleMenu)
     menuState.Open();
 }
 
-rule: 'Show description on currently focused menu'
-Event.OngoingPlayer
-if(currentMenuState.isFocused)
-if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
-{
-  switchFocusDescriptionIdx = currentMenuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to other menu', COLOR_SWITCH, order: 99));
-  currentMenuState.RerenderHoveredItem();
-
-  MenuState cur! = currentMenuState;
-  WaitUntil(cur != currentMenuState || !menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID), 99999);
-
-  cur.RemoveMenuDescription(switchFocusDescriptionIdx);
-  cur.RerenderHoveredItem();
-
-  AbortIfConditionIsFalse();
-  LoopIfConditionIsTrue();
-}
-
 rule: 'Open Select Players menu'
 Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
 {
-  menuState2.SetEnabled(true);
   menuState2.Open();
-  menuState2.GoTo(PAGE_SELECT_PLAYERS_ID);
+  menuState2.GoTo(PAGE_SELECT_PLAYERS_ID, true);
   WaitUntil(!menuState.isOpen || !menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID), 99999);
-  menuState2.SetEnabled(false);
+  menuState2.Close();
 }
 
 rule: 'Player Info'
 Event.OngoingPlayer
 {
-  PlayerInfo(playerName, buttonsHeld, pageStatusAppliedStatuses);
+  PlayerInfo(playerName);
 }
