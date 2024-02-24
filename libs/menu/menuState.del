@@ -357,15 +357,11 @@ class MenuState {
     Description[] descriptionArr! = hoveredItem.description;
 
     if(hoveredItem.child) {
-      foreach(Description arr! in hoveredItem.child.description)
-        descriptionArr += arr;
+      descriptionArr += hoveredItem.child.description;
     }
 
-    foreach(Description arr! in descriptionsPage)
-      descriptionArr += arr;
-
-    foreach(Description arr! in descriptionsMenu)
-      descriptionArr += arr;
+    descriptionArr += descriptionsPage;
+    descriptionArr += descriptionsMenu;
 
     renderedTexts.description = descriptionArr.FilteredArray((i) => i.visible).Map((i) => <RenderedText>{text: i[0], color: i[1]});
   }
