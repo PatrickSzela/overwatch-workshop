@@ -126,9 +126,19 @@ class MenuState {
     RenderTitle(title);
   }
 
+  public void AddToRerenderQueue(in Component item) {
+    rerenderItems += hoveredItem;
+  }
+
   # Forcefully rerenders currently hovered item. Call after manually adding description.
   public void RerenderHoveredItem() "[MenuState] Rerender Hovered Item" {
     rerenderItems += hoveredItem;
+    Render();
+  }
+
+  # Forcefully rerenders specified item. Call after manually adding description.
+  public void RerenderItem(Component component!) "[MenuState] Rerender Item" {
+    rerenderItems += component;
     Render();
   }
 
@@ -182,15 +192,22 @@ class MenuState {
   }
 
   public void AddItems(in Component[] items) {
-    rerenderItems += items;
-    this.items += items;
+    ReplaceItems(this.items + items);
+  }
 
+  public void ReplaceItems(Component[] items!) "[MenuState] Replace Items" {
     foreach(Component item! in items) {
-      RegisterNamedItem(item, item);
-      if(item.child) {
-        RegisterNamedItem(item.child, item);
+      if(!this.items.Contains(item)) {
+        rerenderItems += item;
+
+        RegisterNamedItem(item, item);
+        if(item.child) {
+          RegisterNamedItem(item.child, item);
+        }
       }
     }
+
+    this.items = items;
 
     if(this.items.Length && hoveredItemIdx == -1) {
       Component[] enabled! = enabledItems;
