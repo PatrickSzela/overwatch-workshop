@@ -24,7 +24,7 @@ import '../../libs/playerInfo.del';
 // TODO: test selected players with 2nd client
 
 Button SWITCH_FOCUS_BUTTON: Button.Ability1;
-playervar Number switchFocusDescriptionIdx;
+playervar Number[] switchFocusDescriptionIdx = [];
 
 rule: 'Generate Menu State'
 Event.OngoingPlayer
@@ -62,6 +62,30 @@ if(EventPlayer().IsButtonHeld(SWITCH_FOCUS_BUTTON))
   }
 }
 
+rule: 'Create description about switching menu'
+Event.OngoingPlayer
+{
+  switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to right side', COLOR_SWITCH, order: 99));
+  switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to left side', COLOR_SWITCH, order: 99));
+}
+
+rule: 'Show description on currently focused menu'
+Event.OngoingPlayer
+{
+  menuState.descriptionsMenu[switchFocusDescriptionIdx[0]].visible = menuState.isFocused && menuState2.isOpen;
+  menuState2.descriptionsMenu[switchFocusDescriptionIdx[1]].visible = menuState2.isFocused;
+
+  menuState.RerenderHoveredItem();
+  menuState2.RerenderHoveredItem();
+
+  WaitUntil(
+    menuState.isFocused != EvaluateOnce(menuState.isFocused) ||
+    menuState2.isOpen != EvaluateOnce(menuState2.isOpen),
+  99999);
+
+  Loop();
+}
+
 rule: 'Close main menu when trying to do that in the 2nd one'
 Event.OngoingPlayer
 if(menuState2.isFocused)
@@ -71,23 +95,6 @@ if(buttonsHeld == menuState._toggleMenu)
     menuState.Close();
   else
     menuState.Open();
-}
-
-rule: 'Show description on currently focused menu'
-Event.OngoingPlayer
-if(menuState2.isOpen)
-{
-  switchFocusDescriptionIdx = currentMenuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to other menu', COLOR_SWITCH, order: 99));
-  currentMenuState.RerenderHoveredItem();
-
-  MenuState cur! = currentMenuState;
-  WaitUntil(!cur.isFocused || !menuState2.isOpen, 99999);
-
-  cur.RemoveMenuDescription(switchFocusDescriptionIdx);
-  cur.RerenderHoveredItem();
-
-  AbortIfConditionIsFalse();
-  LoopIfConditionIsTrue();
 }
 
 rule: 'Open Select Players menu'

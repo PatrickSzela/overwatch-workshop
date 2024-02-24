@@ -387,20 +387,16 @@ class MenuState {
   }
 
   public void RenderVisibleItems() {
-    renderedTexts.items = visibleItems.Map((item, idx) => <RenderedText>{ 
-      text: $"{!item.disabled ? isFocused && hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{item.renderedText}",
-      color: item.color 
-    });
-
-    // foreach(Component item! in rerenderItems) {
-    //   Number idx! = items.IndexOf(item);
-    //   renderedTexts.items[idx - history.Last.outerScroll] = { 
-    //     text: $"{!item.disabled ? isFocused && hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{item.renderedText}",
-    //     color: item.color 
-    //   };
-    // }
-    
-    // rerenderItems = [];
+    renderedTexts.items = 
+      items ? 
+        visibleItems.Map((item, idx) => <RenderedText>{ 
+          text: $"{!item.disabled ? isFocused && hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{item.renderedText}",
+          color: item.color 
+        }) :
+        [{ 
+          text: "It's a bit empty in here...",
+          color: COLOR_NEUTRAL 
+        }];
   }
 
   public void MergeTexts() {
