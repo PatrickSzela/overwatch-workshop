@@ -111,6 +111,7 @@ class MenuState {
     isFocused = false;
     isEnabled = enabled;
     isPuppet = puppet;
+    hoveredItemIdx = -1;
 
     rerenderItems = [];
 
@@ -191,7 +192,7 @@ class MenuState {
       }
     }
 
-    if(this.items.Length && hoveredItem.disabled) {
+    if(this.items.Length && hoveredItemIdx == -1) {
       Component[] enabled! = enabledItems;
       history[history.Length - 1].innerScroll = Max(this.items.IndexOf(enabled.First), Min(this.items.IndexOf(enabled.Last), history.Last.innerScroll));
     }
@@ -240,6 +241,7 @@ class MenuState {
     buttonsHeld = [];
     descriptionsPage = [];
     namedComponentToItem = { Keys: [], Values: [] };
+    hoveredItemIdx = -1;
 
     foreach(Component component! in items) {
       if(component.child) {
