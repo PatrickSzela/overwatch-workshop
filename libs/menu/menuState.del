@@ -363,7 +363,10 @@ class MenuState {
     descriptionArr += descriptionsPage;
     descriptionArr += descriptionsMenu;
 
-    renderedTexts.description = descriptionArr.FilteredArray((i) => i.visible).Map((i) => <RenderedText>{text: i[0], color: i[1]});
+    renderedTexts.description = descriptionArr
+      .FilteredArray((i) => i.visible)
+      .SortedArray((i) => i.order)
+      .Map((i) => <RenderedText>{text: i[0], color: i[1]});
   }
 
   public void PrepareVisibleItems() {
