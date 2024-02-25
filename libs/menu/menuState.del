@@ -112,7 +112,6 @@ class MenuState {
     isEnabled = enabled;
     isPuppet = puppet;
     hoveredItemIdx = 0;
-    // hoveredItemIdx = -1;
 
     rerenderItems = [];
 
@@ -235,12 +234,7 @@ class MenuState {
     Number scroll! = history.Last.outerScroll + history.Last.innerScroll;
     Component hover: items[scroll];
 
-    // if(this.items.Length && (scroll < 0 || scroll > this.items.Length - 1)) {
     if(this.items.Length && (!hover || hover.disabled)) {
-      // EnableInspectorRecording();
-      // LogToInspector($'Yes {scroll}, {this.items.Length}');
-      // DisableInspectorRecording();
-
       Component[] enabled! = enabledItems;
       history[history.Length - 1].innerScroll = Max(this.items.IndexOf(enabled.First), Min(this.items.IndexOf(enabled.Last), scroll));
     }
@@ -291,7 +285,6 @@ class MenuState {
     buttonsHeld = [];
     descriptionsPage = [];
     namedComponentToItem = { Keys: [], Values: [] };
-    // hoveredItemIdx = -1;
   }
 
   public virtual void Navigate(Vector direction!) "[MenuState] Navigate" {
