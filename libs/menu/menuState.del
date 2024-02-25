@@ -111,7 +111,7 @@ class MenuState {
     isFocused = false;
     isEnabled = enabled;
     isPuppet = puppet;
-    hoveredItemIdx = -1;
+    hoveredItemIdx = 0;
 
     rerenderItems = [];
 
@@ -126,9 +126,19 @@ class MenuState {
     RenderTitle(title);
   }
 
+  public void AddToRerenderQueue(in Component item) {
+    rerenderItems += hoveredItem;
+  }
+
   # Forcefully rerenders currently hovered item. Call after manually adding description.
   public void RerenderHoveredItem() "[MenuState] Rerender Hovered Item" {
     rerenderItems += hoveredItem;
+    Render();
+  }
+
+  # Forcefully rerenders specified item. Call after manually adding description.
+  public void RerenderItem(Component component!) "[MenuState] Rerender Item" {
+    rerenderItems += component;
     Render();
   }
 
@@ -181,20 +191,52 @@ class MenuState {
     }
   }
 
-  public void AddItems(in Component[] items) {
-    rerenderItems += items;
-    this.items += items;
-
+  public void AddItems(Component[] items!) "[MenuState] Add Items" {
     foreach(Component item! in items) {
+      rerenderItems += item;
+
       RegisterNamedItem(item, item);
       if(item.child) {
         RegisterNamedItem(item.child, item);
       }
     }
 
-    if(this.items.Length && hoveredItemIdx == -1) {
+    this.items += items;
+
+    FixScroll();
+  }
+
+  public void RemoveItems(Component[] items!, Boolean handleScroll! = true) "[MenuState] Remove Items" {
+    // TODO: handle removal from `namedComponentToItem`
+    foreach(Component component! in items) {
+      if(component.child) {
+        delete(component.child);
+      }
+      delete(component);
+    }
+
+    this.items -= items;
+    
+    if(handleScroll) {
+      // TODO: add better scroll handler
+      // history[history.Length - 1].innerScroll -= items.Length - 1;
+      FixScroll();
+    }
+  }
+
+  public void ReplaceItems(Component[] items!) "[MenuState] Replace Items" {
+    RemoveItems(this.items - items, false);
+    AddItems(items - this.items);    
+  }
+
+  public void FixScroll() "[MenuState] Fix Scroll" {
+    // Number scroll! = hoveredItemIdx;
+    Number scroll! = history.Last.outerScroll + history.Last.innerScroll;
+    Component hover: items[scroll];
+
+    if(this.items.Length && (!hover || hover.disabled)) {
       Component[] enabled! = enabledItems;
-      history[history.Length - 1].innerScroll = Max(this.items.IndexOf(enabled.First), Min(this.items.IndexOf(enabled.Last), history.Last.innerScroll));
+      history[history.Length - 1].innerScroll = Max(this.items.IndexOf(enabled.First), Min(this.items.IndexOf(enabled.Last), scroll));
     }
 
     HandleScroll();
@@ -238,20 +280,11 @@ class MenuState {
       hoveredItem.OnLeave();
     }
 
+    RemoveItems(items, false);
+
     buttonsHeld = [];
     descriptionsPage = [];
     namedComponentToItem = { Keys: [], Values: [] };
-    hoveredItemIdx = -1;
-
-    foreach(Component component! in items) {
-      if(component.child) {
-        delete(component.child);
-      }
-
-      delete(component);
-    }
-
-    items = [];
   }
 
   public virtual void Navigate(Vector direction!) "[MenuState] Navigate" {
