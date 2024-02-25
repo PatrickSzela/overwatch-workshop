@@ -2,6 +2,7 @@ import '../_variables.del';
 import './playerSettings/_index.del';
 import './createBot.del';
 import './tools/_index.del';
+import './timeline/index.del';
 
 String PAGE_ROOT_ID: 'root';
 String PAGE_ROOT_NAME: 'Main Menu';
@@ -10,7 +11,8 @@ Component[] PageRootItems() {
   return <Component[]>[
     new Link(menuState, PAGE_PLAYER_SETTINGS_NAME, PAGE_PLAYER_SETTINGS_ID),
     new Link(menuState, PAGE_CREATE_BOT_NAME, PAGE_CREATE_BOT_ID),
-    new Link(menuState, PAGE_TOOLS_NAME, PAGE_TOOLS_ID)
+    new Link(menuState, PAGE_TOOLS_NAME, PAGE_TOOLS_ID),
+    new Link(menuState, PAGE_TIMELINE_NAME, PAGE_TIMELINE_ID)
   ];
 }
 

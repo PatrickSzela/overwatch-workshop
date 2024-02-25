@@ -1,0 +1,18 @@
+import '../../../../libs/menu/components/toggle.del';
+import '../../_variables.del';
+
+String PAGE_TIMELINE_REPEAT_ID: 'repeat';
+String PAGE_TIMELINE_REPEAT_NAME: 'Repeat';
+
+Component PageTimelineRepeatMenuItem() {
+  Toggle component = new Toggle(
+    text: PAGE_TIMELINE_REPEAT_NAME,
+    defaultChecked: timeline.isRepeating
+  );
+
+  component.onChange = ((value, it) => {
+    Timeline.SetRepeat(timeline, value);
+  });
+
+  return component;
+}

@@ -1,0 +1,167 @@
+import '../../../libs/menu/components/text.del';
+import '../_variables.del';
+
+String PAGE_TIMELINE_EDIT_ID: 'timelineEdit';
+String PAGE_TIMELINE_EDIT_NAME: 'Edit timeline';
+
+playervar Action[] actionsEditableCopy;
+playervar Action[] actionsToRemove;
+
+Component PageTimelineEditItemGenerator(in Action action, in Number idx) {
+  Component component = new Component(action.name);
+  component.textFormatter = (it) => $"{menuState2.items.IndexOf(it) + 1}. {it.text}";
+  // component.textFormatter = (it) => $"{action.id}. {it.text}";
+
+  component.SetSecondaryAction("Mark/Unmark to removal", (it) => {
+    if(actionsToRemove.Contains(action)) {
+      actionsToRemove.ModRemoveByValue(action);
+      it.color = COLOR_NEUTRAL;
+    } else {
+      actionsToRemove.ModAppend(action);
+      it.color = COLOR_ERROR;
+    }
+
+    menuState.RerenderHoveredItem();
+  });
+
+  return component;
+}
+
+// Component[] PageTimelineEditItems() {
+//   Component[] list = actionSet.Length ? [] : [];
+
+//   foreach(Action action in actionSet) {
+//     list += PageTimelineEditItemGenerator(action, list.Length + 1);
+//   }
+
+//   return list;
+// }
+
+rule: 'Timeline/Edit'
+Event.OngoingPlayer
+if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
+{
+  actionsEditableCopy = [];
+
+  menuState2.CreatePage(
+    title: PAGE_TIMELINE_EDIT_NAME, 
+    items: [],
+    descriptions: [
+      // Description.New('Only 1 Player can edit the timeline at the same time', COLOR_WARNING)
+    ]
+  );
+
+  // TODO: trigger action
+  // TODO: add moving items
+  // TODO: add marking multiple items (remake into checkboxes)
+}
+
+rule: 'Timeline/Edit On leave'
+Event.OngoingPlayer
+if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
+if(menuState2.isFocused)
+{
+  actionsToRemove = [];
+
+  WaitUntil(
+    menuState2.pageId != PAGE_TIMELINE_EDIT_ID ||
+    !menuState2.isFocused, 
+  99999);
+
+  // SmallMessage(AllPlayers(), 'Replacing actionset');
+
+  // EnableInspectorRecording();
+  // foreach(Action action! in actionsToRemove) {
+  //   LogToInspector($'removing {action.id}');
+  // }
+  // DisableInspectorRecording();
+
+  // TODO: handle resetting internally
+  timeline.index = 0;
+  timeline.actions = actionsEditableCopy - actionsToRemove;
+
+  // EnableInspectorRecording();
+  // foreach(Action action! in timeline.actions) {
+  //   LogToInspector($'left after removal: {action.id}');
+  // }
+  // DisableInspectorRecording();
+}
+
+// TODO: lock 2nd menu when playing
+// TODO: maybe make a callback?
+rule: 'Timeline/Edit Rerender items'
+Event.OngoingPlayer
+if(menuState2.isOpen)
+if(!menuState2.isFocused)
+if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
+if(timeline.actions != actionsEditableCopy)
+{
+  // SmallMessage(AllPlayers(), 'OG actions changed');
+
+  Action[] toAdd! = timeline.actions - actionsEditableCopy;
+  Action[] toRemove! = actionsEditableCopy - timeline.actions;
+
+  // EnableInspectorRecording();
+  // LogToInspector($"adding {toAdd.Length}, removing {toRemove.Length}");
+  // DisableInspectorRecording();
+
+
+  // removing items
+  Component[] componentsToRemove! = [];
+  // for some reason `IndexOf()` doesn't work when trying to remove using the action itself
+  Number[] idToIdx! = actionsEditableCopy.Map((i) => i.id);
+
+  foreach(Action action! in toRemove) {
+    // EnableInspectorRecording();
+    // LogToInspector($"removing id {action.id}, index {idToIdx.IndexOf(action.id)}");
+    // LogToInspector($"removing id {action.id}, index {actionsEditableCopy.IndexOf(action)}");
+    // DisableInspectorRecording();
+
+    componentsToRemove += menuState2.items[idToIdx.IndexOf(action.id)];
+  }
+
+  // menuState2.RemoveItems(componentsToRemove);
+
+  actionsEditableCopy -= toRemove;
+
+  // adding new items
+  Component[] components! = menuState2.items - componentsToRemove;
+
+  foreach(Action action! in toAdd) {
+    components += PageTimelineEditItemGenerator(action, timeline.actions.Length + components.Length);
+  }
+
+  actionsEditableCopy += toAdd;
+
+  // sort
+  components = components.SortedArray((i, idx) => timeline.actions.IndexOf(actionsEditableCopy[idx]));
+  actionsEditableCopy = actionsEditableCopy.SortedArray((i) => timeline.actions.IndexOf(i));
+  
+  // for(Number i! = 0; i < timeline.actions.Length; i++) {
+  //   // if item has been added
+  //   if(!actionsEditableCopy.Contains(timeline.actions[i])) {
+  //     Action action! = timeline.actions[i];
+
+  //     EnableInspectorRecording();
+  //     LogToInspector($"adding {i}, {action.name}");
+  //     DisableInspectorRecording();
+
+  //     components = 
+  //       components.Slice(0, i) +
+  //       PageTimelineEditItemGenerator(action, timeline.actions.Length + components.Length) +
+  //       components.Slice(i, 999);
+
+  //     actionsEditableCopy = 
+  //       actionsEditableCopy.Slice(0, i) +
+  //       action +
+  //       actionsEditableCopy.Slice(i, 999);
+  //   }
+  // }
+
+  menuState2.ReplaceItems(components);
+  // actionsEditableCopy += toAdd;
+  // menuState2.SetHoveredItemIdx(actionsEditableCopy.Length - 1);
+  menuState2.Render();
+
+  LoopIfConditionIsTrue();
+}

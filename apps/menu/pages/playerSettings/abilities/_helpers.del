@@ -63,6 +63,14 @@ Carousel PageAbilitiesCarousel(in String text, in Button ability) {
     }
   };
 
+  // TODO: move to separate button
+  item.SetTertiaryAction('Add to Timeline', (it) => {
+    if((<Carousel>it).value == 'off')
+      Timeline.AddAction(timeline, ACTION_StopHoldingButton(selectedPlayers, ability));
+    else
+      Timeline.AddAction(timeline, ACTION_StartHoldingButton(selectedPlayers, ability));
+  });
+
   return item;
 }
 

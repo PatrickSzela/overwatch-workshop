@@ -1,0 +1,79 @@
+import './index.del';
+import '../../_variables.del';
+
+String PAGE_TIMELINE_PLAY_PAUSE_ID: 'play';
+String PAGE_TIMELINE_PLAY_PAUSE_NAME: 'Play';
+
+playervar Component pagePlayPauseComponent;
+
+Component PageTimelinePlayPauseMenuItem() {
+  Component component = new Component('Play');
+
+  component.textFormatter = (it) => timeline.isPlaying ? 'Pause' : 'Play';
+
+  component.SetPrimaryAction("Apply", (it) => {
+    if(timeline.isPlaying) {
+      Timeline.Pause(timeline);
+    } else {
+      Timeline.Play(timeline);
+    }
+  });
+
+  pagePlayPauseComponent = component;
+
+  return component;
+}
+
+rule: 'Timeline/Edit On timeline index changed'
+Event.OngoingPlayer
+if(menuState2.isOpen)
+if(menuState2.items)
+if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
+{
+  Number idx! = timeline.index;
+  menuState2.items[idx].color = COLOR_SWITCH;
+  menuState2.SetHoveredItemIdx(idx);
+  menuState2.Render();
+
+  WaitUntil(
+    timeline.index != idx ||
+    !menuState2.isOpen ||
+    !menuState2.items ||
+    menuState2.pageId != PAGE_TIMELINE_EDIT_ID,
+  99999);
+
+  // menuState2.hoveredItem.color = COLOR_NEUTRAL;
+  menuState2.items[idx].color = COLOR_NEUTRAL;
+  menuState2.AddToRerenderQueue(menuState2.items[idx]);
+
+  LoopIfConditionIsTrue();
+
+  menuState2.Render();
+}
+
+rule: 'Timeline/Edit Focus current item when started playing'
+Event.OngoingPlayer
+if(timeline.isPlaying)
+if(menuState2.isOpen)
+if(menuState2.items)
+if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
+{
+  menuState2.SetHoveredItemIdx(timeline.index);
+  menuState2.Render();
+}
+
+rule: 'Timeline/Play Pause Switch text if playing'
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_TIMELINE_ID)
+if(timeline.isPlaying)
+{
+  menuState.RerenderItem(pagePlayPauseComponent);
+}
+
+rule: 'Timeline/Play Pause Switch text if paused'
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_TIMELINE_ID)
+if(!timeline.isPlaying)
+{
+  menuState.RerenderItem(pagePlayPauseComponent);
+}

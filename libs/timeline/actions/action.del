@@ -1,0 +1,11 @@
+single struct Action {
+  public String name;
+  public Number id;
+  public () => void code;
+  // public String ruleName;
+  // public Player[] players;
+  // public Any[] variables;
+
+  public static Action New(String name, () => void code): 
+    { name: name, code: code, id: 0 };
+}

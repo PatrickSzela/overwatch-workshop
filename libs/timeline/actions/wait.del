@@ -1,0 +1,5 @@
+import './action.del';
+
+Action ACTION_Wait(Number time): Action.New($'Wait({time}s)', code: () => {
+  Wait(time);
+});
