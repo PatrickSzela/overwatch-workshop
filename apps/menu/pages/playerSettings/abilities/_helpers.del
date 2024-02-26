@@ -22,18 +22,6 @@ String PageAbilitiesInfo(Player player, Button button):
   $"Enabled: {BooleanFormatter(player.pageAbilitiesEnabled.Contains(button))}\n" +
   $"Button held: {BooleanFormatter(player.buttonsHeld.Contains(button))}\n";
 
-void PageAbilitiesRuleGenerator(String title!, Button ability!) "PageAbilitiesRuleGenerator" {
-  selectedButton = ability;
-
-  menuState.CreatePage(
-    title: title,
-    items: PageAbilitiesMenuItemsGenerator(ability), 
-    descriptions: [
-      Description.New(PAGE_ABILITIES_WARNING_BROKEN, COLOR_WARNING)
-    ]
-  );
-}
-
 Carousel PageAbilitiesCarousel(in String text, in Button ability) {
   Carousel item! = new Carousel(
     text: text,
