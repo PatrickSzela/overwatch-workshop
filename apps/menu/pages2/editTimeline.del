@@ -5,6 +5,7 @@ import '../_variables.del';
 // TODO: simplify most of the stuff
 // TODO: add marking multiple items (remake into checkboxes)?
 // TODO: lock 2nd menu when playing
+// TODO: preserve prev color
 
 String PAGE_TIMELINE_EDIT_ID: 'timelineEdit';
 String PAGE_TIMELINE_EDIT_NAME: 'Timeline Editor';
@@ -208,8 +209,6 @@ if(timeline.actions != editableActions)
 
   menuState2.ReplaceItems(items);
   menuState2.Render();
-
-  Wait(0.1);
 
   LoopIfConditionIsTrue();
 }
