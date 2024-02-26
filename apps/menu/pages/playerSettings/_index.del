@@ -1,3 +1,4 @@
+import '../../../../libs/menu/components/link.del';
 import '../../_variables.del';
 import './changeHero.del';
 import './teleport.del';
@@ -10,8 +11,6 @@ import './resurrect.del';
 import './respawn.del';
 import './remove.del';
 import './menuAccess.del';
-
-// TODO: instead of separate pages, store ability in variable and use 1 CreatePage with 1 rule
 
 String PAGE_PLAYER_SETTINGS_ID: 'playerSettings';
 String PAGE_PLAYER_SETTINGS_NAME: 'Player Settings';

@@ -4,23 +4,38 @@ import '../../_variables.del';
 String PAGE_STATUS_ID: 'status';
 String PAGE_STATUS_NAME: 'Status';
 
-// TODO: use Workshop Setting
-Button PAGE_STATUS_BUTTON_TOGGLE: Button.Ability2;
-
-// TODO: figure out a better way to handle this mess...
-
 String PAGE_STATUS_DESCRIPTION: 'All Players have a list of currently active statuses above them';
 String PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION: "Selected players will not be able to navigate the menu";
 
-// since HasStatus doesn't work properly in some statuses, gotta workaround that
-playervar String[] pageStatusAppliedStatuses = [];
+// all this mess because it's not possible to store Status in a variable...
 
-void PageStatusItemsHelper(ref Toggle[] list, Status status, in String id, in String text, in Boolean navigationWarning = false, in Boolean brokenWarning = false) {
+globalvar String[] allStatuses = [
+  'Asleep',
+  'Burning',
+  'Frozen',
+  'Hacked',
+  'Invincible',
+  'Knocked Down',
+  'Phased Out',
+  'Rooted',
+  'Stunned',
+  'Unkillable'
+];
+
+// since HasStatus doesn't work properly in some statuses client side, gotta workaround that
+playervar String[] pageStatusAppliedStatuses = [];
+playervar String pageStatusToApply;
+
+void PageStatusItemsHelper(ref Toggle[] list, Status status, in String text, in Boolean navigationWarning = false, in Boolean brokenWarning = false) {
   list += new Toggle(
     text: text,
     defaultChecked: HasStatus(selectedPlayers[0], status)
   );
-  list.Last.id = PAGE_STATUS_ID + id;
+  list.Last.id = PAGE_STATUS_ID + text;
+  list.Last.onChange = (value, it) => {
+    // since it's not possible to pass actual Status here (because it can't be stored in variable), gotta workaround that
+    pageStatusToApply = text;
+  };
 
   if(navigationWarning)
     list.Last.AddDescription(Description.New(PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION, COLOR_WARNING, order: 10));
@@ -29,16 +44,16 @@ void PageStatusItemsHelper(ref Toggle[] list, Status status, in String id, in St
 Component[] PageStatusItems() {
   Toggle[] list = [];
  
-  PageStatusItemsHelper(list, Status.Asleep, 'Asleep', 'Asleep', true);
-  PageStatusItemsHelper(list, Status.Burning, 'Burning', 'Burning', false, true);
-  PageStatusItemsHelper(list, Status.Frozen, 'Frozen', 'Frozen', true);
-  PageStatusItemsHelper(list, Status.Hacked, 'Hacked', 'Hacked');
-  PageStatusItemsHelper(list, Status.Invincible, 'Invincible', 'Invincible');
-  PageStatusItemsHelper(list, Status.KnockedDown, 'KnockedDown', 'Knocked Down', true, true);
-  PageStatusItemsHelper(list, Status.PhasedOut, 'PhasedOut', 'Phased Out');
-  PageStatusItemsHelper(list, Status.Rooted, 'Rooted', 'Rooted', true, true);
-  PageStatusItemsHelper(list, Status.Stunned, 'Stunned', 'Stunned', true);
-  PageStatusItemsHelper(list, Status.Unkillable, 'Unkillable', 'Unkillable', false, true);
+  PageStatusItemsHelper(list, Status.Asleep,      allStatuses[0], true);
+  PageStatusItemsHelper(list, Status.Burning,     allStatuses[1], false, true);
+  PageStatusItemsHelper(list, Status.Frozen,      allStatuses[2], true);
+  PageStatusItemsHelper(list, Status.Hacked,      allStatuses[3]);
+  PageStatusItemsHelper(list, Status.Invincible,  allStatuses[4]);
+  PageStatusItemsHelper(list, Status.KnockedDown, allStatuses[5], true, true);
+  PageStatusItemsHelper(list, Status.PhasedOut,   allStatuses[6]);
+  PageStatusItemsHelper(list, Status.Rooted,      allStatuses[7], true, true);
+  PageStatusItemsHelper(list, Status.Stunned,     allStatuses[8], true);
+  PageStatusItemsHelper(list, Status.Unkillable,  allStatuses[9], false, true);
 
   return list;
 }
@@ -63,9 +78,7 @@ if(menuState.pageId == PAGE_STATUS_ID)
 {
   foreach(Player player in AllPlayers()) {
     Player pl: EvaluateOnce(player);
-
     playerText.Add(pl, InlineJoin10(pl.pageStatusAppliedStatuses, '\n'));
-
     MinWait();
   }
 
@@ -80,7 +93,7 @@ void PageStatusAppliedStatusesInfo(Status status, in String name) {
   ModifyVariable(pageStatusAppliedStatuses, Operation.RemoveFromArrayByValue, name);
 }
 
-void PageStatusSetStatus(Status status, in String name) {
+void PageStatusSetStatus(Status status) {
   if(HasStatus(selectedPlayers[0], status)) {
     ClearStatus(selectedPlayers, status);
   } else {
@@ -88,142 +101,118 @@ void PageStatusSetStatus(Status status, in String name) {
   }
 }
 
+rule: 'Apply status'
+Event.OngoingPlayer
+if(pageStatusToApply)
+{
+  if(     pageStatusToApply == allStatuses[0]) PageStatusSetStatus(Status.Asleep);
+  else if(pageStatusToApply == allStatuses[1]) PageStatusSetStatus(Status.Burning);
+  else if(pageStatusToApply == allStatuses[2]) PageStatusSetStatus(Status.Frozen);
+  else if(pageStatusToApply == allStatuses[3]) PageStatusSetStatus(Status.Hacked);
+  else if(pageStatusToApply == allStatuses[4]) PageStatusSetStatus(Status.Invincible);
+  else if(pageStatusToApply == allStatuses[5]) PageStatusSetStatus(Status.KnockedDown);
+  else if(pageStatusToApply == allStatuses[6]) PageStatusSetStatus(Status.PhasedOut);
+  else if(pageStatusToApply == allStatuses[7]) PageStatusSetStatus(Status.Rooted);
+  else if(pageStatusToApply == allStatuses[8]) PageStatusSetStatus(Status.Stunned);
+  else if(pageStatusToApply == allStatuses[9]) PageStatusSetStatus(Status.Unkillable);
+
+  pageStatusToApply = '';
+}
+
+rule: 'Update Status toggle on applied statuses change'
+Event.OngoingPlayer
+if(menuState.isOpen)
+if(menuState.pageId == PAGE_STATUS_ID)
+{
+  WaitUntil(
+    selectedPlayers[0].pageStatusAppliedStatuses != EvaluateOnce(selectedPlayers[0].pageStatusAppliedStatuses) ||
+    !menuState.isOpen ||
+    menuState.pageId != PAGE_STATUS_ID,
+  99999);
+
+  AbortIfConditionIsFalse();
+
+  for(Number i! = 0; i < allStatuses.Length; i++) {
+    Toggle toggle! = <Toggle>menuState.items[i];
+    Boolean statusApplied! = selectedPlayers[0].pageStatusAppliedStatuses.Contains(allStatuses[i]);
+
+    if(toggle.value != statusApplied) {
+      toggle.value = statusApplied;
+      menuState.AddToRerenderQueue(toggle);
+    }
+  }
+  
+  menuState.Render();
+
+  LoopIfConditionIsTrue();
+}
+
 rule: 'Player Settings/Status/Asleep: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.Asleep))
 {
-  PageStatusAppliedStatusesInfo(Status.Asleep, "Asleep");
-}
-
-rule: 'Player Settings/Status/Asleep: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'Asleep', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.Asleep, 'Asleep');
+  PageStatusAppliedStatusesInfo(Status.Asleep, allStatuses[0]);
 }
 
 rule: 'Player Settings/Status/Burning: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.Burning))
 {
-  PageStatusAppliedStatusesInfo(Status.Burning, "Burning");
-}
-
-rule: 'Player Settings/Status/Burning: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'Burning', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.Burning, 'Burning');
+  PageStatusAppliedStatusesInfo(Status.Burning, allStatuses[1]);
 }
 
 rule: 'Player Settings/Status/Frozen: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.Frozen))
 {
-  PageStatusAppliedStatusesInfo(Status.Frozen, "Frozen");
-}
-
-rule: 'Player Settings/Status/Frozen: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'Frozen', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.Frozen, 'Frozen');
+  PageStatusAppliedStatusesInfo(Status.Frozen, allStatuses[2]);
 }
 
 rule: 'Player Settings/Status/Hacked: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.Hacked))
 {
-  PageStatusAppliedStatusesInfo(Status.Hacked, "Hacked");
-}
-
-rule: 'Player Settings/Status/Hacked: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'Hacked', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.Hacked, 'Hacked');
+  PageStatusAppliedStatusesInfo(Status.Hacked, allStatuses[3]);
 }
 
 rule: 'Player Settings/Status/Invincible: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.Invincible))
 {
-  PageStatusAppliedStatusesInfo(Status.Invincible, "Invincible");
-}
-
-rule: 'Player Settings/Status/Invincible: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'Invincible', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.Invincible, 'Invincible');
+  PageStatusAppliedStatusesInfo(Status.Invincible, allStatuses[4]);
 }
 
 rule: 'Player Settings/Status/Knocked Down: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.KnockedDown))
 {
-  PageStatusAppliedStatusesInfo(Status.KnockedDown, "KnockedDown");
-}
-
-rule: 'Player Settings/Status/Knocked Down: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'KnockedDown', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.KnockedDown, 'KnockedDown');
+  PageStatusAppliedStatusesInfo(Status.KnockedDown, allStatuses[5]);
 }
 
 rule: 'Player Settings/Status/Phased Out: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.PhasedOut))
 {
-  PageStatusAppliedStatusesInfo(Status.PhasedOut, "PhasedOut");
-}
-
-rule: 'Player Settings/Status/Phased Out: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'PhasedOut', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.PhasedOut, 'PhasedOut');
+  PageStatusAppliedStatusesInfo(Status.PhasedOut, allStatuses[6]);
 }
 
 rule: 'Player Settings/Status/Rooted: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.Rooted))
 {
-  PageStatusAppliedStatusesInfo(Status.Rooted, "Rooted");
-}
-
-rule: 'Player Settings/Status/Rooted: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'Rooted', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.Rooted, 'Rooted');
+  PageStatusAppliedStatusesInfo(Status.Rooted, allStatuses[7]);
 }
 
 rule: 'Player Settings/Status/Stunned: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.Stunned))
 {
-  PageStatusAppliedStatusesInfo(Status.Stunned, "Stunned");
-}
-
-rule: 'Player Settings/Status/Stunned: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'Stunned', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.Stunned, 'Stunned');
+  PageStatusAppliedStatusesInfo(Status.Stunned, allStatuses[8]);
 }
 
 rule: 'Player Settings/Status/Unkillable: Set Status Info'
 Event.OngoingPlayer
 if(HasStatus(EventPlayer(), Status.Unkillable))
 {
-  PageStatusAppliedStatusesInfo(Status.Unkillable, "Unkillable");
-}
-
-rule: 'Player Settings/Status/Unkillable: On Button Down - Ability 2'
-Event.OngoingPlayer
-if(menuState.onButtonDown(PAGE_STATUS_ID + 'Unkillable', PAGE_STATUS_BUTTON_TOGGLE))
-{
-  PageStatusSetStatus(Status.Unkillable, 'Unkillable');
+  PageStatusAppliedStatusesInfo(Status.Unkillable, allStatuses[9]);
 }
