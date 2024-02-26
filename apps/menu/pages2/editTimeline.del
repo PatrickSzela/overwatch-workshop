@@ -58,15 +58,11 @@ Component PageTimelineEditItemGenerator(in Action action) {
       if(newPos > menuState2.items.Length - 1) newPos = 0;
       else if(newPos < 0) newPos = menuState2.items.Length;
 
-      EnableInspectorRecording();
-      LogToInspector($"moving {oldPos}, direction {direction}, new pos {newPos}");
-      DisableInspectorRecording();
-
       // let's hope these things doesn't desync...
       editableActions = Move(editableActions, oldPos, newPos);
-
       menuState2.items = Move(menuState2.items, oldPos, newPos);
-      menuState2.Render();
+
+      menuState2.RerenderAllItems();
     }
   };
 
@@ -196,8 +192,8 @@ if(timeline.actions != editableActions)
   // sort
   // HACK: `IndexOf` doesn't work on structs?
   Number[] timelineIds! = timeline.actions.Map((i) => i.id);
-  items = items.SortedArray((_, idx) => timelineIds.IndexOf(editableActionsCopy[idx].id));
   editableActions = editableActions.SortedArray((i) => timelineIds.IndexOf(i.id));
+  items = items.SortedArray((_, idx) => timelineIds.IndexOf(editableActions[idx].id));
 
   // EnableInspectorRecording();
   // LogToInspector($"After sorting...");
