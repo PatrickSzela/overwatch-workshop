@@ -10,7 +10,7 @@ Component PageRemoveMenuItem() {
     foreach(Player p! in selectedPlayers) {
       if(p == EventPlayer()) {
         SmallMessage(EventPlayer(), "You can't remove yourself from the game");
-        return;
+        continue;
       }
 
       if(p.IsDummy())
