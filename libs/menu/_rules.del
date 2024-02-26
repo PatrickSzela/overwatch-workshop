@@ -1,10 +1,12 @@
 import './menuState.del';
 
-// edit this to point to different MenuState variable
 playervar MenuState currentMenuState;
+# List of currently pressed buttons by a player.
+playervar Button[] buttonsHeld = [];
 
 rule: '[MenuState] Freeze player'
 Event.OngoingPlayer
+if(currentMenuState)
 if(currentMenuState.isOpen)
 {
   EventPlayer().SetMoveSpeed(0);
@@ -23,6 +25,7 @@ if(currentMenuState.isOpen)
 
 rule: '[MenuState]: Update every frame'
 Event.OngoingPlayer
+if(currentMenuState)
 if(currentMenuState.isOpen)
 if(currentMenuState.hoveredItem.updateEveryFrame)
 {
@@ -47,6 +50,7 @@ void NavigationHelper(Vector direction!) "[MenuState]: Navigation Helper" {
 
 rule: '[MenuState]: Interacted with menu - Up'
 Event.OngoingPlayer
+if(currentMenuState)
 if(currentMenuState.isOpen)
 if(ThrottleOf(EventPlayer()).Z > 0.5)
 {
@@ -55,6 +59,7 @@ if(ThrottleOf(EventPlayer()).Z > 0.5)
 
 rule: '[MenuState]: Interacted with menu - Down'
 Event.OngoingPlayer
+if(currentMenuState)
 if(currentMenuState.isOpen)
 if(ThrottleOf(EventPlayer()).Z < -0.5)
 {
@@ -63,6 +68,7 @@ if(ThrottleOf(EventPlayer()).Z < -0.5)
 
 rule: '[MenuState]: Interacted with menu - Left'
 Event.OngoingPlayer
+if(currentMenuState)
 if(currentMenuState.isOpen)
 if(ThrottleOf(EventPlayer()).X < -0.5)
 {
@@ -71,6 +77,7 @@ if(ThrottleOf(EventPlayer()).X < -0.5)
 
 rule: '[MenuState]: Interacted with menu - Right'
 Event.OngoingPlayer
+if(currentMenuState)
 if(currentMenuState.isOpen)
 if(ThrottleOf(EventPlayer()).X > 0.5)
 {
@@ -83,9 +90,11 @@ if(ThrottleOf(EventPlayer()).X > 0.5)
 
 // cant be a subroutine
 void ButtonHelper(in Button button!) {
-  currentMenuState.ButtonDown(button);
+  buttonsHeld += button;
+  if(currentMenuState) currentMenuState.ButtonDown(button);
   WaitUntil(!EventPlayer().IsButtonHeld(button), 99999);
-  currentMenuState.ButtonUp(button);
+  if(currentMenuState) currentMenuState.ButtonUp(button);
+  buttonsHeld -= button;
 }
 
 rule: '[MenuState]: Interacted with menu - Ability 1'
