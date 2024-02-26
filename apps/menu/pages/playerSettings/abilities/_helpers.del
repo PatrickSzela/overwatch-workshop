@@ -9,12 +9,12 @@ playervar Button selectedButton;
 // its kinda buggy when definied in the function
 playervar Player[] filteredPlayers = [];
 playervar Button[] pageAbilitiesEnabled = allButtons;
+playervar Button[] pageAbilitiesKeepHoldingButton = [];
+playervar Button[] pageAbilitiesKeepSpammingButton = [];
 playervar Button[] pageAbilitiesInfiniteAmmo = [];
 playervar Button[] pageAbilitiesNoCooldown = [];
 playervar Button[] pageAbilitiesInfiniteCharge = [];
 playervar Button[] pageAbilitiesInfiniteResource = [];
-playervar Button[] pageAbilitiesKeepHoldingButton = [];
-playervar Button[] pageAbilitiesKeepSpammingButton = [];
 
 String PAGE_ABILITIES_WARNING_BROKEN: "Due to Workshop bugs, some settings might not work correctly for some heroes";
 
@@ -22,17 +22,17 @@ String PageAbilitiesInfo(Player player, Button button):
   $"Enabled: {BooleanFormatter(player.pageAbilitiesEnabled.Contains(button))}\n" +
   $"Button held: {BooleanFormatter(player.buttonsHeld.Contains(button))}\n";
 
-Carousel PageAbilitiesCarousel(in String text, in Button ability) {
+Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCarousel" {
   Carousel item! = new Carousel(
     text: text,
-    options: ['off', 'hold', 'spam'],
+    options: ['off', 'press', 'hold', 'spam'],
     defaultValue: 
       selectedPlayers[0].pageAbilitiesKeepHoldingButton.Contains(ability) ? 'hold' :
       selectedPlayers[0].pageAbilitiesKeepSpammingButton.Contains(ability) ? 'spam' :
       'off'
   );
 
-  item.onChange = (value, it) => {
+  item.SetPrimaryAction("Apply", (it) => {
     filteredPlayers = selectedPlayers.Remove(EventPlayer());
 
     filteredPlayers.pageAbilitiesKeepSpammingButton.ModRemoveByValue(ability);
@@ -43,11 +43,21 @@ Carousel PageAbilitiesCarousel(in String text, in Button ability) {
     // let spam finish its rule
     MinWait();
     
-    if(it.value == 'hold') {
+    if((<Carousel>it).value == 'press') {
+      StartHoldingButton(filteredPlayers, ability);
+    } else if((<Carousel>it).value == 'hold') {
       filteredPlayers.pageAbilitiesKeepHoldingButton.ModAppend(ability);
       StartHoldingButton(filteredPlayers, ability);
-    } else if(it.value == 'spam') {
+    } else if((<Carousel>it).value == 'spam') {
       filteredPlayers.pageAbilitiesKeepSpammingButton.ModAppend(ability);
+    }
+  });
+
+  item.onButtonUp = (button, it) => {
+    if(button == Button.Ability2) {
+      if((<Carousel>it).value == 'press') {
+        StopHoldingButton(filteredPlayers, ability);
+      }
     }
   };
 

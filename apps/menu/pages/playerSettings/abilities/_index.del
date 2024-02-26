@@ -5,11 +5,13 @@ import './_helpers.del';
 String PAGE_ABILITIES_ID: 'abilities';
 String PAGE_ABILITIES_NAME: 'Abilities';
 
+// TODO: use workshop setting button
+
 Component[] PageAbilitiesItems() {
   Component[] list = [];
 
   foreach(Button button! in allButtons) {
-    list += new Link(menuState, $"{button}", submenuID: $"{button}");
+    list += new Link(menuState, $"{button}", submenuID: $"{button}", openButton: Button.Reload);
     list.Last.onPrimaryAction = (it) => {
       selectedButton = button;
     };
