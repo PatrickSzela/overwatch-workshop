@@ -22,38 +22,34 @@ globalvar String[] allStatuses = [
   'Unkillable'
 ];
 
+globalvar String[] statusesDisablingNavigation = [
+  'Asleep',
+  'Frozen',
+  'Knocked Down',
+  'Phased Out'
+];
+
 // since HasStatus doesn't work properly in some statuses client side, gotta workaround that
 playervar String[] pageStatusAppliedStatuses = [];
 playervar String pageStatusToApply;
 
-void PageStatusItemsHelper(ref Toggle[] list, Status status, in String text, in Boolean navigationWarning = false, in Boolean brokenWarning = false) {
-  list += new Toggle(
-    text: text,
-    defaultChecked: HasStatus(selectedPlayers[0], status)
-  );
-  list.Last.id = PAGE_STATUS_ID + text;
-  list.Last.onChange = (value, it) => {
-    // since it's not possible to pass actual Status here (because it can't be stored in variable), gotta workaround that
-    pageStatusToApply = text;
-  };
-
-  if(navigationWarning)
-    list.Last.AddDescription(Description.New(PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION, COLOR_WARNING, order: 10));
-}
-
 Component[] PageStatusItems() {
   Toggle[] list = [];
- 
-  PageStatusItemsHelper(list, Status.Asleep,      allStatuses[0], true);
-  PageStatusItemsHelper(list, Status.Burning,     allStatuses[1], false, true);
-  PageStatusItemsHelper(list, Status.Frozen,      allStatuses[2], true);
-  PageStatusItemsHelper(list, Status.Hacked,      allStatuses[3]);
-  PageStatusItemsHelper(list, Status.Invincible,  allStatuses[4]);
-  PageStatusItemsHelper(list, Status.KnockedDown, allStatuses[5], true, true);
-  PageStatusItemsHelper(list, Status.PhasedOut,   allStatuses[6]);
-  PageStatusItemsHelper(list, Status.Rooted,      allStatuses[7], true, true);
-  PageStatusItemsHelper(list, Status.Stunned,     allStatuses[8], true);
-  PageStatusItemsHelper(list, Status.Unkillable,  allStatuses[9], false, true);
+
+  foreach(String name! in allStatuses) {
+    list += new Toggle(
+      text: name,
+      defaultChecked: selectedPlayers[0].pageStatusAppliedStatuses.Contains(name)
+    );
+
+    list.Last.onChange = (value, it) => {
+      // since it's not possible to pass actual Status here (because it can't be stored in variable), gotta workaround that
+      pageStatusToApply = name;
+    };
+
+    if(statusesDisablingNavigation.Contains(name))
+      list.Last.AddDescription(Description.New(PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION, COLOR_WARNING, order: 10));
+  }
 
   return list;
 }
