@@ -9,6 +9,7 @@ playervar MenuState menuState;
 playervar MenuState menuState2;
 
 playervar Player[] selectedPlayers = [EventPlayer()];
+playervar Player[] selectedPlayersWithoutSelf = [];
 
 playervar PickPosition pickPosition = new PickPosition();
 playervar PlayerText playerText = new PlayerText();

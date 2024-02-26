@@ -35,15 +35,23 @@ Event.OngoingPlayer
   Loop();
 }
 
+rule: 'Player Settings/Select Players: Update selected players without self'
+Event.OngoingPlayer
+{
+  WaitUntil(
+    selectedPlayers != EvaluateOnce(selectedPlayers),
+  99999);
+
+  selectedPlayersWithoutSelf = selectedPlayers.Remove(EventPlayer());
+
+  Loop();
+}
+
 rule: 'Player Settings/Select Players: Rerender players'
 Event.OngoingPlayer
 if(menuState2.isOpen)
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
-  EnableInspectorRecording();
-  LogToInspector($"rendering player list");
-  DisableInspectorRecording();
-
   Component[][] list = [[], [], []];
   Component[][] titles = [[], [], []];
 
@@ -52,16 +60,8 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
       Number existingIdx! = renderedPlayers[team].IndexOf(player);
 
       if(existingIdx > -1) {
-        EnableInspectorRecording();
-        LogToInspector($"player already rendered {player}");
-        DisableInspectorRecording();
-
         list[team] += renderedPlayerComponents[team][existingIdx];
       } else {
-        EnableInspectorRecording();
-        LogToInspector($"creating player {player}");
-        DisableInspectorRecording();
-
         Checkbox checkbox = new Checkbox(
           text: $"{player}",
           defaultChecked: selectedPlayers.Contains(player)
