@@ -49,7 +49,6 @@ Event.OngoingPlayer
 
 rule: 'Player Settings/Select Players: Rerender players'
 Event.OngoingPlayer
-if(menuState2.isOpen)
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
   Component[][] list = [[], [], []];
@@ -94,7 +93,8 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
   menuState2.RerenderAllItems();
 
   WaitUntil(
-    sortedPlayersPerTeam != EvaluateOnce(sortedPlayersPerTeam),
+    sortedPlayersPerTeam != EvaluateOnce(sortedPlayersPerTeam) ||
+    menuState2.pageId != PAGE_SELECT_PLAYERS_ID,
   99999);
 
   AbortIfConditionIsFalse();
