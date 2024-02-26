@@ -30,15 +30,15 @@ single struct HistoryItem {
 }
 
 struct RenderedTexts {
-  public RenderedText[] title;
+  public RenderedText[] titles;
   public RenderedText[] separators;
   public RenderedText[] items;
-  public RenderedText[] description;
+  public RenderedText[] descriptions;
 
   public RenderedText[] merged;
 
   public static RenderedTexts BASE: {
-    title: [], separators: [], items: [], description: [], merged: []
+    titles: [], separators: [], items: [], descriptions: [], merged: []
   };
 }
 
@@ -114,7 +114,9 @@ class MenuState {
     hoveredItemIdx = 0;
 
     rerenderItems = [];
+    renderedTexts = RenderedTexts.BASE;
 
+    // render title
     Render();
   }
 
@@ -127,28 +129,48 @@ class MenuState {
   }
 
   public void AddToRerenderQueue(in Component item) {
-    rerenderItems += hoveredItem;
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: AddToRerenderQueue');
+    // DisableInspectorRecording();
+
+    rerenderItems += item;
   }
 
   # Forcefully rerenders currently hovered item. Call after manually adding description.
   public void RerenderHoveredItem() "[MenuState] Rerender Hovered Item" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: RerenderHoveredItem');
+    // DisableInspectorRecording();
+
     rerenderItems += hoveredItem;
     Render();
   }
 
   # Forcefully rerenders specified item. Call after manually adding description.
   public void RerenderItem(Component component!) "[MenuState] Rerender Item" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: RerenderItem');
+    // DisableInspectorRecording();
+
     rerenderItems += component;
     Render();
   }
 
   # Forcefully rerenders all visible items.
   public void RerenderAllItems() "[MenuState] Rerender All Items" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: RerenderAllItems');
+    // DisableInspectorRecording();
+
     rerenderItems = visibleItems;
     Render();
   }
   
   public void SetEnabled(Boolean enabled!) "[MenuState] Set Enabled" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: SetEnabled');
+    // DisableInspectorRecording();
+
     if(enabled != isEnabled) {
       if(isOpen) Close();
       isEnabled = enabled;
@@ -156,6 +178,10 @@ class MenuState {
   }
 
   public void SetFocused() "[MenuState] Set Focused" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: SetFocused');
+    // DisableInspectorRecording();
+
     if(currentMenuState != this) {
       currentMenuState.isFocused = false;
 
@@ -176,6 +202,10 @@ class MenuState {
 
   # NOTE: This won't rerender the menu
   public void SetHoveredItemIdx(Number index!) "[MenuState] Set Hovered Item Index" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: SetHoveredItemIdx');
+    // DisableInspectorRecording();
+
     history[history.Length - 1] = { innerScroll: index, outerScroll: 0, ..history.Last };
 
     HandleScroll();
@@ -192,6 +222,10 @@ class MenuState {
   }
 
   public void AddItems(Component[] items!) "[MenuState] Add Items" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: AddItems');
+    // DisableInspectorRecording();
+
     foreach(Component item! in items) {
       rerenderItems += item;
 
@@ -207,6 +241,12 @@ class MenuState {
   }
 
   public void RemoveItems(Component[] items!, Boolean handleScroll! = true) "[MenuState] Remove Items" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: RemoveItems');
+    // DisableInspectorRecording();
+
+    this.items -= items;
+    
     // TODO: handle removal from `namedComponentToItem`
     foreach(Component component! in items) {
       if(component.child) {
@@ -214,8 +254,6 @@ class MenuState {
       }
       delete(component);
     }
-
-    this.items -= items;
     
     if(handleScroll) {
       // TODO: add better scroll handler
@@ -225,11 +263,19 @@ class MenuState {
   }
 
   public void ReplaceItems(Component[] items!) "[MenuState] Replace Items" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: ReplaceItems');
+    // DisableInspectorRecording();
+
     RemoveItems(this.items - items, false);
     AddItems(items - this.items);    
   }
 
   public void FixScroll() "[MenuState] Fix Scroll" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: FixScroll');
+    // DisableInspectorRecording();
+
     // Number scroll! = hoveredItemIdx;
     Number scroll! = history.Last.outerScroll + history.Last.innerScroll;
     Component hover: items[scroll];
@@ -244,6 +290,10 @@ class MenuState {
 
   // phase 1: handle events
   public void Open() "[MenuState] Open" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Open');
+    // DisableInspectorRecording();
+
     if(!isOpen && isEnabled) {
       isOpen = true;
 
@@ -253,6 +303,10 @@ class MenuState {
   }
 
   public void Close() "[MenuState] Close" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Close');
+    // DisableInspectorRecording();
+
     if(isOpen) {
       isOpen = false;
       
@@ -262,6 +316,10 @@ class MenuState {
   }
 
   public void CreatePage(String title!, Component[] items!, Description[] descriptions! = []) "[MenuState] Create Page" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: CreatePage');
+    // DisableInspectorRecording();
+
     SetTitle(title);
     AddItems(items);
 
@@ -276,6 +334,10 @@ class MenuState {
   }
 
   public void DestroyPage() "[MenuState] Destroy Page" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: DestroyPage');
+    // DisableInspectorRecording();
+
     if(isOpen) {
       hoveredItem.OnLeave();
     }
@@ -288,6 +350,10 @@ class MenuState {
   }
 
   public virtual void Navigate(Vector direction!) "[MenuState] Navigate" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Navigate');
+    // DisableInspectorRecording();
+
     hoveredItem.OnNavigate(direction);
     rerenderItems += hoveredItem;
 
@@ -319,6 +385,10 @@ class MenuState {
   }
 
   public virtual void ButtonDown(Button button!) "[MenuState] Button Down" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: ButtonDown');
+    // DisableInspectorRecording();
+
     buttonsHeld += button;
 
     if(!isOpen) {
@@ -344,6 +414,10 @@ class MenuState {
   }
 
   public virtual void ButtonUp(Button button!) "[MenuState] Button Up" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: ButtonUp');
+    // DisableInspectorRecording();
+
     // when changing page `buttonsHeld` is being cleared
     if(!buttonsHeld.Contains(button)) return;
 
@@ -367,7 +441,7 @@ class MenuState {
   }
 
   public void RenderTitle(in String title) {
-    renderedTexts.title = [
+    renderedTexts.titles = [
       { 
         text: title,
         color: COLOR_NEUTRAL
@@ -398,7 +472,7 @@ class MenuState {
     descriptionArr += descriptionsPage;
     descriptionArr += descriptionsMenu;
 
-    renderedTexts.description = descriptionArr
+    renderedTexts.descriptions = descriptionArr
       .FilteredArray((i) => i.visible)
       .SortedArray((i) => i.order)
       .Map((i) => <RenderedText>{text: i[0], color: i[1]});
@@ -433,15 +507,19 @@ class MenuState {
   }
 
   public void MergeTexts() {
-    renderedTexts.merged = renderedTexts.title + [renderedTexts.separators[0]] + renderedTexts.items;
+    renderedTexts.merged = renderedTexts.titles + [renderedTexts.separators[0]] + renderedTexts.items;
 
-    if(items.Length > MAX_ITEMS || renderedTexts.description.Length)
+    if(items.Length > MAX_ITEMS || renderedTexts.descriptions.Length)
       renderedTexts.merged += [renderedTexts.separators[1]];
 
-    renderedTexts.merged += renderedTexts.description;
+    renderedTexts.merged += renderedTexts.descriptions;
   }
 
   public void Render() "[MenuState] Render" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Render');
+    // DisableInspectorRecording();
+
     if(isOpen) {
       PrepareVisibleItems();
       RenderVisibleItems();
@@ -452,6 +530,10 @@ class MenuState {
   }
 
   private void HandleScroll() "[MenuState] Handle Scroll" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: HandleScroll');
+    // DisableInspectorRecording();
+
     Number idx! = history.Length - 1;
     Number offset! = 0;
 
@@ -468,6 +550,10 @@ class MenuState {
   }
 
   public void Refresh() "[MenuState] Refresh" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Refresh');
+    // DisableInspectorRecording();
+
     history += [{ id: '<REFRESH>', innerScroll: 0, outerScroll: 0 }];
     Wait();
     DestroyPage();
@@ -475,6 +561,10 @@ class MenuState {
   }
 
   public virtual void GoTo(String pageId!, Boolean historyReplace! = false) "[MenuState] Go To" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: GoTo');
+    // DisableInspectorRecording();
+
     if(this.pageId != pageId) {
       DestroyPage();
 
@@ -486,6 +576,10 @@ class MenuState {
   }
 
   public virtual void GoBack() "[MenuState] Go Back" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: GoBack');
+    // DisableInspectorRecording();
+
     if(history.Length == 1) {
       if(!isPuppet) Close();
       return;

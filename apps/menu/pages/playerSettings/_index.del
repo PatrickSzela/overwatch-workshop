@@ -1,3 +1,4 @@
+import '../../../../libs/menu/components/link.del';
 import '../../_variables.del';
 import './changeHero.del';
 import './teleport.del';

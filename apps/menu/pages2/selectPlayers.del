@@ -7,6 +7,8 @@ import '../_variables.del';
 String PAGE_SELECT_PLAYERS_ID: 'selectPlayers';
 String PAGE_SELECT_PLAYERS_NAME: 'Select Players';
 
+// TODO: handle the same way as timeline editor instead of refreshing
+
 Component[] PageSelectPlayersItems() {
   Component[] list = [];
   Player[][] sortedPlayers = SortedAllPlayers();
@@ -45,6 +47,7 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
   menuState2.CreatePage(PAGE_SELECT_PLAYERS_NAME, PageSelectPlayersItems());
 }
 
+// TODO: don't refresh, check which player left and remove its checkbox
 // because `Event.OnPlayerJoin`/`Event.OnPlayerLeave` doesn't work with dummy bots...
 rule: 'Player Settings/Select Players: Rerender when hero is swapped'
 Event.OngoingPlayer

@@ -121,22 +121,6 @@ if(pageAbilitiesKeepSpammingButton)
   LoopIfConditionIsTrue();
 }
 
-// TODO: figure out a better way to handle that without refreshing the whole menu
-rule: 'Refresh menu when selected players change'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.HistoryContains(PAGE_ABILITIES_ID))
-{
-  WaitUntil(
-    menuState.isFocused && selectedPlayers != EvaluateOnce(selectedPlayers) || 
-    !menuState.HistoryContains(PAGE_ABILITIES_ID),
-  99999);
-
-  AbortIfConditionIsFalse();
-  menuState.Refresh();
-  LoopIfConditionIsTrue();
-}
-
 // draw
 rule: 'Draw currently pressed buttons above players'
 Event.OngoingPlayer

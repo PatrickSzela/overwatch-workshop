@@ -28,6 +28,7 @@ playervar Number[] switchFocusDescriptionIdx = [];
 
 rule: 'Generate Menu State'
 Event.OngoingPlayer
+if(!IsDummyBot())
 {
   menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
   menuState.SetFocused();
@@ -47,7 +48,7 @@ rule: 'Generate Menu'
 
 rule: 'Hide diagnostics by default'
 {
-  diagnosticsEnabled = false;
+  // diagnosticsEnabled = false;
 }
 
 rule: 'Switch focused menu'
@@ -64,6 +65,7 @@ if(EventPlayer().IsButtonHeld(SWITCH_FOCUS_BUTTON))
 
 rule: 'Create description about switching menu'
 Event.OngoingPlayer
+if(!IsDummyBot())
 {
   switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to right side', COLOR_SWITCH, order: 99));
   switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to left side', COLOR_SWITCH, order: 99));
@@ -71,6 +73,7 @@ Event.OngoingPlayer
 
 rule: 'Show description on currently focused menu'
 Event.OngoingPlayer
+if(!IsDummyBot())
 {
   menuState.descriptionsMenu[switchFocusDescriptionIdx[0]].visible = menuState.isFocused && menuState2.isOpen;
   menuState2.descriptionsMenu[switchFocusDescriptionIdx[1]].visible = menuState2.isFocused;

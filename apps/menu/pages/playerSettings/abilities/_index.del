@@ -1,38 +1,21 @@
 import '../../../../../libs/menu/components/link.del';
 import './_rules.del';
-import './primaryFire.del';
-import './secondaryFire.del';
-import './ability1.del';
-import './ability2.del';
-import './ultimate.del';
-import './reload.del';
-import './melee.del';
-import './jump.del';
-import './crouch.del';
-import './interact.del';
+import './_helpers.del';
 
 String PAGE_ABILITIES_ID: 'abilities';
 String PAGE_ABILITIES_NAME: 'Abilities';
 
-globalvar (String | Button)[][] buttonToPage = [
-  [Button.PrimaryFire, PAGE_ABILITIES_PRIMARY_FIRE_NAME, PAGE_ABILITIES_PRIMARY_FIRE_ID],
-  [Button.SecondaryFire, PAGE_ABILITIES_SECONDARY_FIRE_NAME, PAGE_ABILITIES_SECONDARY_FIRE_ID],
-  [Button.Ability1, PAGE_ABILITIES_ABILITY_1_NAME, PAGE_ABILITIES_ABILITY_1_ID],
-  [Button.Ability2, PAGE_ABILITIES_ABILITY_2_NAME, PAGE_ABILITIES_ABILITY_2_ID],
-  [Button.Ultimate, PAGE_ABILITIES_ULTIMATE_NAME, PAGE_ABILITIES_ULTIMATE_ID],
-  [Button.Reload, PAGE_ABILITIES_RELOAD_NAME, PAGE_ABILITIES_RELOAD_ID],
-  [Button.Melee, PAGE_ABILITIES_MELEE_NAME, PAGE_ABILITIES_MELEE_ID],
-  [Button.Jump, PAGE_ABILITIES_JUMP_NAME, PAGE_ABILITIES_JUMP_ID],
-  [Button.Crouch, PAGE_ABILITIES_CROUCH_NAME, PAGE_ABILITIES_CROUCH_ID],
-  [Button.Interact, PAGE_ABILITIES_INTERACT_NAME, PAGE_ABILITIES_INTERACT_ID]
-];
+// TODO: use workshop setting button
 
 Component[] PageAbilitiesItems() {
   Component[] list = [];
 
-  foreach((String | Button)[] arr in buttonToPage) {
-    list += new Link(menuState, arr[1], submenuID: arr[2]);
-    list.Last.child = PageAbilitiesCarousel(arr[1], arr[0]);
+  foreach(Button button! in allButtons) {
+    list += new Link(menuState, $"{button}", submenuID: $"{button}", openButton: Button.Reload);
+    list.Last.onSecondaryAction = (it) => {
+      selectedButton = button;
+    };
+    list.Last.child = PageAbilitiesCarousel($"{button}", button);
   }
 
   return list;
@@ -52,3 +35,16 @@ if(menuState.pageId == PAGE_ABILITIES_ID)
   );
 }
 
+rule: 'Player Settings/Abilities/Selected button'
+Event.OngoingPlayer
+if(menuState.HistoryContains(PAGE_ABILITIES_ID))
+if(menuState.pageId == $"{selectedButton}")
+{
+  menuState.CreatePage(
+    title: $"{selectedButton}",
+    items: PageAbilitiesMenuItemsGenerator(selectedButton), 
+    descriptions: [
+      Description.New(PAGE_ABILITIES_WARNING_BROKEN, COLOR_WARNING)
+    ]
+  );
+}
