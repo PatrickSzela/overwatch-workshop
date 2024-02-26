@@ -12,7 +12,7 @@ Component[] PageAbilitiesItems() {
 
   foreach(Button button! in allButtons) {
     list += new Link(menuState, $"{button}", submenuID: $"{button}", openButton: Button.Reload);
-    list.Last.onPrimaryAction = (it) => {
+    list.Last.onSecondaryAction = (it) => {
       selectedButton = button;
     };
     list.Last.child = PageAbilitiesCarousel($"{button}", button);
