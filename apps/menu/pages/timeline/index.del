@@ -36,24 +36,6 @@ if(menuState.pageId == PAGE_TIMELINE_ID)
   );
 }
 
-rule: 'Open Timeline Edit'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.HistoryContains(PAGE_TIMELINE_ID))
-{
-  String menuState2Page! = menuState2.isOpen ? menuState2.pageId : null;
-  
-  menuState2.Open();
-  menuState2.GoTo(PAGE_TIMELINE_EDIT_ID, true);
-
-  WaitUntil(!menuState.isOpen || !menuState.HistoryContains(PAGE_TIMELINE_ID), 99999);
-
-  if(menuState2Page)
-    menuState2.GoTo(menuState2Page, true);
-  else 
-    menuState2.Close();
-}
-
 rule: 'Add Timeline Info'
 Event.OngoingPlayer
 {
@@ -72,15 +54,6 @@ if(!menuState.HistoryContains(PAGE_TIMELINE_ID))
   
   menuState.descriptionsMenu[switchToTimelineIdx].visible = false;
   menuState.RerenderHoveredItem();
-}
-
-rule: 'Go to Timeline'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.isFocused)
-if(buttonsHeld == [Button.Crouch, Button.Melee])
-{
-  menuState.GoTo(PAGE_TIMELINE_ID);
 }
 
 rule: '[Timeline] Start playing'

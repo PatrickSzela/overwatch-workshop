@@ -100,15 +100,36 @@ if(buttonsHeld == menuState._toggleMenu)
     menuState.Open();
 }
 
-rule: 'Open Select Players menu'
+rule: 'Go to proper page in the right menu'
+Event.OngoingPlayer
+if(!IsDummyBot())
+{
+  String goTo: 
+    menuState.isOpen ?
+      (menuState.HistoryContains(PAGE_TIMELINE_ID) ? PAGE_TIMELINE_EDIT_ID : 
+        menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID) ? PAGE_SELECT_PLAYERS_ID : 
+      '') : 
+    '';
+
+  WaitUntil(goTo != EvaluateOnce(goTo), 99999);
+
+  if(goTo) {
+    menuState2.Open();
+    menuState2.GoTo(goTo, true);
+  } else {
+    menuState2.Close();
+  }
+  
+  Loop();
+}
+
+rule: 'Go to Timeline'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
+if(menuState.isFocused)
+if(buttonsHeld == [Button.Crouch, Button.Melee])
 {
-  menuState2.Open();
-  menuState2.GoTo(PAGE_SELECT_PLAYERS_ID, true);
-  WaitUntil(!menuState.isOpen || !menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID), 99999);
-  menuState2.Close();
+  menuState.GoTo(PAGE_TIMELINE_ID);
 }
 
 rule: 'Player Info'
