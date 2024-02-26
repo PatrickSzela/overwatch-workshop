@@ -166,6 +166,7 @@ rule: 'Draw current ability info above players'
 Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.history[2].id == PAGE_ABILITIES_ID)
+if(!menuState.HistoryContains('timeline'))
 if(menuState.history.Length > 3 && !menuState.isRefreshing)
 {
   foreach(Player player in AllPlayers()) {

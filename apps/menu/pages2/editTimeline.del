@@ -1,28 +1,73 @@
-import '../../../libs/menu/components/text.del';
+import '../../../libs/utils/array.del';
+import '../../../libs/menu/components/checkbox.del';
 import '../_variables.del';
 
+// TODO: simplify most of the stuff
+// TODO: add marking multiple items (remake into checkboxes)?
+// TODO: lock 2nd menu when playing
+
 String PAGE_TIMELINE_EDIT_ID: 'timelineEdit';
-String PAGE_TIMELINE_EDIT_NAME: 'Edit timeline';
+String PAGE_TIMELINE_EDIT_NAME: 'Timeline Editor';
 
-playervar Action[] actionsEditableCopy;
-playervar Action[] actionsToRemove;
+// there's too much overhead when trying to have only 1 source of truth...
+playervar Action[] editableActions;
+playervar Action[] markedToRemove;
+playervar Component componentBeingMoved;
 
-Component PageTimelineEditItemGenerator(in Action action, in Number idx) {
+Component PageTimelineEditItemGenerator(in Action action) {
+  // Checkbox component = new Checkbox(action.name);
   Component component = new Component(action.name);
   component.textFormatter = (it) => $"{menuState2.items.IndexOf(it) + 1}. {it.text}";
   // component.textFormatter = (it) => $"{action.id}. {it.text}";
 
-  component.SetSecondaryAction("Mark/Unmark to removal", (it) => {
-    if(actionsToRemove.Contains(action)) {
-      actionsToRemove.ModRemoveByValue(action);
+  // component.onChange = (checked, it) => {
+  //   if(checked)
+  //     selectedActions += action;
+  //   else
+  //     selectedActions -= action;
+  // };
+  component.SetPrimaryAction("Execute action", (it) => {
+    action.code();
+  });
+  component.SetSecondaryAction("Mark/Unmark for removal", (it) => {
+    if(markedToRemove.Contains(action)) {
+      markedToRemove -= action;
       it.color = COLOR_NEUTRAL;
     } else {
-      actionsToRemove.ModAppend(action);
+      markedToRemove += action;
       it.color = COLOR_ERROR;
     }
-
-    menuState.RerenderHoveredItem();
   });
+  component.SetTertiaryAction("Start/Stop moving", (it) => {
+    if(componentBeingMoved == it) {
+      componentBeingMoved = null;
+      it.color = COLOR_NEUTRAL;
+    } else {
+      componentBeingMoved = it;
+      it.color = COLOR_WARNING;
+    }
+  });
+  component.onNavigate = (direction, it) => {
+    if(componentBeingMoved == it) {
+      // Number oldPos! = editableActions.IndexOf(action);
+      // HACK: `IndexOf` doesn't work on structs?
+      Number oldPos! = editableActions.Map((i) => i.id).IndexOf(action.id);
+
+      Number newPos = oldPos + (direction == Down() ? 1 : -1);
+      if(newPos > menuState2.items.Length - 1) newPos = 0;
+      else if(newPos < 0) newPos = menuState2.items.Length;
+
+      EnableInspectorRecording();
+      LogToInspector($"moving {oldPos}, direction {direction}, new pos {newPos}");
+      DisableInspectorRecording();
+
+      // let's hope these things doesn't desync...
+      editableActions = Move(editableActions, oldPos, newPos);
+
+      menuState2.items = Move(menuState2.items, oldPos, newPos);
+      menuState2.Render();
+    }
+  };
 
   return component;
 }
@@ -41,27 +86,25 @@ rule: 'Timeline/Edit'
 Event.OngoingPlayer
 if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
 {
-  actionsEditableCopy = [];
+  editableActions = [];
 
   menuState2.CreatePage(
     title: PAGE_TIMELINE_EDIT_NAME, 
     items: [],
     descriptions: [
-      // Description.New('Only 1 Player can edit the timeline at the same time', COLOR_WARNING)
+      Description.New('Switch to the left side to save changes', COLOR_INFO),
+      Description.New('Only 1 Player can edit the timeline at the same time', COLOR_WARNING)
     ]
   );
-
-  // TODO: trigger action
-  // TODO: add moving items
-  // TODO: add marking multiple items (remake into checkboxes)
 }
 
-rule: 'Timeline/Edit On leave'
+rule: 'Timeline/Edit On focus out'
 Event.OngoingPlayer
 if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
 if(menuState2.isFocused)
 {
-  actionsToRemove = [];
+  // TODO: handle resetting internally
+  timeline.index = 0;
 
   WaitUntil(
     menuState2.pageId != PAGE_TIMELINE_EDIT_ID ||
@@ -76,92 +119,141 @@ if(menuState2.isFocused)
   // }
   // DisableInspectorRecording();
 
-  // TODO: handle resetting internally
-  timeline.index = 0;
-  timeline.actions = actionsEditableCopy - actionsToRemove;
+  if(componentBeingMoved != null) {
+    componentBeingMoved.color = COLOR_NEUTRAL;
+    componentBeingMoved = null;
+  }
+  
+  if(timeline.actions != editableActions - markedToRemove) {
+    SmallMessage(EventPlayer(), 'Saving actions');
 
-  // EnableInspectorRecording();
-  // foreach(Action action! in timeline.actions) {
-  //   LogToInspector($'left after removal: {action.id}');
-  // }
-  // DisableInspectorRecording();
+    // `editableActions` will be updated automatically in a rule below
+    timeline.actions = editableActions - markedToRemove;
+  
+    // EnableInspectorRecording();
+    // foreach(Action action! in timeline.actions) {
+    //   LogToInspector($'left after removal: {action.id}');
+    // }
+    // LogToInspector($'-----');
+    DisableInspectorRecording();
+  }
+
+  menuState2.Render();
 }
 
-// TODO: lock 2nd menu when playing
-// TODO: maybe make a callback?
-rule: 'Timeline/Edit Rerender items'
+// TODO: maybe make a callback when timeline.actions changes?
+rule: 'Timeline/Edit Update editable copy when timeline changes'
 Event.OngoingPlayer
 if(menuState2.isOpen)
 if(!menuState2.isFocused)
 if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
-if(timeline.actions != actionsEditableCopy)
+if(timeline.actions != editableActions)
 {
-  // SmallMessage(AllPlayers(), 'OG actions changed');
-
-  Action[] toAdd! = timeline.actions - actionsEditableCopy;
-  Action[] toRemove! = actionsEditableCopy - timeline.actions;
+  Component[] items! = menuState2.items;
+  Action[] editableActionsCopy! = editableActions;
+  Action[] toAdd! = timeline.actions - editableActions;
+  Action[] toRemove! = editableActions - timeline.actions;
 
   // EnableInspectorRecording();
-  // LogToInspector($"adding {toAdd.Length}, removing {toRemove.Length}");
+  // LogToInspector($'Updating editableActions, adding {toAdd.Length}, removing {toRemove.Length}...');
+
+  // foreach(Action action! in timeline.actions) {
+  //   LogToInspector($'timeline.actions: {action.id}');
+  // }
+  // foreach(Action action! in editableActions) {
+  //   LogToInspector($'editableActions: {action.id}');
+  // }
   // DisableInspectorRecording();
 
 
-  // removing items
-  Component[] componentsToRemove! = [];
-  // for some reason `IndexOf()` doesn't work when trying to remove using the action itself
-  Number[] idToIdx! = actionsEditableCopy.Map((i) => i.id);
+  // remove
+  // HACK: `IndexOf` doesn't work on structs?
+  Number[] editableIds! = editableActions.Map((i) => i.id);
+  items -= toRemove.Map((i) => items[editableIds.IndexOf(i.id)]);
+  editableActions -= toRemove;
 
-  foreach(Action action! in toRemove) {
-    // EnableInspectorRecording();
-    // LogToInspector($"removing id {action.id}, index {idToIdx.IndexOf(action.id)}");
-    // LogToInspector($"removing id {action.id}, index {actionsEditableCopy.IndexOf(action)}");
-    // DisableInspectorRecording();
+  // EnableInspectorRecording();
+  // LogToInspector($'After removing...');
+  // foreach(Action action! in editableActions) {
+  //   LogToInspector($'editableActions: {action.id}');
+  // }
+  // DisableInspectorRecording();
 
-    componentsToRemove += menuState2.items[idToIdx.IndexOf(action.id)];
+  // add
+  editableActions += toAdd;
+  foreach(Action i! in toAdd) {
+    items += PageTimelineEditItemGenerator(i);
   }
 
-  // menuState2.RemoveItems(componentsToRemove);
-
-  actionsEditableCopy -= toRemove;
-
-  // adding new items
-  Component[] components! = menuState2.items - componentsToRemove;
-
-  foreach(Action action! in toAdd) {
-    components += PageTimelineEditItemGenerator(action, timeline.actions.Length + components.Length);
-  }
-
-  actionsEditableCopy += toAdd;
+  // EnableInspectorRecording();
+  // LogToInspector($'After adding...');
+  // foreach(Action action! in editableActions) {
+  //   LogToInspector($'editableActions: {action.id}');
+  // }
+  // DisableInspectorRecording();
 
   // sort
-  components = components.SortedArray((i, idx) => timeline.actions.IndexOf(actionsEditableCopy[idx]));
-  actionsEditableCopy = actionsEditableCopy.SortedArray((i) => timeline.actions.IndexOf(i));
-  
-  // for(Number i! = 0; i < timeline.actions.Length; i++) {
-  //   // if item has been added
-  //   if(!actionsEditableCopy.Contains(timeline.actions[i])) {
-  //     Action action! = timeline.actions[i];
+  // HACK: `IndexOf` doesn't work on structs?
+  Number[] timelineIds! = timeline.actions.Map((i) => i.id);
+  items = items.SortedArray((_, idx) => timelineIds.IndexOf(editableActionsCopy[idx].id));
+  editableActions = editableActions.SortedArray((i) => timelineIds.IndexOf(i.id));
 
-  //     EnableInspectorRecording();
-  //     LogToInspector($"adding {i}, {action.name}");
-  //     DisableInspectorRecording();
-
-  //     components = 
-  //       components.Slice(0, i) +
-  //       PageTimelineEditItemGenerator(action, timeline.actions.Length + components.Length) +
-  //       components.Slice(i, 999);
-
-  //     actionsEditableCopy = 
-  //       actionsEditableCopy.Slice(0, i) +
-  //       action +
-  //       actionsEditableCopy.Slice(i, 999);
-  //   }
+  // EnableInspectorRecording();
+  // LogToInspector($"After sorting...");
+  // foreach(Action action! in editableActions) {
+  //   LogToInspector($"actionMapp: {action.id}");
   // }
+  // LogToInspector($'-----');
+  // DisableInspectorRecording();
 
-  menuState2.ReplaceItems(components);
-  // actionsEditableCopy += toAdd;
-  // menuState2.SetHoveredItemIdx(actionsEditableCopy.Length - 1);
+  menuState2.ReplaceItems(items);
   menuState2.Render();
+
+  Wait(0.1);
 
   LoopIfConditionIsTrue();
 }
+
+rule: 'Show message when item has been added to timeline'
+{
+  WaitUntil(EvaluateOnce(timelineActionsId) != timelineActionsId, 99999);
+  SmallMessage(AllPlayers(), $"Added to timeline: {timeline.actions.Last}");
+  Loop();
+}
+
+// rule: 'My Rule'
+// Event.OngoingPlayer
+// if(menuState2.isOpen)
+// if(menuState2.isFocused)
+// if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
+// if(buttonsHeld == [Button.Reload])
+// {
+//   Number[] idToIdx! = actionsEditableCopy.Map((i) => i.id);
+//   Component[] comps! = [];
+
+//   // FIXME: it selects 0 items too
+//   // FIXME: add wait(1), then wait(2), then wait(1) multiple times, it breaks
+
+//   foreach(Action act! in selectedActions) {
+//     comps += menuState2.items[idToIdx.IndexOf(act.id)];
+    
+//     if(actionsToRemove.Contains(act)) {
+//       actionsToRemove.ModRemoveByValue(act);
+//       comps.Last.color = COLOR_NEUTRAL;
+
+//       EnableInspectorRecording();
+//       LogToInspector($"unmarking {act.id}, {idToIdx.Length}, {idToIdx.IndexOf(act.id)}");
+//       DisableInspectorRecording();
+//     } else {
+//       actionsToRemove.ModAppend(act);
+//       comps.Last.color = COLOR_ERROR;
+
+//       EnableInspectorRecording();
+//       LogToInspector($"marking {act.id}, {idToIdx.Length}, {idToIdx.IndexOf(act.id)}");
+//       DisableInspectorRecording();
+      
+//     }
+//   }
+
+//   menuState2.Render();  
+// }
