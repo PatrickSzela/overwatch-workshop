@@ -189,8 +189,6 @@ class MenuState {
         currentMenuState.hoveredItem.OnLeave();
         currentMenuState.RerenderHoveredItem();
       }
-
-      MinWait();
       
       currentMenuState = this;
       isFocused = true;
@@ -255,8 +253,6 @@ class MenuState {
         delete(component.child);
       }
       delete(component);
-
-      MinWait();
     }
     
     if(handleScroll) {
