@@ -7,63 +7,114 @@ import '../_variables.del';
 String PAGE_SELECT_PLAYERS_ID: 'selectPlayers';
 String PAGE_SELECT_PLAYERS_NAME: 'Select Players';
 
-// TODO: handle the same way as timeline editor instead of refreshing
-
-Component[] PageSelectPlayersItems() {
-  Component[] list = [];
-  Player[][] sortedPlayers = SortedAllPlayers();
-
-  for(Number i! = 0; i < sortedPlayers.Length; i++) {    
-    if(sortedPlayers[i].Length) {
-      if(list.Length)
-        list += new Text();
-
-      list += new Text($"{i == 0 ? Team.Team1 : i == 1 ? Team.Team2 : Team.All}:");
-      list.Last.color = i == 0 ? Color.Team1 : Color.Team2;
-    }
-
-    foreach(Player player! in sortedPlayers[i]) {
-      Checkbox checkbox = new Checkbox(
-        text: $"{player}",
-        defaultChecked: selectedPlayers.Contains(player)
-      );
-      checkbox.textFormatter = (it) => $"{PlayerWithHeroIconFormatter(player)}​ (Slot {SlotFormatter(SlotOf(player))})";
-      checkbox.onChange = (checked, it) => {
-        if(checked) selectedPlayers.ModAppend(player);
-        else selectedPlayers.ModRemoveByValue(player);
-      };
-
-      list += checkbox;
-    }
-  }
-
-  return list;
-}
+playervar Player[][] renderedPlayers;
+playervar Component[][] renderedPlayerComponents;
 
 rule: 'Player Settings/Select Players'
 Event.OngoingPlayer
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
-  menuState2.CreatePage(PAGE_SELECT_PLAYERS_NAME, PageSelectPlayersItems());
+  renderedPlayers = [[], [], []];
+  renderedPlayerComponents = [[], [], []];
+
+  menuState2.CreatePage(
+    title: PAGE_SELECT_PLAYERS_NAME, 
+    items: []
+  );
 }
 
-// TODO: don't refresh, check which player left and remove its checkbox
-// because `Event.OnPlayerJoin`/`Event.OnPlayerLeave` doesn't work with dummy bots...
-rule: 'Player Settings/Select Players: Rerender when hero is swapped'
+rule: 'Player Settings/Select Players: Fix selected players when someone leaves'
 Event.OngoingPlayer
-if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
   WaitUntil(
-    AllPlayers() != EvaluateOnce(AllPlayers()) ||
-    AllPlayers().Map((i) => i.Hero()) != EvaluateOnce(AllPlayers().Map((i) => i.Hero())), 
+    AllPlayers() != EvaluateOnce(AllPlayers()),
   99999);
 
   selectedPlayers = selectedPlayers.FilteredArray((i) => EntityExists(i));
 
-  // renaming bots waits 0.1s, wait a bit more
-  Wait(0.2);
+  Loop();
+}
+
+rule: 'Player Settings/Select Players: Rerender players'
+Event.OngoingPlayer
+if(menuState2.isOpen)
+if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
+{
+  EnableInspectorRecording();
+  LogToInspector($"rendering player list");
+  DisableInspectorRecording();
+
+  Component[][] list = [[], [], []];
+  Component[][] titles = [[], [], []];
+
+  for(Number team! = 0; team < sortedPlayersPerTeam.Length; team++) {
+    foreach(Player player! in sortedPlayersPerTeam[team]) {
+      Number existingIdx! = renderedPlayers[team].IndexOf(player);
+
+      if(existingIdx > -1) {
+        EnableInspectorRecording();
+        LogToInspector($"player already rendered {player}");
+        DisableInspectorRecording();
+
+        list[team] += renderedPlayerComponents[team][existingIdx];
+      } else {
+        EnableInspectorRecording();
+        LogToInspector($"creating player {player}");
+        DisableInspectorRecording();
+
+        Checkbox checkbox = new Checkbox(
+          text: $"{player}",
+          defaultChecked: selectedPlayers.Contains(player)
+        );
+
+        checkbox.textFormatter = (it) => $"{PlayerWithHeroIconFormatter(player)}​ (Slot {SlotFormatter(SlotOf(player))})";
+        checkbox.onChange = (checked, it) => {
+          if(checked) selectedPlayers.ModAppend(player);
+          else selectedPlayers.ModRemoveByValue(player);
+        };
+
+        list[team] += checkbox;
+      }
+    }
+
+
+    if(list[team]) {
+      if(titles[team - 1])
+        titles[team] += new Text();
+
+      titles[team] += new Text($"{team == 0 ? Team.Team1 : team == 1 ? Team.Team2 : Team.All}:");
+      titles[team].Last.color = team == 0 ? Color.Team1 : Color.Team2;
+    }
+  }
+
+  renderedPlayers = sortedPlayersPerTeam;
+  renderedPlayerComponents = list;
+
+  menuState2.ReplaceItems(titles[0] + list[0] + titles[1] + list[1] + titles[2] + list[2]);
+  menuState2.RerenderAllItems();
+
+  WaitUntil(
+    sortedPlayersPerTeam != EvaluateOnce(sortedPlayersPerTeam),
+  99999);
 
   AbortIfConditionIsFalse();
-  menuState2.Refresh();
+  LoopIfConditionIsTrue();
+}
+
+rule: 'Player Settings/Select Players: Rerender heroes portraits'
+Event.OngoingPlayer
+if(menuState2.isOpen)
+if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
+{
+  WaitUntil(
+    AllPlayers().Map((i) => i.Hero()) != EvaluateOnce(AllPlayers().Map((i) => i.Hero())),
+  99999);
+
+  // wait for rule that changes bot's name
+  Wait(0.2);
+
+  menuState2.RerenderAllItems();
+
+  AbortIfConditionIsFalse();
   LoopIfConditionIsTrue();
 }

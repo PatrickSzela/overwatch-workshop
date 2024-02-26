@@ -63,7 +63,7 @@ Component[] PageLookAtItems() {
 
   Carousel player = new Carousel(
     text: PAGE_LOOK_AT_PLAYER_NAME,
-    options: SortedAllPlayersFlat()
+    options: sortedPlayers
   );
   player.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
   player.SetPrimaryAction('Apply once', (it) => {

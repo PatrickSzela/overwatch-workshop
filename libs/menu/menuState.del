@@ -265,7 +265,10 @@ class MenuState {
     // DisableInspectorRecording();
 
     RemoveItems(this.items - items, false);
-    AddItems(items - this.items);    
+    AddItems(items - this.items);
+
+    // keep the order of passed items
+    this.items = items;
   }
 
   public void FixScroll() "[MenuState] Fix Scroll" {

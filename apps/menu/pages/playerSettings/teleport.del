@@ -47,7 +47,7 @@ Component[] PageTeleportItems() {
 
   Carousel player = new Carousel(
     text: PAGE_TELEPORT_PLAYER_NAME,
-    options: SortedAllPlayersFlat()
+    options: sortedPlayers
   );
   player.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
   player.SetPrimaryAction("Apply", (it) => {
