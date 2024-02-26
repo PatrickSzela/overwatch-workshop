@@ -13,9 +13,6 @@ Color COLOR_WARNING: Color.Orange;
 Color COLOR_ERROR: Color.Red;
 Color COLOR_SWITCH: Color.Green;
 
-# List of currently pressed buttons by a player.
-playervar Button[] buttonsHeld = [];
-
 single struct RenderedText {
   public Color color;
   public String text;
@@ -389,8 +386,6 @@ class MenuState {
     // LogToInspector($'{EventPlayer()}: ButtonDown');
     // DisableInspectorRecording();
 
-    buttonsHeld += button;
-
     if(!isOpen) {
       if(buttonsHeld == _toggleMenu && !isPuppet) {
         Open();
@@ -420,8 +415,6 @@ class MenuState {
 
     // when changing page `buttonsHeld` is being cleared
     if(!buttonsHeld.Contains(button)) return;
-
-    buttonsHeld.ModRemoveByValue(button);
 
     if(isOpen) {
       hoveredItem.OnButtonUp(button);
