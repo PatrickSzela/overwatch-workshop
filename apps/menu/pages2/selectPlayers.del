@@ -7,6 +7,8 @@ import '../_variables.del';
 String PAGE_SELECT_PLAYERS_ID: 'selectPlayers';
 String PAGE_SELECT_PLAYERS_NAME: 'Select Players';
 
+// TODO: handle the same way as timeline editor instead of refreshing
+
 Component[] PageSelectPlayersItems() {
   Component[] list = [];
   Player[][] sortedPlayers = SortedAllPlayers();
