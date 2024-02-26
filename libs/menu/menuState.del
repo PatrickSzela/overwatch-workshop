@@ -133,7 +133,7 @@ class MenuState {
     // LogToInspector($'{EventPlayer()}: AddToRerenderQueue');
     // DisableInspectorRecording();
 
-    rerenderItems += hoveredItem;
+    rerenderItems += item;
   }
 
   # Forcefully rerenders currently hovered item. Call after manually adding description.
