@@ -18,6 +18,7 @@ String PAGE_CREATE_BOT_POSITION_NAME: 'Position';
 String PAGE_CREATE_BOT_SPAWN_ID: PAGE_CREATE_BOT_ID + 'spawn';
 String PAGE_CREATE_BOT_SPAWN_NAME: 'Spawn bot';
 
+// TODO: store this data in a struct
 // TODO: add warning if player in that slot and on that team already exists
 playervar Hero spawnBotHero = Hero.Reinhardt;
 playervar Team spawnBotTeam = Team.Team1;
@@ -52,12 +53,8 @@ Component[] PageCreateBotItems() {
   slot.valueFormatter = (it) => SlotFormatter(it.value);
   slot.onChange = (value, it) => spawnBotSlot = value;
 
-  Component position = new Component(PAGE_CREATE_BOT_POSITION_NAME);
+  ComponentWithValue position = new ComponentWithValue(PAGE_CREATE_BOT_POSITION_NAME, spawnBotPosition);
   position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION));
-  position.onRender = (it) => {
-    if(spawnBotPosition)
-      it.text = $"{PAGE_CREATE_BOT_POSITION_NAME}: {spawnBotPosition}";
-  };
   
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
@@ -70,7 +67,7 @@ Component[] PageCreateBotItems() {
   };
   position.SetPrimaryAction("Choose the position", (it) => {
     spawnBotPosition = pickPosition.position;
-    it.shouldRerender = true;
+    (<ComponentWithValue>it).SetValue(spawnBotPosition);
   });
 
   Component spawnBot = new Component(PAGE_CREATE_BOT_SPAWN_NAME);

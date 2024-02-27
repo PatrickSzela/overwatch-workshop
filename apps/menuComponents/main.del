@@ -15,6 +15,8 @@ import '../../libs/utils/rules/pauseMatchTime.del';
 import '../../libs/utils/diagnostic.del';
 import '../menu/customGameSettings.lobby';
 
+// TODO: always disable inspector, use LogToInspector wrapper
+
 Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 
 // TODO: info that this must be called for bots too

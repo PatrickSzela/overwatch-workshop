@@ -33,6 +33,13 @@ class ComponentWithValue: Component
     renderedText = $"{text}: {valueFormatter(this)}";
   }
 
+  public virtual void SetValue(Any value!) "[ComponentWithValue] Set Value" {
+    if(this.value != value) {
+      this.value = value;
+      OnChange();
+    }
+  }
+
   // events
   public virtual void OnChange() "[ComponentWithValue] OnChange" {
     shouldRerender = true;

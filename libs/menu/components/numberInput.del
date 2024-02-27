@@ -96,11 +96,7 @@ class NumberInput: ComponentWithValue
         else if(parts[index] < 0) parts[index] = 9;
       }
 
-      value = JoinNumber(parts);
-
-      if(oldVal != value) {
-        OnChange();
-      }
+      SetValue(JoinNumber(parts));
     }
   }
 
