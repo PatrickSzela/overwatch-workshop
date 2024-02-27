@@ -20,7 +20,7 @@ single struct Description {
 // TODO: add button component with onXPress callbacks?
 
 class Component {
-  public String id;
+  public Any id;
   public Color color;
   public String name;
   public String text;

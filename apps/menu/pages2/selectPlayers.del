@@ -7,16 +7,10 @@ import '../_variables.del';
 String PAGE_SELECT_PLAYERS_ID: 'selectPlayers';
 String PAGE_SELECT_PLAYERS_NAME: 'Select Players';
 
-playervar Player[][] renderedPlayers;
-playervar Component[][] renderedPlayerComponents;
-
 rule: 'Player Settings/Select Players'
 Event.OngoingPlayer
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
-  renderedPlayers = [[], [], []];
-  renderedPlayerComponents = [[], [], []];
-
   menuState2.CreatePage(
     title: PAGE_SELECT_PLAYERS_NAME, 
     items: []
@@ -54,18 +48,21 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
   Component[][] list = [[], [], []];
   Component[][] titles = [[], [], []];
 
+  Any[] renderedItemsIds = menuState2.items.Map((i) => i.id);
+
   for(Number team! = 0; team < sortedPlayersPerTeam.Length; team++) {
     foreach(Player player! in sortedPlayersPerTeam[team]) {
-      Number existingIdx! = renderedPlayers[team].IndexOf(player);
+      Number existingIdx! = renderedItemsIds.IndexOf(player);
 
       if(existingIdx > -1) {
-        list[team] += renderedPlayerComponents[team][existingIdx];
+        list[team] += menuState2.items[existingIdx];
       } else {
         Checkbox checkbox = new Checkbox(
           text: $"{player}",
           defaultChecked: selectedPlayers.Contains(player)
         );
 
+        checkbox.id = player;
         checkbox.onRender = (it) => {
           it.text = $"{PlayerWithHeroIconFormatter(player)}​ (Slot {SlotFormatter(SlotOf(player))})";
         };
@@ -87,9 +84,6 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
       titles[team].Last.color = team == 0 ? Color.Team1 : Color.Team2;
     }
   }
-
-  renderedPlayers = sortedPlayersPerTeam;
-  renderedPlayerComponents = list;
 
   menuState2.ReplaceItems(titles[0] + list[0] + titles[1] + list[1] + titles[2] + list[2]);
   menuState2.RerenderAllItems();
