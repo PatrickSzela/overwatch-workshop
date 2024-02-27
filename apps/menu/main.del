@@ -83,10 +83,8 @@ if(!IsDummyBot())
   menuState.descriptionsMenu[switchFocusDescriptionIdx[0]].visible = menuState.isFocused && menuState2.isOpen;
   menuState2.descriptionsMenu[switchFocusDescriptionIdx[1]].visible = menuState2.isFocused;
 
-  // update description
-  menuState.RerenderHoveredItem();
-  MinWait();
-  menuState2.RerenderHoveredItem();
+  menuState.Render();
+  menuState2.Render();
 
   Loop();
 }

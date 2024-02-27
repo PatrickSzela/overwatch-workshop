@@ -28,9 +28,9 @@ class ComponentWithValue: Component
     this.valueFormatter = VALUE_FORMATTER;
   }
 
-  public override String Render(String childText! = null) "[ComponentWithValue] Render" {
+  public override void Render() "[ComponentWithValue] Render" {
     onRender(this);
-    return $"{text}: {valueFormatter(this)}";
+    renderedText = $"{text}: {valueFormatter(this)}";
   }
 
   // events

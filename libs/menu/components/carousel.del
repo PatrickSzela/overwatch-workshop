@@ -47,9 +47,9 @@ class Carousel: ComponentWithValue
     }
   }
 
-  public override String Render(String childText! = null) "[Carousel] Render" {
+  public override void Render() "[Carousel] Render" {
     onRender(this);
-    if(options.Length == 0) return $"{text}: Empty";
-    else return $"{text}: ← {valueFormatter(this)}​ →";
+    if(options.Length == 0) renderedText = $"{text}: Empty";
+    else renderedText = $"{text}: ← {valueFormatter(this)}​ →";
   }
 }

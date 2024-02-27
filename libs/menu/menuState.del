@@ -4,6 +4,7 @@ import '../utils/button.allButtons.del';
 import './menu.del';
 import './_rules.del';
 import './components/component.del';
+import './components/text.del';
 
 // TODO: make `PuppetMenuState`?
 
@@ -82,8 +83,8 @@ class MenuState {
   public Description[] descriptionsPage;
   # List of additional descriptions that will be shown until manually removed.
   public Description[] descriptionsMenu;
-  # Cache containing outputs of `Render()` of `items`.
-  protected String[] renderedItemTexts;
+  # Component that will be displayed when there are no items in menu
+  protected Component emptyText;
 
   public constructor(in String rootPageId, in Button[] toggleMenu, in Boolean enabled = true, in Boolean puppet = false) {
     _toggleMenu = toggleMenu;
@@ -101,10 +102,10 @@ class MenuState {
     isPuppet = puppet;
     hoveredItemIdx = 0;
 
-    renderedItemTexts = [];
     renderedTexts = RenderedTexts.BASE;
+    emptyText = new Text("It's a bit empty in here...");
 
-    // render title
+    // render closed title
     Render();
   }
 
@@ -177,7 +178,6 @@ class MenuState {
 
       if(currentMenuState.isOpen) {
         currentMenuState.hoveredItem.OnLeave();
-        // currentMenuState.RerenderHoveredItem();
       }
       
       currentMenuState = this;
@@ -185,7 +185,6 @@ class MenuState {
 
       if(isOpen) {
         hoveredItem.OnEnter();
-        // RerenderHoveredItem();
       }
     }
   }
@@ -201,35 +200,36 @@ class MenuState {
     HandleScroll();
   }
 
-  public void AddItems(Component[] items!, Boolean handleScroll! = true) "[MenuState] Add Items" {
+  public void AddItems(Component[] items!, Boolean callOnItemsChanged! = true) "[MenuState] Add Items" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: AddItems');
     // DisableInspectorRecording();
 
     this.items += items;
 
-    if(handleScroll) {
-      FixScroll();
+    if(callOnItemsChanged) {
+      OnItemsChanged();
     }
   }
 
-  public void RemoveItems(Component[] items!, Boolean handleScroll! = true) "[MenuState] Remove Items" {
+  public void RemoveItems(Component[] items!, Boolean callOnItemsChanged! = true) "[MenuState] Remove Items" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: RemoveItems');
     // DisableInspectorRecording();
 
     this.items -= items;
     
-    // TODO: handle removal from `namedComponentToItem`
-    foreach(Component component! in items) {
-      if(component.child) {
-        delete(component.child);
+    foreach(Component item! in items) {
+      if(item == emptyText) continue;
+
+      if(item.child) {
+        delete(item.child);
       }
-      delete(component);
+      delete(item);
     }
     
-    if(handleScroll) {
-      FixScroll();
+    if(callOnItemsChanged) {
+      OnItemsChanged();
     }
   }
 
@@ -244,21 +244,27 @@ class MenuState {
     // keep the order of passed items
     this.items = items;
 
-    FixScroll();
+    OnItemsChanged();
   }
 
-  public void FixScroll() "[MenuState] Fix Scroll" {
+  public void OnItemsChanged() "[MenuState] On Items Changed" {
     // EnableInspectorRecording();
-    // LogToInspector($'{EventPlayer()}: FixScroll');
+    // LogToInspector($'{EventPlayer()}: OnItemsChanged');
     // DisableInspectorRecording();
 
+    if(!items) {
+      items = [emptyText];
+    } else if(items.Length > 1 && items.Contains(emptyText)) {
+      items -= emptyText;
+    }
+    
     // hoveredItemIdx is calculated later in `HandleScroll()`
     Number scroll! = history.Last.outerScroll + history.Last.innerScroll;
     Component hover: items[scroll];
 
-    if(this.items.Length && (!hover || hover.disabled)) {
+    if(!hover || hover.disabled) {
       Component[] enabled! = enabledItems;
-      history[history.Length - 1].innerScroll = Max(this.items.IndexOf(enabled.First), Min(this.items.IndexOf(enabled.Last), scroll));
+      history[history.Length - 1].innerScroll = Max(items.IndexOf(enabled.First), Min(items.IndexOf(enabled.Last), scroll));
     }
 
     HandleScroll();
@@ -275,7 +281,6 @@ class MenuState {
 
       if(isFocused) hoveredItem.OnEnter();
       Render();
-      // RerenderHoveredItem();
     }
   }
 
@@ -289,7 +294,6 @@ class MenuState {
       
       if(isFocused) hoveredItem.OnLeave();
       Render();
-      // RerenderHoveredItem();
     }
   }
 
@@ -450,11 +454,8 @@ class MenuState {
     RenderDescription();
 
     Component[] v = visibleItems;
-    
-    renderedTexts.items = [{
-      text: "It's a bit empty in here...",
-      color: COLOR_NEUTRAL 
-    }];
+
+    renderedTexts.items = [];
 
     for(Number idx = 0; idx < v.Length; idx++) {
       Number actualIdx = idx + history.Last.outerScroll;
@@ -466,14 +467,17 @@ class MenuState {
         // DisableInspectorRecording();
 
         // `Render()` of a child called here, not in Component because it becomes recursive for some reason
-        renderedItemTexts[actualIdx] = item.Render(item.child ? item.child.Render() : '');
+        if(item.child) {
+          item.child.Render();
+          item.child.shouldRerender = false;
+        }
 
-        if(item.child) item.child.shouldRerender = false;
+        item.Render();
         item.shouldRerender = false;
       }
 
       renderedTexts.items[idx] = { 
-        text: $"{!item.disabled ? isFocused && hoveredItemIdx == actualIdx ? '● ' : '○ ' : ''}{renderedItemTexts[actualIdx]}",
+        text: $"{!item.disabled ? isFocused && hoveredItemIdx == actualIdx ? '● ' : '○ ' : ''}{item.renderedText}",
         color: item.color 
       };
     }
@@ -514,7 +518,7 @@ class MenuState {
       history[idx] = {innerScroll: MAX_ITEMS - 1, outerScroll: history.Last.outerScroll + offset, ..history[idx]};
     } else if(history.Last.innerScroll < 0) {
       offset = history.Last.innerScroll;
-      history[idx] = {innerScroll: 0, outerScroll: history.Last.outerScroll + offset, ..history[idx]};
+      history[idx] = {innerScroll: 0, outerScroll: Max(0, history.Last.outerScroll + offset), ..history[idx]};
     }
 
     hoveredItemIdx = history.Last.innerScroll + history.Last.outerScroll;

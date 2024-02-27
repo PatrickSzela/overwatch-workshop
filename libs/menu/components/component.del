@@ -29,7 +29,7 @@ class Component {
   public Component child;
   public Boolean updateEveryFrame;
   public MenuState _menuState;
-
+  public String renderedText;
   public Boolean shouldRerender;
   
   public ((Component) => void) onRender;
@@ -88,9 +88,9 @@ class Component {
   }
 
   // idk why OSTW thinks using child's `Render()` method makes it recursive
-  public virtual String Render(String childText! = null) "[Component] Render" {
+  public virtual void Render() "[Component] Render" {
     onRender(this);
-    return childText || text;
+    renderedText = child.renderedText || text;
   }
 
   // events

@@ -33,9 +33,9 @@ class Link: Component
     AddDescription(Description.New($"Press {ButtonFormatterSingle(openButton)}​ to open submenu"));
   }
 
-  public override String Render(String childText! = null) "[Link] Render" {
+  public override void Render() "[Link] Render" {
     onRender(this);
-    return $"{childText || text}​ ▶";
+    renderedText = $"{child.renderedText || text}​ ▶";
   }
 
   public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {
