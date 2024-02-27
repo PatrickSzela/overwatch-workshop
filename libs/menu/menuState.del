@@ -447,8 +447,7 @@ class MenuState {
   }
 
   public void RenderVisibleItems() {
-    if(hoveredItem.shouldRerender || hoveredItem.child.shouldRerender)
-      RenderDescription();
+    RenderDescription();
 
     Component[] v = visibleItems;
     

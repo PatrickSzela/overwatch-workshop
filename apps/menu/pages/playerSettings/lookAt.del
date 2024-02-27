@@ -24,6 +24,7 @@ Vector GetDirectionFromPlayerEyes(Player player, Vector vector):
 
 Component[] PageLookAtItems() {
   Component position = new Component(PAGE_LOOK_AT_POSITION_NAME);
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION));
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
   };
