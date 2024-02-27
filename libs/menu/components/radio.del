@@ -29,10 +29,12 @@ class Radio: Toggle
   public override void SetChecked(Boolean checked!) "[Radio] Set Checked" {
     if(this.checked != checked) {
       if(checked) {
-        foreach(ComponentParent sibling! in _menuState.namedComponentToItem.Get(name)) {
-          if((<Toggle>sibling.component).checked) {
-            (<Toggle>sibling.component).value = false;
-            _menuState.rerenderItems += sibling.parent;
+        Component[] arr! = _menuState.items.Map((i) => i.name == name ? i : i.child.name == name ? i : null).FilteredArray((i) => i);
+
+        foreach(Component sibling! in arr) {
+          if((<Toggle>sibling).checked) {
+            (<Toggle>sibling).value = false;
+            (<Toggle>sibling).shouldRerender = true;
           }
         }
       }
@@ -42,7 +44,8 @@ class Radio: Toggle
     }
   }
 
-  public override void Render() "[Radio] Render" {
-    renderedText = $"{checked ? "(✓)" : "(    )"}​ {child ? child.renderedText : textFormatter(this)}";
+  public override String Render(String childText! = null) "[Radio] Render" {
+    onRender(this);
+    return $"{checked ? "(✓)" : "(    )"}​ {childText || text}";
   }
 }

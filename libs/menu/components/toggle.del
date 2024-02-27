@@ -5,8 +5,6 @@ class Toggle: ComponentWithValue
 {
   public static Button BUTTON_TOGGLE: Button.Ability2;
   public Boolean checked: value;
-  public Boolean defaultChecked: defaultValue;
-
 
   public constructor(
     in String text,

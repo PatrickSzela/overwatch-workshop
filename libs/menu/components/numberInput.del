@@ -67,11 +67,13 @@ class NumberInput: ComponentWithValue
   }
 
   public override void OnNavigate(Vector direction!) "[NumberInput] OnNavigate" {
-    if(!editMode) return;
-
     onNavigate(direction, this);
 
-    if(direction == Left() || direction == Right()) {
+    if(!editMode) return;
+
+    shouldRerender = true;
+
+    if(direction == Left() || direction == Right()) {      
       Number offset! = direction == Right() ? -1 : 1;
       index += offset;
 
@@ -109,6 +111,8 @@ class NumberInput: ComponentWithValue
 
     if(button == BUTTON_EDIT_MODE) {
       editMode = !editMode;
+      
+      shouldRerender = true;
 
       _menuState.isLocked = editMode;
       this.description[0].color = editMode ? COLOR_ERROR : COLOR_SWITCH;
@@ -118,11 +122,12 @@ class NumberInput: ComponentWithValue
     }
   }
 
-  public override void Render() "[NumberInput] Render" {
-    renderedText = textFormatter(this);
-    if(length <= 0) renderedText = $"{renderedText}: Empty";
-    else {
-      String text!;
+  public override String Render(String childText! = null) "[NumberInput] Render" {
+    onRender(this);
+
+    if(length <= 0) {
+      return $"{text}: Empty";
+    } else {
       String[] vals! = parts.Map((i, idx) => 
         idx == 0 ? 
           i == -1 ? '-' : '+' :
@@ -132,8 +137,8 @@ class NumberInput: ComponentWithValue
       if(!negative && parts[0] != -1) 
         vals = vals.Slice(1, vals.Length);
 
-      text = Join(vals, editMode ? " " : '');
-      renderedText = $"{renderedText}: {text}{unit ? unit : ''}";
+      String final! = Join(vals, editMode ? " " : '');
+      return $"{text}: {final}{unit ? unit : ''}";
     }
   }
 }

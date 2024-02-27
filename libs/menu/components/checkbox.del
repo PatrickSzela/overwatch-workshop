@@ -12,7 +12,8 @@ class Checkbox: Toggle
     ToggleConstructor(text, defaultChecked, child);
   }
 
-  public override void Render() "[Checkbox] Render" {
-    renderedText = $"{checked ? "[✓]" : "[    ]"}​ {child ? child.renderedText : textFormatter(this)}";
+  public override String Render(String childText! = null) "[Checkbox] Render" {
+    onRender(this);
+    return $"{checked ? "[✓]" : "[    ]"}​ {childText || text}";
   }
 }

@@ -20,20 +20,19 @@ single struct Description {
 // TODO: add button component with onXPress callbacks?
 
 class Component {
-  public String id;
+  public Any id;
   public Color color;
   public String name;
   public String text;
-  public String renderedText;
   public Description[] description;
   public Boolean disabled;
   public Component child;
   public Boolean updateEveryFrame;
   public MenuState _menuState;
-  
-  public ((Component) => String) textFormatter;
-  public static ((Component) => String) TEXT_FORMATTER: (it) => it.text;
 
+  public Boolean shouldRerender;
+  
+  public ((Component) => void) onRender;
   public ((Component) => void) onEnter;
   public ((Component) => void) onLeave;
   public ((Button, Component) => void) onButtonDown;
@@ -56,9 +55,10 @@ class Component {
   ) "[Component] Constructor" {
     this.text = text;
     this.description = [];
-    this.textFormatter = TEXT_FORMATTER;
     this.child = child;
     this.color = COLOR_NEUTRAL;
+
+    this.shouldRerender = true;
   }
   
   public void AddDescription(in Description description) {
@@ -87,8 +87,10 @@ class Component {
     if(buttonsHeld == [Button.Interact]) onTertiaryAction(this);
   }
 
-  public virtual void Render() "[Component] Render" {
-    renderedText = child ? child.renderedText : textFormatter(this);
+  // idk why OSTW thinks using child's `Render()` method makes it recursive
+  public virtual String Render(String childText! = null) "[Component] Render" {
+    onRender(this);
+    return childText || text;
   }
 
   // events

@@ -39,11 +39,6 @@ struct RenderedTexts {
   };
 }
 
-single struct ComponentParent {
-  public Component parent;
-  public Component component;
-}
-
 # Holds current state of `Menu` for a player and handles logic for displaying and controlling every `Component` and its derivatives.
 class MenuState {
   # Button used to go back to the previous page (or close menu when in root).
@@ -75,8 +70,6 @@ class MenuState {
   public Component[] visibleItems: items.Slice(history.Last.outerScroll, MAX_ITEMS);
   # List of components that aren't disabled (can be hovered).
   public Component[] enabledItems: items.FilteredArray((i, idx) => !i.disabled);
-  # List of items that should be re-rendered.
-  public Component[] rerenderItems;
   # Currently hovered item.
   public Component hoveredItem: items[hoveredItemIdx];
   # Stack of IDs of visited pages.
@@ -89,14 +82,12 @@ class MenuState {
   public Description[] descriptionsPage;
   # List of additional descriptions that will be shown until manually removed.
   public Description[] descriptionsMenu;
-  # Stores relation of named component to item in `items`. 
-  public Dictionary<String, ComponentParent[]> namedComponentToItem;
+  # Cache containing outputs of `Render()` of `items`.
+  protected String[] renderedItemTexts;
 
   public constructor(in String rootPageId, in Button[] toggleMenu, in Boolean enabled = true, in Boolean puppet = false) {
     _toggleMenu = toggleMenu;
     _rootPageId = rootPageId;
-
-    namedComponentToItem = { Keys: [], Values: [] };
 
     if(rootPageId != null)
       history = [{ id: rootPageId, ..HistoryItem.BASE }];
@@ -110,7 +101,7 @@ class MenuState {
     isPuppet = puppet;
     hoveredItemIdx = 0;
 
-    rerenderItems = [];
+    renderedItemTexts = [];
     renderedTexts = RenderedTexts.BASE;
 
     // render title
@@ -130,7 +121,7 @@ class MenuState {
     // LogToInspector($'{EventPlayer()}: AddToRerenderQueue');
     // DisableInspectorRecording();
 
-    rerenderItems += item;
+    item.shouldRerender = true;
   }
 
   # Forcefully rerenders currently hovered item. Call after manually adding description.
@@ -139,17 +130,17 @@ class MenuState {
     // LogToInspector($'{EventPlayer()}: RerenderHoveredItem');
     // DisableInspectorRecording();
 
-    rerenderItems += hoveredItem;
+    hoveredItem.shouldRerender = true;
     Render();
   }
 
   # Forcefully rerenders specified item. Call after manually adding description.
-  public void RerenderItem(Component component!) "[MenuState] Rerender Item" {
+  public void RerenderItem(Component item!) "[MenuState] Rerender Item" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: RerenderItem');
     // DisableInspectorRecording();
 
-    rerenderItems += component;
+    item.shouldRerender = true;
     Render();
   }
 
@@ -159,7 +150,9 @@ class MenuState {
     // LogToInspector($'{EventPlayer()}: RerenderAllItems');
     // DisableInspectorRecording();
 
-    rerenderItems = visibleItems;
+    foreach(Component item! in visibleItems)
+      item.shouldRerender = true;
+    
     Render();
   }
   
@@ -169,7 +162,7 @@ class MenuState {
     // DisableInspectorRecording();
 
     if(enabled != isEnabled) {
-      if(isOpen) Close();
+      Close();
       isEnabled = enabled;
     }
   }
@@ -184,7 +177,7 @@ class MenuState {
 
       if(currentMenuState.isOpen) {
         currentMenuState.hoveredItem.OnLeave();
-        currentMenuState.RerenderHoveredItem();
+        // currentMenuState.RerenderHoveredItem();
       }
       
       currentMenuState = this;
@@ -192,7 +185,7 @@ class MenuState {
 
       if(isOpen) {
         hoveredItem.OnEnter();
-        RerenderHoveredItem();
+        // RerenderHoveredItem();
       }
     }
   }
@@ -208,33 +201,16 @@ class MenuState {
     HandleScroll();
   }
 
-  // TODO: instead of adding every item in a loop, gather them all in an array manually and set dictionary
-  private void RegisterNamedItem(Component item!, Component parent!) "[MenuState] Handle Named Item" {
-    if(item.name) {
-      ComponentParent[] old! = namedComponentToItem.Get(item.name) || [];
-      old += <ComponentParent>{ component: item, parent: parent };
-
-      Dictionary<String, ComponentParent[]>.SetOrAdd(namedComponentToItem, item.name, old);
-    }
-  }
-
-  public void AddItems(Component[] items!) "[MenuState] Add Items" {
+  public void AddItems(Component[] items!, Boolean handleScroll! = true) "[MenuState] Add Items" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: AddItems');
     // DisableInspectorRecording();
 
-    foreach(Component item! in items) {
-      rerenderItems += item;
-
-      RegisterNamedItem(item, item);
-      if(item.child) {
-        RegisterNamedItem(item.child, item);
-      }
-    }
-
     this.items += items;
 
-    FixScroll();
+    if(handleScroll) {
+      FixScroll();
+    }
   }
 
   public void RemoveItems(Component[] items!, Boolean handleScroll! = true) "[MenuState] Remove Items" {
@@ -253,8 +229,6 @@ class MenuState {
     }
     
     if(handleScroll) {
-      // TODO: add better scroll handler
-      // history[history.Length - 1].innerScroll -= items.Length - 1;
       FixScroll();
     }
   }
@@ -265,10 +239,12 @@ class MenuState {
     // DisableInspectorRecording();
 
     RemoveItems(this.items - items, false);
-    AddItems(items - this.items);
+    AddItems(items - this.items, false);
 
     // keep the order of passed items
     this.items = items;
+
+    FixScroll();
   }
 
   public void FixScroll() "[MenuState] Fix Scroll" {
@@ -276,7 +252,7 @@ class MenuState {
     // LogToInspector($'{EventPlayer()}: FixScroll');
     // DisableInspectorRecording();
 
-    // Number scroll! = hoveredItemIdx;
+    // hoveredItemIdx is calculated later in `HandleScroll()`
     Number scroll! = history.Last.outerScroll + history.Last.innerScroll;
     Component hover: items[scroll];
 
@@ -298,7 +274,8 @@ class MenuState {
       isOpen = true;
 
       if(isFocused) hoveredItem.OnEnter();
-      RerenderHoveredItem();
+      Render();
+      // RerenderHoveredItem();
     }
   }
 
@@ -311,7 +288,8 @@ class MenuState {
       isOpen = false;
       
       if(isFocused) hoveredItem.OnLeave();
-      RerenderHoveredItem();
+      Render();
+      // RerenderHoveredItem();
     }
   }
 
@@ -346,7 +324,6 @@ class MenuState {
 
     buttonsHeld = [];
     descriptionsPage = [];
-    namedComponentToItem = { Keys: [], Values: [] };
   }
 
   public virtual void Navigate(Vector direction!) "[MenuState] Navigate" {
@@ -355,7 +332,6 @@ class MenuState {
     // DisableInspectorRecording();
 
     hoveredItem.OnNavigate(direction);
-    rerenderItems += hoveredItem;
 
     if(!isLocked && (direction == Down() || direction == Up())) {
       Number offset! = 0;
@@ -377,7 +353,6 @@ class MenuState {
         history[history.Length - 1].innerScroll += offset;
         HandleScroll(); 
         hoveredItem.OnEnter();
-        rerenderItems += hoveredItem;
       }
     }
 
@@ -406,7 +381,6 @@ class MenuState {
     }
 
     if(isOpen) {
-      rerenderItems += hoveredItem;
       Render();
     }
   }
@@ -421,7 +395,6 @@ class MenuState {
 
     if(isOpen) {
       hoveredItem.OnButtonUp(button);
-      rerenderItems += hoveredItem;
       Render();
     }
   }
@@ -459,14 +432,13 @@ class MenuState {
   }
 
   public void RenderDescription() {
-    Description[] descriptionArr! = hoveredItem.description;
+    Description[] descriptionArr = hoveredItem.description;
 
     if(hoveredItem.child) {
       descriptionArr += hoveredItem.child.description;
     }
 
-    descriptionArr += descriptionsPage;
-    descriptionArr += descriptionsMenu;
+    descriptionArr += descriptionsPage + descriptionsMenu;
 
     renderedTexts.descriptions = descriptionArr
       .FilteredArray((i) => i.visible)
@@ -474,32 +446,38 @@ class MenuState {
       .Map((i) => <RenderedText>{text: i[0], color: i[1]});
   }
 
-  public void PrepareVisibleItems() {
-    foreach(Component item! in rerenderItems) {
-      // called here, not in Component because it breaks stuff
-      if(item.child) {
-        item.child.Render();
+  public void RenderVisibleItems() {
+    if(hoveredItem.shouldRerender || hoveredItem.child.shouldRerender)
+      RenderDescription();
+
+    Component[] v = visibleItems;
+    
+    renderedTexts.items = [{
+      text: "It's a bit empty in here...",
+      color: COLOR_NEUTRAL 
+    }];
+
+    for(Number idx = 0; idx < v.Length; idx++) {
+      Number actualIdx = idx + history.Last.outerScroll;
+      Component item = v[idx];
+      
+      if(item.shouldRerender || item.child.shouldRerender) {
+        // EnableInspectorRecording();
+        // LogToInspector($'Rerendering: {item.text}');
+        // DisableInspectorRecording();
+
+        // `Render()` of a child called here, not in Component because it becomes recursive for some reason
+        renderedItemTexts[actualIdx] = item.Render(item.child ? item.child.Render() : '');
+
+        if(item.child) item.child.shouldRerender = false;
+        item.shouldRerender = false;
       }
 
-      item.Render();
+      renderedTexts.items[idx] = { 
+        text: $"{!item.disabled ? isFocused && hoveredItemIdx == actualIdx ? '● ' : '○ ' : ''}{renderedItemTexts[actualIdx]}",
+        color: item.color 
+      };
     }
-
-    RenderDescription();
-
-    rerenderItems = [];
-  }
-
-  public void RenderVisibleItems() {
-    renderedTexts.items = 
-      items ? 
-        visibleItems.Map((item, idx) => <RenderedText>{ 
-          text: $"{!item.disabled ? isFocused && hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{item.renderedText}",
-          color: item.color 
-        }) :
-        [{ 
-          text: "It's a bit empty in here...",
-          color: COLOR_NEUTRAL 
-        }];
   }
 
   public void MergeTexts() {
@@ -517,7 +495,6 @@ class MenuState {
     // DisableInspectorRecording();
 
     if(isOpen) {
-      PrepareVisibleItems();
       RenderVisibleItems();
       MergeTexts();
     } else {

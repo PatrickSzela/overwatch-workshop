@@ -17,10 +17,9 @@ class Carousel: ComponentWithValue
     Any[] options!,
     Any defaultValue! = null
   ) "[Carousel] Constructor" {
-    this.defaultValue = !options.Contains(defaultValue) ? options.First : defaultValue;
     this.options = options;
     
-    ComponentWithValueConstructor(text, this.defaultValue, null);
+    ComponentWithValueConstructor(text, !options.Contains(defaultValue) ? options.First : defaultValue, null);
 
     AddDescription(Description.New('Use [←] or [→] to select an option'));
   }
@@ -48,9 +47,9 @@ class Carousel: ComponentWithValue
     }
   }
 
-  public override void Render() "[Carousel] Render" {
-    renderedText = textFormatter(this);
-    if(options.Length == 0) renderedText = $"{renderedText}: Empty";
-    else renderedText = $"{renderedText}: ← {valueFormatter(this)}​ →";
+  public override String Render(String childText! = null) "[Carousel] Render" {
+    onRender(this);
+    if(options.Length == 0) return $"{text}: Empty";
+    else return $"{text}: ← {valueFormatter(this)}​ →";
   }
 }

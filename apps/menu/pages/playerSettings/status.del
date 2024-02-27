@@ -42,6 +42,7 @@ Component[] PageStatusItems() {
       defaultChecked: selectedPlayers[0].pageStatusAppliedStatuses.Contains(name)
     );
 
+    list.Last.id = name;
     list.Last.onChange = (value, it) => {
       // since it's not possible to pass actual Status here (because it can't be stored in variable), gotta workaround that
       pageStatusToApply = name;
@@ -128,9 +129,8 @@ if(menuState.pageId == PAGE_STATUS_ID)
 
   AbortIfConditionIsFalse();
 
-  for(Number i! = 0; i < allStatuses.Length; i++) {
-    Toggle toggle! = <Toggle>menuState.items[i];
-    Boolean statusApplied! = selectedPlayers[0].pageStatusAppliedStatuses.Contains(allStatuses[i]);
+  foreach(Toggle toggle! in menuState.items) {
+    Boolean statusApplied! = selectedPlayers[0].pageStatusAppliedStatuses.Contains(toggle.id);
 
     if(toggle.value != statusApplied) {
       toggle.value = statusApplied;
