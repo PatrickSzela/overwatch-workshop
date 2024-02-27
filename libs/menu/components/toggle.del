@@ -26,13 +26,6 @@ class Toggle: ComponentWithValue
     AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle"));
   }
 
-  public virtual void SetChecked(Boolean checked!) "[Toggle] Set Checked" {    
-    if(this.checked != checked) {
-      value = checked;
-      OnChange();
-    }
-  }
-
   // events
   public override void OnButtonDown(Button button!) "[Toggle] OnButtonDown" {
     onButtonDown(button, this);
@@ -40,7 +33,7 @@ class Toggle: ComponentWithValue
     HandleActions();
 
     if(button == BUTTON_TOGGLE)
-      SetChecked(!checked);
+      SetValue(!checked);
 
     if(child != null)
       child.OnButtonDown(button);

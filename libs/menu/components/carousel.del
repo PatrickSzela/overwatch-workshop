@@ -27,7 +27,6 @@ class Carousel: ComponentWithValue
   public override void OnNavigate(Vector direction!) "[Carousel] OnNavigate" {
     onNavigate(direction, this);
 
-    Any old! = value;
     Number index! = options.IndexOf(value);
 
     if(index == -1) {
@@ -40,11 +39,7 @@ class Carousel: ComponentWithValue
       else if(index > options.Length - 1) index = 0;
     }
 
-    value = options[index];
-
-    if(old != options[index]) {
-      OnChange();
-    }
+    SetValue(options[index]);
   }
 
   public override void Render() "[Carousel] Render" {

@@ -26,13 +26,14 @@ class Radio: Toggle
     this._menuState = menuState;
   }
 
-  public override void SetChecked(Boolean checked!) "[Radio] Set Checked" {
+  public override void SetValue(Any checked!) "[Radio] Set Checked" {
     if(this.checked != checked) {
       if(checked) {
         Component[] arr! = _menuState.items.Map((i) => i.name == name ? i : i.child.name == name ? i : null).FilteredArray((i) => i);
 
         foreach(Component sibling! in arr) {
           if((<Toggle>sibling).checked) {
+            // don't trigger callbacks
             (<Toggle>sibling).value = false;
             (<Toggle>sibling).shouldRerender = true;
           }
