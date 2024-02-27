@@ -67,24 +67,26 @@ rule: 'Create description about switching menu'
 Event.OngoingPlayer
 if(!IsDummyBot())
 {
-  switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to right side', COLOR_SWITCH, order: 99));
-  switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to left side', COLOR_SWITCH, order: 99));
+  switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to right side', COLOR_SWITCH, visible: false, order: 99));
+  switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(SWITCH_FOCUS_BUTTON)}​ to switch to left side', COLOR_SWITCH, visible: false, order: 99));
 }
 
 rule: 'Show description on currently focused menu'
 Event.OngoingPlayer
 if(!IsDummyBot())
 {
-  menuState.descriptionsMenu[switchFocusDescriptionIdx[0]].visible = menuState.isFocused && menuState2.isOpen;
-  menuState2.descriptionsMenu[switchFocusDescriptionIdx[1]].visible = menuState2.isFocused;
-
-  menuState.RerenderHoveredItem();
-  menuState2.RerenderHoveredItem();
-
   WaitUntil(
     menuState.isFocused != EvaluateOnce(menuState.isFocused) ||
     menuState2.isOpen != EvaluateOnce(menuState2.isOpen),
   99999);
+
+  menuState.descriptionsMenu[switchFocusDescriptionIdx[0]].visible = menuState.isFocused && menuState2.isOpen;
+  menuState2.descriptionsMenu[switchFocusDescriptionIdx[1]].visible = menuState2.isFocused;
+
+  // update description
+  menuState.RerenderHoveredItem();
+  MinWait();
+  menuState2.RerenderHoveredItem();
 
   Loop();
 }
