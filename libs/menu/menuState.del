@@ -221,10 +221,11 @@ class MenuState {
     }
   }
 
-  public void AddItems(Component[] items!) "[MenuState] Add Items" {
+  public void AddItems(Component[] items!, Boolean handleScroll! = true) "[MenuState] Add Items" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: AddItems');
     // DisableInspectorRecording();
+    this.items += items;
 
     foreach(Component item! in items) {
       rerenderItems += item;
@@ -235,9 +236,9 @@ class MenuState {
       }
     }
 
-    this.items += items;
-
-    FixScroll();
+    if(handleScroll) {
+      FixScroll();
+    }
   }
 
   public void RemoveItems(Component[] items!, Boolean handleScroll! = true) "[MenuState] Remove Items" {
@@ -256,8 +257,6 @@ class MenuState {
     }
     
     if(handleScroll) {
-      // TODO: add better scroll handler
-      // history[history.Length - 1].innerScroll -= items.Length - 1;
       FixScroll();
     }
   }
@@ -268,10 +267,12 @@ class MenuState {
     // DisableInspectorRecording();
 
     RemoveItems(this.items - items, false);
-    AddItems(items - this.items);
+    AddItems(items - this.items, false);
 
     // keep the order of passed items
     this.items = items;
+
+    FixScroll();
   }
 
   public void FixScroll() "[MenuState] Fix Scroll" {
