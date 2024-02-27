@@ -2,10 +2,12 @@ import '../../../libs/utils/array.del';
 import '../../../libs/menu/components/checkbox.del';
 import '../_variables.del';
 
-// TODO: simplify most of the stuff
 // TODO: add marking multiple items (remake into checkboxes)?
 // TODO: lock 2nd menu when playing
-// TODO: preserve prev color
+// TODO: warning if no wait and repeat is enabled?
+// TODO: figure out better way to show which players are affected by action
+// TODO: editable actions?
+// TODO: jump to id, disable rules
 
 String PAGE_TIMELINE_EDIT_ID: 'timelineEdit';
 String PAGE_TIMELINE_EDIT_NAME: 'Timeline Editor';
@@ -16,45 +18,40 @@ playervar Action[] markedToRemove;
 playervar Component componentBeingMoved;
 
 Component PageTimelineEditItemGenerator(in Action action) {
-  // Checkbox component = new Checkbox(action.name);
-  Component component = new Component(action.name);
-  component.textFormatter = (it) => $"{menuState2.items.IndexOf(it) + 1}. {it.text}";
-  // component.textFormatter = (it) => $"{action.id}. {it.text}";
+  Component component = new Component($"{action.id}. {action.name}");
+  component.id = action.id;
+  component.onRender = (it) => {
+    it.color = 
+      componentBeingMoved == it ? COLOR_WARNING :
+      markedToRemove.Contains(action) ? COLOR_ERROR :
+      timeline.isPlaying && timeline.index == menuState2.items.IndexOf(it) ? COLOR_SWITCH : COLOR_NEUTRAL;
+  };
 
-  // component.onChange = (checked, it) => {
-  //   if(checked)
-  //     selectedActions += action;
-  //   else
-  //     selectedActions -= action;
-  // };
   component.SetPrimaryAction("Execute action", (it) => {
     action.code();
   });
   component.SetSecondaryAction("Mark/Unmark for removal", (it) => {
     if(markedToRemove.Contains(action)) {
       markedToRemove -= action;
-      it.color = COLOR_NEUTRAL;
     } else {
       markedToRemove += action;
-      it.color = COLOR_ERROR;
     }
+    it.shouldRerender = true;
   });
   component.SetTertiaryAction("Start/Stop moving", (it) => {
     if(componentBeingMoved == it) {
       componentBeingMoved = null;
-      it.color = COLOR_NEUTRAL;
     } else {
       componentBeingMoved = it;
-      it.color = COLOR_WARNING;
     }
+    it.shouldRerender = true;
   });
   component.onNavigate = (direction, it) => {
-    if(componentBeingMoved == it) {
-      // Number oldPos! = editableActions.IndexOf(action);
+    if(componentBeingMoved == it && (direction == Down() || direction == Up())) {
       // HACK: `IndexOf` doesn't work on structs?
       Number oldPos! = editableActions.Map((i) => i.id).IndexOf(action.id);
+      Number newPos! = oldPos + (direction == Down() ? 1 : -1);
 
-      Number newPos = oldPos + (direction == Down() ? 1 : -1);
       if(newPos > menuState2.items.Length - 1) newPos = 0;
       else if(newPos < 0) newPos = menuState2.items.Length;
 
@@ -62,22 +59,12 @@ Component PageTimelineEditItemGenerator(in Action action) {
       editableActions = Move(editableActions, oldPos, newPos);
       menuState2.items = Move(menuState2.items, oldPos, newPos);
 
-      menuState2.RerenderAllItems();
+      // no need to render anything
     }
   };
 
   return component;
 }
-
-// Component[] PageTimelineEditItems() {
-//   Component[] list = actionSet.Length ? [] : [];
-
-//   foreach(Action action in actionSet) {
-//     list += PageTimelineEditItemGenerator(action, list.Length + 1);
-//   }
-
-//   return list;
-// }
 
 rule: 'Timeline/Edit'
 Event.OngoingPlayer
@@ -108,16 +95,8 @@ if(menuState2.isFocused)
     !menuState2.isFocused, 
   99999);
 
-  // SmallMessage(AllPlayers(), 'Replacing actionset');
-
-  // EnableInspectorRecording();
-  // foreach(Action action! in actionsToRemove) {
-  //   LogToInspector($'removing {action.id}');
-  // }
-  // DisableInspectorRecording();
-
   if(componentBeingMoved != null) {
-    componentBeingMoved.color = COLOR_NEUTRAL;
+    componentBeingMoved.shouldRerender = true;
     componentBeingMoved = null;
   }
   
@@ -126,15 +105,9 @@ if(menuState2.isFocused)
 
     // `editableActions` will be updated automatically in a rule below
     timeline.actions = editableActions - markedToRemove;
-  
-    // EnableInspectorRecording();
-    // foreach(Action action! in timeline.actions) {
-    //   LogToInspector($'left after removal: {action.id}');
-    // }
-    // LogToInspector($'-----');
-    DisableInspectorRecording();
   }
 
+  // rerender updated color
   menuState2.Render();
 }
 
@@ -147,34 +120,14 @@ if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
 if(timeline.actions != editableActions)
 {
   Component[] items! = menuState2.items;
-  Action[] editableActionsCopy! = editableActions;
   Action[] toAdd! = timeline.actions - editableActions;
   Action[] toRemove! = editableActions - timeline.actions;
 
-  // EnableInspectorRecording();
-  // LogToInspector($'Updating editableActions, adding {toAdd.Length}, removing {toRemove.Length}...');
-
-  // foreach(Action action! in timeline.actions) {
-  //   LogToInspector($'timeline.actions: {action.id}');
-  // }
-  // foreach(Action action! in editableActions) {
-  //   LogToInspector($'editableActions: {action.id}');
-  // }
-  // DisableInspectorRecording();
-
-
   // remove
   // HACK: `IndexOf` doesn't work on structs?
-  Number[] editableIds! = editableActions.Map((i) => i.id);
-  items -= toRemove.Map((i) => items[editableIds.IndexOf(i.id)]);
+  Number[] itemIds! = items.Map((i) => i.id);
+  items -= toRemove.Map((i) => items[itemIds.IndexOf(i.id)]);
   editableActions -= toRemove;
-
-  // EnableInspectorRecording();
-  // LogToInspector($'After removing...');
-  // foreach(Action action! in editableActions) {
-  //   LogToInspector($'editableActions: {action.id}');
-  // }
-  // DisableInspectorRecording();
 
   // add
   editableActions += toAdd;
@@ -182,26 +135,11 @@ if(timeline.actions != editableActions)
     items += PageTimelineEditItemGenerator(i);
   }
 
-  // EnableInspectorRecording();
-  // LogToInspector($'After adding...');
-  // foreach(Action action! in editableActions) {
-  //   LogToInspector($'editableActions: {action.id}');
-  // }
-  // DisableInspectorRecording();
-
   // sort
   // HACK: `IndexOf` doesn't work on structs?
   Number[] timelineIds! = timeline.actions.Map((i) => i.id);
   editableActions = editableActions.SortedArray((i) => timelineIds.IndexOf(i.id));
-  items = items.SortedArray((_, idx) => timelineIds.IndexOf(editableActions[idx].id));
-
-  // EnableInspectorRecording();
-  // LogToInspector($"After sorting...");
-  // foreach(Action action! in editableActions) {
-  //   LogToInspector($"actionMapp: {action.id}");
-  // }
-  // LogToInspector($'-----');
-  // DisableInspectorRecording();
+  items = items.SortedArray((i) => timelineIds.IndexOf(i.id));
 
   menuState2.ReplaceItems(items);
   menuState2.Render();
@@ -215,40 +153,3 @@ rule: 'Show message when item has been added to timeline'
   SmallMessage(AllPlayers(), $"Added to timeline: {timeline.actions.Last}");
   Loop();
 }
-
-// rule: 'My Rule'
-// Event.OngoingPlayer
-// if(menuState2.isOpen)
-// if(menuState2.isFocused)
-// if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
-// if(buttonsHeld == [Button.Reload])
-// {
-//   Number[] idToIdx! = actionsEditableCopy.Map((i) => i.id);
-//   Component[] comps! = [];
-
-//   // FIXME: it selects 0 items too
-//   // FIXME: add wait(1), then wait(2), then wait(1) multiple times, it breaks
-
-//   foreach(Action act! in selectedActions) {
-//     comps += menuState2.items[idToIdx.IndexOf(act.id)];
-    
-//     if(actionsToRemove.Contains(act)) {
-//       actionsToRemove.ModRemoveByValue(act);
-//       comps.Last.color = COLOR_NEUTRAL;
-
-//       EnableInspectorRecording();
-//       LogToInspector($"unmarking {act.id}, {idToIdx.Length}, {idToIdx.IndexOf(act.id)}");
-//       DisableInspectorRecording();
-//     } else {
-//       actionsToRemove.ModAppend(act);
-//       comps.Last.color = COLOR_ERROR;
-
-//       EnableInspectorRecording();
-//       LogToInspector($"marking {act.id}, {idToIdx.Length}, {idToIdx.IndexOf(act.id)}");
-//       DisableInspectorRecording();
-      
-//     }
-//   }
-
-//   menuState2.Render();  
-// }

@@ -9,7 +9,9 @@ playervar Component pagePlayPauseComponent;
 Component PageTimelinePlayPauseMenuItem() {
   Component component = new Component('Play');
 
-  component.textFormatter = (it) => timeline.isPlaying ? 'Pause' : 'Play';
+  component.onRender = (it) => {
+    it.text = timeline.isPlaying ? 'Pause' : 'Play';
+  };
 
   component.SetPrimaryAction("Apply", (it) => {
     if(timeline.isPlaying) {
@@ -32,9 +34,9 @@ if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
 if(timeline.isPlaying)
 {
   Number idx! = timeline.index;
-  menuState2.items[idx].color = COLOR_SWITCH;
   menuState2.SetHoveredItemIdx(idx);
-  menuState2.Render();
+  // trigger `onRender()` to update the color
+  menuState2.RerenderHoveredItem();
 
   WaitUntil(
     timeline.index != idx ||
@@ -44,8 +46,6 @@ if(timeline.isPlaying)
     !timeline.isPlaying,
   99999);
 
-  // menuState2.hoveredItem.color = COLOR_NEUTRAL;
-  menuState2.items[idx].color = COLOR_NEUTRAL;
   menuState2.AddToRerenderQueue(menuState2.items[idx]);
 
   LoopIfConditionIsTrue();
@@ -70,12 +70,9 @@ if(menuState.pageId == PAGE_TIMELINE_ID)
 if(timeline.isPlaying)
 {
   menuState.RerenderItem(pagePlayPauseComponent);
-}
 
-rule: 'Timeline/Play Pause Switch text if paused'
-Event.OngoingPlayer
-if(menuState.pageId == PAGE_TIMELINE_ID)
-if(!timeline.isPlaying)
-{
-  menuState.RerenderItem(pagePlayPauseComponent);
+  WaitUntil(!timeline.isPlaying, 99999);
+
+  if(menuState.pageId == PAGE_TIMELINE_ID)
+    menuState.RerenderItem(pagePlayPauseComponent);
 }
