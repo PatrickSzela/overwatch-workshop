@@ -42,8 +42,8 @@ class Radio: Toggle
     }
   }
 
-  public override void Render() "[Radio] Render" {
+  public override String Render(String childText! = null) "[Radio] Render" {
     onRender(this);
-    renderedText = $"{checked ? "(✓)" : "(    )"}​ {child ? child.renderedText : text}";
+    return $"{checked ? "(✓)" : "(    )"}​ {childText || text}";
   }
 }

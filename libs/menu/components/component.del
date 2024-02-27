@@ -24,7 +24,6 @@ class Component {
   public Color color;
   public String name;
   public String text;
-  public String renderedText;
   public Description[] description;
   public Boolean disabled;
   public Component child;
@@ -84,9 +83,10 @@ class Component {
     if(buttonsHeld == [Button.Interact]) onTertiaryAction(this);
   }
 
-  public virtual void Render() "[Component] Render" {
+  // idk why OSTW thinks using child's `Render()` method makes it recursive
+  public virtual String Render(String childText! = null) "[Component] Render" {
     onRender(this);
-    renderedText = child ? child.renderedText : text;
+    return childText || text;
   }
 
   // events

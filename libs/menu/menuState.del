@@ -92,6 +92,8 @@ class MenuState {
   # Stores relation of named component to item in `items`. 
   public Dictionary<String, ComponentParent[]> namedComponentToItem;
 
+  private String[] renderedItemTexts;
+
   public constructor(in String rootPageId, in Button[] toggleMenu, in Boolean enabled = true, in Boolean puppet = false) {
     _toggleMenu = toggleMenu;
     _rootPageId = rootPageId;
@@ -112,6 +114,7 @@ class MenuState {
 
     rerenderItems = [];
     renderedTexts = RenderedTexts.BASE;
+    renderedItemTexts = [];
 
     // render title
     Render();
@@ -465,8 +468,7 @@ class MenuState {
       descriptionArr += hoveredItem.child.description;
     }
 
-    descriptionArr += descriptionsPage;
-    descriptionArr += descriptionsMenu;
+    descriptionArr += descriptionsPage + descriptionsMenu;
 
     renderedTexts.descriptions = descriptionArr
       .FilteredArray((i) => i.visible)
@@ -476,12 +478,8 @@ class MenuState {
 
   public void PrepareVisibleItems() {
     foreach(Component item! in rerenderItems) {
-      // called here, not in Component because it breaks stuff
-      if(item.child) {
-        item.child.Render();
-      }
-
-      item.Render();
+      // `Render()` of a child called here, not in Component because it becomes recursive for some reason
+      renderedItemTexts[items.IndexOf(item)] = item.Render(item.child ? item.child.Render() : '');
     }
 
     RenderDescription();
@@ -493,7 +491,7 @@ class MenuState {
     renderedTexts.items = 
       items ? 
         visibleItems.Map((item, idx) => <RenderedText>{ 
-          text: $"{!item.disabled ? isFocused && hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{item.renderedText}",
+          text: $"{!item.disabled ? isFocused && hoveredItemIdx == idx + history.Last.outerScroll ? '● ' : '○ ' : ''}{renderedItemTexts[history.Last.outerScroll + idx]}",
           color: item.color 
         }) :
         [{ 
