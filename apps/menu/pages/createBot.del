@@ -70,6 +70,7 @@ Component[] PageCreateBotItems() {
   };
   position.SetPrimaryAction("Choose the position", (it) => {
     spawnBotPosition = pickPosition.position;
+    it.shouldRerender = true;
   });
 
   Component spawnBot = new Component(PAGE_CREATE_BOT_SPAWN_NAME);
