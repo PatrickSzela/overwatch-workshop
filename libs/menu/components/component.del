@@ -27,7 +27,6 @@ class Component {
   public Description[] description;
   public Boolean disabled;
   public Component child;
-  public Boolean updateEveryFrame;
   public MenuState _menuState;
   public String renderedText;
   public Boolean shouldRerender;

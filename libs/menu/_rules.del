@@ -23,17 +23,6 @@ if(currentMenuState.isOpen)
     AllowButton(EventPlayer(), button);
 }
 
-rule: '[MenuState]: Update every frame'
-Event.OngoingPlayer
-if(currentMenuState)
-if(currentMenuState.isOpen)
-if(currentMenuState.hoveredItem.updateEveryFrame)
-{
-  currentMenuState.Render();
-  MinWait();
-  LoopIfConditionIsTrue();
-}
-
 //
 // navigation
 //
