@@ -122,11 +122,11 @@ class NumberInput: ComponentWithValue
     }
   }
 
-  public override String Render(String childText! = null) "[NumberInput] Render" {
+  public override void Render() "[NumberInput] Render" {
     onRender(this);
 
     if(length <= 0) {
-      return $"{text}: Empty";
+      renderedText = $"{text}: Empty";
     } else {
       String[] vals! = parts.Map((i, idx) => 
         idx == 0 ? 
@@ -138,7 +138,7 @@ class NumberInput: ComponentWithValue
         vals = vals.Slice(1, vals.Length);
 
       String final! = Join(vals, editMode ? " " : '');
-      return $"{text}: {final}{unit ? unit : ''}";
+      renderedText = $"{text}: {final}{unit ? unit : ''}";
     }
   }
 }

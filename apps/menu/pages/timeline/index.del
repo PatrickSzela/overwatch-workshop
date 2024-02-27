@@ -48,12 +48,12 @@ Event.OngoingPlayer
 if(!menuState.HistoryContains(PAGE_TIMELINE_ID))
 {
   menuState.descriptionsMenu[switchToTimelineIdx].visible = true;
-  menuState.RerenderHoveredItem();
+  menuState.Render();
 
   WaitUntil(menuState.HistoryContains(PAGE_TIMELINE_ID), 99999);
   
   menuState.descriptionsMenu[switchToTimelineIdx].visible = false;
-  menuState.RerenderHoveredItem();
+  menuState.Render();
 }
 
 rule: '[Timeline] Start playing'
