@@ -43,6 +43,7 @@ class Radio: Toggle
   }
 
   public override void Render() "[Radio] Render" {
-    renderedText = $"{checked ? "(✓)" : "(    )"}​ {child ? child.renderedText : textFormatter(this)}";
+    onRender(this);
+    renderedText = $"{checked ? "(✓)" : "(    )"}​ {child ? child.renderedText : text}";
   }
 }

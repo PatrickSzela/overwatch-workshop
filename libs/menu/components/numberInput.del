@@ -119,10 +119,11 @@ class NumberInput: ComponentWithValue
   }
 
   public override void Render() "[NumberInput] Render" {
-    renderedText = textFormatter(this);
-    if(length <= 0) renderedText = $"{renderedText}: Empty";
-    else {
-      String text!;
+    onRender(this);
+
+    if(length <= 0) {
+      renderedText = $"{text}: Empty";
+    } else {
       String[] vals! = parts.Map((i, idx) => 
         idx == 0 ? 
           i == -1 ? '-' : '+' :
@@ -132,8 +133,8 @@ class NumberInput: ComponentWithValue
       if(!negative && parts[0] != -1) 
         vals = vals.Slice(1, vals.Length);
 
-      text = Join(vals, editMode ? " " : '');
-      renderedText = $"{renderedText}: {text}{unit ? unit : ''}";
+      String final! = Join(vals, editMode ? " " : '');
+      renderedText = $"{text}: {final}{unit ? unit : ''}";
     }
   }
 }

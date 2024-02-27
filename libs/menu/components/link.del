@@ -34,7 +34,8 @@ class Link: Component
   }
 
   public override void Render() "[Link] Render" {
-    renderedText = $"{child ? child.renderedText : textFormatter(this)}​ ▶";
+    onRender(this);
+    renderedText = $"{child ? child.renderedText : text}​ ▶";
   }
 
   public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {

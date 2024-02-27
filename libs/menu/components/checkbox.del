@@ -13,6 +13,7 @@ class Checkbox: Toggle
   }
 
   public override void Render() "[Checkbox] Render" {
-    renderedText = $"{checked ? "[✓]" : "[    ]"}​ {child ? child.renderedText : textFormatter(this)}";
+    onRender(this);
+    renderedText = $"{checked ? "[✓]" : "[    ]"}​ {child ? child.renderedText : text}";
   }
 }

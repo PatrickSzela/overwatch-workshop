@@ -31,9 +31,7 @@ class Component {
   public Boolean updateEveryFrame;
   public MenuState _menuState;
   
-  public ((Component) => String) textFormatter;
-  public static ((Component) => String) TEXT_FORMATTER: (it) => it.text;
-
+  public ((Component) => void) onRender;
   public ((Component) => void) onEnter;
   public ((Component) => void) onLeave;
   public ((Button, Component) => void) onButtonDown;
@@ -56,7 +54,6 @@ class Component {
   ) "[Component] Constructor" {
     this.text = text;
     this.description = [];
-    this.textFormatter = TEXT_FORMATTER;
     this.child = child;
     this.color = COLOR_NEUTRAL;
   }
@@ -88,7 +85,8 @@ class Component {
   }
 
   public virtual void Render() "[Component] Render" {
-    renderedText = child ? child.renderedText : textFormatter(this);
+    onRender(this);
+    renderedText = child ? child.renderedText : text;
   }
 
   // events

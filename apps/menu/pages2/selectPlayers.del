@@ -66,7 +66,9 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
           defaultChecked: selectedPlayers.Contains(player)
         );
 
-        checkbox.textFormatter = (it) => $"{PlayerWithHeroIconFormatter(player)}​ (Slot {SlotFormatter(SlotOf(player))})";
+        checkbox.onRender = (it) => {
+          it.text = $"{PlayerWithHeroIconFormatter(player)}​ (Slot {SlotFormatter(SlotOf(player))})";
+        };
         checkbox.onChange = (checked, it) => {
           if(checked) selectedPlayers.ModAppend(player);
           else selectedPlayers.ModRemoveByValue(player);

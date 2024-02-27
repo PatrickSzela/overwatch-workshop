@@ -31,8 +31,8 @@ class ComponentWithValue: Component
   }
 
   public override void Render() "[ComponentWithValue] Render" {
-    renderedText = textFormatter(this);
-    renderedText = $"{renderedText}: {valueFormatter(this)}";
+    onRender(this);
+    renderedText = $"{text}: {valueFormatter(this)}";
   }
 
   // events
