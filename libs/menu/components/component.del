@@ -29,6 +29,8 @@ class Component {
   public Component child;
   public Boolean updateEveryFrame;
   public MenuState _menuState;
+
+  public Boolean shouldRerender;
   
   public ((Component) => void) onRender;
   public ((Component) => void) onEnter;
@@ -55,6 +57,8 @@ class Component {
     this.description = [];
     this.child = child;
     this.color = COLOR_NEUTRAL;
+
+    this.shouldRerender = true;
   }
   
   public void AddDescription(in Description description) {

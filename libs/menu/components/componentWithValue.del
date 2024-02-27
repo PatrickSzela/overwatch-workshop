@@ -4,7 +4,6 @@ import './component.del';
 class ComponentWithValue: Component 
 {
   public Any value;
-  public Any defaultValue;
 
   public ((ComponentWithValue) => String) valueFormatter;
   public static ((ComponentWithValue) => String) VALUE_FORMATTER: (it) => it.value;
@@ -25,7 +24,6 @@ class ComponentWithValue: Component
   ) "[ComponentWithValue] Constructor" {
     ComponentConstructor(text, child);
 
-    this.defaultValue = defaultValue;
     this.value = defaultValue;
     this.valueFormatter = VALUE_FORMATTER;
   }
@@ -37,6 +35,7 @@ class ComponentWithValue: Component
 
   // events
   public virtual void OnChange() "[ComponentWithValue] OnChange" {
+    shouldRerender = true;
     onChange(value, this);
   }
 }
