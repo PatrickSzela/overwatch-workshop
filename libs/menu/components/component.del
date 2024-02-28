@@ -64,6 +64,10 @@ class Component {
     this.description += description;
   }
 
+  public void MarkToRerender() {
+    this.shouldRerender = true;
+  }
+
   public virtual void SetPrimaryAction(String description!, (Component) => void action!) "t" {
     onPrimaryAction = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle(Button.Ability2)}​ to {description}"));

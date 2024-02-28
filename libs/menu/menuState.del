@@ -117,21 +117,13 @@ class MenuState {
     RenderTitle(title);
   }
 
-  public void AddToRerenderQueue(in Component item) {
-    // EnableInspectorRecording();
-    // LogToInspector($'{EventPlayer()}: AddToRerenderQueue');
-    // DisableInspectorRecording();
-
-    item.shouldRerender = true;
-  }
-
   # Forcefully rerenders currently hovered item. Call after manually adding description.
   public void RerenderHoveredItem() "[MenuState] Rerender Hovered Item" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: RerenderHoveredItem');
     // DisableInspectorRecording();
 
-    hoveredItem.shouldRerender = true;
+    hoveredItem.MarkToRerender();
     Render();
   }
 
@@ -141,7 +133,7 @@ class MenuState {
     // LogToInspector($'{EventPlayer()}: RerenderItem');
     // DisableInspectorRecording();
 
-    item.shouldRerender = true;
+    item.MarkToRerender();
     Render();
   }
 
@@ -152,7 +144,7 @@ class MenuState {
     // DisableInspectorRecording();
 
     foreach(Component item! in visibleItems)
-      item.shouldRerender = true;
+      item.MarkToRerender();
     
     Render();
   }
@@ -247,7 +239,7 @@ class MenuState {
     OnItemsChanged();
   }
 
-  public void OnItemsChanged() "[MenuState] On Items Changed" {
+  protected void OnItemsChanged() "[MenuState] On Items Changed" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: OnItemsChanged');
     // DisableInspectorRecording();
@@ -404,7 +396,7 @@ class MenuState {
   }
 
   // phase 2: render
-  public void RenderClosedItems() {
+  protected void RenderClosedItems() {
     renderedTexts.merged = isPuppet ? [] : [
       { 
         text: $"Press {ButtonFormatter(_toggleMenu)}​ to toggle Menu", 
@@ -413,7 +405,7 @@ class MenuState {
     ];
   }
 
-  public void RenderTitle(in String title) {
+  protected void RenderTitle(in String title) {
     renderedTexts.titles = [
       { 
         text: title,
@@ -422,7 +414,7 @@ class MenuState {
     ];
   }
 
-  public void RenderSeparators() {
+  protected void RenderSeparators() {
     renderedTexts.separators = [
       { 
         text: $"──────────────────────{items.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == 0 ? '△' : '▲'}──────────────────────", 
@@ -435,7 +427,7 @@ class MenuState {
     ];
   }
 
-  public void RenderDescription() {
+  protected void RenderDescription() {
     Description[] descriptionArr = hoveredItem.description;
 
     if(hoveredItem.child) {
@@ -450,7 +442,7 @@ class MenuState {
       .Map((i) => <RenderedText>{text: i[0], color: i[1]});
   }
 
-  public void RenderVisibleItems() {
+  protected void RenderVisibleItems() {
     RenderDescription();
 
     Component[] v = visibleItems;
@@ -483,7 +475,7 @@ class MenuState {
     }
   }
 
-  public void MergeTexts() {
+  protected void MergeTexts() {
     renderedTexts.merged = renderedTexts.titles + [renderedTexts.separators[0]] + renderedTexts.items;
 
     if(items.Length > MAX_ITEMS || renderedTexts.descriptions.Length)
@@ -505,7 +497,7 @@ class MenuState {
     }
   }
 
-  private void HandleScroll() "[MenuState] Handle Scroll" {
+  protected void HandleScroll() "[MenuState] Handle Scroll" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: HandleScroll');
     // DisableInspectorRecording();

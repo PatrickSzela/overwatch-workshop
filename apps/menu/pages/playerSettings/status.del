@@ -134,7 +134,7 @@ if(menuState.pageId == PAGE_STATUS_ID)
 
     if(toggle.value != statusApplied) {
       toggle.value = statusApplied;
-      menuState.AddToRerenderQueue(toggle);
+      toggle.MarkToRerender();
     }
   }
   
