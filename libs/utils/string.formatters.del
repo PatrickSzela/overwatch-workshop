@@ -7,7 +7,7 @@ String PlayerWithHeroIconTeamSlotFormatter(Player player): $"{HeroIconString(Her
 
 String SlotFormatter(Number number): $"{number == -1 ? 'First available' : number + 1}";
 
-String ObjectiveFormatter(Number objective): $"{objective == -1 ? 'Current' : alphabet[objective]}";
+String ObjectiveFormatter(Number objective): $"{objective == -1 ? 'Current' : objective == -2 ? 'Payload' : alphabet[objective]}";
 
 String BooleanFormatter(Boolean bool): $"{bool ? 'On' : 'Off'}";
 
