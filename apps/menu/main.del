@@ -126,9 +126,15 @@ rule: 'Go to Timeline'
 Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.isFocused)
-if(buttonsHeld == [Button.Crouch, Button.Melee])
+if(buttonsHeld == [BUTTON_MODIFIER, BUTTON_SWITCH])
 {
   menuState.GoTo(PAGE_TIMELINE_ID);
+}
+
+rule: 'Add Timeline Info'
+Event.OngoingPlayer
+{
+  switchToTimelineIdx = menuState.AddMenuDescription(Description.New($"Press {ButtonFormatter([BUTTON_MODIFIER, BUTTON_SWITCH])}​ to open Timeline menu", COLOR_SWITCH));
 }
 
 rule: 'Pick position handle increase/decrease distance'

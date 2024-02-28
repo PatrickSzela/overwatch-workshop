@@ -38,13 +38,6 @@ if(menuState.pageId == PAGE_TIMELINE_ID)
 
 rule: 'Add Timeline Info'
 Event.OngoingPlayer
-{
-// TODO: use Workshop setting buttons
-  switchToTimelineIdx = menuState.AddMenuDescription(Description.New($"Press {ButtonFormatter([Button.Crouch, Button.Melee])}​ to open Timeline menu", COLOR_SWITCH));
-}
-
-rule: 'Add Timeline Info'
-Event.OngoingPlayer
 if(!menuState.HistoryContains(PAGE_TIMELINE_ID))
 {
   menuState.descriptionsMenu[switchToTimelineIdx].visible = true;
