@@ -1,3 +1,4 @@
+import './customButtons.del';
 import '../utils/dictionary.del';
 import '../utils/string.formatters.del';
 import '../utils/button.allButtons.del';
@@ -42,8 +43,6 @@ struct RenderedTexts {
 
 # Holds current state of `Menu` for a player and handles logic for displaying and controlling every `Component` and its derivatives.
 class MenuState {
-  # Button used to go back to the previous page (or close menu when in root).
-  public static Button BUTTON_GO_BACK: Button.Ultimate;
   # Maximum number of visible items.
   public static Number MAX_ITEMS: Menu.MAX_ITEMS;
 
@@ -370,7 +369,7 @@ class MenuState {
       if(!isLocked) {
         if(buttonsHeld == _toggleMenu && !isPuppet) {
           Close();
-        } else if(buttonsHeld == [BUTTON_GO_BACK]) {
+        } else if(buttonsHeld == [BUTTON_BACK]) {
           GoBack();
         }
       }

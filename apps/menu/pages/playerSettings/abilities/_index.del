@@ -11,7 +11,7 @@ Component[] PageAbilitiesItems() {
   Component[] list = [];
 
   foreach(Button button! in allButtons) {
-    list += new Link(menuState, $"{button}", submenuID: $"{button}", openButton: Button.Reload);
+    list += new Link(menuState, $"{button}", submenuID: $"{button}", openButton: BUTTON_SECONDARY);
     list.Last.onSecondaryAction = (it) => {
       selectedButton = button;
     };

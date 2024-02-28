@@ -4,14 +4,14 @@ import '../menuState.del';
 import './componentWithValue.del';
 
 // TODO: split main logic into shared Input
-
 // TODO: min, max?
 
 # NOTE: number passed in `defaultValue` will lose its precision because of Workshop limitations
 class NumberInput: ComponentWithValue
 {
+  public Button BUTTON_EDIT_MODE: BUTTON_QUATERNARY;
   public String DESCRIPTION: $'Press {ButtonFormatterSingle(BUTTON_EDIT_MODE)}​ to {editMode ? "disable" : "enable"}​ Edit Mode';
-  public static Button BUTTON_EDIT_MODE: Button.Melee;
+  
   public MenuState _menuState;
   public Boolean editMode;
   public Boolean negative;
@@ -104,7 +104,7 @@ class NumberInput: ComponentWithValue
 
     HandleActions();
 
-    if(button == BUTTON_EDIT_MODE) {
+    if(buttonsHeld == [BUTTON_EDIT_MODE]) {
       editMode = !editMode;
       
       shouldRerender = true;

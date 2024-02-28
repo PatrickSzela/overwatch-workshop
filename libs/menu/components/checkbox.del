@@ -2,8 +2,6 @@ import './toggle.del';
 
 class Checkbox: Toggle
 {
-  public static Button BUTTON_TOGGLE: Button.Ability2;
-
   public constructor(
     in String text, 
     in Boolean defaultChecked = null,

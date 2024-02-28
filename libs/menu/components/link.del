@@ -1,8 +1,6 @@
 import '../menuState.del';
 import './component.del';
 
-// TODO: use workshop setting button
-
 class Link: Component 
 {
   public MenuState _menuState;
@@ -13,7 +11,7 @@ class Link: Component
     in MenuState menuState,
     in String text, 
     in String submenuID,
-    in Button openButton = Button.Ability2
+    in Button openButton = BUTTON_PRIMARY
   ) {
     LinkConstructor(menuState, text, submenuID, openButton);
   }
@@ -22,7 +20,7 @@ class Link: Component
     MenuState menuState!,
     String text!, 
     String submenuID!,
-    Button openButton! = Button.Ability2
+    Button openButton! = BUTTON_PRIMARY
   ) "[Link] Constructor" {
     ComponentConstructor(text, null);
     
@@ -43,7 +41,7 @@ class Link: Component
 
     HandleActions();
 
-    if(button == openButton)
+    if(buttonsHeld == [openButton])
       _menuState.GoTo(submenuID);
     else if(child != null)
       child.OnButtonDown(button);

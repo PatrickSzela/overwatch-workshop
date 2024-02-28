@@ -62,7 +62,7 @@ Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCaro
   });
 
   item.onButtonUp = (button, it) => {
-    if(button == Button.Ability2) {
+    if(buttonsHeld == [BUTTON_PRIMARY]) {
       if((<Carousel>it).value == PageAbilitiesOptions.PRESS) {
         StopHoldingButton(selectedPlayersWithoutSelf, ability);
       }
