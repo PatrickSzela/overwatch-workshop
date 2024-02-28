@@ -17,8 +17,6 @@ single struct Description {
   };
 }
 
-// TODO: add button component with onXPress callbacks?
-
 class Component {
   public Any id;
   public Color color;
