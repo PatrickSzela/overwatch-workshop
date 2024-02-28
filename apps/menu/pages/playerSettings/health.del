@@ -20,6 +20,7 @@ Component[] PageHealthItems() {
     menuState: menuState, 
     text: PAGE_HEALTH_CURRENT_HEALTH_NAME,
     integralLength: 5,
+    fractionalLength: 3,
     defaultValue: selectedPlayers.First.Health(),
     unit: ' HP'
   );
@@ -31,6 +32,7 @@ Component[] PageHealthItems() {
     menuState: menuState, 
     text: PAGE_HEALTH_MAX_HEALTH_NAME,
     integralLength: 5,
+    fractionalLength: 3,
     defaultValue: selectedPlayers.First.MaxHealth(),
     unit: ' HP'
   );
@@ -81,7 +83,7 @@ if(menuState.pageId == PAGE_HEALTH_ID)
 
     Player pl: EvaluateOnce(player);
     
-    playerText.Add(pl, $"{RoundToInteger(pl.Health(), Rounding.Up)}​ / {RoundToInteger(pl.MaxHealth(), Rounding.Up)}​ HP");
+    playerText.Add(pl, $"{pl.Health() + 0.0001}​ / {pl.MaxHealth() + 0.0001}​ HP");
 
     MinWait();
   }
