@@ -71,12 +71,14 @@ Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCaro
 
   // TODO: move to separate button
   item.SetTertiaryAction('Add to Timeline', (it) => {
-    if((<Carousel>it).value == 'off')
-      Timeline.AddAction(timeline, ACTION_StopHoldingButton(selectedPlayersWithoutSelf, ability));
-    if((<Carousel>it).value == 'press')
-      Timeline.AddAction(timeline, ACTION_PressButton(selectedPlayersWithoutSelf, ability));
-    if((<Carousel>it).value == 'hold')
-      Timeline.AddAction(timeline, ACTION_StartHoldingButton(selectedPlayersWithoutSelf, ability));
+    if(selectedPlayersWithoutSelf) {
+      if((<Carousel>it).value == PageAbilitiesOptions.STOP)
+        Timeline.AddAction(timeline, ACTION_StopHoldingButton(selectedPlayersWithoutSelf, ability));
+      if((<Carousel>it).value == PageAbilitiesOptions.PRESS)
+        Timeline.AddAction(timeline, ACTION_PressButton(selectedPlayersWithoutSelf, ability));
+      if((<Carousel>it).value == PageAbilitiesOptions.START_HOLDING)
+        Timeline.AddAction(timeline, ACTION_StartHoldingButton(selectedPlayersWithoutSelf, ability));
+    }
   });
 
   return item;
