@@ -46,7 +46,7 @@ if(timeline.isPlaying)
     !timeline.isPlaying,
   99999);
 
-  menuState2.AddToRerenderQueue(menuState2.items[idx]);
+  menuState2.items[idx].MarkToRerender();
 
   LoopIfConditionIsTrue();
 
