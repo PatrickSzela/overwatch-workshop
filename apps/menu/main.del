@@ -14,6 +14,7 @@ import '../../libs/utils/rules/pauseMatchTime.del';
 import './customGameSettings.lobby';
 import '../../libs/playerInfo.del';
 
+// TODO: mimic inputs
 // TODO: mark menu as dirty
 // TODO: page creation on currentMenuState
 

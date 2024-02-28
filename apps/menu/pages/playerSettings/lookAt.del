@@ -7,30 +7,19 @@ import '../../_variables.del';
 String PAGE_LOOK_AT_ID: 'lookAt';
 String PAGE_LOOK_AT_NAME: 'Look At';
 
-String PAGE_LOOK_AT_POSITION_ID: PAGE_LOOK_AT_ID + 'position';
-String PAGE_LOOK_AT_POSITION_NAME: 'Position';
-String PAGE_LOOK_AT_OBJECTIVE_ID: PAGE_LOOK_AT_ID + 'objective';
-String PAGE_LOOK_AT_OBJECTIVE_NAME: 'Objective';
-String PAGE_LOOK_AT_PAYLOAD_ID: PAGE_LOOK_AT_ID + 'payload';
-String PAGE_LOOK_AT_PAYLOAD_NAME: 'Payload';
-String PAGE_LOOK_AT_PLAYER_ID: PAGE_LOOK_AT_ID + 'player';
-String PAGE_LOOK_AT_PLAYER_NAME: 'Player';
-String PAGE_LOOK_AT_APPLY_ID: PAGE_LOOK_AT_ID + 'apply';
-String PAGE_LOOK_AT_APPLY_NAME: 'Apply';
-
 // TODO: look at looking position of player
 
 enum PageLookAtChoice {
-  POSITION = 1,
-  OBJECTIVE,
-  PAYLOAD,
-  PLAYER
+  POSITION = 'Position',
+  OBJECTIVE = 'Objective',
+  PLAYER = 'Player',
+  LOOKING_PLAYER = 'Looking position of'
 }
 
 enum PageLookAtVariant {
-  ONCE = 'once',
-  OVER_TIME = 'over time',
-  STOP = 'stop'
+  ONCE = 'Once',
+  OVER_TIME = 'Over time',
+  STOP = 'Stop'
 }
 
 single struct PageLookAtProps {
@@ -51,7 +40,7 @@ Vector GetDirectionFromPlayerEyes(Player player, Vector vector):
 
 Component[] PageLookAtItems() {
   // position
-  ComponentWithValue position = new ComponentWithValue(PAGE_LOOK_AT_POSITION_NAME, Vector.Zero);
+  ComponentWithValue position = new ComponentWithValue(<String>PageLookAtChoice.POSITION, Vector.Zero);
   position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE)));
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
@@ -69,7 +58,7 @@ Component[] PageLookAtItems() {
     pickPosition.StopChangingRaycaseDistance();
   };
 
-  Radio positionRadio = new Radio(menuState, PAGE_LOOK_AT_POSITION_NAME, PAGE_LOOK_AT_NAME);
+  Radio positionRadio = new Radio(menuState, <String>PageLookAtChoice.POSITION, PAGE_LOOK_AT_NAME);
   positionRadio.child = position;
   positionRadio.onPrimaryAction = (checked, it) => {
     position.SetValue(pickPosition.position);
@@ -78,41 +67,33 @@ Component[] PageLookAtItems() {
     selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
   };
 
-  // objective
-  Carousel objective = new Carousel(
-    text: PAGE_LOOK_AT_OBJECTIVE_NAME,
-    options: [-1, 0, 1, 2, 3, 4],
-    defaultValue: -1
-  );
-  objective.valueFormatter = (it) => ObjectiveFormatter(it.value);
+  Component[] carousels = [];
 
-  Radio objectiveRadio = new Radio(menuState, PAGE_LOOK_AT_OBJECTIVE_NAME, PAGE_LOOK_AT_NAME);
-  objectiveRadio.child = objective;
-  objectiveRadio.onChange = (checked, it) => {
-    pageLookAtProps = { choice: PageLookAtChoice.OBJECTIVE, value: objective.value, ..pageLookAtProps };
-    selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
-  };
+  foreach(PageLookAtChoice choice in [PageLookAtChoice.OBJECTIVE, PageLookAtChoice.PLAYER, PageLookAtChoice.LOOKING_PLAYER]) {
+    Carousel carousel = new Carousel(
+      text: <String>choice,
+      options: 
+        choice == PageLookAtChoice.OBJECTIVE ? [-2, -1, 0, 1, 2, 3, 4] :
+        sortedPlayers,
+      defaultValue: choice == PageLookAtChoice.OBJECTIVE ? -1 : 0
+    );
+    carousel.valueFormatter = choice == PageLookAtChoice.OBJECTIVE ? 
+      (it) => ObjectiveFormatter(it.value) : 
+      (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
+    carousel.onChange = (value, it) => {
+      pageLookAtProps = { choice: choice, value: value, ..pageLookAtProps };
+      selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
+    };
+    carousel.onPrimaryAction = (it) => {
+      pageLookAtProps = { choice: choice, value: (<Carousel>it).value, ..pageLookAtProps };
+      selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
+    };
 
-  // payload
-  Radio payloadRadio = new Radio(menuState, PAGE_LOOK_AT_PAYLOAD_NAME, PAGE_LOOK_AT_NAME);
-  payloadRadio.onChange = (checked, it) => {
-    pageLookAtProps = { choice: PageLookAtChoice.PAYLOAD, ..pageLookAtProps };
-    selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
-  };
+    Radio radio = new Radio(menuState, <String>choice, PAGE_LOOK_AT_NAME);
+    radio.child = carousel;
 
-  // player
-  Carousel player = new Carousel(
-    text: PAGE_LOOK_AT_PLAYER_NAME,
-    options: sortedPlayers
-  );
-  player.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
-
-  Radio playerRadio = new Radio(menuState, PAGE_LOOK_AT_PLAYER_NAME, PAGE_LOOK_AT_NAME);
-  playerRadio.child = player;
-  playerRadio.onChange = (it) => {
-    pageLookAtProps = { choice: PageLookAtChoice.PLAYER, value: player.value, ..pageLookAtProps };
-    selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
-  };
+    carousels += radio;
+  }
 
   // apply
   Carousel apply = new Carousel('Apply', [PageLookAtVariant.ONCE, PageLookAtVariant.OVER_TIME, PageLookAtVariant.STOP]);
@@ -121,7 +102,7 @@ Component[] PageLookAtItems() {
     selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
   });
 
-  return [positionRadio, objectiveRadio, payloadRadio, playerRadio, new Text(), apply];
+  return [<Component>positionRadio] + carousels + [new Text(), apply];
 }
 
 rule: 'Player Settings/Look At'
@@ -166,6 +147,9 @@ Event.OngoingPlayer
 
   StopFacing(EventPlayer());
 
+  Any value: pageLookAtPlayerSettings.value;
+  PageLookAtChoice choice: pageLookAtPlayerSettings.choice;
+
   // doesn't compile :)
   // Vector pos: 
   //   pageLookAtChoice == PageLookAtChoice.POSITION ? pageLookAtValue :
@@ -175,18 +159,20 @@ Event.OngoingPlayer
 
   if(pageLookAtPlayerSettings.variant == PageLookAtVariant.ONCE) {
     SetFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), 
-      pageLookAtPlayerSettings.choice == PageLookAtChoice.POSITION ? pageLookAtPlayerSettings.value :
-      pageLookAtPlayerSettings.choice == PageLookAtChoice.OBJECTIVE ? ObjectivePosition(pageLookAtPlayerSettings.value == -1 ? ObjectiveIndex() : pageLookAtPlayerSettings.value) :
-      pageLookAtPlayerSettings.choice == PageLookAtChoice.PAYLOAD ? PayloadPosition() :
-      EyePosition(pageLookAtPlayerSettings.value)
+      choice == PageLookAtChoice.POSITION ? value :
+      choice == PageLookAtChoice.OBJECTIVE ? 
+        value == -2 ? PayloadPosition() : ObjectivePosition(value == -1 ? ObjectiveIndex() : value) :
+      choice == PageLookAtChoice.PLAYER ? EyePosition(value) : 
+      RayCastHitPosition(EyePosition(value), EyePosition(value) + FacingDirectionOf(value) * 100, AllPlayers(), value, true)
     ), Relative.ToWorld);
   } else if(pageLookAtPlayerSettings.variant == PageLookAtVariant.OVER_TIME) {
     StartFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), 
-      pageLookAtPlayerSettings.choice == PageLookAtChoice.POSITION ? pageLookAtPlayerSettings.value :
-      pageLookAtPlayerSettings.choice == PageLookAtChoice.OBJECTIVE ? ObjectivePosition(pageLookAtPlayerSettings.value == -1 ? ObjectiveIndex() : pageLookAtPlayerSettings.value) :
-      pageLookAtPlayerSettings.choice == PageLookAtChoice.PAYLOAD ? PayloadPosition() :
-      EyePosition(pageLookAtPlayerSettings.value)
-    ), 200, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
+      choice == PageLookAtChoice.POSITION ? value :
+      choice == PageLookAtChoice.OBJECTIVE ? 
+        value == -2 ? PayloadPosition() : ObjectivePosition(value == -1 ? ObjectiveIndex() : value) :
+      choice == PageLookAtChoice.PLAYER ? EyePosition(value) : 
+      RayCastHitPosition(EyePosition(value), EyePosition(value) + FacingDirectionOf(value) * 100, AllPlayers(), value, true)
+    ), 500, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
   }
 
   Loop();
