@@ -24,7 +24,7 @@ Vector GetDirectionFromPlayerEyes(Player player, Vector vector):
 
 Component[] PageLookAtItems() {
   Component position = new Component(PAGE_LOOK_AT_POSITION_NAME);
-  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION));
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE)));
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
   };
@@ -32,7 +32,13 @@ Component[] PageLookAtItems() {
     pickPosition.Disable();
   };
   position.onButtonDown = (button, it) => {
-    pickPosition.ChangeDistance(button);
+    if(buttonsHeld == [BUTTON_INCREASE])
+      pickPosition.StartChangingRaycaseDistance(0.1);
+    else if(buttonsHeld == [BUTTON_DECREASE])
+      pickPosition.StartChangingRaycaseDistance(-0.1);
+  };
+  position.onButtonUp = (button, it) => {
+    pickPosition.StopChangingRaycaseDistance();
   };
   position.SetPrimaryAction('Apply once', (it) => {
     PageLookAtApplyHelper(false, pickPosition.position);

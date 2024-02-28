@@ -5,10 +5,10 @@ playervar Boolean showPlayerInfo = false;
 
 void PlayerInfo(in String playerName, in Button[] buttonsHeld = [], in String[] appliedStatuses = []) {
   String hero: HeroWithIconFormatter(EventPlayer().Hero());
-  String health: $"{EventPlayer().Health()}​ / {EventPlayer().MaxHealth()}​ HP";
+  String health: $"{EventPlayer().Health() + 0.0001}​ / {EventPlayer().MaxHealth() + 0.0001}​ HP";
   String position: $"Pos: {EventPlayer().Position()}";
   String facing: $"Fac: {EventPlayer().FacingDirection()}";
-  String speed: $"Spd: ({HorizontalSpeedOf(EventPlayer())}, {VerticalSpeedOf(EventPlayer())})​ m/s";
+  String speed: $"Spd: ({HorizontalSpeedOf(EventPlayer()) + 0.0001}, {VerticalSpeedOf(EventPlayer()) + 0.0001})​ m/s";
   String buttons: $"Buttons: {InlineJoin10(buttonsHeld, ', ')}";
   String statuses: $"Statuses: {InlineJoin10(appliedStatuses, ', ')}";
 

@@ -88,8 +88,7 @@ rule: 'Spam button'
 Event.OngoingPlayer
 if(pageAbilitiesKeepSpammingButton)
 {
-  // TODO: require confirmation input setting instead of forcing multiple buttons spamming
-
+  // if primary/secondary fire are set to be spammed along with other abilities, treat them as confirmation buttons
   Button[] abilities! = pageAbilitiesKeepSpammingButton.FilteredArray((i) => i != Button.PrimaryFire && i != Button.SecondaryFire);
   Button[] fires! = pageAbilitiesKeepSpammingButton.FilteredArray((i) => i == Button.PrimaryFire || i == Button.SecondaryFire);
 
@@ -97,7 +96,7 @@ if(pageAbilitiesKeepSpammingButton)
     StartHoldingButton(EventPlayer(), button);
   }
 
-  if(abilities.Length)
+  if(abilities && fires)
     Wait(1, WaitBehavior.AbortWhenFalse);
 
   foreach(Button button! in fires) {

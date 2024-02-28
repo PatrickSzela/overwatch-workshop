@@ -3,7 +3,7 @@ import './componentWithValue.del';
 
 class Toggle: ComponentWithValue 
 {
-  public static Button BUTTON_TOGGLE: Button.Ability2;
+  public Button BUTTON_TOGGLE: BUTTON_PRIMARY;
   public Boolean checked: value;
 
   public constructor(
@@ -32,7 +32,7 @@ class Toggle: ComponentWithValue
 
     HandleActions();
 
-    if(button == BUTTON_TOGGLE)
+    if(buttonsHeld == [BUTTON_TOGGLE])
       SetValue(!checked);
 
     if(child != null)

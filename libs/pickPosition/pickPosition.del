@@ -4,15 +4,14 @@ class PickPosition {
   public static Number MAX_DISTANCE: 100;
   public static Number RADIUS: 0.25;
   public static Number TEXT_SIZE: 1;
-  public static Button CHANGE_DISTANCE_BUTTON_INCREASE: Button.PrimaryFire;
-  public static Button CHANGE_DISTANCE_BUTTON_DECREASE: Button.SecondaryFire;
-  public static String CHANGE_DISTANCE_DESCRIPTION: $"Use {ButtonFormatterSingle(CHANGE_DISTANCE_BUTTON_INCREASE)}​ or {ButtonFormatterSingle(CHANGE_DISTANCE_BUTTON_DECREASE)}​ to increase or decrease Ray Cast distance";
+  public static String CHANGE_DISTANCE_DESCRIPTION(in Button increase, in Button decrease): $"Use {ButtonFormatterSingle(increase)}​ or {ButtonFormatterSingle(decrease)}​ to increase or decrease Ray Cast distance";
 
   public static Vector RayCast(in Player player, in Number distance = MAX_DISTANCE): RayCastHitPosition(player.EyePosition(), player.EyePosition() + player.FacingDirection() * distance, [], [], false);
   public Vector position: PickPosition.RayCast(EventPlayer(), rayCastDistance);
   public Number distance: EventPlayer().EyePosition().DistanceTo(position);
   public Number rayCastDistance;
   public Boolean active;
+  private Number changeDistanceOffset;
 
   private Any[] effects = [];
   private Any[] texts = [];
@@ -48,13 +47,21 @@ class PickPosition {
     texts = [];
   }
 
-  // since it's a while loop, can't use Crouch because it breaks closing menu...
-  public void ChangeDistance(Button button!) "[PickPosition] Change Distance" {
-    while((EventPlayer().IsButtonHeld(CHANGE_DISTANCE_BUTTON_INCREASE) || EventPlayer().IsButtonHeld(CHANGE_DISTANCE_BUTTON_DECREASE)) && active) {
-      rayCastDistance += button == CHANGE_DISTANCE_BUTTON_INCREASE ? 0.1 : -0.1;
-      rayCastDistance = Max(1, rayCastDistance);
-      MinWait();
-    }
+  public void StartChangingRaycaseDistance(in Number offset) {
+    changeDistanceOffset = offset;
+  }
+
+  public void StopChangingRaycaseDistance() {
+    changeDistanceOffset = 0;
+  }
+
+  public Boolean RULE_UpdateRaycastDistanceCondition(): active && changeDistanceOffset;
+
+  # NOTE: only use in rule
+  public void RULE_UpdateRaycastDistance() "[PickPosition] Update Raycast Distance" {
+    rayCastDistance = Max(1, rayCastDistance + changeDistanceOffset);
+    MinWait();
+    LoopIfConditionIsTrue();
   }
 
   // this CANNOT be a subroutine
@@ -79,7 +86,6 @@ class PickPosition {
     additionalTexts = [];
   }
 
-  // this CANNOT be a subroutine
   public void Render(ref Any[] effectStorage!, ref Any[] textStorage!, in Vector position!, in Color color!, in String text! = null, in Vector lineEnd! = null) {
     effectStorage += CreateEffect(
       EventPlayer(),

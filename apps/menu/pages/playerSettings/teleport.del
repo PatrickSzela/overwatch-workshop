@@ -16,7 +16,7 @@ String PAGE_TELEPORT_PLAYER_NAME: 'Player';
 
 Component[] PageTeleportItems() {
   Component position = new Component(PAGE_TELEPORT_POSITION_NAME);
-  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION));
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE)));
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
   };
@@ -24,7 +24,13 @@ Component[] PageTeleportItems() {
     pickPosition.Disable();
   };
   position.onButtonDown = (button, it) => {
-    pickPosition.ChangeDistance(button);
+    if(buttonsHeld == [BUTTON_INCREASE])
+      pickPosition.StartChangingRaycaseDistance(0.1);
+    else if(buttonsHeld == [BUTTON_DECREASE])
+      pickPosition.StartChangingRaycaseDistance(-0.1);
+  };
+  position.onButtonUp = (button, it) => {
+    pickPosition.StopChangingRaycaseDistance();
   };
   position.SetPrimaryAction('Apply', (it) => {
     Teleport(selectedPlayers, pickPosition.position);

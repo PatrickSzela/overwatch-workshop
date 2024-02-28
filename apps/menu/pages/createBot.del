@@ -18,13 +18,16 @@ String PAGE_CREATE_BOT_POSITION_NAME: 'Position';
 String PAGE_CREATE_BOT_SPAWN_ID: PAGE_CREATE_BOT_ID + 'spawn';
 String PAGE_CREATE_BOT_SPAWN_NAME: 'Spawn bot';
 
-// TODO: store this data in a struct
-// TODO: add warning if player in that slot and on that team already exists
-playervar Hero spawnBotHero = Hero.Reinhardt;
-playervar Team spawnBotTeam = Team.Team1;
-playervar Number spawnBotSlot = -1;
-playervar Vector spawnBotPosition = null;
+single struct PageCreateBotProps {
+  public Hero hero;
+  public Team team;
+  public Number slot;
+  public Vector position;
+}
+
 globalvar Number createdBotsIdx = 0;
+
+playervar PageCreateBotProps pageCreateBotProps = { hero: Hero.Reinhardt, position: Vector.Zero, slot: -1, team: Team.Team1 };
 playervar Number botIdx = 0;
 // workaround because the bots will have their original names on client-side
 playervar String playerName = $"{EventPlayer()}";
@@ -33,28 +36,28 @@ Component[] PageCreateBotItems() {
   Carousel hero = new Carousel(
     text: PAGE_CREATE_BOT_HERO_NAME,
     options: AllTankHeroes() + AllDamageHeroes() + AllSupportHeroes(),
-    defaultValue: spawnBotHero
+    defaultValue: pageCreateBotProps.hero
   );
-  hero.onChange = (value, it) => spawnBotHero = value;
+  hero.onChange = (value, it) => pageCreateBotProps.hero = value;
   hero.valueFormatter = (it) => HeroWithIconFormatter(it.value);
 
   Carousel team = new Carousel(
     text: PAGE_CREATE_BOT_TEAM_NAME,
     options: availableTeams,
-    defaultValue: spawnBotTeam
+    defaultValue: pageCreateBotProps.team
   );
-  team.onChange = (value, it) => spawnBotTeam = value;
+  team.onChange = (value, it) => pageCreateBotProps.team = value;
 
   Carousel slot = new Carousel(
     text: PAGE_CREATE_BOT_SLOT_NAME,
     options: [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-    defaultValue: spawnBotSlot
+    defaultValue: pageCreateBotProps.slot
   );
   slot.valueFormatter = (it) => SlotFormatter(it.value);
-  slot.onChange = (value, it) => spawnBotSlot = value;
+  slot.onChange = (value, it) => pageCreateBotProps.slot = value;
 
-  ComponentWithValue position = new ComponentWithValue(PAGE_CREATE_BOT_POSITION_NAME, spawnBotPosition);
-  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION));
+  ComponentWithValue position = new ComponentWithValue(PAGE_CREATE_BOT_POSITION_NAME, pageCreateBotProps.position);
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE)));
   
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
@@ -63,16 +66,22 @@ Component[] PageCreateBotItems() {
     pickPosition.Disable();
   };
   position.onButtonDown = (button, it) => {
-    pickPosition.ChangeDistance(button);
+    if(buttonsHeld == [BUTTON_INCREASE])
+      pickPosition.StartChangingRaycaseDistance(0.1);
+    else if(buttonsHeld == [BUTTON_DECREASE])
+      pickPosition.StartChangingRaycaseDistance(-0.1);
+  };
+  position.onButtonUp = (button, it) => {
+    pickPosition.StopChangingRaycaseDistance();
   };
   position.SetPrimaryAction("Choose the position", (it) => {
-    spawnBotPosition = pickPosition.position;
-    (<ComponentWithValue>it).SetValue(spawnBotPosition);
+    pageCreateBotProps.position = pickPosition.position;
+    (<ComponentWithValue>it).SetValue(pageCreateBotProps.position);
   });
 
   Component spawnBot = new Component(PAGE_CREATE_BOT_SPAWN_NAME);
   spawnBot.SetPrimaryAction("Spawn the bot", (it) => {
-    Player bot! = CreateDummyBot(spawnBotHero, spawnBotTeam, spawnBotSlot, spawnBotPosition);
+    Player bot! = CreateDummyBot(pageCreateBotProps.hero, pageCreateBotProps.team, pageCreateBotProps.slot, pageCreateBotProps.position);
 
     if(!EntityExists(bot)) {
       SmallMessage(EventPlayer(), "Failed to create a bot");
@@ -86,8 +95,8 @@ rule: 'Create Bot'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_CREATE_BOT_ID)
 {
-  if(!spawnBotPosition)
-    spawnBotPosition = PickPosition.RayCast(EventPlayer());
+  if(!pageCreateBotProps.position)
+    pageCreateBotProps.position = PickPosition.RayCast(EventPlayer());
 
   menuState.CreatePage(PAGE_CREATE_BOT_NAME, PageCreateBotItems());
 }
@@ -99,8 +108,8 @@ if(menuState.pageId == PAGE_CREATE_BOT_ID)
 {
   pickPosition.CreateAdditionalSphere(
     color: Color.Green,
-    position: spawnBotPosition,
-    text: $"Spawn position: {spawnBotPosition}"
+    position: pageCreateBotProps.position,
+    text: $"Spawn position: {pageCreateBotProps.position}"
   );
 
   WaitUntil(menuState.pageId != PAGE_CREATE_BOT_ID || !menuState.isOpen, 99999);
