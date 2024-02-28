@@ -110,6 +110,13 @@ if(menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID))
   menuState2.Close();
 }
 
+rule: 'Pick position handle increase/decrease distance'
+Event.OngoingPlayer
+if(pickPosition.RULE_UpdateRaycastDistanceCondition())
+{
+  pickPosition.RULE_UpdateRaycastDistance();
+}
+
 rule: 'Player Info'
 Event.OngoingPlayer
 {
