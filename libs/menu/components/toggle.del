@@ -35,7 +35,7 @@ class Toggle: ComponentWithValue
     if(buttonsHeld == [BUTTON_TOGGLE])
       SetValue(!checked);
 
-    if(child != null)
+    if(child)
       child.OnButtonDown(button);
   }
 }

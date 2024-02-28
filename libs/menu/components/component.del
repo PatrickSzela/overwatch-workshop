@@ -96,10 +96,16 @@ class Component {
   // events
   public virtual void OnEnter() "[Component] OnEnter" {
     onEnter(this);
+
+    if(child)
+      child.OnEnter();
   }
 
   public virtual void OnLeave() "[Component] OnLeave" {
     onLeave(this);
+
+    if(child)
+      child.OnLeave();
   }
   
   public virtual void OnButtonDown(Button button!) "[Component] OnButtonDown" {
@@ -107,21 +113,21 @@ class Component {
 
     HandleActions();
     
-    if(child != null)
+    if(child)
       child.OnButtonDown(button);
   }
 
   public virtual void OnButtonUp(Button button!) "[Component] OnButtonUp" {
     onButtonUp(button, this);
 
-    if(child != null)
+    if(child)
       child.OnButtonUp(button);
   }
 
   public virtual void OnNavigate(Vector direction!) "[Component] OnNavigate" {
     onNavigate(direction, this);
 
-    if(child != null)
+    if(child)
       child.OnNavigate(direction);
   }
 }

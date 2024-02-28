@@ -37,6 +37,7 @@ class ComponentWithValue: Component
     if(this.value != value) {
       this.value = value;
       OnChange();
+      MarkToRerender();
     }
   }
 

@@ -43,7 +43,7 @@ class Link: Component
 
     if(buttonsHeld == [openButton])
       _menuState.GoTo(submenuID);
-    else if(child != null)
+    else if(child)
       child.OnButtonDown(button);
   }
 }
