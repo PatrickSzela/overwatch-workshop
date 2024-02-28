@@ -1,16 +1,16 @@
 import './action.del';
 
 Action ACTION_PressButton(Player[] players, Button button): 
-  Action.New($'Press button({button}, [{players}])', () => {
+  Action.New($'Press({button}, [{players}])', () => {
     PressButton(players, button);
   });
 
 Action ACTION_StartHoldingButton(Player[] players, Button button): 
-  Action.New($'Start holding button({button}, [{players}])', () => {
+  Action.New($'Start holding({button}, [{players}])', () => {
     StartHoldingButton(players, button);
   });
 
 Action ACTION_StopHoldingButton(Player[] players, Button button): 
-  Action.New($'Stop holding button({button}, [{players}])', () => {
+  Action.New($'Stop holding({button}, [{players}])', () => {
     StopHoldingButton(players, button);
   });

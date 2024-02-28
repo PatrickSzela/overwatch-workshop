@@ -50,7 +50,7 @@ Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCaro
 
     // let spam finish its rule
     MinWait();
-    
+
     if((<Carousel>it).value == PageAbilitiesOptions.PRESS) {
       StartHoldingButton(selectedPlayersWithoutSelf, ability);
     } else if((<Carousel>it).value == PageAbilitiesOptions.START_HOLDING) {
@@ -69,16 +69,13 @@ Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCaro
     }
   };
 
-  // TODO: move to separate button
   item.SetTertiaryAction('Add to Timeline', (it) => {
-    if(selectedPlayersWithoutSelf) {
-      if((<Carousel>it).value == PageAbilitiesOptions.STOP)
-        Timeline.AddAction(timeline, ACTION_StopHoldingButton(selectedPlayersWithoutSelf, ability));
-      if((<Carousel>it).value == PageAbilitiesOptions.PRESS)
-        Timeline.AddAction(timeline, ACTION_PressButton(selectedPlayersWithoutSelf, ability));
-      if((<Carousel>it).value == PageAbilitiesOptions.START_HOLDING)
-        Timeline.AddAction(timeline, ACTION_StartHoldingButton(selectedPlayersWithoutSelf, ability));
-    }
+    if((<Carousel>it).value == PageAbilitiesOptions.STOP)
+      Timeline.AddAction(timeline, ACTION_StopHoldingButton(selectedPlayersWithoutSelf, ability));
+    if((<Carousel>it).value == PageAbilitiesOptions.PRESS)
+      Timeline.AddAction(timeline, ACTION_PressButton(selectedPlayersWithoutSelf, ability));
+    if((<Carousel>it).value == PageAbilitiesOptions.START_HOLDING)
+      Timeline.AddAction(timeline, ACTION_StartHoldingButton(selectedPlayersWithoutSelf, ability));
   });
 
   return item;

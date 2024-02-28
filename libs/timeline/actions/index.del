@@ -1,2 +1,4 @@
 import './wait.del';
 import './button.del';
+import './teleport.del';
+import './lookAt.del';

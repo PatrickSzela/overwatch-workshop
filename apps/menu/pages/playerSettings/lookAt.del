@@ -32,6 +32,11 @@ single struct PageLookAtProps {
     {choice: PageLookAtChoice.POSITION, value: Vector.Zero, variant: PageLookAtVariant.STOP, forceRefresh: false};
 }
 
+Action ACTION_LookAtCustom(Player[] players, PageLookAtProps props): 
+  Action.New($"Look at({props.variant}, {props.choice}, {props.value}, [{players}])", () => {
+    players.pageLookAtPlayerSettings = props;
+  });
+
 playervar PageLookAtProps pageLookAtProps = PageLookAtProps.BASE;
 playervar PageLookAtProps pageLookAtPlayerSettings = PageLookAtProps.BASE;
 
@@ -100,6 +105,10 @@ Component[] PageLookAtItems() {
   apply.SetPrimaryAction('Apply', (it) => {
     pageLookAtProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageLookAtProps };
     selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
+  });
+  apply.SetTertiaryAction('Add to timeline', (it) => {
+    pageLookAtProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageLookAtProps };
+    Timeline.AddAction(timeline, ACTION_LookAtCustom(selectedPlayers, pageLookAtProps));
   });
 
   return [<Component>positionRadio] + carousels + [new Text(), apply];
