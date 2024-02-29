@@ -52,5 +52,5 @@ if(!menuState.HistoryContains(PAGE_TIMELINE_ID))
 rule: '[Timeline] Start playing'
 if(timeline.isPlaying)
 {
-  Timeline.RuleLogic(timeline);
+  timeline.RuleLogic(timeline);
 }

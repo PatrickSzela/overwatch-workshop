@@ -104,7 +104,7 @@ Component[] PageLookAtItems() {
   });
   apply.SetTertiaryAction('Add to timeline', (it) => {
     pageLookAtProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageLookAtProps };
-    Timeline.AddAction(timeline, ACTION_LookAtCustom(selectedPlayers, pageLookAtProps));
+    timeline.AddAction(timeline, ACTION_LookAtCustom(selectedPlayers, pageLookAtProps));
   });
 
   return [<Component>positionRadio] + carousels + [new Text(), apply];

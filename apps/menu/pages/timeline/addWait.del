@@ -14,7 +14,7 @@ Component PageTimelineAddWaitMenuItem() {
   );
 
   component.SetPrimaryAction("Apply", (it) => {
-    Timeline.AddAction(timeline, ACTION_Wait((<NumberInput>it).value));
+    timeline.AddAction(timeline, ACTION_Wait((<NumberInput>it).value));
   });
 
   return component;

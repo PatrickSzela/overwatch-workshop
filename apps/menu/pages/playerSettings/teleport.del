@@ -34,7 +34,7 @@ Component[] PageTeleportItems() {
     Teleport(selectedPlayers, pickPosition.position);
   });
   position.SetTertiaryAction('Add to Timeline', (it) => {
-    Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, pickPosition.position));
+    timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, pickPosition.position));
   });
 
   Carousel objective = new Carousel(
@@ -47,7 +47,7 @@ Component[] PageTeleportItems() {
     Teleport(selectedPlayers, PageTeleportGetObjectivePosition(<Carousel>it));
   });
   objective.SetTertiaryAction('Add to Timeline', (it) => {
-    Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, PageTeleportGetObjectivePosition(<Carousel>it)));
+    timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, PageTeleportGetObjectivePosition(<Carousel>it)));
   });
 
   Carousel player = new Carousel(
@@ -59,7 +59,7 @@ Component[] PageTeleportItems() {
       Teleport(selectedPlayers, (<Carousel>it).value);
   });
   player.SetTertiaryAction('Add to Timeline', (it) => {
-    Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, (<Carousel>it).value));
+    timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, (<Carousel>it).value));
   });
 
   return [position, objective, player];
