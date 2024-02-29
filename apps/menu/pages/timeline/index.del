@@ -5,6 +5,7 @@ import './playPause.del';
 import './stop.del';
 import './repeat.del';
 import './addWait.del';
+import './addJumpToAction.del';
 
 String PAGE_TIMELINE_ID: 'timeline';
 String PAGE_TIMELINE_NAME: 'Timeline';
@@ -22,7 +23,8 @@ Component[] PageTimelineItems() {
     new Text(),
 
     new Text('Add actions:'),
-    PageTimelineAddWaitMenuItem()    
+    PageTimelineAddWaitMenuItem(),
+    PageTimelineAddJumpToMenuItem()
   ];
 }
 

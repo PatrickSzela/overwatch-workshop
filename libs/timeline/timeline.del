@@ -42,6 +42,10 @@ struct Timeline {
     timelineRef.isRepeating = repeat;
   }
 
+  public static void GoToId(ref Timeline timelineRef, in Number id) {
+    timelineRef.index = timelineRef.actions.Map((i) => i.id).IndexOf(id) - 1;
+  }
+
   // to be used in a rule
   public static void RuleLogic(ref Timeline timelineRef) {
     for(timelineRef.index; timelineRef.index < timelineRef.actions.Length; timelineRef.index++) {

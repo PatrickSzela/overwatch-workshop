@@ -3,11 +3,9 @@ import '../../../libs/menu/components/checkbox.del';
 import '../_variables.del';
 
 // TODO: add marking multiple items (remake into checkboxes)?
-// TODO: lock 2nd menu when playing
 // TODO: warning if no wait and repeat is enabled?
 // TODO: figure out better way to show which players are affected by action
 // TODO: editable actions?
-// TODO: jump to id, disable rules
 
 String PAGE_TIMELINE_EDIT_ID: 'timelineEdit';
 String PAGE_TIMELINE_EDIT_NAME: 'Timeline Editor';
