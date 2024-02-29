@@ -133,7 +133,9 @@ if(menuState.pageId == PAGE_STATUS_ID)
     Boolean statusApplied! = selectedPlayers[0].pageStatusAppliedStatuses.Contains(toggle.id);
 
     if(toggle.value != statusApplied) {
-      toggle.SetValue(statusApplied);
+      // don't trigger the onChange callback
+      toggle.value = statusApplied;
+      toggle.MarkToRerender();
     }
   }
   
