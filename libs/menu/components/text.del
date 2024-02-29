@@ -1,0 +1,18 @@
+import './component.del';
+
+class Text: Component 
+{
+  public constructor(
+    in String text = ' '
+  ) {
+    TextConstructor(text);
+  }
+
+  protected void TextConstructor(
+    String text! = ' '
+  ) "[Text] Constructor" {
+    ComponentConstructor(text, null);
+    
+    this.disabled = true;
+  }
+}

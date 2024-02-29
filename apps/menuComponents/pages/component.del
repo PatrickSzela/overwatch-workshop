@@ -1,0 +1,39 @@
+import '../../../libs/menu/components/text.del';
+import '../_variables.del';
+
+String PAGE_DEBUG_COMPONENT_ID: 'component';
+String PAGE_DEBUG_COMPONENT_NAME: 'Base Component';
+
+Component[] PageDebugComponentItems() {
+  Component[] interactive = [];
+  Component[] nonInteractive = [];
+
+  for(Number i! = 1; i <= 5; i++) {
+    nonInteractive[i - 1] = new Text($"Non-interactive {i}");
+
+    interactive[i - 1] = new Component($"Interactive {i}");
+    interactive[i - 1].onEnter = (it) => LogToInspector($"{it.text}: enter");
+    interactive[i - 1].onLeave = (it) => LogToInspector($"{it.text}: left");
+    interactive[i - 1].onButtonDown = (button, it) => LogToInspector($"{it.text}: {button}​ button down");
+    interactive[i - 1].onButtonUp = (button, it) => LogToInspector($"{it.text}: {button}​ button up");
+    interactive[i - 1].onNavigate = (direction, it) => LogToInspector($"{it.text}: navigated {direction}");
+    interactive[i - 1].SetPrimaryAction("Trigger Primary Action", (it) => LogToInspector($"{it.text}: primary action"));
+    interactive[i - 1].SetSecondaryAction("Trigger Secondary Action", (it) => LogToInspector($"{it.text}: secondary action"));
+    interactive[i - 1].SetTertiaryAction("Trigger Tertiary Action", (it) => LogToInspector($"{it.text}: tertiary action"));
+  }
+
+  return nonInteractive + new Text() + interactive;
+}
+
+rule: 'Player Settings'
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_DEBUG_COMPONENT_ID)
+{
+  menuState.CreatePage(
+    title: PAGE_DEBUG_COMPONENT_NAME, 
+    items: PageDebugComponentItems(), 
+    descriptions: [
+      Description.New("Every possible interaction will be logged to the Workshop Inspector", COLOR_INFO)
+    ]
+  );
+}

@@ -1,0 +1,48 @@
+import '../../../libs/menu/components/numberInput.del';
+import '../_variables.del';
+
+String PAGE_DEBUG_NUMBER_INPUT_ID: 'numberInput';
+String PAGE_DEBUG_NUMBER_INPUT_NAME: 'Number Input';
+
+Component[] PageDebugNumberInputItems() {
+  NumberInput[] list = [new NumberInput(menuState, "Integer")];
+  list.Last.onChange = (value, it) => LogToInspector($"{it.text}: value changed to {value}");
+
+  list += new NumberInput(
+    menuState: menuState, 
+    text: "Float",
+    fractionalLength: 2
+  );
+  list.Last.onChange = (value, it) => LogToInspector($"{it.text}: value changed to {value}");
+
+  list += new NumberInput(
+    menuState: menuState, 
+    text: "Integer with 5 length and default value",
+    integralLength: 5,
+    defaultValue: 12345
+  );
+  list.Last.onChange = (value, it) => LogToInspector($"{it.text}: value changed to {value}");
+
+  list += new NumberInput(
+    menuState: menuState, 
+    text: "Float with 4+3 length, default value and unit",
+    defaultValue: -1234.5678,
+    integralLength: 4,
+    fractionalLength: 3,
+    negative: true,
+    unit: '%'
+  );
+  list.Last.onChange = (value, it) => LogToInspector($"{it.text}: value changed to {value}");
+
+  return list;
+}
+
+rule: 'Debug/NumberInput'
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_DEBUG_NUMBER_INPUT_ID)
+{
+  menuState.CreatePage(
+    title: PAGE_DEBUG_NUMBER_INPUT_NAME, 
+    items: PageDebugNumberInputItems()
+  );
+}

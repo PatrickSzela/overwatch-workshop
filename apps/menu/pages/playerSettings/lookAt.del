@@ -1,35 +1,46 @@
-import '../../../../libs/utils/formatters.del';
-import '../../../../libs/utils/other.del';
+import '../../../../libs/menu/components/radio.del';
+import '../../../../libs/menu/components/carousel.del';
+import '../../../../libs/utils/string.formatters.del';
+import '../../../../libs/utils/player.sortedAllPlayers.del';
+import '../../../../libs/utils/player.del';
 import '../../_variables.del';
 
 String PAGE_LOOK_AT_ID: 'lookAt';
 String PAGE_LOOK_AT_NAME: 'Look At';
 
-String PAGE_LOOK_AT_POSITION_ID: PAGE_LOOK_AT_ID + 'position';
-String PAGE_LOOK_AT_POSITION_NAME: 'Position';
-String PAGE_LOOK_AT_OBJECTIVE_ID: PAGE_LOOK_AT_ID + 'objective';
-String PAGE_LOOK_AT_OBJECTIVE_NAME: 'Objective';
-String PAGE_LOOK_AT_PAYLOAD_ID: PAGE_LOOK_AT_ID + 'payload';
-String PAGE_LOOK_AT_PAYLOAD_NAME: 'Payload';
-String PAGE_LOOK_AT_PLAYER_ID: PAGE_LOOK_AT_ID + 'player';
-String PAGE_LOOK_AT_PLAYER_NAME: 'Player';
-String PAGE_LOOK_AT_APPLY_ID: PAGE_LOOK_AT_ID + 'apply';
-String PAGE_LOOK_AT_APPLY_NAME: 'Apply';
-Button PAGE_LOOK_AT_BUTTON_APPLY_ONCE: Button.Ability2;
-Button PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY: Button.Reload;
+enum PageLookAtChoice {
+  POSITION = 'Position',
+  OBJECTIVE = 'Objective',
+  PLAYER = 'Player',
+  LOOKING_PLAYER = 'Looking position of'
+}
 
-String[] PAGE_LOOK_AT_DESCRIPTION: [
-  $"Press {ButtonFormatterSingle(PAGE_LOOK_AT_BUTTON_APPLY_ONCE)}​ to apply once",
-  $"Press {ButtonFormatterSingle(PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY)}​ to apply continuously"
-];
+enum PageLookAtVariant {
+  ONCE = 'Once',
+  OVER_TIME = 'Over time',
+  STOP = 'Stop'
+}
 
-// TODO: look at looking position of player
+single struct PageLookAtProps {
+  public PageLookAtChoice choice;
+  public Any value;
+  public PageLookAtVariant variant;
+  public Boolean forceRefresh;
 
-Vector GetDirectionFromPlayerEyes(Player player, Vector vector): 
-  player.EyePosition().DirectionTowards(vector);
+  public static PageLookAtProps BASE:
+    {choice: PageLookAtChoice.POSITION, value: Vector.Zero, variant: PageLookAtVariant.STOP, forceRefresh: false};
+}
 
-MenuItem[] PageLookAtItems() {
-  MenuItem position = new MenuItem(PAGE_LOOK_AT_POSITION_NAME);
+playervar PageLookAtProps pageLookAtProps;
+playervar PageLookAtProps pageLookAtPlayerSettings = PageLookAtProps.BASE;
+
+Vector PageLookAtRayCast(Player player):
+  RayCastHitPosition(EyePosition(player), EyePosition(player) + FacingDirectionOf(player) * 100, AllPlayers(), player, true);
+
+Component[] PageLookAtItems() {
+  // position
+  ComponentWithValue position = new ComponentWithValue(<String>PageLookAtChoice.POSITION, Vector.Zero);
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE)));
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
   };
@@ -37,80 +48,82 @@ MenuItem[] PageLookAtItems() {
     pickPosition.Disable();
   };
   position.onButtonDown = (button, it) => {
-    pickPosition.ChangeDistance(button);
-
-    if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
-      PageLookAtApplyHelper(false, pickPosition.position);
-    else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
-      PageLookAtApplyHelper(true, EvaluateOnce(pickPosition.position));
+    if(buttonsHeld == [BUTTON_INCREASE])
+      pickPosition.StartChangingRaycaseDistance(0.1);
+    else if(buttonsHeld == [BUTTON_DECREASE])
+      pickPosition.StartChangingRaycaseDistance(-0.1);
   };
-  position.AddDescription(PickPosition.CHANGE_DISTANCE_DESCRIPTION);
-
-  Carousel objectiveCarousel = new Carousel(
-    text: PAGE_LOOK_AT_OBJECTIVE_NAME,
-    options: [-1, 0, 1, 2, 3, 4]
-  );
-  objectiveCarousel.valueFormatter = (it) => ObjectiveFormatter(it.value);
-  objectiveCarousel.onButtonDown = (button, it) => {
-    if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
-      PageLookAtApplyHelper(false, ObjectivePosition(it.value == -1 ? ObjectiveIndex() : it.value));
-    else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
-      PageLookAtApplyHelper(true, ObjectivePosition(EvaluateOnce(it.value) == -1 ? ObjectiveIndex() : EvaluateOnce(it.value)));
+  position.onButtonUp = (button, it) => {
+    pickPosition.StopChangingRaycaseDistance();
   };
+  position.SetPrimaryAction('Choose the position', (it) => {
+    (<ComponentWithValue>it).SetValue(pickPosition.position);
+    pageLookAtProps = { choice: PageLookAtChoice.POSITION, value: pickPosition.position, ..pageLookAtProps };
+  });
 
-  MenuItem objective = new MenuItem(child: objectiveCarousel);
+  Radio positionRadio = new Radio(menuState, <String>PageLookAtChoice.POSITION, PAGE_LOOK_AT_NAME);
+  positionRadio.child = position;
 
-  MenuItem payload = new MenuItem(PAGE_LOOK_AT_PAYLOAD_NAME);
-   payload.onButtonDown = (button, it) => {
-    if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
-      PageLookAtApplyHelper(false, PayloadPosition());
-    else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
-      PageLookAtApplyHelper(true, PayloadPosition());
-  };
+  // objective, player, looking position of player
+  Component[] carousels = [];
 
-  Carousel playerCarousel = new Carousel(
-    text: PAGE_LOOK_AT_PLAYER_NAME,
-    options: SortedAllPlayersFlat()
-  );
-  playerCarousel.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
-  playerCarousel.onButtonDown = (button, it) => {
-    if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_ONCE])
-      PageLookAtApplyHelper(false, EyePosition(it.value));
-    else if(buttonsHeld == [PAGE_LOOK_AT_BUTTON_APPLY_CONTINUOUSLY])
-      PageLookAtApplyHelper(true, EyePosition(EvaluateOnce(it.value)));
-  };
+  foreach(PageLookAtChoice choice in [PageLookAtChoice.OBJECTIVE, PageLookAtChoice.PLAYER, PageLookAtChoice.LOOKING_PLAYER]) {
+    Carousel carousel = new Carousel(
+      text: <String>choice,
+      options: 
+        choice == PageLookAtChoice.OBJECTIVE ? [-2, -1, 0, 1, 2, 3, 4] :
+        sortedPlayers,
+      defaultValue: choice == PageLookAtChoice.OBJECTIVE ? -1 : 0
+    );
+    carousel.valueFormatter = choice == PageLookAtChoice.OBJECTIVE ? 
+      (it) => ObjectiveFormatter(it.value) : 
+      (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
+    carousel.onChange = (value, it) => {
+      pageLookAtProps = { choice: choice, value: value, ..pageLookAtProps };
+    };
+    carousel.onPrimaryAction = (it) => {
+      pageLookAtProps = { choice: choice, value: (<Carousel>it).value, ..pageLookAtProps };
+    };
 
-  MenuItem player = new MenuItem(child: playerCarousel);
+    Radio radio = new Radio(menuState, <String>choice, PAGE_LOOK_AT_NAME);
+    radio.child = carousel;
 
-  return [
-    position,
-    objective,
-    payload,
-    player
-  ];
+    carousels += radio;
+  }
+
+  // apply
+  Carousel apply = new Carousel('Apply', [PageLookAtVariant.ONCE, PageLookAtVariant.OVER_TIME, PageLookAtVariant.STOP]);
+  apply.SetPrimaryAction('Apply', (it) => {
+    pageLookAtProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageLookAtProps };
+    selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
+  });
+
+  return [<Component>positionRadio] + carousels + [new Text(), apply];
 }
 
 rule: 'Player Settings/Look At'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_LOOK_AT_ID)
+if(menuState.pageId == PAGE_LOOK_AT_ID)
 {
-  menuState.SetTitle(PAGE_LOOK_AT_NAME);
-  menuState.AddDescription(PAGE_LOOK_AT_DESCRIPTION[0]);
-  menuState.AddDescription(PAGE_LOOK_AT_DESCRIPTION[1]);
-  menuState.AddItems(PageLookAtItems());
+  pageLookAtProps = PageLookAtProps.BASE;
+
+  menuState.CreatePage(
+    title: PAGE_LOOK_AT_NAME, 
+    items: PageLookAtItems()
+  );
 }
 
 rule: 'Player Settings/Look At: Create Sphere'
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.currentMenuID == PAGE_LOOK_AT_ID)
+if(menuState.pageId == PAGE_LOOK_AT_ID)
 {
   foreach(Player p! in AllPlayers()) {
     if(p == EventPlayer()) continue;
 
     pickPosition.CreateAdditionalSphere(
       color: Color.Green,
-      position: PickPosition.RayCast(EvaluateOnce(p)),
+      position: PageLookAtRayCast(EvaluateOnce(p)),
       text: $"{EvaluateOnce(p)}'s look position:\n{PickPosition.RayCast(EvaluateOnce(p))}",
       lineEnd: EvaluateOnce(p).EyePosition()
     );
@@ -118,20 +131,34 @@ if(menuState.currentMenuID == PAGE_LOOK_AT_ID)
     Wait(0.05);
   }
 
-  WaitUntil(menuState.currentMenuID != PAGE_LOOK_AT_ID || !menuState.isOpen, 99999);
+  WaitUntil(menuState.pageId != PAGE_LOOK_AT_ID || !menuState.isOpen, 99999);
 
   pickPosition.DestroyAdditionalSpheres();
 }
 
-void PageLookAtApplyHelper(in Boolean continuously!, in Vector position!) {
-  foreach(Player p! in selectedPlayers) {
-    StopFacing(p);
+rule: 'Look At: Start/Stop looking at'
+Event.OngoingPlayer
+{
+  WaitUntil(pageLookAtPlayerSettings != EvaluateOnce(pageLookAtPlayerSettings), 99999);
 
-    if(!continuously) {
-      SetFacing(p, GetDirectionFromPlayerEyes(p, position), Relative.ToWorld);
-    } else {
-      // FIXME: figure out why this breaks after bot's death
-      StartFacing(p, GetDirectionFromPlayerEyes(EvaluateOnce(p), position), 200, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
-    }
+  pageLookAtPlayerSettings.forceRefresh = false;
+
+  StopFacing(EventPlayer());
+
+  Any value: pageLookAtPlayerSettings.value;
+  PageLookAtChoice choice: pageLookAtPlayerSettings.choice;
+  Vector pos: 
+    choice == PageLookAtChoice.OBJECTIVE ? 
+      value == -2 ? PayloadPosition() : ObjectivePosition(value == -1 ? ObjectiveIndex() : value) :
+    choice == PageLookAtChoice.PLAYER ? EyePosition(value) : 
+    choice == PageLookAtChoice.LOOKING_PLAYER ? PageLookAtRayCast(value) :
+    value;
+
+  if(pageLookAtPlayerSettings.variant == PageLookAtVariant.ONCE) {
+    SetFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), pos), Relative.ToWorld);
+  } else if(pageLookAtPlayerSettings.variant == PageLookAtVariant.OVER_TIME) {
+    StartFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), pos), 500, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
   }
+
+  Loop();
 }

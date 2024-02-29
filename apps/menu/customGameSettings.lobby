@@ -26,8 +26,12 @@
     },
     "Deathmatch": {
       "Enabled": false
+    },
+    "Practice Range": {
+      "Enabled": true,
+      "Enabled Maps": []
     }
   },
   "Mode Name": "(Not So) Simple Menu",
-  "Description": "[Crouch + Interact] - Open/Close menu\n[Ultimate] - Go back (when in submenu)/Close menu (when in root)\nThe rest of controls depends on currently hovered menu item and are listed below the menu itself\n\nVersion: 1.3.0\nWorkshop Code: PS3MX\nDiscord: PatPatPatriq"
+  "Description": "[Crouch + Interact] - Open/Close menu\n[Ultimate] - Go back (when in submenu)/Close menu (when in root)\nThe rest of controls depends on currently hovered menu item and are listed below the menu itself\n\nVersion: 2.0.0\nWorkshop Code: PS3MX\nDiscord: PatPatPatriq"
 }

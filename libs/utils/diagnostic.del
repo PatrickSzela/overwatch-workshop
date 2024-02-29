@@ -1,0 +1,14 @@
+globalvar Boolean diagnosticsEnabled = true;
+
+# Creates a HUD Text in top right corner that will automatically change color depending whether `colorOrange` or `colorRed` are set to `true` (`colorRed` has a higher priority).
+Any CreateDiagnosticText(String text, Boolean colorOrange, Boolean colorRed, Boolean visible = diagnosticsEnabled): CreateHudText(
+  VisibleTo: visible ? LocalPlayer() : null, 
+  Subheader: text, 
+  Location: Location.Right,
+  SubheaderColor: 
+    colorRed ? Color.Red : 
+    colorOrange ? Color.Orange : 
+    Color.White,
+  Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,
+  SortOrder: 99
+);

@@ -1,0 +1,27 @@
+Boolean IsScopedIn(Player player): 
+  [Hero.Ana, Hero.Ashe, Hero.Widowmaker].Contains(player.Hero()) && player.IsFiringSecondary();
+
+Boolean IsEmoting(Player player):
+  $" {IsCommunicatingAnyEmote(player)}" != " 0";
+
+Boolean IsHUDPreferred(Player player): 
+  IsScopedIn(player) || IsEmoting(player) || IsDead(player) ||
+    player.Hero() == Hero.Reinhardt && IsFiringSecondary(player) ||
+    player.Hero() == Hero.Bastion && IsUsingUltimate(player) ||
+    player.Hero() == Hero.Junkrat && IsUsingUltimate(player) ||
+    player.Hero() == Hero.Mei && IsUsingAbility1(player) ||
+    player.Hero() == Hero.Brigitte && IsFiringSecondary(player);
+
+Boolean IsUsingAbility(Player player, Button button):
+  // button == Button.PrimaryFire ? IsFiringPrimary(player) :
+  // button == Button.SecondaryFire ? IsFiringSecondary(player) :
+  button == Button.Ability1 ? IsUsingAbility1(player) :
+  button == Button.Ability2 ? IsUsingAbility2(player) :
+  button == Button.Ultimate ? IsUsingUltimate(player) :
+  button == Button.Reload ? IsReloading(player) :
+  button == Button.Melee ? IsMeleeing(player) :
+  button == Button.Jump ? IsJumping(player) :
+  button == Button.Crouch ? IsCrouching(player) : false;
+
+Vector GetDirectionFromPlayerEyes(Player player, Vector vector): 
+  player.EyePosition().DirectionTowards(vector);

@@ -1,63 +1,49 @@
 import './component.del';
 
+// unfortunately OSTW doesn't really like generic classes in callbacks 😞
 class ComponentWithValue: Component 
 {
   public Any value;
-  public Any defaultValue;
+
   public ((ComponentWithValue) => String) valueFormatter;
-  static public ((ComponentWithValue) => String) defaultValueFormatter = (ComponentWithValue it) => it.value;
+  public static ((ComponentWithValue) => String) VALUE_FORMATTER: (it) => it.value;
   
-  // events
-  public ((Button, ComponentWithValue) => void) onButtonDown;
-  public ((Button, ComponentWithValue) => void) onButtonUp;
-  public ((Vector, ComponentWithValue) => void) onNavigate;
   public ((Any, ComponentWithValue) => void) onChange;
 
   public constructor(
-    in String text!,
-    in Any defaultValue! = null
+    in String text,
+    in Any defaultValue = null
   ) {
-    ConstructorWithValue([text, defaultValue, null]);
+    ComponentWithValueConstructor(text, defaultValue, null);
   }
 
-  protected void ConstructorWithValue(Any[] arr!) "[ComponentWithValue] Constructor Helper" {
-    String text: arr[0];
-    Any defaultValue: arr[1];
-    Component child: arr[2];
-    
-    ConstructorBase([text, child]);
+  protected void ComponentWithValueConstructor(
+    String text!,
+    Any defaultValue! = null,
+    Component child! = null
+  ) "[ComponentWithValue] Constructor" {
+    ComponentConstructor(text, child);
 
-    this.text = text;
-    this.defaultValue = defaultValue;
-    this.valueFormatter = defaultValueFormatter;
-    value = this.defaultValue;
+    this.value = defaultValue;
+    this.valueFormatter = VALUE_FORMATTER;
   }
 
-  public override void FormatText() "[ComponentWithValue] FormatText" {
-    renderedText = textFormatter(this);
-    renderedText = $"{renderedText}: {valueFormatter(this)}";
+  public override void Render() "[ComponentWithValue] Render" {
+    onRender(this);
+    renderedText = $"{text}: {valueFormatter(this)}";
+  }
+
+  public virtual void SetValue(Any value!) "[ComponentWithValue] Set Value" {
+    if(this.value != value) {
+      this.value = value;
+      OnChange();
+      MarkToRerender();
+    }
   }
 
   // events
-  public override void OnButtonDown(Button button!) "[ComponentWithValue] OnButtonDown" {
-    onButtonDown(button, this);
-    if(child != null)
-      child.OnButtonDown(button);
-  }
-
-  public override void OnButtonUp(Button button!) "[ComponentWithValue] OnButtonUp" {
-    onButtonUp(button, this);
-    if(child != null)
-      child.OnButtonUp(button);
-  }
-
-  public override void OnNavigate(Vector direction!) "[ComponentWithValue] OnNavigate" {
-    onNavigate(direction, this);
-    if(child != null)
-      child.OnNavigate(direction);
-  }
-
   public virtual void OnChange() "[ComponentWithValue] OnChange" {
+    shouldRerender = true;
     onChange(value, this);
   }
 }

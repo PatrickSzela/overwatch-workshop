@@ -6,18 +6,20 @@ import './tools/_index.del';
 String PAGE_ROOT_ID: 'root';
 String PAGE_ROOT_NAME: 'Main Menu';
 
-MenuItem[] PageRootItems() {
-  return <MenuItem[]>[
-    new MenuItemSubmenu(menuState, PAGE_PLAYER_SETTINGS_NAME, submenuID: PAGE_PLAYER_SETTINGS_ID),
-    new MenuItemSubmenu(menuState, PAGE_CREATE_BOT_NAME, submenuID: PAGE_CREATE_BOT_ID),
-    new MenuItemSubmenu(menuState, PAGE_TOOLS_NAME, submenuID: PAGE_TOOLS_ID)
+Component[] PageRootItems() {
+  return <Component[]>[
+    new Link(menuState, PAGE_PLAYER_SETTINGS_NAME, PAGE_PLAYER_SETTINGS_ID),
+    new Link(menuState, PAGE_CREATE_BOT_NAME, PAGE_CREATE_BOT_ID),
+    new Link(menuState, PAGE_TOOLS_NAME, PAGE_TOOLS_ID)
   ];
 }
 
 rule: 'Root'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_ROOT_ID)
+if(menuState.pageId == PAGE_ROOT_ID)
 {
-  menuState.SetTitle(PAGE_ROOT_NAME);
-  menuState.AddItems(PageRootItems());
+  menuState.CreatePage(
+    title: PAGE_ROOT_NAME, 
+    items: PageRootItems()
+  );
 }

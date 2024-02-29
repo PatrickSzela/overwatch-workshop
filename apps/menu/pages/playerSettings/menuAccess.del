@@ -1,15 +1,16 @@
+import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 
 String PAGE_MENU_ACCESS_ID: 'menuAccess';
 String PAGE_MENU_ACCESS_NAME: 'Menu Enabled';
 
-
-MenuItem PageMenuAccessMenuItem() {
-  Toggle menuAccessToggle = new Toggle(
+Component PageMenuAccessMenuItem() {
+  Toggle menuAccess = new Toggle(
     text: PAGE_MENU_ACCESS_NAME,
-    defaultChecked: selectedPlayers[0].menuState.enabled
+    defaultChecked: selectedPlayers[0].menuState.isEnabled
   );
-  menuAccessToggle.onChange = (checked, it) => {
+  
+  menuAccess.onChange = (checked, it) => {
     foreach(Player pl! in selectedPlayers) {
       if(pl == HostPlayer() && !checked) {
         SmallMessage(EventPlayer(), "Can't disable menu for Host");
@@ -19,8 +20,6 @@ MenuItem PageMenuAccessMenuItem() {
       pl.menuState.SetEnabled(checked);
     }
   };
-
-  MenuItem menuAccess = new MenuItem(child: menuAccessToggle);
 
   return menuAccess;
 }

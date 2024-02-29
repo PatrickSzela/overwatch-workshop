@@ -1,105 +1,78 @@
+import '../../../../libs/menu/components/text.del';
+import '../../../../libs/menu/components/toggle.del';
+import '../../../../libs/menu/components/numberInput.del';
 import '../../_variables.del';
 
 String PAGE_HEALTH_ID: 'health';
 String PAGE_HEALTH_NAME: 'Health';
 String PAGE_HEALTH_CURRENT_HEALTH_ID: PAGE_HEALTH_ID + 'current';
 String PAGE_HEALTH_CURRENT_HEALTH_NAME: 'Current Health';
-Button PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY: Button.Ability2;
 String PAGE_HEALTH_MAX_HEALTH_ID: PAGE_HEALTH_ID + 'max';
 String PAGE_HEALTH_MAX_HEALTH_NAME: 'Max Health';
-Button PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY: Button.Ability2;
-Button PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET: Button.Reload;
-
-String PAGE_HEALTH_DESCRIPTION_INFO: "All players have Current and Max Health above their heads";
 
 playervar Boolean pageHealthAutoHeal = false;
 
-// TODO: health pool
+// TODO: create health pool
 
-MenuItem[] PageHealthItems() {
-  Spinner currentHealthSpinner = new Spinner(
+Component[] PageHealthItems() {
+  NumberInput currentHealth = new NumberInput(
     menuState: menuState, 
     text: PAGE_HEALTH_CURRENT_HEALTH_NAME,
     integralLength: 5,
+    fractionalLength: 3,
     defaultValue: selectedPlayers.First.Health(),
     unit: ' HP'
   );
-  currentHealthSpinner.onButtonDown = (button, it) => {
-    if(buttonsHeld == [PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY])
-      SetPlayerHealth(selectedPlayers, it.value);
-  };
-  currentHealthSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_CURRENT_HEALTH_BUTTON_APPLY)}​ to apply");
+  currentHealth.SetPrimaryAction('Apply', (it) => {
+    SetPlayerHealth(selectedPlayers, (<NumberInput>it).value);
+  });
 
-  MenuItem currentHealth = new MenuItem(child: currentHealthSpinner);
-
-  Spinner maxHealthSpinner = new Spinner(
+  NumberInput maxHealth = new NumberInput(
     menuState: menuState, 
     text: PAGE_HEALTH_MAX_HEALTH_NAME,
     integralLength: 5,
+    fractionalLength: 3,
     defaultValue: selectedPlayers.First.MaxHealth(),
     unit: ' HP'
   );
-  maxHealthSpinner.onButtonDown = (button, it) => {
+  // who thought it was a good idea to use percentages when setting max health? and what's worse, percentages of original max health!?
+  maxHealth.SetPrimaryAction("Apply", (it) => {
+    SetMaxHealth(selectedPlayers, 100);
+    MinWait();
     foreach(Player pl! in selectedPlayers) {
-      // who thought it was a good idea to use percentages when setting max health? and what's worse, percentages of original max health!?
-
-      if(buttonsHeld == [PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET] || buttonsHeld == [PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY]) {
-        SetMaxHealth(pl, 100);
-      }
-      
-      if(buttonsHeld == [PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY]) {
-        MinWait();
-        SetMaxHealth(pl, it.value / pl.MaxHealth() * 100);
-      }
+      SetMaxHealth(pl, (<NumberInput>it).value / pl.MaxHealth() * 100);
     }
-  };
-  maxHealthSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_APPLY)}​ to apply");
-  maxHealthSpinner.AddDescription($"Press {ButtonFormatterSingle(PAGE_HEALTH_MAX_HEALTH_BUTTON_RESET)}​ to reset to original value");
-  maxHealthSpinner.AddDescription("Applied Max Health value might differ because of Workshop limitations", Color.Orange);
+  });
+  maxHealth.SetSecondaryAction("Reset to Hero's original health", (it) => {
+    SetMaxHealth(selectedPlayers, 100);
+  });
+  maxHealth.AddDescription(Description.New("Applied Max Health value might differ because of Workshop limitations", COLOR_WARNING));
   
-  MenuItem maxHealth = new MenuItem(child: maxHealthSpinner);
-
-  Toggle autoHealToggle = new Toggle(
+  Toggle autoHeal = new Toggle(
     text: "Auto Heal",
     defaultChecked: selectedPlayers[0].pageHealthAutoHeal
   );
-  autoHealToggle.onChange = (checked, it) => {
-    foreach(Player pl! in selectedPlayers)
-      pl.pageHealthAutoHeal = checked;
+  autoHeal.onChange = (checked, it) => {
+    selectedPlayers.pageHealthAutoHeal = checked;
   };
 
-  MenuItem autoHeal = new MenuItem(child: autoHealToggle);
-
-  return [currentHealth, maxHealth, new MenuItemNonInteractive(), autoHeal];
+  return [currentHealth, maxHealth, new Text(), autoHeal];
 }
 
 rule: 'Player Settings/Health'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_HEALTH_ID)
+if(menuState.pageId == PAGE_HEALTH_ID)
 {
-  menuState.SetTitle(PAGE_HEALTH_NAME);
-  menuState.AddDescription(PAGE_HEALTH_DESCRIPTION_INFO, Color.SkyBlue);
-  menuState.AddItems(PageHealthItems());
-}
+  menuState.CreatePage(
+    title: PAGE_HEALTH_NAME, 
+    items: PageHealthItems()
+  );
 
-rule: 'Draw current health info above players'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.currentMenuID == PAGE_HEALTH_ID)
-{
-  foreach(Player player in AllPlayers()) {
-    if(player == EventPlayer()) continue;
+  playerInfoProps.Enable(playerInfoProps);
 
-    Player pl: EvaluateOnce(player);
-    
-    playerText.Add(pl, $"{RoundToInteger(pl.Health(), Rounding.Up)}​ / {RoundToInteger(pl.MaxHealth(), Rounding.Up)}​ HP");
+  WaitUntil(menuState.pageId != PAGE_HEALTH_ID, 99999);
 
-    MinWait();
-  }
-
-  WaitUntil(menuState.currentMenuID != PAGE_HEALTH_ID || !menuState.isOpen, 99999);
-  
-  playerText.Remove();
+  playerInfoProps.Disable(playerInfoProps);
 }
 
 rule: 'Auto heal'

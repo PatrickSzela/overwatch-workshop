@@ -1,323 +1,593 @@
+import './customButtons.del';
 import '../utils/dictionary.del';
-import '../utils/formatters.del';
-import '../utils/other.del';
+import '../utils/string.formatters.del';
+import '../utils/button.allButtons.del';
 import './menu.del';
-import './components/menuItem.del';
+import './_rules.del';
+import './components/component.del';
+import './components/text.del';
 
-playervar Button[] buttonsHeld = [];
+// TODO: make `PuppetMenuState`?
 
-struct ScrollOffset {
-  public Number visible;
-  public Number scroll;
+Color COLOR_NEUTRAL: Color.White;
+Color COLOR_INFO: Color.SkyBlue;
+Color COLOR_WARNING: Color.Orange;
+Color COLOR_ERROR: Color.Red;
+Color COLOR_SWITCH: Color.Green;
+Color COLOR_DISABLED: Color.Gray;
+
+single struct RenderedText {
+  public Color color;
+  public String text;
 }
 
+single struct HistoryItem {
+  public String id;
+  public Number outerScroll;
+  public Number innerScroll;
+
+  public static HistoryItem BASE: { id: '', innerScroll: 0, outerScroll: 0 };
+}
+
+struct RenderedTexts {
+  public RenderedText[] titles;
+  public RenderedText[] separators;
+  public RenderedText[] items;
+  public RenderedText[] descriptions;
+
+  public RenderedText[] merged;
+
+  public static RenderedTexts BASE: {
+    titles: [], separators: [], items: [], descriptions: [], merged: []
+  };
+}
+
+# Holds current state of `Menu` for a player and handles logic for displaying and controlling every `Component` and its derivatives.
 class MenuState {
-  public static Button BUTTON_GO_BACK: Button.Ultimate;
-  public Button[] toggleOpenButtons;
-  public Boolean enabled;
+  # Maximum number of visible items.
+  public static Number MAX_ITEMS: Menu.MAX_ITEMS;
+
+  # Whether player has access to menu.
+  public Boolean isEnabled;
+  # Whether menu is currently open.
   public Boolean isOpen;
-  public MenuItem[] currentMenuItems = [];
-  public String[] renderedTexts = [];
-  public Color[] renderedColors = [];
-  public Any[] stack = [];
-  public Any[] titles = [];
-  public Any currentMenuID: stack.Last;
-  public ScrollOffset[] scrollOffset;
-  public Number hoveredItemIdx: scrollOffset.Last.visible + scrollOffset.Last.scroll;
-  public MenuItem hoveredItem: currentMenuItems[hoveredItemIdx];
-  public Boolean internalNavigationEnabled;
-  public Description[] description;
+  # Whether player can navigate the menu. Items will still receive navigation events.
+  public Boolean isLocked;
+  # Whether opening and closing menu logic is handled from outside.
+  public Boolean isPuppet;
+  # Whether this menu is currently used menu.
+  public Boolean isFocused;
+  # Whether menu is currently in refresh stage.
+  public Boolean isRefreshing: pageId == '<REFRESH>';
+  # Combination of buttons used to toggle menu on and off.
+  public Button[] _toggleMenu;
+  # ID of root page.
+  public String _rootPageId;
+  # List of available items on current page.
+  public Component[] items;
+  # Index of currently hovered item in `items`.
+  public Number hoveredItemIdx;
+  # List of currently visible items.
+  public Component[] visibleItems: items.Slice(history.Last.outerScroll, MAX_ITEMS);
+  # List of components that aren't disabled (can be hovered).
+  public Component[] enabledItems: items.FilteredArray((i, idx) => !i.disabled);
+  # Currently hovered item.
+  public Component hoveredItem: items[hoveredItemIdx];
+  # Stack of IDs of visited pages.
+  public HistoryItem[] history;
+  # ID of currently open page.
+  public String pageId: history.Last.id;
+  # List of rendered items.
+  public RenderedTexts renderedTexts;
+  # List of additional descriptions that will be show on current page.
+  public Description[] descriptionsPage;
+  # List of additional descriptions that will be shown until manually removed.
+  public Description[] descriptionsMenu;
+  # Component that will be displayed when there are no items in menu
+  protected Component emptyText;
 
-  Number firstItemIdx: currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled).First);
-  Number lastItemIdx: currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled).Last);
+  public constructor(in String rootPageId, in Button[] toggleMenu, in Boolean enabled = true, in Boolean puppet = false) {
+    _toggleMenu = toggleMenu;
+    _rootPageId = rootPageId;
 
-  protected Menu _menu;
-  protected Player _player;
-  public Dictionary<String, Any> variables = {Keys: [], Values: []};
+    if(rootPageId != null)
+      history = [{ id: rootPageId, ..HistoryItem.BASE }];
+    else 
+      history = [];
+    
+    items = [];
+    isLocked = false;
+    isFocused = false;
+    isEnabled = enabled;
+    isPuppet = puppet;
+    hoveredItemIdx = 0;
 
-  private Number MAX_MENU_ITEMS: Menu.MAX_MENU_ITEMS;
+    renderedTexts = RenderedTexts.BASE;
+    emptyText = new Text("It's a bit empty in here...");
 
-  public constructor(in Menu menu!, in Any rootID!, in Button[] toggle!) {
-    _menu = menu;
-    _player = EventPlayer();
-
-    // make sure to select root first
-    stack = [rootID];
-    scrollOffset = [];
-    currentMenuItems = [];
-    renderedColors = [];
-    internalNavigationEnabled = true;
-    this.toggleOpenButtons = toggle;
-    enabled = EventPlayer() == HostPlayer();
-
-    RenderClosedItems();
+    // render closed title
+    Render();
   }
 
-  public Any GetVariable(Any id!, String variable!) "[MenuState] Get Variable" { 
-    return variables.Get($"{id}.{variable}");
+  // helpers
+  public Boolean HistoryContains(in String pageId): 
+    history.Map((i) => i.id).Contains(pageId);
+
+  public void SetTitle(in String title) {
+    RenderTitle(title);
+  }
+
+  # Forcefully rerenders currently hovered item. Call after manually adding description.
+  public void RerenderHoveredItem() "[MenuState] Rerender Hovered Item" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: RerenderHoveredItem');
+    // DisableInspectorRecording();
+
+    hoveredItem.MarkToRerender();
+    Render();
+  }
+
+  # Forcefully rerenders specified item. Call after manually adding description.
+  public void RerenderItem(Component item!) "[MenuState] Rerender Item" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: RerenderItem');
+    // DisableInspectorRecording();
+
+    item.MarkToRerender();
+    Render();
+  }
+
+  # Forcefully rerenders all visible items.
+  public void RerenderAllItems() "[MenuState] Rerender All Items" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: RerenderAllItems');
+    // DisableInspectorRecording();
+
+    foreach(Component item! in visibleItems)
+      item.MarkToRerender();
+    
+    Render();
   }
   
-  public void SetVariable(Any id!, String variable!, Any value!) "[MenuState] Set Variable" {
-    Dictionary<String, Any>.SetOrAdd(variables, $"{id}.{variable}", value);
-  }
-
   public void SetEnabled(Boolean enabled!) "[MenuState] Set Enabled" {
-    if(enabled != this.enabled) {
-      if(isOpen) Close();
-      this.enabled = enabled;
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: SetEnabled');
+    // DisableInspectorRecording();
+
+    if(enabled != isEnabled) {
+      Close();
+      isEnabled = enabled;
     }
   }
 
-  public void Open() "[MenuState] Open" {
-    if(!enabled) return;
+  public void SetFocused() "[MenuState] Set Focused" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: SetFocused');
+    // DisableInspectorRecording();
 
-    if(!isOpen) {
+    if(currentMenuState != this) {
+      currentMenuState.isFocused = false;
+
+      if(currentMenuState.isOpen) {
+        currentMenuState.hoveredItem.OnLeave();
+      }
+      
+      currentMenuState = this;
+      isFocused = true;
+
+      if(isOpen) {
+        hoveredItem.OnEnter();
+      }
+    }
+  }
+
+  # NOTE: This won't rerender the menu
+  public void SetHoveredItemIdx(Number index!) "[MenuState] Set Hovered Item Index" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: SetHoveredItemIdx');
+    // DisableInspectorRecording();
+
+    history[history.Length - 1] = { innerScroll: index, outerScroll: 0, ..history.Last };
+
+    HandleScroll();
+  }
+
+  public void AddItems(Component[] items!, Boolean callOnItemsChanged! = true) "[MenuState] Add Items" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: AddItems');
+    // DisableInspectorRecording();
+
+    this.items += items;
+
+    if(callOnItemsChanged) {
+      OnItemsChanged();
+    }
+  }
+
+  public void RemoveItems(Component[] items!, Boolean callOnItemsChanged! = true) "[MenuState] Remove Items" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: RemoveItems');
+    // DisableInspectorRecording();
+
+    this.items -= items;
+    
+    foreach(Component item! in items) {
+      if(item == emptyText) continue;
+
+      if(item.child) {
+        delete(item.child);
+      }
+      delete(item);
+    }
+    
+    if(callOnItemsChanged) {
+      OnItemsChanged();
+    }
+  }
+
+  public void ReplaceItems(Component[] items!) "[MenuState] Replace Items" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: ReplaceItems');
+    // DisableInspectorRecording();
+
+    RemoveItems(this.items - items, false);
+    AddItems(items - this.items, false);
+
+    // keep the order of passed items
+    this.items = items;
+
+    OnItemsChanged();
+  }
+
+  protected void OnItemsChanged() "[MenuState] On Items Changed" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: OnItemsChanged');
+    // DisableInspectorRecording();
+
+    if(!items) {
+      items = [emptyText];
+    } else if(items.Length > 1 && items.Contains(emptyText)) {
+      items -= emptyText;
+    }
+    
+    // hoveredItemIdx is calculated later in `HandleScroll()`
+    Number scroll! = history.Last.outerScroll + history.Last.innerScroll;
+    Component hover: items[scroll];
+
+    if(!hover || hover.disabled) {
+      Component[] enabled! = enabledItems;
+      history[history.Length - 1].innerScroll = Max(items.IndexOf(enabled.First), Min(items.IndexOf(enabled.Last), scroll));
+    }
+
+    HandleScroll();
+  }
+
+  // phase 1: handle events
+  public void Open() "[MenuState] Open" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Open');
+    // DisableInspectorRecording();
+
+    if(!isOpen && isEnabled) {
       isOpen = true;
 
-      hoveredItem.OnEnter();
-      RenderItems();
-
-      _player.SetMoveSpeed(0);
-
-      foreach (Button button! in allButtons)
-        DisallowButton(_player, button);
+      if(isFocused) hoveredItem.OnEnter();
+      Render();
     }
   }
 
   public void Close() "[MenuState] Close" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Close');
+    // DisableInspectorRecording();
+
     if(isOpen) {
       isOpen = false;
-
-      hoveredItem.OnLeave();
-      RenderClosedItems();
-
-      // TODO: store & restore previous speed in case it was modified - how?
-      _player.SetMoveSpeed(100);
-
-      foreach (Button button! in allButtons)
-        AllowButton(_player, button);
+      
+      if(isFocused) hoveredItem.OnLeave();
+      Render();
     }
   }
 
-  public void SetTitle(in String title!) {
-    titles[stack.Length - 1] = title;
-  }
+  public void CreatePage(String title!, Component[] items!, Description[] descriptions! = []) "[MenuState] Create Page" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: CreatePage');
+    // DisableInspectorRecording();
 
-  public void AddItems(MenuItem[] items!) "[MenuState]: Add Items" {
-    currentMenuItems += items;
+    SetTitle(title);
+    AddItems(items);
 
-    if(hoveredItem.disabled || scrollOffset.Length < stack.Length) {
-      scrollOffset[stack.Length - 1] = {visible: firstItemIdx, scroll: 0};
-      HandleScroll();
-    }
-
-    if(stack.Length == 1 && internalNavigationEnabled) {
-      AddDescription("Use [↑] or [↓] to navigate menu", order: -1);
-      AddDescription($"Press {ButtonFormatterSingle(BUTTON_GO_BACK)}​ to go back", order: -1);
-    }
+    foreach(Description desc! in descriptions)
+      descriptionsPage += desc;
 
     if(isOpen) {
       hoveredItem.OnEnter();
-      RenderItems();
+      // `AddItems` already adds items to render queue
+      Render();
     }
   }
 
-  public void RemoveItems() "[MenuState]: Remove Items" {
-    // DisableInspectorRecording();
-    foreach(MenuItem menuItem! in currentMenuItems) {
-      if(menuItem.child) {
-        if(menuItem.child.child)
-          delete(menuItem.child.child);
-        delete(menuItem.child);
-      }
-
-      delete(menuItem);
-    }
-
-    currentMenuItems = [];
+  public void DestroyPage() "[MenuState] Destroy Page" {
     // EnableInspectorRecording();
-  }
-
-  // 1 line - no need to make it subroutine
-  public void RenderClosedItems() {
-    renderedColors = [Color.White];
-    renderedTexts = [$"Press {ButtonFormatter(toggleOpenButtons)}​ to toggle Menu"];
-  }
-
-  public void RenderItems() "[MenuState]: Render Items" {
+    // LogToInspector($'{EventPlayer()}: DestroyPage');
     // DisableInspectorRecording();
-    MenuItem hov! = hoveredItem;
-    MenuItem[] sliced! = currentMenuItems.Slice(scrollOffset.Last.scroll, MAX_MENU_ITEMS);
-    renderedColors = [];
 
-    foreach(MenuItem item! in sliced) {
-      // called here, not in Component because it won't work
-      if(item.child) {
-        if(item.child.child)
-          item.child.child.FormatText();
-        item.child.FormatText();
-      }
-
-      item.FormatText();
-      renderedColors += item.color;
+    if(isOpen) {
+      hoveredItem.OnLeave();
     }
 
-    Description[] descriptionArr! = hov.description;
-    if(hov.child) {
-      foreach(Description arr! in hov.child.description)
-        descriptionArr += arr;
+    RemoveItems(items, false);
 
-      if(hov.child.child) {
-        foreach(Description arr! in hov.child.child.description)
-          descriptionArr += arr;
-      }
-    }
+    buttonsHeld = [];
+    descriptionsPage = [];
+  }
 
-    foreach(Description arr! in description)
-      descriptionArr += arr;
-
-    Any[][] descr = descriptionArr.Map((i) => <Any[]>[i.text, i.color, i.visible, i.order]).FilteredArray((i) => i[2]).SortedArray((i) => i[3]);
-
-    String[] header! = [stack.Length == 1 ? titles.First : Join(titles.Slice(1, stack.Length - 1), " / ")];
-    String[] separatorTop! = [$"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : scrollOffset.Last.scroll == 0 ? '△' : '▲'}──────────────────────"];
-    String[] menuItems! = sliced.Map((i, idx) => $"{!i.disabled ? hoveredItemIdx == idx + scrollOffset.Last.scroll ? '● ' : '○ ' : ''}{i.renderedText}");
-    String[] separatorBottom! = [$"──────────────────────{currentMenuItems.Length < MAX_MENU_ITEMS ? '─' : scrollOffset.Last.scroll == currentMenuItems.Length - MAX_MENU_ITEMS ? '▽' : '▼'}──────────────────────"];
-    String[] description! = descr.Map((i) => i[0]);
-    
-    renderedTexts = header + separatorTop + menuItems + 
-      (currentMenuItems.Length > MAX_MENU_ITEMS || description.Length ? separatorBottom : []) + 
-      (description.Length ? description : []);
-
-    renderedColors = [Color.White, Color.White] + renderedColors + [Color.White] + descr.Map((i) => i[1]);
+  public virtual void Navigate(Vector direction!) "[MenuState] Navigate" {
     // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Navigate');
+    // DisableInspectorRecording();
 
-    if(renderedTexts.Length > _menu.hudTexts.Length)
-      SmallMessage(EventPlayer(), $"Not enough HUD items available ({renderedTexts.Length}​ requested, {_menu.hudTexts.Length}​ available)");
-  }
-
-  private void HandleScroll() "[MenuState]: Handle Scroll" {
-    Number idx: stack.Length - 1;
-    Number offset! = 0;
-    
-    if(scrollOffset.Last.visible > MAX_MENU_ITEMS - 1) {
-      offset = scrollOffset.Last.visible - (MAX_MENU_ITEMS - 1);
-      scrollOffset[idx] = {visible: MAX_MENU_ITEMS - 1, scroll: scrollOffset.Last.scroll + offset};
-    } else if(scrollOffset.Last.visible < 0) {
-      offset = scrollOffset.Last.visible;
-      scrollOffset[idx] = {visible: 0, scroll: scrollOffset.Last.scroll + offset};
-    }
-  }
-
-  public virtual void Navigate(Vector direction!) "[MenuState]: Navigate" {
     hoveredItem.OnNavigate(direction);
 
-    if(internalNavigationEnabled && (direction == Down() || direction == Up())) {
+    if(!isLocked && (direction == Down() || direction == Up())) {
       Number offset! = 0;
-      Number hov! = hoveredItemIdx;
+      Number hov: hoveredItemIdx;
+      Component[] it! = enabledItems;
 
       if(direction == Down()) {
-        Number nextItemIdx! = currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled && idx > hov).First);
+        Number nextItemIdx! = items.IndexOf(items.FilteredArray((i, idx) => !i.disabled && idx > hov).First);
 
-        offset = (nextItemIdx == -1 ? firstItemIdx : nextItemIdx) - hov;
+        offset = (nextItemIdx == -1 ? items.IndexOf(it.First) : nextItemIdx) - hov;
       } else if(direction == Up()) {
-        Number prevItemIdx! = currentMenuItems.IndexOf(currentMenuItems.FilteredArray((i, idx) => !i.disabled && idx < hov).Last);
+        Number prevItemIdx! = items.IndexOf(items.FilteredArray((i, idx) => !i.disabled && idx < hov).Last);
 
-        offset = (prevItemIdx == -1 ? lastItemIdx : prevItemIdx) - hov;
+        offset = (prevItemIdx == -1 ? items.IndexOf(it.Last) : prevItemIdx) - hov;
       }
 
       if(offset != 0) {
         hoveredItem.OnLeave();
-        scrollOffset[stack.Length - 1].visible += offset;
+        history[history.Length - 1].innerScroll += offset;
         HandleScroll(); 
         hoveredItem.OnEnter();
       }
     }
-    
-    RenderItems();
+
+    Render();
   }
 
-  public virtual void ButtonDown(in Button button!) {
-    buttonsHeld += button;
+  public virtual void ButtonDown(Button button!) "[MenuState] Button Down" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: ButtonDown');
+    // DisableInspectorRecording();
 
     if(!isOpen) {
-      if(buttonsHeld == toggleOpenButtons) {
+      if(buttonsHeld == _toggleMenu && !isPuppet) {
         Open();
       }
     } else {
       hoveredItem.OnButtonDown(button);
 
-      if(internalNavigationEnabled) {
-        if(buttonsHeld == toggleOpenButtons) {
+      if(!isLocked) {
+        if(buttonsHeld == _toggleMenu && !isPuppet) {
           Close();
-        } else if(buttonsHeld == [BUTTON_GO_BACK]) {
+        } else if(buttonsHeld == [BUTTON_BACK]) {
           GoBack();
         }
       }
     }
 
     if(isOpen) {
-      RenderItems();
+      Render();
     }
   }
 
-  public virtual void ButtonUp(Button button!) "[MenuState]: Button Up" {
-    ModifyVariable(buttonsHeld, Operation.RemoveFromArrayByValue, button);
+  public virtual void ButtonUp(Button button!) "[MenuState] Button Up" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: ButtonUp');
+    // DisableInspectorRecording();
+
+    // when changing page `buttonsHeld` is being cleared
+    if(!buttonsHeld.Contains(button)) return;
 
     if(isOpen) {
       hoveredItem.OnButtonUp(button);
-      RenderItems();
+      Render();
     }
   }
 
-  public virtual void GoTo(Any id!) "[MenuState]: Go To" {
-    hoveredItem.OnLeave();
-    RemoveItems();
-
-    buttonsHeld = [];
-    description = [];
-    stack += id;
-    titles += id;
+  // phase 2: render
+  protected void RenderClosedItems() {
+    renderedTexts.merged = isPuppet ? [] : [
+      { 
+        text: $"Press {ButtonFormatter(_toggleMenu)}​ to toggle Menu", 
+        color: COLOR_NEUTRAL
+      }
+    ];
   }
 
-  public virtual void GoBack() "[MenuState]: Go Back" {
-    hoveredItem.OnLeave();
+  protected void RenderTitle(in String title) {
+    renderedTexts.titles = [
+      { 
+        text: title,
+        color: COLOR_NEUTRAL
+      }
+    ];
+  }
 
-    if(stack.Length == 1) {
-      Close();
+  protected void RenderSeparators() {
+    renderedTexts.separators = [
+      { 
+        text: $"──────────────────────{items.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == 0 ? '△' : '▲'}──────────────────────", 
+        color: COLOR_NEUTRAL 
+      },
+      {
+        text: $"──────────────────────{items.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == items.Length - MAX_ITEMS ? '▽' : '▼'}──────────────────────",
+        color: COLOR_NEUTRAL
+      }
+    ];
+  }
+
+  protected void RenderDescription() {
+    Description[] descriptionArr = hoveredItem.description;
+
+    if(hoveredItem.child) {
+      descriptionArr += hoveredItem.child.description;
+    }
+
+    descriptionArr += descriptionsPage + descriptionsMenu;
+
+    renderedTexts.descriptions = descriptionArr
+      .FilteredArray((i) => i.visible)
+      .SortedArray((i) => i.order)
+      .Map((i) => <RenderedText>{text: i[0], color: i[1]});
+  }
+
+  protected void RenderVisibleItems() {
+    RenderDescription();
+
+    Component[] v = visibleItems;
+
+    renderedTexts.items = [];
+
+    for(Number idx = 0; idx < v.Length; idx++) {
+      Number actualIdx = idx + history.Last.outerScroll;
+      Component item = v[idx];
+      
+      if(item.shouldRerender || item.child.shouldRerender) {
+        // EnableInspectorRecording();
+        // LogToInspector($'Rerendering: {item.text}');
+        // DisableInspectorRecording();
+
+        // `Render()` of a child called here, not in Component because it becomes recursive for some reason
+        if(item.child) {
+          item.child.Render();
+          item.child.shouldRerender = false;
+        }
+
+        item.Render();
+        item.shouldRerender = false;
+      }
+
+      renderedTexts.items[idx] = { 
+        text: $"{!item.disabled ? isFocused && hoveredItemIdx == actualIdx ? '● ' : '○ ' : ''}{item.renderedText}",
+        color: item.color 
+      };
+    }
+  }
+
+  protected void MergeTexts() {
+    renderedTexts.merged = renderedTexts.titles + [renderedTexts.separators[0]] + renderedTexts.items;
+
+    if(items.Length > MAX_ITEMS || renderedTexts.descriptions.Length)
+      renderedTexts.merged += [renderedTexts.separators[1]];
+
+    renderedTexts.merged += renderedTexts.descriptions;
+  }
+
+  public void Render() "[MenuState] Render" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Render');
+    // DisableInspectorRecording();
+
+    if(isOpen) {
+      RenderVisibleItems();
+      MergeTexts();
+    } else {
+      RenderClosedItems();
+    }
+  }
+
+  protected void HandleScroll() "[MenuState] Handle Scroll" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: HandleScroll');
+    // DisableInspectorRecording();
+
+    Number idx! = history.Length - 1;
+    Number offset! = 0;
+
+    if(history.Last.innerScroll > MAX_ITEMS - 1) {
+      offset = history.Last.innerScroll - (MAX_ITEMS - 1);
+      history[idx] = {innerScroll: MAX_ITEMS - 1, outerScroll: history.Last.outerScroll + offset, ..history[idx]};
+    } else if(history.Last.innerScroll < 0) {
+      offset = history.Last.innerScroll;
+      history[idx] = {innerScroll: 0, outerScroll: Max(0, history.Last.outerScroll + offset), ..history[idx]};
+    }
+
+    hoveredItemIdx = history.Last.innerScroll + history.Last.outerScroll;
+    RenderSeparators();
+  }
+
+  public void Refresh() "[MenuState] Refresh" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Refresh');
+    // DisableInspectorRecording();
+
+    history += [{ id: '<REFRESH>', innerScroll: 0, outerScroll: 0 }];
+    Wait();
+    DestroyPage();
+    history.ModRemoveByIndex(history.Length - 1);
+  }
+
+  public virtual void GoTo(String pageId!, Boolean historyReplace! = false) "[MenuState] Go To" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: GoTo');
+    // DisableInspectorRecording();
+
+    if(this.pageId != pageId) {
+      DestroyPage();
+
+      if(historyReplace)
+        history[history.Length - 1] = { id: pageId, ..HistoryItem.BASE };
+      else
+        history += { id: pageId, ..HistoryItem.BASE };
+    }
+  }
+
+  public virtual void GoBack() "[MenuState] Go Back" {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: GoBack');
+    // DisableInspectorRecording();
+
+    if(history.Length == 1) {
+      if(!isPuppet) Close();
       return;
     }
-    
-    RemoveItems();
 
-    buttonsHeld = [];
-    description = [];
-    stack = ArraySlice(stack, 0, stack.Length - 1);
-    titles = ArraySlice(titles, 0, stack.Length);
-
-    scrollOffset = scrollOffset.Slice(0, stack.Length);
+    DestroyPage();
+    history.ModRemoveByIndex(history.Length - 1);
   }
 
-  public void AddDescription(in String description!, in Color color! = Color.White, in Boolean visible! = true, in Number order! = 0) {
-    this.description += {text: description, color: color, visible: visible, order: order};
+  public Number AddPageDescription(Description desc!) "[MenuState] Add Page Description" {
+    descriptionsPage += desc;
+    return descriptionsPage.Length - 1;
   }
 
-  public void WaitUntilButtonDown(in Any id!, in Button button!) {
+  public Number AddMenuDescription(Description desc!) "[MenuState] Add Menu Description" {
+    descriptionsMenu += desc;
+    return descriptionsMenu.Length - 1;
+  }
+
+  public void RemoveMenuDescription(Number idx!) "[MenuState] Remove Page Description" {
+    descriptionsMenu.ModRemoveByIndex(idx);
+  }
+
+  public void WaitUntilButtonDown(in String id, in Button button) {
     WaitUntil(onButtonDown(id, button), 99999);
   }
 
-  public void WaitUntilButtonUp(in Any id!, in Button button!) {
+  public void WaitUntilButtonUp(in String id, in Button button) {
     WaitUntil(!onButtonDown(id, button), 99999);
   }
 
   // events
-  public Boolean onButtonDown(in Any id!, Button button!): isOpen && hoveredItem.id == id && buttonsHeld.Contains(button);
+  public Boolean onButtonDown(in String id, in Button button): isOpen && isFocused && hoveredItem.id == id && buttonsHeld.Contains(button);
    
-  public Boolean onEnter(in Any id!): isOpen && hoveredItem.id == id;
+  public Boolean onEnter(in String id): isOpen && isFocused && hoveredItem.id == id;
 
-  public Boolean onNavigate(in Any id!, in Vector direction!) {
+  public Boolean onNavigate(in String id, in Vector direction) {
     Vector diff = ThrottleOf(EventPlayer()) - direction * 0.5;
     Boolean x = AbsoluteValue(diff.X) > 0.5;
     Boolean y = AbsoluteValue(diff.Y) > 0.5;
-    return isOpen && hoveredItem.id == id && (x && !y || !x && y);
+    return isOpen && isFocused && hoveredItem.id == id && (x && !y || !x && y);
   }
 }

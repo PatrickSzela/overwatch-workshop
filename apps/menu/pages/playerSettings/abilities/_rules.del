@@ -1,211 +1,134 @@
+import '../../../../../libs/utils/player.del';
 import './_index.del';
 
-
-// infinite/no cooldowns
 rule: 'Infinite Ammo'
 Event.OngoingPlayer
-if(pageAbilitiesInfiniteAmmo.IsTrueForAny((i) => i))
+if(pageAbilitiesInfiniteAmmo)
 {
-  for(Number i! = 0; i < pageAbilitiesInfiniteAmmo.Length; i++) {
-    if(!pageAbilitiesInfiniteAmmo[i]) continue;
-    Number clip! = allButtons[i] == Button.SecondaryFire ? 1 : 0;
-    // to avoid weird bug with pauses between shots
-    // SetMaxAmmo(EventPlayer(), clip, 1000);
-    SetAmmo(EventPlayer(), clip, 1000);
-    // SetAmmo(EventPlayer(), clip, MaxAmmo(EventPlayer(), clip) - 1);
+  foreach(Button button! in pageAbilitiesInfiniteAmmo) {
+    SetAmmo(EventPlayer(), button == Button.SecondaryFire ? 1 : 0, 1000);
   }
 
-  Wait(0.1);
-
   WaitUntil(
-    allButtons
-      .FilteredArray((button, idx) => pageAbilitiesInfiniteAmmo[idx] && MaxAmmo(EventPlayer(), button == Button.SecondaryFire ? 1 : 0) > 0)
-      .Map((button, i) => 
-        Ammo(EventPlayer(), button == Button.SecondaryFire ? 1 : 0) < 
-        //MaxAmmo(EventPlayer(), button == Button.SecondaryFire ? 1 : 0) - 1)
-        2)
+    !pageAbilitiesInfiniteAmmo ||
+    pageAbilitiesInfiniteAmmo
+      .FilteredArray((button) => MaxAmmo(EventPlayer(), button == Button.SecondaryFire ? 1 : 0) > 0)
+      .Map((button) => Ammo(EventPlayer(), button == Button.SecondaryFire ? 1 : 0) < 2)
       .IsTrueForAny((i) => i), 
     99999);
 
+  Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
 }
 
 rule: 'No Cooldown'
 Event.OngoingPlayer
-if(pageAbilitiesNoCooldown.IsTrueForAny((i) => i))
+if(pageAbilitiesNoCooldown)
 {
-  for(Number i! = 0; i < pageAbilitiesNoCooldown.Length; i++) {
-    if(!pageAbilitiesNoCooldown[i]) continue;
-    SetAbilityCooldown(EventPlayer(), allButtons[i], 0);
+  foreach(Button button! in pageAbilitiesNoCooldown) {
+    SetAbilityCooldown(EventPlayer(), button, 0);
   }
 
-  Wait(0.1);
-
   WaitUntil(
-    allButtons
-      .FilteredArray((button, idx) => pageAbilitiesNoCooldown[idx])
-      .Map((button, idx) => AbilityCooldown(EventPlayer(), button) > 0)
+    !pageAbilitiesNoCooldown ||
+    pageAbilitiesNoCooldown
+      .Map((button) => AbilityCooldown(EventPlayer(), button) > 0)
       .IsTrueForAny((i) => i), 
     99999);
-
+  
+  Wait(0.1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
 }
 
 rule: 'Infinite Charge'
 Event.OngoingPlayer
-if(pageAbilitiesInfiniteCharge.IsTrueForAny((i) => i))
+if(pageAbilitiesInfiniteCharge)
 {
-  for(Number i! = 0; i < pageAbilitiesInfiniteCharge.Length; i++) {
-    if(!pageAbilitiesInfiniteCharge[i]) continue;
-    
-    if(allButtons[i] == Button.Ultimate)
+  foreach(Button button! in pageAbilitiesInfiniteCharge) {
+    if(button == Button.Ultimate)
       SetUltimateCharge(EventPlayer(), 100);
     else
-      SetAbilityCharge(EventPlayer(), allButtons[i], 99);
+      SetAbilityCharge(EventPlayer(), button, 99);
   }
 
-  Wait(0.1);
-
   WaitUntil(
-    allButtons
-      .FilteredArray((button, idx) => pageAbilitiesInfiniteCharge[idx])
+    !pageAbilitiesInfiniteCharge ||
+    pageAbilitiesInfiniteCharge
       .Map((button) => 
-        (button == Button.Ultimate ? UltimateChargePercent() < 100 : AbilityCharge(EventPlayer(), button) < 99))
+      (button == Button.Ultimate ? 
+        UltimateChargePercent() < 100 : 
+        AbilityCharge(EventPlayer(), button) < 99))
       .IsTrueForAny((i) => i), 
     99999);
-   
-  Wait(1);
 
+  Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
 }
-
 
 rule: 'Infinite Resource'
 Event.OngoingPlayer
-if(pageAbilitiesInfiniteResource.IsTrueForAny((i) => i))
+if(pageAbilitiesInfiniteResource)
 {
-  for(Number i! = 0; i < allButtons.Length; i++) {
-    if(!pageAbilitiesInfiniteResource[i]) continue;
-    SetAbilityResource(EventPlayer(), allButtons[i], 99);
+  foreach(Button button! in pageAbilitiesInfiniteResource) {
+    SetAbilityResource(EventPlayer(), button, 99);
   }
 
-  Wait(0.1);
-
   WaitUntil(
-    allButtons
-      .FilteredArray((button, idx) => pageAbilitiesInfiniteResource[idx])
-      .Map((button, idx) => AbilityResource(EventPlayer(), button) && AbilityResource(EventPlayer(), button) < 99)
+    !pageAbilitiesInfiniteResource ||
+    pageAbilitiesInfiniteResource
+      .Map((button, idx) => AbilityResource(EventPlayer(), button) > 0 && AbilityResource(EventPlayer(), button) < 99)
       .IsTrueForAny((i) => i), 
     99999);
-
+  
+  Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
 }
 
-rule: 'Repeat button'
+rule: 'Spam button'
 Event.OngoingPlayer
-if(pageAbilitiesKeepPressingButton.IsTrueForAny((i) => i))
+if(pageAbilitiesKeepSpammingButton)
 {
-  Boolean abilityThenFire! = pageAbilitiesKeepPressingButton.Slice(0, 2).IsTrueForAny((i) => i) && pageAbilitiesKeepPressingButton.Slice(2, pageAbilitiesKeepPressingButton.Length).IsTrueForAny((i) => i);
+  // if primary/secondary fire are set to be spammed along with other abilities, treat them as confirmation buttons
+  Button[] abilities! = pageAbilitiesKeepSpammingButton.FilteredArray((i) => i != Button.PrimaryFire && i != Button.SecondaryFire);
+  Button[] fires! = pageAbilitiesKeepSpammingButton.FilteredArray((i) => i == Button.PrimaryFire || i == Button.SecondaryFire);
 
-  for(Number i! = abilityThenFire ? 2 : 0; i < pageAbilitiesKeepPressingButton.Length; i++) {
-    if(!pageAbilitiesKeepPressingButton[i]) continue;
-    
-    StartHoldingButton(EventPlayer(), allButtons[i]);
+  foreach(Button button! in abilities) {
+    StartHoldingButton(EventPlayer(), button);
   }
 
-  Wait(abilityThenFire ? 1 : 0);
+  if(abilities && fires)
+    Wait(1, WaitBehavior.AbortWhenFalse);
 
-  for(Number i! = 0; i < 2; i++) {
-    if(!pageAbilitiesKeepPressingButton[i]) continue;
-    
-    StartHoldingButton(EventPlayer(), allButtons[i]);
+  foreach(Button button! in fires) {
+    StartHoldingButton(EventPlayer(), button);
   }
   
-  Wait(1);
+  Wait(1, WaitBehavior.AbortWhenFalse);
 
-  for(Number i! = 0; i < pageAbilitiesKeepPressingButton.Length; i++) {
-    if(!pageAbilitiesKeepPressingButton[i]) continue;
-    
-    StopHoldingButton(EventPlayer(), allButtons[i]);
+  foreach(Button button! in pageAbilitiesKeepSpammingButton) {
+    StopHoldingButton(EventPlayer(), button);
   }
 
-  Wait(0.1);
-
   WaitUntil(
-    allButtons
-      .FilteredArray((button, idx) => pageAbilitiesKeepPressingButton[idx])
+    !pageAbilitiesKeepSpammingButton ||
+    pageAbilitiesKeepSpammingButton
       .Map((button, idx) => !IsUsingAbility(EventPlayer(), button))
-      .IsTrueForAny((i) => i), 
+      .IsTrueForAny((i) => i),
     99999);
 
-  Wait(1);
-
+  Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
 }
 
-// draw
-rule: 'Draw currently pressed buttons above players'
+rule: 'Show current ability info'
 Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.currentMenuID == PAGE_ABILITIES_ID)
+if(menuState.history[2].id == PAGE_ABILITIES_ID)
 {
-  // "Draw current ability info above players" will remove these texts when exiting submenu
-  MinWait();
+  playerInfoProps.Enable(playerInfoProps);
+  playerInfoProps.EnableButtons(playerInfoProps);
 
-  foreach(Player player in AllPlayers()) {
-    if(player == EventPlayer()) continue;
-    
-    Player pl: EvaluateOnce(player);
+  WaitUntil(menuState.history[2].id != PAGE_ABILITIES_ID, 99999);
 
-    playerText.Add(pl, 
-      (pl.buttonsHeld.Contains(Button.PrimaryFire) ? $'{Button.PrimaryFire}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.SecondaryFire) ? $'{Button.SecondaryFire}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Ability1) ? $'{Button.Ability1}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Ability2) ? $'{Button.Ability2}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Ultimate) ? $'{Button.Ultimate}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Reload) ? $'{Button.Reload}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Melee) ? $'{Button.Melee}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Jump) ? $'{Button.Jump}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Crouch) ? $'{Button.Crouch}\n' : '') +
-        (pl.buttonsHeld.Contains(Button.Interact) ? $'{Button.Interact}\n' :  '')
-    );
-
-    MinWait();
-  }
-
-  WaitUntil(menuState.currentMenuID != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
-  
-  playerText.Remove();
-}
-
-rule: 'Draw current ability info above players'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.stack[menuState.stack.Length - 2] == PAGE_ABILITIES_ID)
-{
-  foreach(Player player in AllPlayers()) {
-    if(player == EventPlayer()) continue;
-
-    Player pl: EvaluateOnce(player);
-
-    playerText.Add(pl, PageAbilitiesInfo(
-      player: pl,
-      button: 
-        menuState.stack.Last == PAGE_ABILITIES_PRIMARY_FIRE_ID ? Button.PrimaryFire :
-        menuState.stack.Last == PAGE_ABILITIES_SECONDARY_FIRE_ID ? Button.SecondaryFire :
-        menuState.stack.Last == PAGE_ABILITIES_ABILITY_1_ID ? Button.Ability1 :
-        menuState.stack.Last == PAGE_ABILITIES_ABILITY_2_ID ? Button.Ability2 :
-        menuState.stack.Last == PAGE_ABILITIES_ULTIMATE_ID ? Button.Ultimate :
-        menuState.stack.Last == PAGE_ABILITIES_RELOAD_ID ? Button.Reload :
-        menuState.stack.Last == PAGE_ABILITIES_MELEE_ID ? Button.Melee :
-        menuState.stack.Last == PAGE_ABILITIES_JUMP_ID ? Button.Jump :
-        Button.Crouch
-    ));
-
-    MinWait();
-  }
-
-  WaitUntil(menuState.stack[menuState.stack.Length - 2] != PAGE_ABILITIES_ID || !menuState.isOpen, 99999);
-
-  playerText.Remove();
+  playerInfoProps.Disable(playerInfoProps);
+  playerInfoProps.DisableButtons(playerInfoProps);
 }

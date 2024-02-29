@@ -1,4 +1,4 @@
-import '../../libs/utils/other.del';
+import '../../libs/utils/button.allButtons.del';
 
 
 playervar Number[] lastCooldowns = [];

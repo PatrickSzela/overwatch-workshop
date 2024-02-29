@@ -1,22 +1,20 @@
-import '../../../../libs/utils/other.del';
+import '../../../../libs/menu/components/carousel.del';
+import '../../../../libs/utils/player.sortedAllPlayers.del';
 import '../../_variables.del';
 
 String PAGE_TELEPORT_ID: 'teleport';
 String PAGE_TELEPORT_NAME: 'Teleport to';
 
-String PAGE_TELEPORT_POSITION_ID: PAGE_TELEPORT_ID + 'position';
 String PAGE_TELEPORT_POSITION_NAME: 'Position';
-String PAGE_TELEPORT_OBJECTIVE_ID: PAGE_TELEPORT_ID + 'objective';
 String PAGE_TELEPORT_OBJECTIVE_NAME: 'Objective';
-String PAGE_TELEPORT_PAYLOAD_ID: PAGE_TELEPORT_ID + 'payload';
 String PAGE_TELEPORT_PAYLOAD_NAME: 'Payload';
-String PAGE_TELEPORT_PLAYER_ID: PAGE_TELEPORT_ID + 'player';
 String PAGE_TELEPORT_PLAYER_NAME: 'Player';
-Button PAGE_TELEPORT_BUTTON_APPLY: Button.Ability2;
 
-MenuItem[] PageTeleportItems() {
-  MenuItem position = new MenuItem(PAGE_TELEPORT_POSITION_NAME);
-  position.AddDescription(PickPosition.CHANGE_DISTANCE_DESCRIPTION);
+Vector PageTeleportGetObjectivePosition(Carousel it): it.value == -2 ? PayloadPosition() : ObjectivePosition(it.value == -1 ? ObjectiveIndex() : it.value);
+
+Component[] PageTeleportItems() {
+  Component position = new Component(PAGE_TELEPORT_POSITION_NAME);
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE)));
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
   };
@@ -24,51 +22,54 @@ MenuItem[] PageTeleportItems() {
     pickPosition.Disable();
   };
   position.onButtonDown = (button, it) => {
-    pickPosition.ChangeDistance(button);
-
-    if(buttonsHeld != [PAGE_TELEPORT_BUTTON_APPLY]) return;
+    if(buttonsHeld == [BUTTON_INCREASE])
+      pickPosition.StartChangingRaycaseDistance(0.1);
+    else if(buttonsHeld == [BUTTON_DECREASE])
+      pickPosition.StartChangingRaycaseDistance(-0.1);
+  };
+  position.onButtonUp = (button, it) => {
+    pickPosition.StopChangingRaycaseDistance();
+  };
+  position.SetPrimaryAction('Apply', (it) => {
     Teleport(selectedPlayers, pickPosition.position);
-  };
+  });
 
-  Carousel objectiveCarousel = new Carousel(
+  Carousel objective = new Carousel(
     text: PAGE_TELEPORT_OBJECTIVE_NAME,
-    options: [-1, 0, 1, 2, 3, 4]
+    options: [-2, -1, 0, 1, 2, 3, 4],
+    defaultValue: -1
   );
-  objectiveCarousel.valueFormatter = (it) => ObjectiveFormatter(it.value);
-  objectiveCarousel.onButtonDown = (button, it) => {
-    if(buttonsHeld != [PAGE_TELEPORT_BUTTON_APPLY]) return;
-    Teleport(selectedPlayers, ObjectivePosition(it.value == -1 ? ObjectiveIndex() : it.value));
-  };
+  objective.valueFormatter = (it) => ObjectiveFormatter(it.value);
+  objective.SetPrimaryAction("Apply", (it) => {
+    Teleport(selectedPlayers, PageTeleportGetObjectivePosition(<Carousel>it));
+  });
 
-  MenuItem objective = new MenuItem(child: objectiveCarousel);
-
-  MenuItem payload = new MenuItem(PAGE_TELEPORT_PAYLOAD_NAME);
-  payload.onButtonDown = (button, it) => {
-    if(button != PAGE_TELEPORT_BUTTON_APPLY) return;
-    Teleport(selectedPlayers, PayloadPosition());
-  };
-
-  Carousel playerCarousel = new Carousel(
+  Carousel player = new Carousel(
     text: PAGE_TELEPORT_PLAYER_NAME,
-    options: SortedAllPlayersFlat()
+    options: sortedPlayers
   );
-  playerCarousel.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
-  playerCarousel.onButtonDown = (button, it) => {
-    if(buttonsHeld != [PAGE_TELEPORT_BUTTON_APPLY]) return;
-    if(it.value == null) return;
-    Teleport(selectedPlayers, it.value);
-  };
+  player.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
+  player.SetPrimaryAction("Apply", (it) => {
+      Teleport(selectedPlayers, (<Carousel>it).value);
+  });
 
-  MenuItem player = new MenuItem(child: playerCarousel);
-
-  return [position, objective, payload, player];
+  return [position, objective, player];
 }
 
 rule: 'Player Settings/Teleport'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_TELEPORT_ID)
+if(menuState.pageId == PAGE_TELEPORT_ID)
 {
-  menuState.SetTitle(PAGE_TELEPORT_NAME);
-  menuState.AddDescription($"Press {ButtonFormatterSingle(PAGE_TELEPORT_BUTTON_APPLY)}​ to apply");
-  menuState.AddItems(PageTeleportItems());
+  menuState.CreatePage(
+    title: PAGE_TELEPORT_NAME, 
+    items: PageTeleportItems()
+  );
+
+  playerInfoProps.Enable(playerInfoProps);
+  playerInfoProps.EnableTransform(playerInfoProps);
+
+  WaitUntil(menuState.pageId != PAGE_TELEPORT_NAME, 99999);
+
+  playerInfoProps.Disable(playerInfoProps);
+  playerInfoProps.DisableTransform(playerInfoProps);
 }

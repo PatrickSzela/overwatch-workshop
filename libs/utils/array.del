@@ -1,14 +1,30 @@
-T[] ShiftAndPush<T>(in T[] array, in Number amount): amount > 0 ? 
+# Shifts an `array` by `amount` of elements.
+T[] ShiftAndPush<T>(T[] array, Number amount): amount > 0 ? 
   array.Slice(amount, array.Length).Append(array.Slice(0, amount)) :
   array.Slice(array.Length + amount, -amount).Append(array.Slice(0, array.Length + amount));
 
-T[] Reverse<T>(in T[] array): array.SortedArray((_, idx) => -idx);
+# Reverses an `array`.
+T[] Reverse<T>(T[] array): array.SortedArray((_, idx) => -idx);
 
+# Joins elements of `array` into a String while also putting `separator` between them.
 String Join(in Any[] array, in String separator) {
   if(!array.Length) return "";
   String ret! = array[0];
-  foreach(String str! in array.Slice(1, array.Length - 1)) {
+  Any[] arr! = array.Slice(1, array.Length - 1);
+  foreach(String str! in arr) {
     ret = $"{ret}{separator}{str}";
   }
   return ret;
 }
+
+String InlineJoin10(Any[] array, String separator): 
+  (array[0] ? $"{array[0]}" : '') +
+  (array[1] ? $"{separator}{array[1]}" : '') +
+  (array[2] ? $"{separator}{array[2]}" : '') +
+  (array[3] ? $"{separator}{array[3]}" : '') +
+  (array[4] ? $"{separator}{array[4]}" : '') +
+  (array[5] ? $"{separator}{array[5]}" : '') +
+  (array[6] ? $"{separator}{array[6]}" : '') +
+  (array[7] ? $"{separator}{array[7]}" : '') +
+  (array[8] ? $"{separator}{array[8]}" : '') +
+  (array[9] ? $"{separator}{array[9]}" : '');

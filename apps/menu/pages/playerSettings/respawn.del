@@ -3,15 +3,12 @@ import '../../_variables.del';
 String PAGE_RESPAWN_ID: 'respawn';
 String PAGE_RESPAWN_NAME: 'Respawn';
 
-Button PAGE_RESPAWN_BUTTON_APPLY: Button.Ability2;
+Component PageRespawnMenuItem() {
+  Component respawn = new Component(PAGE_RESPAWN_NAME);
 
-MenuItem PageRespawnMenuItem() {
-  MenuItem respawn = new MenuItem(PAGE_RESPAWN_NAME);
-  respawn.AddDescription($"Press {ButtonFormatterSingle(PAGE_RESPAWN_BUTTON_APPLY)}​ to apply");
-  respawn.onButtonDown = (button, it) => {
-    if(buttonsHeld == [PAGE_RESPAWN_BUTTON_APPLY])
-      Respawn(selectedPlayers);
-  };
+  respawn.SetPrimaryAction("Apply", (it) => {
+    Respawn(selectedPlayers);
+  });
 
   return respawn;
 }

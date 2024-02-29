@@ -2,13 +2,17 @@ import '../../_variables.del';
 import './healDamageTaken.del';
 import './slowMotion.del';
 import './diagnostics.del';
+import './playerInfo.del';
 
 String PAGE_TOOLS_ID: 'tools';
 String PAGE_TOOLS_NAME: 'Tools';
 
-MenuItem[] PageToolsItems() {
+Component[] PageToolsItems() {
   return [
+    <Component>new Text('Player info:')
+  ] + PagePlayerInfoMenuItem() + [
     PageHealDamageTakenMenuItem(),
+    new Text(),
     PageSlowMotionMenuItem(),
     PageDiagnosticsMenuItem()
   ];
@@ -16,8 +20,10 @@ MenuItem[] PageToolsItems() {
 
 rule: 'Player Settings'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_TOOLS_ID)
+if(menuState.pageId == PAGE_TOOLS_ID)
 {
-  menuState.SetTitle(PAGE_TOOLS_NAME);
-  menuState.AddItems(PageToolsItems());
+  menuState.CreatePage(
+    title: PAGE_TOOLS_NAME, 
+    items: PageToolsItems()
+  );
 }

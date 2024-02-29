@@ -1,0 +1,25 @@
+globalvar Player[] sortedPlayers = [];
+globalvar Player[][] sortedPlayersPerTeam = [[], [], []];
+globalvar Player[][] sortedPlayersPerTeamPerSlot = [[], [], []];
+
+rule: 'Sorted Players'
+{
+  Number[] sorted: AllPlayers().Map((i) => (TeamOf(i) == Team.Team1 ? 0 : TeamOf(i) == Team.Team2 ? 100 : 10000) + SlotOf(i));
+
+  WaitUntil(sorted != EvaluateOnce(sorted), 99999);
+  
+  sortedPlayersPerTeam = [[], [], []];
+
+  foreach(Player player! in AllPlayers()) {
+    Number idx! = TeamOf(player) == Team.Team1 ? 0 : TeamOf(player) == Team.Team2 ? 1 : 2;
+    sortedPlayersPerTeam[idx] += player;
+    sortedPlayersPerTeamPerSlot[idx][SlotOf(player)] = player;
+  }
+
+  for(Number i! = 0; i < sortedPlayersPerTeam.Length; i++)
+    sortedPlayersPerTeam[i] = sortedPlayersPerTeam[i].SortedArray((c) => SlotOf(c));
+
+  sortedPlayers = sortedPlayersPerTeam[0] + sortedPlayersPerTeam[1] + sortedPlayersPerTeam[2];
+
+  Loop();
+}

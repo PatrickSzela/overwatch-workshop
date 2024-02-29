@@ -1,37 +1,19 @@
+import '../../../../../libs/menu/components/link.del';
 import './_rules.del';
-import './primaryFire.del';
-import './secondaryFire.del';
-import './ability1.del';
-import './ability2.del';
-import './ultimate.del';
-import './reload.del';
-import './melee.del';
-import './jump.del';
-import './crouch.del';
-import './interact.del';
+import './_helpers.del';
 
 String PAGE_ABILITIES_ID: 'abilities';
 String PAGE_ABILITIES_NAME: 'Abilities';
 
-globalvar (String | Button)[][] buttonToPage = [
-  [Button.PrimaryFire, PAGE_ABILITIES_PRIMARY_FIRE_NAME, PAGE_ABILITIES_PRIMARY_FIRE_ID],
-  [Button.SecondaryFire, PAGE_ABILITIES_SECONDARY_FIRE_NAME, PAGE_ABILITIES_SECONDARY_FIRE_ID],
-  [Button.Ability1, PAGE_ABILITIES_ABILITY_1_NAME, PAGE_ABILITIES_ABILITY_1_ID],
-  [Button.Ability2, PAGE_ABILITIES_ABILITY_2_NAME, PAGE_ABILITIES_ABILITY_2_ID],
-  [Button.Ultimate, PAGE_ABILITIES_ULTIMATE_NAME, PAGE_ABILITIES_ULTIMATE_ID],
-  [Button.Reload, PAGE_ABILITIES_RELOAD_NAME, PAGE_ABILITIES_RELOAD_ID],
-  [Button.Melee, PAGE_ABILITIES_MELEE_NAME, PAGE_ABILITIES_MELEE_ID],
-  [Button.Jump, PAGE_ABILITIES_JUMP_NAME, PAGE_ABILITIES_JUMP_ID],
-  [Button.Crouch, PAGE_ABILITIES_CROUCH_NAME, PAGE_ABILITIES_CROUCH_ID],
-  [Button.Interact, PAGE_ABILITIES_INTERACT_NAME, PAGE_ABILITIES_INTERACT_ID]
-];
+Component[] PageAbilitiesItems() {
+  Component[] list = [];
 
-MenuItem[] PageAbilitiesItems() {
-  MenuItem[] list = [];
-
-  foreach((String | Button)[] arr in buttonToPage) {
-    list += new MenuItemSubmenu(menuState, arr[1], submenuID: arr[2]);
-    PageAbilitiesHoldButtonMenuItemEnhancer(list.Last, arr[0]);
+  foreach(Button button! in allButtons) {
+    list += new Link(menuState, $"{button}", submenuID: $"{button}", openButton: BUTTON_SECONDARY);
+    list.Last.onSecondaryAction = (it) => {
+      selectedButton = button;
+    };
+    list.Last.child = PageAbilitiesCarousel($"{button}", button);
   }
 
   return list;
@@ -39,13 +21,27 @@ MenuItem[] PageAbilitiesItems() {
 
 rule: 'Player Settings/Abilities'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_ABILITIES_ID)
+if(menuState.pageId == PAGE_ABILITIES_ID)
 {
-  pageAbilitiesFilteredPlayers = selectedPlayers.FilteredArray((i) => i != EventPlayer());
-
-  menuState.SetTitle(PAGE_ABILITIES_NAME);
-  menuState.AddDescription("All Players have a list of currently pressed buttons above them", Color.SkyBlue);
-  menuState.AddDescription("To avoid potential bugs, you won't be able to trigger using abilities for yourself", Color.Orange);
-  menuState.AddItems(PageAbilitiesItems());
+  menuState.CreatePage(
+    title: PAGE_ABILITIES_NAME, 
+    items: PageAbilitiesItems(), 
+    descriptions: [
+      Description.New("To avoid potential bugs, you won't be able to trigger using abilities for yourself", COLOR_WARNING)
+    ]
+  );
 }
 
+rule: 'Player Settings/Abilities/Selected button'
+Event.OngoingPlayer
+if(menuState.HistoryContains(PAGE_ABILITIES_ID))
+if(menuState.pageId == $"{selectedButton}")
+{
+  menuState.CreatePage(
+    title: $"{selectedButton}",
+    items: PageAbilitiesMenuItemsGenerator(selectedButton), 
+    descriptions: [
+      Description.New(PAGE_ABILITIES_WARNING_BROKEN, COLOR_WARNING)
+    ]
+  );
+}

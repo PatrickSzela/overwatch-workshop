@@ -1,0 +1,49 @@
+import '../menuState.del';
+import './component.del';
+
+class Link: Component 
+{
+  public MenuState _menuState;
+  public Any submenuID;
+  public Button openButton;
+
+  public constructor(
+    in MenuState menuState,
+    in String text, 
+    in String submenuID,
+    in Button openButton = BUTTON_PRIMARY
+  ) {
+    LinkConstructor(menuState, text, submenuID, openButton);
+  }
+
+  protected void LinkConstructor(
+    MenuState menuState!,
+    String text!, 
+    String submenuID!,
+    Button openButton! = BUTTON_PRIMARY
+  ) "[Link] Constructor" {
+    ComponentConstructor(text, null);
+    
+    this._menuState = menuState;
+    this.submenuID = submenuID;
+    this.openButton = openButton;
+
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(openButton)}​ to open submenu"));
+  }
+
+  public override void Render() "[Link] Render" {
+    onRender(this);
+    renderedText = $"{child.renderedText || text}​ ▶";
+  }
+
+  public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {
+    onButtonDown(button, this);
+
+    HandleActions();
+
+    if(buttonsHeld == [openButton])
+      _menuState.GoTo(submenuID);
+    else if(child)
+      child.OnButtonDown(button);
+  }
+}

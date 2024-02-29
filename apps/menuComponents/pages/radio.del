@@ -5,29 +5,29 @@ import '../_variables.del';
 String PAGE_DEBUG_RADIO_ID: 'radio';
 String PAGE_DEBUG_RADIO_NAME: 'Radio';
 
-MenuItem[] PageDebugRadioItems() {
-  MenuItem[] menuItems! = [];
+Component[] PageDebugRadioItems() {
+  Radio[] items = [];
 
   for(Number i! = 1; i <= 10; i++) {
-    Radio radio = new Radio(
+    items += new Radio(
       menuState: menuState,
       text: $"Item {i}", 
       name: PAGE_DEBUG_RADIO_ID, 
-      value: i, 
       defaultChecked: i == 5
     );
-    radio.onChange = (checked, it) => LogToInspector($'Currently selected: {Join(it.values, ", ")}');
 
-    menuItems[i - 1] = new MenuItem(child: radio);
+    items.Last.onChange = (checked, it) => LogToInspector($'{it.text}: value changed to {checked}');
   }
 
-  return menuItems;
+  return items;
 }
 
 rule: 'Debug/Radio'
 Event.OngoingPlayer
-if(menuState.currentMenuID == PAGE_DEBUG_RADIO_ID)
+if(menuState.pageId == PAGE_DEBUG_RADIO_ID)
 {
-  menuState.SetTitle(PAGE_DEBUG_RADIO_NAME);
-  menuState.AddItems(PageDebugRadioItems());
+  menuState.CreatePage(
+    title: PAGE_DEBUG_RADIO_NAME, 
+    items: PageDebugRadioItems()
+  );
 }

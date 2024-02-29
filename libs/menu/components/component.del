@@ -1,67 +1,140 @@
-struct Description {
+import '../menuState.del';
+
+single struct Description {
   public String text;
   public Color color;
   public Boolean visible;
   public Number order;
+
+  public static Description New(in String description, in Color color = COLOR_NEUTRAL, in Boolean visible = true, in Number order = 0): 
+    {text: description, color: color, visible: visible, order: order};
+
+  public static Description BASE: {
+    text: '',
+    color: COLOR_NEUTRAL,
+    visible: true,
+    order: 0
+  };
 }
 
 class Component {
+  public Any id;
+  public Color color;
+  public String name;
   public String text;
-  public String renderedText;
   public Description[] description;
   public Boolean disabled;
   public Component child;
-  public ((Component) => String) textFormatter;
-  static private ((Component) => String) defaultTextFormatter = (Component it) => it.text;
-
-  // events
+  public MenuState _menuState;
+  public String renderedText;
+  public Boolean shouldRerender;
+  
+  public ((Component) => void) onRender;
+  public ((Component) => void) onEnter;
+  public ((Component) => void) onLeave;
   public ((Button, Component) => void) onButtonDown;
   public ((Button, Component) => void) onButtonUp;
   public ((Vector, Component) => void) onNavigate;
+  public ((Component) => void) onPrimaryAction;
+  public ((Component) => void) onSecondaryAction;
+  public ((Component) => void) onTertiaryAction;
+  public ((Component) => void) onQuaternaryAction;
 
   public constructor(
-    in String text!,
-    in Component child! = null
+    in String text,
+    in Component child = null
   ) {
-    ConstructorBase([text, child]);
+    ComponentConstructor(text, child);
   }
 
-  protected void ConstructorBase(Any[] arr!) "[Component] ConstructorBase" {
-    String text: arr[0];
-    Component _child: arr[1];
-
+  protected void ComponentConstructor(
+    String text!,
+    Component child! = null
+  ) "[Component] Constructor" {
     this.text = text;
-    this.disabled = false;
     this.description = [];
-    this.text = text;
-    this.textFormatter = defaultTextFormatter;
-    this.child = _child;
+    this.child = child;
+    this.color = COLOR_NEUTRAL;
+
+    this.shouldRerender = true;
+  }
+  
+  public void AddDescription(in Description description) {
+    this.description += description;
   }
 
-  public void AddDescription(in String description!, in Color color! = Color.White, in Boolean visible! = true, in Number order! = 0) {
-    this.description += {text: description, color: color, visible: visible, order: order};
+  public void MarkToRerender() {
+    this.shouldRerender = true;
   }
 
-  public virtual void FormatText() "[Component] FormatText" {
-    renderedText = child ? child.renderedText : textFormatter(this);
+  public virtual void SetPrimaryAction(String description!, (Component) => void action!) "t" {
+    onPrimaryAction = action;
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_PRIMARY)}​ to {description}"));
+  }
+
+  public virtual void SetSecondaryAction(String description!, (Component) => void action!) "t" {
+    onSecondaryAction = action;
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_SECONDARY)}​ to {description}"));
+  }
+
+  public virtual void SetTertiaryAction(String description!, (Component) => void action!) "t" {
+    onTertiaryAction = action;
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_TERTIARY)}​ to {description}"));
+  }
+
+  public virtual void SetQuaternaryAction(String description!, (Component) => void action!) "t" {
+    onQuaternaryAction = action;
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_QUATERNARY)}​ to {description}"));
+  }
+
+  public virtual void HandleActions() "[Component] Handle Action" {
+    if(buttonsHeld == [BUTTON_PRIMARY]) onPrimaryAction(this);
+    else if(buttonsHeld == [BUTTON_SECONDARY]) onSecondaryAction(this);
+    else if(buttonsHeld == [BUTTON_TERTIARY]) onTertiaryAction(this);
+    else if(buttonsHeld == [BUTTON_QUATERNARY]) onQuaternaryAction(this);
+  }
+
+  // idk why OSTW thinks using child's `Render()` method makes it recursive
+  public virtual void Render() "[Component] Render" {
+    onRender(this);
+    renderedText = child.renderedText || text;
   }
 
   // events
+  public virtual void OnEnter() "[Component] OnEnter" {
+    onEnter(this);
+
+    if(child)
+      child.OnEnter();
+  }
+
+  public virtual void OnLeave() "[Component] OnLeave" {
+    onLeave(this);
+
+    if(child)
+      child.OnLeave();
+  }
+  
   public virtual void OnButtonDown(Button button!) "[Component] OnButtonDown" {
     onButtonDown(button, this);
-    if(child != null)
+
+    HandleActions();
+    
+    if(child)
       child.OnButtonDown(button);
   }
 
   public virtual void OnButtonUp(Button button!) "[Component] OnButtonUp" {
     onButtonUp(button, this);
-    if(child != null)
+
+    if(child)
       child.OnButtonUp(button);
   }
 
   public virtual void OnNavigate(Vector direction!) "[Component] OnNavigate" {
     onNavigate(direction, this);
-    if(child != null)
+
+    if(child)
       child.OnNavigate(direction);
   }
 }

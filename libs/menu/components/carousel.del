@@ -2,32 +2,31 @@ import './componentWithValue.del';
 
 class Carousel: ComponentWithValue
 {
-  public Any[] options;  
+  public Any[] options;
 
   public constructor(
-    in String text!,
-    in Any[] options!,
-    in Any defaultValue! = null
+    in String text,
+    in Any[] options,
+    in Any defaultValue = null
   ) {
-    ConstructorCarousel([text, options, defaultValue]);
+    CarouselConstructor(text, options, defaultValue);
   }
 
-  protected void ConstructorCarousel(Any[] arr!) "[Carousel] Constructor Helper" {
-    String text: arr[0];
-    Any[] options: arr[1];
-    Any defaultValue: arr[2];
-
-    this.defaultValue = defaultValue == null ? options.First : defaultValue;
+  protected void CarouselConstructor(
+    String text!,
+    Any[] options!,
+    Any defaultValue! = null
+  ) "[Carousel] Constructor" {
     this.options = options;
     
-    ConstructorWithValue([text, this.defaultValue, null]);
-    AddDescription('Use [←] or [→] to select an option');
+    ComponentWithValueConstructor(text, !options.Contains(defaultValue) ? options.First : defaultValue, null);
+
+    AddDescription(Description.New('Use [←] or [→] to select an option'));
   }
 
   public override void OnNavigate(Vector direction!) "[Carousel] OnNavigate" {
     onNavigate(direction, this);
 
-    Any old! = value;
     Number index! = options.IndexOf(value);
 
     if(index == -1) {
@@ -40,16 +39,12 @@ class Carousel: ComponentWithValue
       else if(index > options.Length - 1) index = 0;
     }
 
-    value = options[index];
-
-    if(old != options[index]) {
-      OnChange();
-    }
+    SetValue(options[index]);
   }
 
-  public override void FormatText() "[Carousel] FormatText" {
-    renderedText = textFormatter(this);
-    if(options.Length == 0) renderedText = $"{renderedText}: Empty";
-    else renderedText = $"{renderedText}: ← {valueFormatter(this)}​ →";
+  public override void Render() "[Carousel] Render" {
+    onRender(this);
+    if(options.Length == 0) renderedText = $"{text}: Empty";
+    else renderedText = $"{text}: ← {valueFormatter(this)}​ →";
   }
 }

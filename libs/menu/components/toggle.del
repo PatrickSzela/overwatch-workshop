@@ -1,56 +1,41 @@
-import '../../utils/formatters.del';
+import '../../utils/string.formatters.del';
 import './componentWithValue.del';
 
 class Toggle: ComponentWithValue 
 {
-  public static Button BUTTON_TOGGLE: Button.Ability2;
+  public Button BUTTON_TOGGLE: BUTTON_PRIMARY;
   public Boolean checked: value;
-  public Boolean defaultChecked: defaultValue;
-
-  // events
-  public ((Boolean, Toggle) => void) onChange;
 
   public constructor(
-    in String text!,
-    in Boolean defaultChecked! = null
+    in String text,
+    in Boolean defaultChecked = null,
+    in Component child = null
   ) {
-    ConstructorToggle([text, defaultChecked]);
+    ToggleConstructor(text, defaultChecked, child);
   }
 
-  protected void ConstructorToggle(Any[] arr!) "[Toggle] Constructor Helper" {
-    String text: arr[0];
-    Any defaultChecked: arr[1];
-
-    ConstructorWithValue([text, defaultChecked]);
+  protected void ToggleConstructor(
+    String text!,
+    Boolean defaultChecked! = null,
+    Component child! = null
+  ) "[Toggle] Constructor" {
+    ComponentWithValueConstructor(text, defaultChecked, child);
 
     this.valueFormatter = (it) => BooleanFormatter(it.value);
 
-    AddDescription($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle");
-  }
-
-  public virtual void SetSelected(Boolean selected!) "[Toggle] SetSelected" {
-    if(selected != checked) {
-      value = selected;
-      OnChange();
-    }
-  }
-
-  public virtual void Toggle() "[Toggle] Toggle" {
-    SetSelected(!checked);
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle"));
   }
 
   // events
   public override void OnButtonDown(Button button!) "[Toggle] OnButtonDown" {
     onButtonDown(button, this);
 
-    if(button == BUTTON_TOGGLE)
-      Toggle();
+    HandleActions();
 
-    if(child != null)
+    if(buttonsHeld == [BUTTON_TOGGLE])
+      SetValue(!checked);
+
+    if(child)
       child.OnButtonDown(button);
-  }
-
-  public virtual void OnChange() "[Toggle] OnChange" {
-    onChange(value, this);
   }
 }

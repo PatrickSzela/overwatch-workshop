@@ -1,81 +1,79 @@
 import '../../../../libs/utils/vector.del';
-// import '../../../../libs/playerText/playerText.del';
+import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 
 // TODO: migrate to playerText when multiple texts are supported properly
 
 String PAGE_HEAL_DAMAGE_TAKEN_ID: 'healDamageTaken';
-String PAGE_HEAL_DAMAGE_TAKEN_NAME: 'Show Heal/Damage Taken';
+String PAGE_HEAL_DAMAGE_TAKEN_NAME: 'Heal/Damage Taken';
 
-playervar Boolean showHealDamageTaken = false;
+single struct PageHealDamageTakenProps {
+  public Boolean show;
 
-playervar Number healedBySum = 0;
-playervar Number healedByLast = 0;
-playervar Number damagedBySum = 0;
-playervar Number damagedByLast = 0;
-globalvar Any[] healDamageTexts = [];
+  public Number healedBySum;
+  public Number healedByLast;
+  public Number damagedBySum;
+  public Number damagedByLast;
 
-MenuItem PageHealDamageTakenMenuItem() {
+  public static PageHealDamageTakenProps BASE:
+    { show: false, healedBySum: 0, healedByLast: 0, damagedBySum: 0, damagedByLast: 0 };
+}
+
+playervar PageHealDamageTakenProps pageHealDamageTakenProps = PageHealDamageTakenProps.BASE;
+
+Component PageHealDamageTakenMenuItem() {
   Toggle toggle = new Toggle(
     text: PAGE_HEAL_DAMAGE_TAKEN_NAME,
-    defaultChecked: showHealDamageTaken
+    defaultChecked: pageHealDamageTakenProps.show
   );
   toggle.onChange = (checked, it) => {
-    showHealDamageTaken = checked;
+    pageHealDamageTakenProps.show = checked;
   };
 
-  MenuItem menuItem = new MenuItem(child: toggle);
-
-  return new MenuItem(child: menuItem);
+  return toggle;
 }
 
 rule: 'Heal info'
 Event.OnHealingTaken
 {
-  healedBySum += EventHealing();
-  healedByLast = EventHealing();
+  pageHealDamageTakenProps.healedBySum += EventHealing();
+  pageHealDamageTakenProps.healedByLast = EventHealing();
   Wait(1, WaitBehavior.RestartWhenTrue);
-  healedBySum = 0;
+  pageHealDamageTakenProps.healedBySum = 0;
 }
 
 rule: 'Damaged info'
 Event.OnDamageTaken
 {
-  damagedBySum += EventDamage();
-  damagedByLast = EventDamage();
+  pageHealDamageTakenProps.damagedBySum += EventDamage();
+  pageHealDamageTakenProps.damagedByLast = EventDamage();
   Wait(1, WaitBehavior.RestartWhenTrue);
-  damagedBySum = 0;
+  pageHealDamageTakenProps.damagedBySum = 0;
 }
 
 rule: 'Heal/Damage Taken: Generate texts'
+Event.OngoingPlayer
 {
-  while(true) {
-    Player[] players: AllPlayers();
-    Number num! = AllPlayers().Length - healDamageTexts.Length;
+  Number healedBySum: pageHealDamageTakenProps.healedBySum;
+  Number healedByLast: pageHealDamageTakenProps.healedByLast;
+  Number damagedBySum: pageHealDamageTakenProps.damagedBySum;
+  Number damagedByLast: pageHealDamageTakenProps.damagedByLast;
 
-    for(Number i! = 0; i < num; i++) {
-      Number idx: EvaluateOnce(healDamageTexts.Length);
-
-      healDamageTexts += CreateInWorldText(
-        VisibleTo: HasSpawned(players[idx]) && LocalPlayer().showHealDamageTaken ? LocalPlayer() : null,
-        Header: 
-          (players[idx].healedBySum > 0 ? $"+{players[idx].healedBySum + 0.0001}​ HP (+{players[idx].healedByLast + 0.0001})" : '') + 
-          (players[idx].damagedBySum > 0 ? $"\n-{players[idx].damagedBySum + 0.0001}​ HP (-{players[idx].damagedByLast + 0.0001})" : ''),
-        Position: UpdateEveryFrame(
-          LocalPlayer() == players[idx] ? 
-            ScreenPositionToWorld(0, -0.95) : 
-            players[idx].EyePosition() + Up()
-        ),
-        // scale can't be reevaluated...
-        Scale: PlayerText.TEXT_SIZE,
-        Clipping: Clipping.DoNotClip,
-        Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-        TextColor: Color.White
-      );
-
-      MinWait();
-    }
-
-    WaitUntil(AllPlayers().Length > healDamageTexts.Length, 99999);
-  }
+  CreateInWorldText(
+    VisibleTo: LocalPlayer().pageHealDamageTakenProps ? LocalPlayer() : null,
+    Header: UpdateEveryFrame(
+      (healedBySum > 0 ? $"+{healedBySum + 0.0001}​ HP (+{healedByLast + 0.0001})" : '') + 
+      (damagedBySum > 0 ? $"\n-{damagedBySum + 0.0001}​ HP (-{damagedByLast + 0.0001})" : '')
+    ),
+    Position: UpdateEveryFrame(
+      LocalPlayer() == EventPlayer() ? 
+        ScreenPositionToWorld(0, -0.95) : 
+        EventPlayer().EyePosition() + Up()
+    ),
+    // scale can't be reevaluated...
+    Scale: 1.35,
+    Clipping: Clipping.DoNotClip,
+    Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+    TextColor: Color.White
+  );
 }

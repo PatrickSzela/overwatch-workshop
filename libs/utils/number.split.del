@@ -1,0 +1,34 @@
+import './array.del';
+import './number.del';
+
+# Splits `number` into an array of digits.
+# - First value contains a sign of the `number` (`-1` for negative, `0` for zero, `1` for positive).
+# - Further values contain digits of the `number`, except for `-2` which indicates decimal point.
+Number[] SplitNumber(Number number!, Number integralLength! = -1, Number fractionalLength! = 3) "Number To Parts" {
+  Number[] integral! = [];
+  Number[] fractional! = [];
+  Number[] prependIntegral! = [];
+
+  Number int! = AbsoluteValue(number).Floor();
+  Number frac! = AbsoluteValue(number) % 1;
+
+  // integral
+  while(int >= 1) {
+    integral += int % 10;
+    int = (int / 10).Floor();
+  }
+
+  for(Number i! = 0; i < integralLength - integral.Length; i++) {
+    prependIntegral += 0;
+  }
+  
+  // fractional
+  for(Number i! = 0; i < fractionalLength; i++) {    
+    fractional += (frac * 10).Floor();
+    frac = (frac * 10) % 1;
+  }
+
+  return [Sign(number)] + 
+    (prependIntegral + Reverse(integral)) + 
+    (fractional.Length ? [-2] + fractional : []);
+}

@@ -1,0 +1,18 @@
+import './array.del';
+
+# Converts array split by `SplitNumber()` back into a Number. 
+Number JoinNumber(Number[] parts!) "Join Number" {
+  Number sign! = parts[0] == 0 ? 1 : parts[0];
+  Number number! = 0;
+
+  Number sliceIdx! = (parts.IndexOf(-2) == -1 ? 999 : parts.IndexOf(-2)) - 1; // `- 1` because of the sign at the beginning
+  Number[][] parts2! = [Reverse(parts.Slice(1, sliceIdx)), parts.Slice(sliceIdx + 2, 999)]; // `+ 2` same as above
+
+  for(Number side! = 0; side < parts2.Length; side++) {
+    for(Number i! = 0; i < parts2[side].Length; i++) {
+      number += (10 ^ (side ? -(i + 1) : i)) * parts2[side][i];
+    }
+  }
+
+  return sign * number;
+}
