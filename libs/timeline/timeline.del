@@ -44,9 +44,9 @@ struct Timeline {
 
   // to be used in a rule
   public static void RuleLogic(ref Timeline timelineRef) {
-    // for(Number i! = timelineRef.index; i < timelineRef.actions.Length; i++) {
     for(timelineRef.index; timelineRef.index < timelineRef.actions.Length; timelineRef.index++) {
       Action action: timelineRef.actions[timelineRef.index];
+      if(action.disabled) continue;
       action.code();
       if(!timelineRef.isPlaying) break;
     }
@@ -60,40 +60,3 @@ struct Timeline {
     timelineRef.isPlaying = false;
   }
 }
-
-// globalvar Timeline timelinee = Timeline.New();
-
-// rule: 'aa'
-// if(HasSpawned(HostPlayer()))
-// {
-//   Timeline.AddAction(timelinee, ACTION_StartHoldingButton(AllPlayers(), Button.PrimaryFire));
-//   Timeline.AddAction(timelinee, ACTION_Wait(1));
-//   Timeline.AddAction(timelinee, ACTION_StopHoldingButton(AllPlayers(), Button.PrimaryFire));
-//   Timeline.AddAction(timelinee, ACTION_Wait(1));
-// }
-
-
-// rule: 'My Rule'
-// Event.OngoingPlayer
-// if(IsButtonHeld(EventPlayer(), Button.Crouch))
-// {
-//   if(timelinee.isPlaying)
-//     Timeline.Pause(timelinee);
-//   else
-//     Timeline.Play(timelinee);
-// }
-
-// rule: 'My Rule'
-// Event.OngoingPlayer
-// if(IsButtonHeld(EventPlayer(), Button.Interact))
-// {
-//   Timeline.SetRepeat(timelinee, !timelinee.isRepeating);
-// }
-
-
-
-// rule: '[Timeline] Start playing'
-// if(timelinee.isPlaying)
-// {
-//   Timeline.RuleLogic(timelinee);
-// }

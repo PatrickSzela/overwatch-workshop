@@ -17,6 +17,9 @@ playervar Action[] editableActions;
 playervar Action[] markedToRemove;
 playervar Component componentBeingMoved;
 
+Number PageEditTimelineGetActionIdx(Any id):
+  editableActions.Map((i) => i.id).IndexOf(id);
+
 Component PageTimelineEditItemGenerator(in Action action) {
   Component component = new Component($"{action.id}. {action.name}");
   component.id = action.id;
@@ -24,6 +27,7 @@ Component PageTimelineEditItemGenerator(in Action action) {
     it.color = 
       componentBeingMoved == it ? COLOR_WARNING :
       markedToRemove.Contains(action) ? COLOR_ERROR :
+      editableActions[PageEditTimelineGetActionIdx(action.id)].disabled ? COLOR_DISABLED :
       timeline.isPlaying && timeline.index == menuState2.items.IndexOf(it) ? COLOR_SWITCH : COLOR_NEUTRAL;
   };
 
@@ -36,7 +40,7 @@ Component PageTimelineEditItemGenerator(in Action action) {
     } else {
       markedToRemove += action;
     }
-    it.shouldRerender = true;
+    it.MarkToRerender();
   });
   component.SetTertiaryAction("Start/Stop moving", (it) => {
     if(componentBeingMoved == it) {
@@ -44,12 +48,17 @@ Component PageTimelineEditItemGenerator(in Action action) {
     } else {
       componentBeingMoved = it;
     }
-    it.shouldRerender = true;
+    it.MarkToRerender();
+  });
+  component.SetQuaternaryAction("Enable/Disable action", (it) => {
+    Number idx! = PageEditTimelineGetActionIdx(action.id);
+    editableActions[idx].disabled = !editableActions[idx].disabled;
+    it.MarkToRerender();
   });
   component.onNavigate = (direction, it) => {
     if(componentBeingMoved == it && (direction == Down() || direction == Up())) {
       // HACK: `IndexOf` doesn't work on structs?
-      Number oldPos! = editableActions.Map((i) => i.id).IndexOf(action.id);
+      Number oldPos! = PageEditTimelineGetActionIdx(action.id);
       Number newPos! = oldPos + (direction == Down() ? 1 : -1);
 
       if(newPos > menuState2.items.Length - 1) newPos = 0;
@@ -96,7 +105,7 @@ if(menuState2.isFocused)
   99999);
 
   if(componentBeingMoved != null) {
-    componentBeingMoved.shouldRerender = true;
+    componentBeingMoved.MarkToRerender();
     componentBeingMoved = null;
   }
   
