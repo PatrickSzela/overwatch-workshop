@@ -81,7 +81,7 @@ Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCaro
   return item;
 }
 
-NumberInput PageAbilitiesNumberInputGenerator(String text!, String unit! = null, Number value!, ((Number) => void) onApply!) "PageAbilitiesNumberInputGenerator" {
+NumberInput PageAbilitiesNumberInputGenerator(String text!, String unit! = null, Number value!, ((Number) => void) onApply!, ((Number) => void) onTimeline!) "PageAbilitiesNumberInputGenerator" {
   NumberInput numberInput! = new NumberInput(
     menuState: menuState, 
     text: text,
@@ -91,6 +91,9 @@ NumberInput PageAbilitiesNumberInputGenerator(String text!, String unit! = null,
   );
   numberInput.SetPrimaryAction("Apply", (it) => {
     onApply((<NumberInput>it).value);
+  });
+  numberInput.SetTertiaryAction("Add to timeline", (it) => {
+    onTimeline((<NumberInput>it).value);
   });
 
   return numberInput;
@@ -147,7 +150,10 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
       text: 'Charge',
       unit: '%',
       value: UltimateChargePercent(selectedPlayers[0]),
-      onApply: (value) => SetUltimateCharge(selectedPlayers, value)
+      onApply: (value) => SetUltimateCharge(selectedPlayers, value),
+      onTimeline: (value) => {
+        Timeline.AddAction(timeline, ACTION_SetUltimateCharge(selectedPlayers, value));
+      }
     );
 
     list += new Text();
@@ -175,12 +181,18 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
     list += PageAbilitiesNumberInputGenerator(
       text: 'Ammo',
       value: Ammo(selectedPlayers[0], clip),
-      onApply: (value) => SetAmmo(selectedPlayers, clip, value)
+      onApply: (value) => SetAmmo(selectedPlayers, clip, value),
+      onTimeline: (value) => {
+        Timeline.AddAction(timeline, ACTION_SetAmmo(selectedPlayers, ability, value));
+      }
     );
     list += PageAbilitiesNumberInputGenerator(
       text: 'Max Ammo',
       value: MaxAmmo(selectedPlayers[0], clip),
-      onApply: (value) => SetMaxAmmo(selectedPlayers, clip, value)
+      onApply: (value) => SetMaxAmmo(selectedPlayers, clip, value),
+      onTimeline: (value) => {
+        Timeline.AddAction(timeline, ACTION_SetMaxAmmo(selectedPlayers, ability, value));
+      }
     );
   }
 
@@ -188,20 +200,29 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
     text: 'Cooldown',
     unit: ' sec',
     value: AbilityCooldown(selectedPlayers[0], ability),
-    onApply: (value) => SetAbilityCooldown(selectedPlayers, ability, value)
+    onApply: (value) => SetAbilityCooldown(selectedPlayers, ability, value),
+    onTimeline: (value) => {
+      Timeline.AddAction(timeline, ACTION_SetCooldown(selectedPlayers, ability, value));
+    }
   );
 
   list += PageAbilitiesNumberInputGenerator(
     text: 'Charge',
     value: AbilityCharge(selectedPlayers[0], ability),
-    onApply: (value) => SetAbilityCharge(selectedPlayers, ability, value)
+    onApply: (value) => SetAbilityCharge(selectedPlayers, ability, value),
+    onTimeline: (value) => {
+      Timeline.AddAction(timeline, ACTION_SetCharge(selectedPlayers, ability, value));
+    }
   );
 
   list += PageAbilitiesNumberInputGenerator(
     text: 'Resource',
     unit: '%',
     value: AbilityResource(selectedPlayers[0], ability),
-    onApply: (value) => SetAbilityResource(selectedPlayers, ability, value)
+    onApply: (value) => SetAbilityResource(selectedPlayers, ability, value),
+    onTimeline: (value) => {
+      Timeline.AddAction(timeline, ACTION_SetResource(selectedPlayers, ability, value));
+    }
   );
 
   list += new Text();

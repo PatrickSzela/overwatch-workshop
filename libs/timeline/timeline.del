@@ -1,4 +1,4 @@
-import './actions/index.del';
+import './actions.del';
 
 globalvar Number timelineActionsId = -1;
 

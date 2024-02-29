@@ -1,0 +1,137 @@
+single struct Action {
+  public String name;
+  public Number id;
+  public () => void code;
+  public Boolean disabled;
+
+  public static Action New(String name, () => void code): 
+    { name: name, code: code, id: 0, disabled: false };
+}
+
+// wait
+Action ACTION_Wait(Number time): Action.New($'Wait({time}s)', code: () => {
+  Wait(time);
+});
+
+
+// buttons
+Action ACTION_PressButton(Player[] players, Button button): 
+  Action.New($'Press({button}, [{players}])', () => {
+    PressButton(players, button);
+  });
+
+Action ACTION_StartHoldingButton(Player[] players, Button button): 
+  Action.New($'Start holding({button}, [{players}])', () => {
+    StartHoldingButton(players, button);
+  });
+
+Action ACTION_StopHoldingButton(Player[] players, Button button): 
+  Action.New($'Stop holding({button}, [{players}])', () => {
+    StopHoldingButton(players, button);
+  });
+
+
+// ammo
+Action ACTION_SetAmmo(Player[] players, Button button, Number value): 
+  Action.New($'Set ammo({button}, {value}, [{players}])', () => {
+    SetAmmo(players, button == Button.SecondaryFire ? 1 : 0, value);
+  });
+
+Action ACTION_SetMaxAmmo(Player[] players, Button button, Number value): 
+  Action.New($'Set max ammo({button}, {value}, [{players}])', () => {
+    SetMaxAmmo(players, button == Button.SecondaryFire ? 1 : 0, value);
+  });
+
+
+// cooldown
+Action ACTION_SetCooldown(Player[] players, Button button, Number value): 
+  Action.New($'Set cooldown({button}, {value}, [{players}])', () => {
+    SetAbilityCooldown(players, button, value);
+  });
+
+
+// charge
+Action ACTION_SetCharge(Player[] players, Button button, Number value): 
+  Action.New($'Set charge({button}, {value}, [{players}])', () => {
+    SetAbilityCharge(players, button, value);
+  });
+
+Action ACTION_SetUltimateCharge(Player[] players, Number charge): 
+  Action.New($'Set charge({Button.Ultimate}, {charge}, [{players}])', () => {
+    SetUltimateCharge(players, charge);
+  });
+
+
+// resource
+Action ACTION_SetResource(Player[] players, Button button, Number value): 
+  Action.New($'Set resource({button}, {value}, [{players}])', () => {
+    SetAbilityResource(players, button, value);
+  });
+
+
+// teleport
+Action ACTION_Teleport(Player[] players, Vector position): 
+  Action.New($'Teleport({position}, [{players}])', () => {
+    Teleport(players, position);
+  });
+
+
+// look at
+Action ACTION_LookAt(Player[] players, Vector position): 
+  Action.New($'Look at({position}, [{players}])', () => {
+    SetFacing(players, position);
+  });
+
+Action ACTION_StartLookingAt(Player[] players, Vector position): 
+  Action.New($'Start looking at({position}, [{players}])', () => {
+    StartFacing(players, position);
+  });
+
+Action ACTION_StopLookingAt(Player[] players, Vector position): 
+  Action.New($'Stop looking at([{players}])', () => {
+    StopFacing(players);
+  });
+
+
+// respawn
+Action ACTION_Respawn(Player[] players): 
+  Action.New($'Respawn([{players}])', () => {
+    Respawn(players);
+  });
+
+
+// kill
+Action ACTION_Kill(Player[] players): 
+  Action.New($'Kill([{players}])', () => {
+    Kill(players);
+  });
+
+
+// resurrect
+Action ACTION_Resurrect(Player[] players): 
+  Action.New($'Resurrect([{players}])', () => {
+    Resurrect(players);
+  });
+
+
+// health
+Action ACTION_SetHealth(Player[] players, Number amount): 
+  Action.New($'Set health({amount}, [{players}])', () => {
+    SetPlayerHealth(players, amount);
+  });
+
+Action ACTION_SetMaxHealth(Player[] players, Number amount): 
+  Action.New($'Set max players({amount}, [{players}])', () => {
+    SetMaxHealth(players, 100);
+    MinWait();
+    foreach(Player pl! in players) {
+      SetMaxHealth(pl, (amount / pl.MaxHealth() * 100));
+    }
+  });
+
+
+// change hero
+Action ACTION_ChangeHero(Player[] players, Hero hero): 
+  Action.New($'Change hero({hero}, [{players}])', () => {
+    ForcePlayerHero(players, hero);
+  });

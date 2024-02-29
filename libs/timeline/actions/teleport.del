@@ -1,6 +1,0 @@
-import './action.del';
-
-Action ACTION_Teleport(Player[] players, Vector position): 
-  Action.New($'Teleport({position}, [{players}])', () => {
-    Teleport(players, position);
-  });

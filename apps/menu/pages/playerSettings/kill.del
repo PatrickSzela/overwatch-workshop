@@ -10,5 +10,9 @@ Component PageKillMenuItem() {
     Kill(selectedPlayers);
   });
 
+  kill.SetTertiaryAction("Add to timeline", (it) => {
+    Timeline.AddAction(timeline, ACTION_Kill(selectedPlayers));
+  });
+
   return kill;
 }

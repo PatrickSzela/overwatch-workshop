@@ -10,5 +10,9 @@ Component PageRespawnMenuItem() {
     Respawn(selectedPlayers);
   });
 
+  respawn.SetTertiaryAction("Add to timeline", (it) => {
+    Timeline.AddAction(timeline, ACTION_Respawn(selectedPlayers));
+  });
+
   return respawn;
 }
