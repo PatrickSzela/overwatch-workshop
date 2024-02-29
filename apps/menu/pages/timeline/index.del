@@ -1,0 +1,58 @@
+import '../../pages2/editTimeline.del';
+import '../../../../libs/menu/components/text.del';
+import '../../_variables.del';
+import './playPause.del';
+import './stop.del';
+import './repeat.del';
+import './addWait.del';
+import './addJumpToAction.del';
+
+String PAGE_TIMELINE_ID: 'timeline';
+String PAGE_TIMELINE_NAME: 'Timeline';
+
+playervar Number switchToTimelineIdx;
+
+Component[] PageTimelineItems() {
+  return [
+    PageTimelinePlayPauseMenuItem(),
+    PageTimelineStopMenuItem(),
+    new Text(),
+
+    new Text('Settings:'),
+    PageTimelineRepeatMenuItem(),
+    new Text(),
+
+    new Text('Add actions:'),
+    PageTimelineAddWaitMenuItem(),
+    PageTimelineAddJumpToMenuItem()
+  ];
+}
+
+rule: 'Timeline'
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_TIMELINE_ID)
+{
+  menuState.CreatePage(
+    title: PAGE_TIMELINE_NAME, 
+    items: PageTimelineItems()
+  );
+}
+
+rule: 'Add Timeline Info'
+Event.OngoingPlayer
+if(!menuState.HistoryContains(PAGE_TIMELINE_ID))
+{
+  menuState.descriptionsMenu[switchToTimelineIdx].visible = true;
+  menuState.Render();
+
+  WaitUntil(menuState.HistoryContains(PAGE_TIMELINE_ID), 99999);
+  
+  menuState.descriptionsMenu[switchToTimelineIdx].visible = false;
+  menuState.Render();
+}
+
+rule: '[Timeline] Start playing'
+if(timeline.isPlaying)
+{
+  Timeline.RuleLogic(timeline);
+}

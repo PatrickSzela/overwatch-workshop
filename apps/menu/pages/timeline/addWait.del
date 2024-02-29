@@ -1,0 +1,21 @@
+import '../../../../libs/menu/components/numberInput.del';
+import '../../_variables.del';
+
+String PAGE_TIMELINE_ADD_WAIT_ID: 'addWait';
+String PAGE_TIMELINE_ADD_WAIT_NAME: 'Wait';
+
+Component PageTimelineAddWaitMenuItem() {
+  NumberInput component = new NumberInput(
+    menuState: menuState,
+    text: PAGE_TIMELINE_ADD_WAIT_NAME,
+    defaultValue: 1,
+    fractionalLength: 3,
+    unit: 's'
+  );
+
+  component.SetPrimaryAction("Apply", (it) => {
+    Timeline.AddAction(timeline, ACTION_Wait((<NumberInput>it).value));
+  });
+
+  return component;
+}

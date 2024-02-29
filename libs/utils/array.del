@@ -1,3 +1,11 @@
+# Add an `item` into the `array` on position `index`.
+T[] AddAtPosition<T>(T[] array, T item, Number index):
+  array.Slice(0, index) + [item] + array.Slice(index, 999);
+
+# Move item in an `array` on position `index` to `newIndex`.
+T[] Move<T>(T[] array, Number index, Number newIndex): 
+  array.SortedArray((_, idx) => idx == index ? newIndex + (newIndex > index ? 0.5 : -0.5) : idx);
+
 # Shifts an `array` by `amount` of elements.
 T[] ShiftAndPush<T>(T[] array, Number amount): amount > 0 ? 
   array.Slice(amount, array.Length).Append(array.Slice(0, amount)) :

@@ -7,7 +7,11 @@ Component PageResurrectMenuItem() {
   Component resurrect = new Component(PAGE_RESURRECT_NAME);
 
   resurrect.SetPrimaryAction("Apply", (it) => {
-      Resurrect(selectedPlayers);
+    Resurrect(selectedPlayers);
+  });
+
+  resurrect.SetTertiaryAction("Add to timeline", (it) => {
+    Timeline.AddAction(timeline, ACTION_Resurrect(selectedPlayers));
   });
 
   return resurrect;

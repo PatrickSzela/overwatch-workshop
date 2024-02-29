@@ -24,6 +24,9 @@ Component PageSlowMotionMenuItem() {
     slowMotion = 100;
     SetSlowMotion(slowMotion);
   });
+  slowMotionInput.SetTertiaryAction("Add to timeline", (it) => {
+    Timeline.AddAction(timeline, ACTION_SetSlowMotion((<NumberInput>it).value));
+  });
 
   slowMotionInput.AddDescription(Description.New("Value will be clamped to be in range of 0-100%", COLOR_WARNING));
   slowMotionInput.AddDescription(Description.New("Slow motion will affect the responsiveness of the menu", COLOR_WARNING));

@@ -1,0 +1,162 @@
+import '../../../libs/utils/array.del';
+import '../../../libs/menu/components/checkbox.del';
+import '../_variables.del';
+
+// TODO: add marking multiple items (remake into checkboxes)?
+// TODO: figure out better way to show which players are affected by action
+// TODO: editable actions?
+
+String PAGE_TIMELINE_EDIT_ID: 'timelineEdit';
+String PAGE_TIMELINE_EDIT_NAME: 'Timeline Editor';
+
+// there's too much overhead when trying to have only 1 source of truth...
+playervar Action[] editableActions;
+playervar Action[] markedToRemove;
+playervar Component componentBeingMoved;
+
+Number PageEditTimelineGetActionIdx(Any id):
+  editableActions.Map((i) => i.id).IndexOf(id);
+
+Component PageTimelineEditItemGenerator(in Action action) {
+  Component component = new Component($"{action.id}. {action.name}");
+  component.id = action.id;
+  component.onRender = (it) => {
+    it.color = 
+      componentBeingMoved == it ? COLOR_WARNING :
+      markedToRemove.Contains(action) ? COLOR_ERROR :
+      editableActions[PageEditTimelineGetActionIdx(action.id)].disabled ? COLOR_DISABLED :
+      timeline.isPlaying && timeline.index == menuState2.items.IndexOf(it) ? COLOR_SWITCH : COLOR_NEUTRAL;
+  };
+
+  component.SetPrimaryAction("Execute action", (it) => {
+    action.code();
+  });
+  component.SetSecondaryAction("Mark/Unmark for removal", (it) => {
+    if(markedToRemove.Contains(action)) {
+      markedToRemove -= action;
+    } else {
+      markedToRemove += action;
+    }
+    it.MarkToRerender();
+  });
+  component.SetTertiaryAction("Start/Stop moving", (it) => {
+    if(componentBeingMoved == it) {
+      componentBeingMoved = null;
+    } else {
+      componentBeingMoved = it;
+    }
+    it.MarkToRerender();
+  });
+  component.SetQuaternaryAction("Enable/Disable action", (it) => {
+    Number idx! = PageEditTimelineGetActionIdx(action.id);
+    editableActions[idx].disabled = !editableActions[idx].disabled;
+    it.MarkToRerender();
+  });
+  component.onNavigate = (direction, it) => {
+    if(componentBeingMoved == it && (direction == Down() || direction == Up())) {
+      // HACK: `IndexOf` doesn't work on structs?
+      Number oldPos! = PageEditTimelineGetActionIdx(action.id);
+      Number newPos! = oldPos + (direction == Down() ? 1 : -1);
+
+      if(newPos > menuState2.items.Length - 1) newPos = 0;
+      else if(newPos < 0) newPos = menuState2.items.Length;
+
+      // let's hope these things doesn't desync...
+      editableActions = Move(editableActions, oldPos, newPos);
+      menuState2.items = Move(menuState2.items, oldPos, newPos);
+
+      // no need to render anything
+    }
+  };
+
+  return component;
+}
+
+rule: 'Timeline/Edit'
+Event.OngoingPlayer
+if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
+{
+  editableActions = [];
+
+  menuState2.CreatePage(
+    title: PAGE_TIMELINE_EDIT_NAME, 
+    items: [],
+    descriptions: [
+      Description.New('Switch to the left side to save changes', COLOR_INFO),
+      Description.New('Only 1 Player can edit the timeline at the same time', COLOR_WARNING)
+    ]
+  );
+}
+
+rule: 'Timeline/Edit On focus out'
+Event.OngoingPlayer
+if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
+if(menuState2.isFocused)
+{
+  Timeline.Stop(timeline);
+
+  WaitUntil(
+    menuState2.pageId != PAGE_TIMELINE_EDIT_ID ||
+    !menuState2.isFocused, 
+  99999);
+
+  if(componentBeingMoved != null) {
+    componentBeingMoved.MarkToRerender();
+    componentBeingMoved = null;
+  }
+  
+  if(timeline.actions != editableActions - markedToRemove) {
+    SmallMessage(EventPlayer(), 'Saving actions');
+
+    Timeline.Stop(timeline);
+
+    // `editableActions` will be updated automatically in a rule below
+    timeline.actions = editableActions - markedToRemove;
+  }
+
+  // rerender updated color
+  menuState2.Render();
+}
+
+// TODO: maybe make a callback when timeline.actions changes?
+rule: 'Timeline/Edit Update editable copy when timeline changes'
+Event.OngoingPlayer
+if(menuState2.isOpen)
+if(!menuState2.isFocused)
+if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
+if(timeline.actions != editableActions)
+{
+  Component[] items! = menuState2.items;
+  Action[] toAdd! = timeline.actions - editableActions;
+  Action[] toRemove! = editableActions - timeline.actions;
+
+  // remove
+  // HACK: `IndexOf` doesn't work on structs?
+  Number[] itemIds! = items.Map((i) => i.id);
+  items -= toRemove.Map((i) => items[itemIds.IndexOf(i.id)]);
+  editableActions -= toRemove;
+
+  // add
+  editableActions += toAdd;
+  foreach(Action i! in toAdd) {
+    items += PageTimelineEditItemGenerator(i);
+  }
+
+  // sort
+  // HACK: `IndexOf` doesn't work on structs?
+  Number[] timelineIds! = timeline.actions.Map((i) => i.id);
+  editableActions = editableActions.SortedArray((i) => timelineIds.IndexOf(i.id));
+  items = items.SortedArray((i) => timelineIds.IndexOf(i.id));
+
+  menuState2.ReplaceItems(items);
+  menuState2.Render();
+
+  LoopIfConditionIsTrue();
+}
+
+rule: 'Show message when item has been added to timeline'
+{
+  WaitUntil(EvaluateOnce(timelineActionsId) != timelineActionsId, 99999);
+  SmallMessage(AllPlayers(), $"Added to timeline: {timeline.actions.Last}");
+  Loop();
+}

@@ -26,6 +26,9 @@ Component[] PageHealthItems() {
   currentHealth.SetPrimaryAction('Apply', (it) => {
     SetPlayerHealth(selectedPlayers, (<NumberInput>it).value);
   });
+  currentHealth.SetTertiaryAction("Add to timeline", (it) => {
+    Timeline.AddAction(timeline, ACTION_SetHealth(selectedPlayers, (<NumberInput>it).value));
+  });
 
   NumberInput maxHealth = new NumberInput(
     menuState: menuState, 
@@ -45,6 +48,9 @@ Component[] PageHealthItems() {
   });
   maxHealth.SetSecondaryAction("Reset to Hero's original health", (it) => {
     SetMaxHealth(selectedPlayers, 100);
+  });
+  maxHealth.SetTertiaryAction("Add to timeline", (it) => {
+    Timeline.AddAction(timeline, ACTION_SetMaxHealth(selectedPlayers, (<NumberInput>it).value));
   });
   maxHealth.AddDescription(Description.New("Applied Max Health value might differ because of Workshop limitations", COLOR_WARNING));
   

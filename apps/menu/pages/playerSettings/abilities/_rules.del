@@ -122,6 +122,7 @@ if(pageAbilitiesKeepSpammingButton)
 
 rule: 'Show current ability info'
 Event.OngoingPlayer
+if(!menuState.HistoryContains('timeline'))
 if(menuState.history[2].id == PAGE_ABILITIES_ID)
 {
   playerInfoProps.Enable(playerInfoProps);

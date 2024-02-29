@@ -1,0 +1,27 @@
+import '../../../../libs/menu/components/numberInput.del';
+import '../../_variables.del';
+
+String PAGE_TIMELINE_ADD_JUMP_TO_ID: 'jumpTo';
+String PAGE_TIMELINE_ADD_JUMP_TO_NAME: 'Jump to action';
+
+
+Action ACTION_JumpToAction(in Number id): 
+  Action.New($'Jump to action({id})', () => {
+    Timeline.GoToId(timeline, id);
+  });
+
+Component PageTimelineAddJumpToMenuItem() {
+  NumberInput component = new NumberInput(
+    menuState: menuState,
+    text: PAGE_TIMELINE_ADD_JUMP_TO_NAME,
+    defaultValue: 0
+  );
+
+  component.AddDescription(Description.New('This action can crash the server if there are no Wait actions in between', COLOR_WARNING));
+
+  component.SetPrimaryAction("Apply", (it) => {
+    Timeline.AddAction(timeline, ACTION_JumpToAction((<NumberInput>it).value));
+  });
+
+  return component;
+}

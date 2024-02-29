@@ -33,6 +33,9 @@ Component[] PageTeleportItems() {
   position.SetPrimaryAction('Apply', (it) => {
     Teleport(selectedPlayers, pickPosition.position);
   });
+  position.SetTertiaryAction('Add to Timeline', (it) => {
+    Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, pickPosition.position));
+  });
 
   Carousel objective = new Carousel(
     text: PAGE_TELEPORT_OBJECTIVE_NAME,
@@ -43,6 +46,9 @@ Component[] PageTeleportItems() {
   objective.SetPrimaryAction("Apply", (it) => {
     Teleport(selectedPlayers, PageTeleportGetObjectivePosition(<Carousel>it));
   });
+  objective.SetTertiaryAction('Add to Timeline', (it) => {
+    Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, PageTeleportGetObjectivePosition(<Carousel>it)));
+  });
 
   Carousel player = new Carousel(
     text: PAGE_TELEPORT_PLAYER_NAME,
@@ -51,6 +57,9 @@ Component[] PageTeleportItems() {
   player.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
   player.SetPrimaryAction("Apply", (it) => {
       Teleport(selectedPlayers, (<Carousel>it).value);
+  });
+  player.SetTertiaryAction('Add to Timeline', (it) => {
+    Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, (<Carousel>it).value));
   });
 
   return [position, objective, player];

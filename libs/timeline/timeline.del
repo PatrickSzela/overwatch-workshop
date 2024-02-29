@@ -1,0 +1,66 @@
+import './actions.del';
+
+globalvar Number timelineActionsId = -1;
+
+struct Timeline {
+  public Action[] actions;
+  public Number index;
+  public Boolean isPlaying;
+  public Boolean isRepeating;
+
+  public static Timeline New():
+    { actions: [], index: 0, isPlaying: false, isRepeating: false };
+
+  // TODO: info about not editing while playing
+  public static void AddAction(ref Timeline timelineRef, in Action action) {
+    timelineActionsId++;
+    timelineRef.actions += [{id: timelineActionsId, ..action}];
+  }
+
+  public static void AddAction(ref Timeline timelineRef, in Action action, in Number index) {
+    timelineActionsId++;
+    timelineRef.actions = 
+      timelineRef.actions.Slice(0, index) + 
+      [{id: timelineActionsId, ..action}] +
+      timelineRef.actions.Slice(index, 999);
+  }
+
+  public static void Play(ref Timeline timelineRef) {
+    timelineRef.isPlaying = true;
+  }
+
+  public static void Pause(ref Timeline timelineRef) {
+    timelineRef.isPlaying = false;
+  }
+
+  public static void Stop(ref Timeline timelineRef) {
+    timelineRef.isPlaying = false;
+    timelineRef.index = 0;
+  }
+
+  public static void SetRepeat(ref Timeline timelineRef, in Boolean repeat) {
+    timelineRef.isRepeating = repeat;
+  }
+
+  public static void GoToId(ref Timeline timelineRef, in Number id) {
+    timelineRef.index = timelineRef.actions.Map((i) => i.id).IndexOf(id) - 1;
+  }
+
+  // to be used in a rule
+  public static void RuleLogic(ref Timeline timelineRef) {
+    for(timelineRef.index; timelineRef.index < timelineRef.actions.Length; timelineRef.index++) {
+      Action action: timelineRef.actions[timelineRef.index];
+      if(action.disabled) continue;
+      action.code();
+      if(!timelineRef.isPlaying) break;
+    }
+
+    if(timelineRef.index == timelineRef.actions.Length)
+      timelineRef.index = 0;
+
+    if(timelineRef.isRepeating)
+      LoopIfConditionIsTrue();
+
+    timelineRef.isPlaying = false;
+  }
+}
