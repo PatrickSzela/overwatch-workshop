@@ -22,3 +22,6 @@ Boolean IsUsingAbility(Player player, Button button):
   button == Button.Melee ? IsMeleeing(player) :
   button == Button.Jump ? IsJumping(player) :
   button == Button.Crouch ? IsCrouching(player) : false;
+
+Vector GetDirectionFromPlayerEyes(Player player, Vector vector): 
+  player.EyePosition().DirectionTowards(vector);
