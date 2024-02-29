@@ -15,9 +15,9 @@ Component PageTimelinePlayPauseMenuItem() {
 
   component.SetPrimaryAction("Apply", (it) => {
     if(timeline.isPlaying) {
-      timeline.Pause(timeline);
+      Timeline.Pause(timeline);
     } else {
-      timeline.Play(timeline);
+      Timeline.Play(timeline);
     }
   });
 

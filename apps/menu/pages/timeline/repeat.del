@@ -11,7 +11,7 @@ Component PageTimelineRepeatMenuItem() {
   );
 
   component.onChange = ((value, it) => {
-    timeline.SetRepeat(timeline, value);
+    Timeline.SetRepeat(timeline, value);
   });
 
   return component;

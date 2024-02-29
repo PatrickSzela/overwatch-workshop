@@ -71,11 +71,11 @@ Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCaro
 
   item.SetTertiaryAction('Add to Timeline', (it) => {
     if((<Carousel>it).value == PageAbilitiesOptions.STOP)
-      timeline.AddAction(timeline, ACTION_StopHoldingButton(selectedPlayersWithoutSelf, ability));
+      Timeline.AddAction(timeline, ACTION_StopHoldingButton(selectedPlayersWithoutSelf, ability));
     if((<Carousel>it).value == PageAbilitiesOptions.PRESS)
-      timeline.AddAction(timeline, ACTION_PressButton(selectedPlayersWithoutSelf, ability));
+      Timeline.AddAction(timeline, ACTION_PressButton(selectedPlayersWithoutSelf, ability));
     if((<Carousel>it).value == PageAbilitiesOptions.START_HOLDING)
-      timeline.AddAction(timeline, ACTION_StartHoldingButton(selectedPlayersWithoutSelf, ability));
+      Timeline.AddAction(timeline, ACTION_StartHoldingButton(selectedPlayersWithoutSelf, ability));
   });
 
   return item;

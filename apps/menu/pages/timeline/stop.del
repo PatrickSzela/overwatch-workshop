@@ -7,7 +7,7 @@ Component PageTimelineStopMenuItem() {
   Component component = new Component(PAGE_TIMELINE_STOP_NAME);
 
   component.SetPrimaryAction("Apply", (it) => {
-    timeline.Stop(timeline);
+    Timeline.Stop(timeline);
   });
 
   return component;
