@@ -121,5 +121,5 @@ if(pickPosition.RULE_UpdateRaycastDistanceCondition())
 rule: 'Player Info'
 Event.OngoingPlayer
 {
-  PlayerInfo(playerName);
+  PlayerInfo(playerName, buttonsHeld, pageStatusAppliedStatuses);
 }

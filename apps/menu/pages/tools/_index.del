@@ -9,9 +9,11 @@ String PAGE_TOOLS_NAME: 'Tools';
 
 Component[] PageToolsItems() {
   return [
+    <Component>new Text('Player info:')
+  ] + PagePlayerInfoMenuItem() + [
     PageHealDamageTakenMenuItem(),
+    new Text(),
     PageSlowMotionMenuItem(),
-    PagePlayerInfoMenuItem(),
     PageDiagnosticsMenuItem()
   ];
 }

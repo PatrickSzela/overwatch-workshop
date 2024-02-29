@@ -9,7 +9,6 @@ String PAGE_HEALTH_CURRENT_HEALTH_ID: PAGE_HEALTH_ID + 'current';
 String PAGE_HEALTH_CURRENT_HEALTH_NAME: 'Current Health';
 String PAGE_HEALTH_MAX_HEALTH_ID: PAGE_HEALTH_ID + 'max';
 String PAGE_HEALTH_MAX_HEALTH_NAME: 'Max Health';
-String PAGE_HEALTH_DESCRIPTION_INFO: "All players have Current and Max Health above their heads";
 
 playervar Boolean pageHealthAutoHeal = false;
 
@@ -66,31 +65,14 @@ if(menuState.pageId == PAGE_HEALTH_ID)
 {
   menuState.CreatePage(
     title: PAGE_HEALTH_NAME, 
-    items: PageHealthItems(), 
-    descriptions: [
-      Description.New(PAGE_HEALTH_DESCRIPTION_INFO, COLOR_INFO)
-    ]
+    items: PageHealthItems()
   );
-}
 
-rule: 'Draw current health info above players'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.pageId == PAGE_HEALTH_ID)
-{
-  foreach(Player player in AllPlayers()) {
-    if(player == EventPlayer()) continue;
+  playerInfoProps.Enable(playerInfoProps);
 
-    Player pl: EvaluateOnce(player);
-    
-    playerText.Add(pl, $"{pl.Health() + 0.0001}​ / {pl.MaxHealth() + 0.0001}​ HP");
+  WaitUntil(menuState.pageId != PAGE_HEALTH_ID, 99999);
 
-    MinWait();
-  }
-
-  WaitUntil(menuState.pageId != PAGE_HEALTH_ID || !menuState.isOpen, 99999);
-  
-  playerText.Remove();
+  playerInfoProps.Disable(playerInfoProps);
 }
 
 rule: 'Auto heal'

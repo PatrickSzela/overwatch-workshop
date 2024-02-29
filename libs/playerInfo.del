@@ -1,7 +1,60 @@
 import './utils/string.formatters.del';
+import './utils/player.sortedAllPlayers.del';
 import './utils/array.del';
 
-playervar Boolean showPlayerInfo = false;
+struct PlayerInfoProps {
+  public Number enabled;
+  public Number showTransform;
+  public Number showButtons;
+  public Number showStatuses;
+
+  public void Enable(ref PlayerInfoProps props) {
+    props.enabled++;
+  }
+
+  public void Disable(ref PlayerInfoProps props) {
+    props.enabled = Max(0, props.enabled - 1);
+  }
+
+  public void EnableTransform(ref PlayerInfoProps props) {
+    props.showTransform++;
+  }
+
+  public void DisableTransform(ref PlayerInfoProps props) {
+    props.showTransform = Max(0, props.showTransform - 1);
+  }
+  
+  public void EnableButtons(ref PlayerInfoProps props) {
+    props.showButtons++;
+  }
+
+  public void DisableButtons(ref PlayerInfoProps props) {
+    props.showButtons = Max(0, props.showButtons - 1);
+  }
+
+  public void EnableStatuses(ref PlayerInfoProps props) {
+    props.showStatuses++;
+  }
+
+  public void DisableStatuses(ref PlayerInfoProps props) {
+    props.showStatuses = Max(0, props.showStatuses - 1);
+  }
+
+  public static PlayerInfoProps BASE: 
+    {enabled: false, showButtons: false, showStatuses: false, showTransform: false};
+}
+
+playervar PlayerInfoProps playerInfoProps = PlayerInfoProps.BASE;
+
+Any CreatePlayerInfoHud(in Boolean enabled, in String text, in Number idx):
+  CreateHudText(
+    enabled ? LocalPlayer() : null,
+    null,
+    UpdateEveryFrame(text),
+    null,
+    Location.Right,
+    50 + sortedPlayers.IndexOf(EventPlayer()) + idx * 0.1
+  );
 
 void PlayerInfo(in String playerName, in Button[] buttonsHeld = [], in String[] appliedStatuses = []) {
   String hero: HeroWithIconFormatter(EventPlayer().Hero());
@@ -9,39 +62,30 @@ void PlayerInfo(in String playerName, in Button[] buttonsHeld = [], in String[] 
   String position: $"Pos: {EventPlayer().Position()}";
   String facing: $"Fac: {EventPlayer().FacingDirection()}";
   String speed: $"Spd: ({HorizontalSpeedOf(EventPlayer()) + 0.0001}, {VerticalSpeedOf(EventPlayer()) + 0.0001})​ m/s";
-  String buttons: $"Buttons: {InlineJoin10(buttonsHeld, ', ')}";
-  String statuses: $"Statuses: {InlineJoin10(appliedStatuses, ', ')}";
+  String buttons: $"Buttons: {buttonsHeld ? InlineJoin10(buttonsHeld, ', ') : '-'}";
+  String statuses: $"Statuses: {appliedStatuses ? InlineJoin10(appliedStatuses, ', ') : '-'}";
 
-  CreateHudText(
-    LocalPlayer().showPlayerInfo ? LocalPlayer() : null,
-    null,
+  CreatePlayerInfoHud(
+    LocalPlayer().playerInfoProps.enabled, 
     $"{playerName}: {hero}, {health}",
-    null,
-    Location.Right,
-    50
+    0
   );
-  CreateHudText(
-    LocalPlayer().showPlayerInfo ? LocalPlayer() : null,
-    null,
+
+  CreatePlayerInfoHud(
+    LocalPlayer().playerInfoProps.showTransform, 
     $"{position}, {facing}, {speed}",
-    null,
-    Location.Right,
-    50
+    1
   );
-  // CreateHudText(
-  //   LocalPlayer().showPlayerInfo ? LocalPlayer() : null,
-  //   null,
-  //   (buttonsHeld.Length ? buttons : ''),
-  //   null,
-  //   Location.Right,
-  //   50
-  // );
-  // CreateHudText(
-  //   LocalPlayer().showPlayerInfo ? LocalPlayer() : null,
-  //   null,
-  //   (appliedStatuses.Length ? statuses : ''),
-  //   null,
-  //   Location.Right,
-  //   50
-  // );
+
+  CreatePlayerInfoHud(
+    LocalPlayer().playerInfoProps.showButtons, 
+    buttons,
+    2
+  );
+
+  CreatePlayerInfoHud(
+    LocalPlayer().playerInfoProps.showStatuses, 
+    statuses,
+    3
+  );
 }

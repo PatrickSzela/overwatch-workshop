@@ -64,24 +64,12 @@ if(menuState.pageId == PAGE_TELEPORT_ID)
     title: PAGE_TELEPORT_NAME, 
     items: PageTeleportItems()
   );
-}
 
-rule: 'Draw current health info above players'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.pageId == PAGE_TELEPORT_ID)
-{
-  foreach(Player player in AllPlayers()) {
-    if(player == EventPlayer()) continue;
+  playerInfoProps.Enable(playerInfoProps);
+  playerInfoProps.EnableTransform(playerInfoProps);
 
-    Player pl: EvaluateOnce(player);
-    
-    playerText.Add(pl, $"{pl.Position()}");
+  WaitUntil(menuState.pageId != PAGE_TELEPORT_NAME, 99999);
 
-    MinWait();
-  }
-
-  WaitUntil(menuState.pageId != PAGE_TELEPORT_ID || !menuState.isOpen, 99999);
-  
-  playerText.Remove();
+  playerInfoProps.Disable(playerInfoProps);
+  playerInfoProps.DisableTransform(playerInfoProps);
 }
