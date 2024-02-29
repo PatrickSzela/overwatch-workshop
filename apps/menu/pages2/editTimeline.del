@@ -96,7 +96,7 @@ Event.OngoingPlayer
 if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
 if(menuState2.isFocused)
 {
-  timeline.Stop(timeline);
+  Timeline.Stop(timeline);
 
   WaitUntil(
     menuState2.pageId != PAGE_TIMELINE_EDIT_ID ||
@@ -111,7 +111,7 @@ if(menuState2.isFocused)
   if(timeline.actions != editableActions - markedToRemove) {
     SmallMessage(EventPlayer(), 'Saving actions');
 
-    timeline.Stop(timeline);
+    Timeline.Stop(timeline);
 
     // `editableActions` will be updated automatically in a rule below
     timeline.actions = editableActions - markedToRemove;
