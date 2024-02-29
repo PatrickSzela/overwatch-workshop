@@ -143,3 +143,10 @@ Action ACTION_ChangeHero(Player[] players, Hero hero):
   Action.New($'Change hero({hero}, [{PlayersFormatter(players)}])', () => {
     ForcePlayerHero(players, hero);
   });
+
+
+// slow motion
+Action ACTION_SetSlowMotion(Number value): 
+  Action.New($'Slow motion({value})', () => {
+    SetSlowMotion(value);
+  });
