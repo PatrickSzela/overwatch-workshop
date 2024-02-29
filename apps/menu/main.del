@@ -100,6 +100,15 @@ if(buttonsHeld == menuState._toggleMenu)
     menuState.Open();
 }
 
+rule: 'Go back in main menu when trying to do that in the 2nd one'
+Event.OngoingPlayer
+if(menuState2.isFocused)
+if(menuState2.history.Length == 1)
+if(buttonsHeld == [BUTTON_BACK])
+{
+  menuState.GoBack();
+}
+
 rule: 'Go to proper page in the right menu'
 Event.OngoingPlayer
 if(!IsDummyBot())
@@ -118,6 +127,7 @@ if(!IsDummyBot())
     menuState2.GoTo(goTo, true);
   } else {
     menuState2.Close();
+    menuState.SetFocused();
   }
   
   Loop();
