@@ -10,6 +10,8 @@ Component PageTimelineRepeatMenuItem() {
     defaultChecked: timeline.isRepeating
   );
 
+  component.AddDescription(Description.New('Enabling this setting can crash the server if there are no Wait actions in between', COLOR_WARNING));
+
   component.onChange = ((value, it) => {
     Timeline.SetRepeat(timeline, value);
   });
