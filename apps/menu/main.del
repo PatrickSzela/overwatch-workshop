@@ -22,8 +22,6 @@ import '../../libs/playerInfo.del';
 // TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
 // TODO: tools - ruler, spheres
 
-// TODO: test selected players with 2nd client
-
 playervar Number[] switchFocusDescriptionIdx = [];
 
 rule: 'Generate Menu State'
@@ -40,15 +38,11 @@ if(!IsDummyBot())
 rule: 'Generate Menu'
 {
   DisableInspectorRecording();
+  diagnosticsEnabled = false;
 
   // TODO: add info about state being a variable of LocalPlayer
   menu = new Menu(LocalPlayer().menuState);
   menu2 = new Menu(LocalPlayer().menuState2, MenuLocation.Right);
-}
-
-rule: 'Hide diagnostics by default'
-{
-  // diagnosticsEnabled = false;
 }
 
 rule: 'Switch focused menu'
