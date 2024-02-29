@@ -1,8 +1,7 @@
 import '../../libs/menu/_index.del';
 import '../../libs/pickPosition/pickPosition.del';
-import '../../libs/playerText/playerText.del';
+import '../../libs/playerInfo.del';
 import '../../libs/timeline/timeline.del';
-
 globalvar Menu menu;
 globalvar Menu menu2;
 playervar MenuState menuState;
@@ -12,5 +11,4 @@ playervar Player[] selectedPlayers = [EventPlayer()];
 playervar Player[] selectedPlayersWithoutSelf = [];
 
 playervar PickPosition pickPosition = new PickPosition();
-playervar PlayerText playerText = new PlayerText();
 globalvar Timeline timeline = Timeline.New();

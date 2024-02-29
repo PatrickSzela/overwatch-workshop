@@ -4,7 +4,6 @@ import '../../_variables.del';
 String PAGE_STATUS_ID: 'status';
 String PAGE_STATUS_NAME: 'Status';
 
-String PAGE_STATUS_DESCRIPTION: 'All Players have a list of currently active statuses above them';
 String PAGE_STATUS_DESCRIPTION_WARNING_NAVIGATION: "Selected players will not be able to navigate the menu";
 
 // all this mess because it's not possible to store Status in a variable...
@@ -61,27 +60,16 @@ if(menuState.pageId == PAGE_STATUS_ID)
 {
   menuState.CreatePage(
     title: PAGE_STATUS_NAME, 
-    items: PageStatusItems(), 
-    descriptions: [
-      Description.New(PAGE_STATUS_DESCRIPTION, COLOR_INFO)
-    ]
+    items: PageStatusItems()
   );
-}
 
-rule: 'Draw current statuses info above players'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.pageId == PAGE_STATUS_ID)
-{
-  foreach(Player player in AllPlayers()) {
-    Player pl: EvaluateOnce(player);
-    playerText.Add(pl, InlineJoin10(pl.pageStatusAppliedStatuses, '\n'));
-    MinWait();
-  }
+  playerInfoProps.Enable(playerInfoProps);
+  playerInfoProps.EnableStatuses(playerInfoProps);
 
-  WaitUntil(menuState.pageId != PAGE_STATUS_ID || !menuState.isOpen, 99999);
-  
-  playerText.Remove();
+  WaitUntil(menuState.pageId != PAGE_STATUS_ID, 99999);
+
+  playerInfoProps.Disable(playerInfoProps);
+  playerInfoProps.DisableStatuses(playerInfoProps);
 }
 
 void PageStatusAppliedStatusesInfo(Status status, in String name) {
@@ -133,7 +121,9 @@ if(menuState.pageId == PAGE_STATUS_ID)
     Boolean statusApplied! = selectedPlayers[0].pageStatusAppliedStatuses.Contains(toggle.id);
 
     if(toggle.value != statusApplied) {
-      toggle.SetValue(statusApplied);
+      // don't trigger the onChange callback
+      toggle.value = statusApplied;
+      toggle.MarkToRerender();
     }
   }
   

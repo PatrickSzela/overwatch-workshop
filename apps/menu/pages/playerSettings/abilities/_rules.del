@@ -120,56 +120,16 @@ if(pageAbilitiesKeepSpammingButton)
   LoopIfConditionIsTrue();
 }
 
-// draw
-rule: 'Draw currently pressed buttons above players'
+rule: 'Show current ability info'
 Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.pageId == PAGE_ABILITIES_ID)
-{
-  // "Draw current ability info above players" will remove these texts when exiting submenu
-  MinWait();
-
-  foreach(Player player in AllPlayers()) {
-    if(player == EventPlayer()) continue;
-    
-    Player pl: EvaluateOnce(player);
-    playerText.Add(pl, InlineJoin10(pl.buttonsHeld, '\n'));
-    MinWait();
-  }
-
-  WaitUntil(
-    menuState.pageId != PAGE_ABILITIES_ID && !menuState.isRefreshing || 
-    !menuState.isOpen, 
-  99999);
-  
-  playerText.Remove();
-}
-
-rule: 'Draw current ability info above players'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.history[2].id == PAGE_ABILITIES_ID)
 if(!menuState.HistoryContains('timeline'))
-if(menuState.history.Length > 3 && !menuState.isRefreshing)
+if(menuState.history[2].id == PAGE_ABILITIES_ID)
 {
-  foreach(Player player in AllPlayers()) {
-    if(player == EventPlayer()) continue;
+  playerInfoProps.Enable(playerInfoProps);
+  playerInfoProps.EnableButtons(playerInfoProps);
 
-    Player pl: EvaluateOnce(player);
+  WaitUntil(menuState.history[2].id != PAGE_ABILITIES_ID, 99999);
 
-    playerText.Add(pl, PageAbilitiesInfo(
-      player: pl,
-      button: selectedButton
-    ));
-
-    MinWait();
-  }
-
-  WaitUntil(
-    menuState.history[2].id != PAGE_ABILITIES_ID || 
-    menuState.history.Length <= 3 || 
-    !menuState.isOpen, 
-  99999);
-
-  playerText.Remove();
+  playerInfoProps.Disable(playerInfoProps);
+  playerInfoProps.DisableButtons(playerInfoProps);
 }

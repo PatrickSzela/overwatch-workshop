@@ -4,14 +4,42 @@ import '../../../../libs/menu/components/toggle.del';
 String PAGE_PLAYER_INFO_ID: 'playerInfo';
 String PAGE_PLAYER_INFO_NAME: 'Show Player Info';
 
-Component PagePlayerInfoMenuItem() {
-  Toggle toggle = new Toggle(
-    text: PAGE_PLAYER_INFO_NAME,
-    defaultChecked: showPlayerInfo
+Component[] PagePlayerInfoMenuItem() {
+  Toggle main = new Toggle(
+    text: 'Enabled',
+    defaultChecked: playerInfoProps.enabled
   );
-  toggle.onChange = (checked, it) => {
-    showPlayerInfo = checked;
+  main.onChange = (checked, it) => {
+    if(checked) playerInfoProps.Enable(playerInfoProps);
+    else playerInfoProps.Disable(playerInfoProps);
   };
 
-  return toggle;
+  Toggle transform = new Toggle(
+    text: 'Transform',
+    defaultChecked: playerInfoProps.showTransform
+  );
+  transform.onChange = (checked, it) => {
+    if(checked) playerInfoProps.EnableTransform(playerInfoProps);
+    else playerInfoProps.DisableTransform(playerInfoProps);
+  };
+
+  Toggle buttons = new Toggle(
+    text: 'Buttons',
+    defaultChecked: playerInfoProps.showButtons
+  );
+  buttons.onChange = (checked, it) => {
+    if(checked) playerInfoProps.EnableButtons(playerInfoProps);
+    else playerInfoProps.DisableButtons(playerInfoProps);
+  };
+
+  Toggle statuses = new Toggle(
+    text: 'Statuses',
+    defaultChecked: playerInfoProps.showStatuses
+  );
+  statuses.onChange = (checked, it) => {
+    if(checked) playerInfoProps.EnableStatuses(playerInfoProps);
+    else playerInfoProps.DisableStatuses(playerInfoProps);
+  };
+
+  return [main, transform, buttons, statuses];
 }

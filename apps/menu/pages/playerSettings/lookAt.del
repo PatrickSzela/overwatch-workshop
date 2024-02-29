@@ -2,12 +2,11 @@ import '../../../../libs/menu/components/radio.del';
 import '../../../../libs/menu/components/carousel.del';
 import '../../../../libs/utils/string.formatters.del';
 import '../../../../libs/utils/player.sortedAllPlayers.del';
+import '../../../../libs/utils/player.del';
 import '../../_variables.del';
 
 String PAGE_LOOK_AT_ID: 'lookAt';
 String PAGE_LOOK_AT_NAME: 'Look At';
-
-// TODO: look at looking position of player
 
 enum PageLookAtChoice {
   POSITION = 'Position',
@@ -37,11 +36,11 @@ Action ACTION_LookAtCustom(Player[] players, PageLookAtProps props):
     players.pageLookAtPlayerSettings = props;
   });
 
-playervar PageLookAtProps pageLookAtProps = PageLookAtProps.BASE;
+playervar PageLookAtProps pageLookAtProps;
 playervar PageLookAtProps pageLookAtPlayerSettings = PageLookAtProps.BASE;
 
-Vector GetDirectionFromPlayerEyes(Player player, Vector vector): 
-  player.EyePosition().DirectionTowards(vector);
+Vector PageLookAtRayCast(Player player):
+  RayCastHitPosition(EyePosition(player), EyePosition(player) + FacingDirectionOf(player) * 100, AllPlayers(), player, true);
 
 Component[] PageLookAtItems() {
   // position
@@ -62,16 +61,15 @@ Component[] PageLookAtItems() {
   position.onButtonUp = (button, it) => {
     pickPosition.StopChangingRaycaseDistance();
   };
+  position.SetPrimaryAction('Choose the position', (it) => {
+    (<ComponentWithValue>it).SetValue(pickPosition.position);
+    pageLookAtProps = { choice: PageLookAtChoice.POSITION, value: pickPosition.position, ..pageLookAtProps };
+  });
 
   Radio positionRadio = new Radio(menuState, <String>PageLookAtChoice.POSITION, PAGE_LOOK_AT_NAME);
   positionRadio.child = position;
-  positionRadio.onPrimaryAction = (checked, it) => {
-    position.SetValue(pickPosition.position);
 
-    pageLookAtProps = { choice: PageLookAtChoice.POSITION, value: position.value, ..pageLookAtProps };
-    selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
-  };
-
+  // objective, player, looking position of player
   Component[] carousels = [];
 
   foreach(PageLookAtChoice choice in [PageLookAtChoice.OBJECTIVE, PageLookAtChoice.PLAYER, PageLookAtChoice.LOOKING_PLAYER]) {
@@ -87,11 +85,9 @@ Component[] PageLookAtItems() {
       (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
     carousel.onChange = (value, it) => {
       pageLookAtProps = { choice: choice, value: value, ..pageLookAtProps };
-      selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
     };
     carousel.onPrimaryAction = (it) => {
       pageLookAtProps = { choice: choice, value: (<Carousel>it).value, ..pageLookAtProps };
-      selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
     };
 
     Radio radio = new Radio(menuState, <String>choice, PAGE_LOOK_AT_NAME);
@@ -118,6 +114,8 @@ rule: 'Player Settings/Look At'
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_LOOK_AT_ID)
 {
+  pageLookAtProps = PageLookAtProps.BASE;
+
   menuState.CreatePage(
     title: PAGE_LOOK_AT_NAME, 
     items: PageLookAtItems()
@@ -134,7 +132,7 @@ if(menuState.pageId == PAGE_LOOK_AT_ID)
 
     pickPosition.CreateAdditionalSphere(
       color: Color.Green,
-      position: PickPosition.RayCast(EvaluateOnce(p)),
+      position: PageLookAtRayCast(EvaluateOnce(p)),
       text: $"{EvaluateOnce(p)}'s look position:\n{PickPosition.RayCast(EvaluateOnce(p))}",
       lineEnd: EvaluateOnce(p).EyePosition()
     );
@@ -147,7 +145,7 @@ if(menuState.pageId == PAGE_LOOK_AT_ID)
   pickPosition.DestroyAdditionalSpheres();
 }
 
-rule: 'My Rule'
+rule: 'Look At: Start/Stop looking at'
 Event.OngoingPlayer
 {
   WaitUntil(pageLookAtPlayerSettings != EvaluateOnce(pageLookAtPlayerSettings), 99999);
@@ -158,30 +156,17 @@ Event.OngoingPlayer
 
   Any value: pageLookAtPlayerSettings.value;
   PageLookAtChoice choice: pageLookAtPlayerSettings.choice;
-
-  // doesn't compile :)
-  // Vector pos: 
-  //   pageLookAtChoice == PageLookAtChoice.POSITION ? pageLookAtValue :
-  //   pageLookAtChoice == PageLookAtChoice.OBJECTIVE ? ObjectivePosition(pageLookAtValue == -1 ? ObjectiveIndex() : pageLookAtValue) :
-  //   pageLookAtChoice == PageLookAtChoice.PAYLOAD ? PayloadPosition() :
-  //   EyePosition(pageLookAtValue);
+  Vector pos: 
+    choice == PageLookAtChoice.OBJECTIVE ? 
+      value == -2 ? PayloadPosition() : ObjectivePosition(value == -1 ? ObjectiveIndex() : value) :
+    choice == PageLookAtChoice.PLAYER ? EyePosition(value) : 
+    choice == PageLookAtChoice.LOOKING_PLAYER ? PageLookAtRayCast(value) :
+    value;
 
   if(pageLookAtPlayerSettings.variant == PageLookAtVariant.ONCE) {
-    SetFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), 
-      choice == PageLookAtChoice.POSITION ? value :
-      choice == PageLookAtChoice.OBJECTIVE ? 
-        value == -2 ? PayloadPosition() : ObjectivePosition(value == -1 ? ObjectiveIndex() : value) :
-      choice == PageLookAtChoice.PLAYER ? EyePosition(value) : 
-      RayCastHitPosition(EyePosition(value), EyePosition(value) + FacingDirectionOf(value) * 100, AllPlayers(), value, true)
-    ), Relative.ToWorld);
+    SetFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), pos), Relative.ToWorld);
   } else if(pageLookAtPlayerSettings.variant == PageLookAtVariant.OVER_TIME) {
-    StartFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), 
-      choice == PageLookAtChoice.POSITION ? value :
-      choice == PageLookAtChoice.OBJECTIVE ? 
-        value == -2 ? PayloadPosition() : ObjectivePosition(value == -1 ? ObjectiveIndex() : value) :
-      choice == PageLookAtChoice.PLAYER ? EyePosition(value) : 
-      RayCastHitPosition(EyePosition(value), EyePosition(value) + FacingDirectionOf(value) * 100, AllPlayers(), value, true)
-    ), 500, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
+    StartFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), pos), 500, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
   }
 
   Loop();

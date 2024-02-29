@@ -103,7 +103,8 @@ if(menuState2.isOpen)
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
   WaitUntil(
-    AllPlayers().Map((i) => i.Hero()) != EvaluateOnce(AllPlayers().Map((i) => i.Hero())),
+    sortedPlayersPerTeamPerSlot != EvaluateOnce(sortedPlayersPerTeamPerSlot) ||
+    sortedPlayers.Map((i) => i.Hero()) != EvaluateOnce(sortedPlayers.Map((i) => i.Hero())),
   99999);
 
   // wait for rule that changes bot's name
