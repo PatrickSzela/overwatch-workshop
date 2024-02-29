@@ -38,6 +38,7 @@ class Component {
   public ((Component) => void) onPrimaryAction;
   public ((Component) => void) onSecondaryAction;
   public ((Component) => void) onTertiaryAction;
+  public ((Component) => void) onQuaternaryAction;
 
   public constructor(
     in String text,
@@ -81,10 +82,16 @@ class Component {
     AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_TERTIARY)}​ to {description}"));
   }
 
+  public virtual void SetQuaternaryAction(String description!, (Component) => void action!) "t" {
+    onQuaternaryAction = action;
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_QUATERNARY)}​ to {description}"));
+  }
+
   public virtual void HandleActions() "[Component] Handle Action" {
     if(buttonsHeld == [BUTTON_PRIMARY]) onPrimaryAction(this);
-    if(buttonsHeld == [BUTTON_SECONDARY]) onSecondaryAction(this);
-    if(buttonsHeld == [BUTTON_TERTIARY]) onTertiaryAction(this);
+    else if(buttonsHeld == [BUTTON_SECONDARY]) onSecondaryAction(this);
+    else if(buttonsHeld == [BUTTON_TERTIARY]) onTertiaryAction(this);
+    else if(buttonsHeld == [BUTTON_QUATERNARY]) onQuaternaryAction(this);
   }
 
   // idk why OSTW thinks using child's `Render()` method makes it recursive
