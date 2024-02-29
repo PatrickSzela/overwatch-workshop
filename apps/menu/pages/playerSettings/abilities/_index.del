@@ -5,8 +5,6 @@ import './_helpers.del';
 String PAGE_ABILITIES_ID: 'abilities';
 String PAGE_ABILITIES_NAME: 'Abilities';
 
-// TODO: use workshop setting button
-
 Component[] PageAbilitiesItems() {
   Component[] list = [];
 
