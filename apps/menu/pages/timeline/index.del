@@ -28,7 +28,7 @@ Component[] PageTimelineItems() {
   ];
 }
 
-rule: 'Timeline'
+rule: 'Timeline' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_TIMELINE_ID)
 {

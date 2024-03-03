@@ -72,7 +72,7 @@ Component PageTimelineEditItemGenerator(in Action action) {
   return component;
 }
 
-rule: 'Timeline/Edit'
+rule: 'Timeline/Edit' 70
 Event.OngoingPlayer
 if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
 {
@@ -88,7 +88,7 @@ if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
   );
 }
 
-rule: 'Timeline/Edit On focus out'
+rule: 'Timeline/Edit On focus out' 70
 Event.OngoingPlayer
 if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
 if(menuState2.isFocused)
@@ -119,7 +119,7 @@ if(menuState2.isFocused)
 }
 
 // TODO: maybe make a callback when timeline.actions changes?
-rule: 'Timeline/Edit Update editable copy when timeline changes'
+rule: 'Timeline/Edit Update editable copy when timeline changes' 70
 Event.OngoingPlayer
 if(menuState2.isOpen)
 if(!menuState2.isFocused)

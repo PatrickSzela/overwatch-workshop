@@ -91,7 +91,7 @@ Component[] PageCreateBotItems() {
   return [hero, team, slot, position, new Text(), spawnBot];
 }
 
-rule: 'Create Bot'
+rule: 'Create Bot' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_CREATE_BOT_ID)
 {
@@ -101,7 +101,7 @@ if(menuState.pageId == PAGE_CREATE_BOT_ID)
   menuState.CreatePage(PAGE_CREATE_BOT_NAME, PageCreateBotItems());
 }
 
-rule: 'Create Bot: Create Sphere'
+rule: 'Create Bot: Create Sphere' 50
 Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.pageId == PAGE_CREATE_BOT_ID)

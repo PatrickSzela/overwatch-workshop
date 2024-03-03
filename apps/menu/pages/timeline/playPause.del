@@ -26,7 +26,7 @@ Component PageTimelinePlayPauseMenuItem() {
   return component;
 }
 
-rule: 'Timeline/Edit On timeline index changed'
+rule: 'Timeline/Edit On timeline index changed' 70
 Event.OngoingPlayer
 if(menuState2.isOpen)
 if(menuState2.items)
@@ -53,7 +53,7 @@ if(timeline.isPlaying)
   menuState2.MarkToRerender();
 }
 
-rule: 'Timeline/Edit Focus current item when started playing'
+rule: 'Timeline/Edit Focus current item when started playing' 70
 Event.OngoingPlayer
 if(timeline.isPlaying)
 if(menuState2.isOpen)
@@ -64,7 +64,7 @@ if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
   menuState2.MarkToRerender();
 }
 
-rule: 'Timeline/Play Pause Switch text if playing'
+rule: 'Timeline/Play Pause Switch text if playing' 70
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_TIMELINE_ID)
 if(timeline.isPlaying)

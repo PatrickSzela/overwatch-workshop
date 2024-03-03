@@ -65,7 +65,7 @@ Component[] PageTeleportItems() {
   return [position, objective, player];
 }
 
-rule: 'Player Settings/Teleport'
+rule: 'Player Settings/Teleport' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_TELEPORT_ID)
 {

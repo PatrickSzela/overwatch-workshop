@@ -19,7 +19,7 @@ Component[] PageToolsItems() {
   ];
 }
 
-rule: 'Player Settings'
+rule: 'Player Settings' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_TOOLS_ID)
 {

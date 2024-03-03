@@ -7,7 +7,7 @@ import '../_variables.del';
 String PAGE_SELECT_PLAYERS_ID: 'selectPlayers';
 String PAGE_SELECT_PLAYERS_NAME: 'Select Players';
 
-rule: 'Player Settings/Select Players'
+rule: 'Player Settings/Select Players' 70
 Event.OngoingPlayer
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
@@ -41,7 +41,7 @@ Event.OngoingPlayer
   Loop();
 }
 
-rule: 'Player Settings/Select Players: Rerender players'
+rule: 'Player Settings/Select Players: Rerender players' 70
 Event.OngoingPlayer
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
@@ -97,7 +97,7 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
   LoopIfConditionIsTrue();
 }
 
-rule: 'Player Settings/Select Players: Rerender heroes portraits'
+rule: 'Player Settings/Select Players: Rerender heroes portraits' 70
 Event.OngoingPlayer
 if(menuState2.isOpen)
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)

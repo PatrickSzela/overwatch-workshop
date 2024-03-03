@@ -65,7 +65,7 @@ Component[] PageHealthItems() {
   return [currentHealth, maxHealth, new Text(), autoHeal];
 }
 
-rule: 'Player Settings/Health'
+rule: 'Player Settings/Health' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_HEALTH_ID)
 {

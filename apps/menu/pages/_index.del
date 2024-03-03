@@ -16,7 +16,7 @@ Component[] PageRootItems() {
   ];
 }
 
-rule: 'Root'
+rule: 'Root' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_ROOT_ID)
 {

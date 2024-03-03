@@ -4,12 +4,12 @@ import './pages2/index.del';
 
 playervar Number[] switchFocusDescriptionIdx = [];
 
-rule: 'Switch focused menu'
+rule: 'Switch focused menu' 1
 Event.OngoingPlayer
 if(menuState2.isOpen)
 if(!menuState.isLocked)
 if(!menuState2.isLocked)
-if(EventPlayer().buttonsHeld == [BUTTON_SWITCH])
+if(buttonsHeld == [BUTTON_SWITCH])
 {
   if(currentMenuState == menuState) {
     menuState2.SetFocused();
@@ -26,7 +26,7 @@ if(!IsDummyBot())
   switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(BUTTON_SWITCH)}​ to switch to left side', COLOR_SWITCH, visible: false, order: 99));
 }
 
-rule: 'Show description about switching menu on currently focused menu' 2
+rule: 'Show description about switching menu on currently focused menu' 99
 Event.OngoingPlayer
 if(!IsDummyBot())
 {
@@ -46,7 +46,7 @@ if(!IsDummyBot())
   Loop();
 }
 
-rule: 'Close main menu when trying to do that in the 2nd one'
+rule: 'Close main menu when trying to do that in the 2nd one' 1
 Event.OngoingPlayer
 if(menuState2.isFocused)
 if(buttonsHeld == menuState._toggleMenu)
@@ -57,7 +57,7 @@ if(buttonsHeld == menuState._toggleMenu)
     menuState.Open();
 }
 
-rule: 'Go back in main menu when trying to do that in the 2nd one'
+rule: 'Go back in main menu when trying to do that in the 2nd one' 1
 Event.OngoingPlayer
 if(menuState2.isFocused)
 if(menuState2.history.Length == 1)
@@ -66,7 +66,7 @@ if(buttonsHeld == [BUTTON_BACK])
   menuState.GoBack();
 }
 
-rule: 'Go to proper page in the right menu' -1
+rule: 'Go to proper page in the right menu' 60
 Event.OngoingPlayer
 if(!IsDummyBot())
 {
@@ -96,7 +96,7 @@ Event.OngoingPlayer
   switchToTimelineIdx = menuState.AddMenuDescription(Description.New($"Press {ButtonFormatter([BUTTON_MODIFIER, BUTTON_SWITCH])}​ to open Timeline menu", COLOR_SWITCH, order: 98));
 }
 
-rule: 'Show/hide open timeline description'
+rule: 'Show/hide open timeline description' 51
 Event.OngoingPlayer
 if(!menuState.isLocked)
 if(!menuState.HistoryContains(PAGE_TIMELINE_ID))
@@ -113,7 +113,7 @@ if(!menuState.HistoryContains(PAGE_TIMELINE_ID))
   menuState.MarkToRerender();
 }
 
-rule: 'Go to Timeline'
+rule: 'Go to Timeline' 1
 Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.isFocused)

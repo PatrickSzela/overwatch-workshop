@@ -120,7 +120,7 @@ if(pageAbilitiesKeepSpammingButton)
   LoopIfConditionIsTrue();
 }
 
-rule: 'Show current ability info'
+rule: 'Show current ability info' 50
 Event.OngoingPlayer
 if(!menuState.HistoryContains('timeline'))
 if(menuState.history[2].id == PAGE_ABILITIES_ID)

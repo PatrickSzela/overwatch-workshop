@@ -110,7 +110,7 @@ Component[] PageLookAtItems() {
   return [<Component>positionRadio] + carousels + [new Text(), apply];
 }
 
-rule: 'Player Settings/Look At'
+rule: 'Player Settings/Look At' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_LOOK_AT_ID)
 {
@@ -122,7 +122,7 @@ if(menuState.pageId == PAGE_LOOK_AT_ID)
   );
 }
 
-rule: 'Player Settings/Look At: Create Sphere'
+rule: 'Player Settings/Look At: Create Sphere' 50
 Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.pageId == PAGE_LOOK_AT_ID)

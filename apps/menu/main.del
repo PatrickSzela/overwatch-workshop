@@ -63,13 +63,13 @@ if(timeline.isPlaying)
   Timeline.RuleLogic(timeline);
 }
 
-rule: 'Render left menu' 10
+rule: 'Render left menu' 100
 Event.OngoingPlayer
 {
   menuState.RULE_Render();
 }
 
-rule: 'Render right menu' 10
+rule: 'Render right menu' 100
 Event.OngoingPlayer
 {
   menuState2.RULE_Render();

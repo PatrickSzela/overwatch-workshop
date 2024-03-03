@@ -31,7 +31,7 @@ Component[] PagePlayerSettingsItems() {
   ];
 }
 
-rule: 'Player Settings'
+rule: 'Player Settings' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_PLAYER_SETTINGS_ID)
 {

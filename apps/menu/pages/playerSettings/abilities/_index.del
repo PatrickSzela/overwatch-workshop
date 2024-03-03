@@ -19,7 +19,7 @@ Component[] PageAbilitiesItems() {
   return list;
 }
 
-rule: 'Player Settings/Abilities'
+rule: 'Player Settings/Abilities' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_ABILITIES_ID)
 {
@@ -32,7 +32,7 @@ if(menuState.pageId == PAGE_ABILITIES_ID)
   );
 }
 
-rule: 'Player Settings/Abilities/Selected button'
+rule: 'Player Settings/Abilities/Selected button' 50
 Event.OngoingPlayer
 if(menuState.HistoryContains(PAGE_ABILITIES_ID))
 if(menuState.pageId == $"{selectedButton}")

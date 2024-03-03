@@ -54,7 +54,7 @@ Component[] PageStatusItems() {
   return list;
 }
 
-rule: 'Player Settings/Status'
+rule: 'Player Settings/Status' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_STATUS_ID)
 {
@@ -104,7 +104,7 @@ if(pageStatusToApply)
   pageStatusToApply = '';
 }
 
-rule: 'Update Status toggle on applied statuses change'
+rule: 'Update Status toggle on applied statuses change' 50
 Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.pageId == PAGE_STATUS_ID)
