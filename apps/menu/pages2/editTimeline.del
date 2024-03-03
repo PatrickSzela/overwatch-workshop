@@ -115,7 +115,7 @@ if(menuState2.isFocused)
   }
 
   // rerender updated color
-  menuState2.Render();
+  menuState2.MarkToRerender();
 }
 
 // TODO: maybe make a callback when timeline.actions changes?
@@ -149,7 +149,7 @@ if(timeline.actions != editableActions)
   items = items.SortedArray((i) => timelineIds.IndexOf(i.id));
 
   menuState2.ReplaceItems(items);
-  menuState2.Render();
+  menuState2.MarkToRerender();
 
   LoopIfConditionIsTrue();
 }

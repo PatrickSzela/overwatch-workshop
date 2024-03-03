@@ -10,9 +10,10 @@ import '../../libs/menu/components/carousel.del';
 import './_variables.del';
 import './pages/_index.del';
 import './pages2/index.del';
+import './switchMenu.del';
 import '../../libs/utils/rules/pauseMatchTime.del';
-import './customGameSettings.lobby';
 import '../../libs/playerInfo.del';
+import './customGameSettings.lobby';
 
 // TODO: mimic inputs
 // TODO: mark menu as dirty
@@ -21,8 +22,6 @@ import '../../libs/playerInfo.del';
 // TODO: teleport/look at flag
 // TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
 // TODO: tools - ruler, spheres
-
-playervar Number[] switchFocusDescriptionIdx = [];
 
 rule: 'Generate Menu State'
 Event.OngoingPlayer
@@ -45,103 +44,6 @@ rule: 'Generate Menu'
   menu2 = new Menu(LocalPlayer().menuState2, MenuLocation.Right);
 }
 
-rule: 'Switch focused menu'
-Event.OngoingPlayer
-if(menuState2.isOpen)
-if(EventPlayer().buttonsHeld == [BUTTON_SWITCH])
-{
-  if(currentMenuState == menuState) {
-    menuState2.SetFocused();
-  } else {
-    menuState.SetFocused();
-  }
-}
-
-rule: 'Create description about switching menu'
-Event.OngoingPlayer
-if(!IsDummyBot())
-{
-  switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(BUTTON_SWITCH)}​ to switch to right side', COLOR_SWITCH, visible: false, order: 99));
-  switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(BUTTON_SWITCH)}​ to switch to left side', COLOR_SWITCH, visible: false, order: 99));
-}
-
-rule: 'Show description on currently focused menu'
-Event.OngoingPlayer
-if(!IsDummyBot())
-{
-  WaitUntil(
-    menuState.isFocused != EvaluateOnce(menuState.isFocused) ||
-    menuState2.isOpen != EvaluateOnce(menuState2.isOpen),
-  99999);
-
-  menuState.descriptionsMenu[switchFocusDescriptionIdx[0]].visible = menuState.isFocused && menuState2.isOpen;
-  menuState2.descriptionsMenu[switchFocusDescriptionIdx[1]].visible = menuState2.isFocused;
-
-  menuState.Render();
-  menuState2.Render();
-
-  Loop();
-}
-
-rule: 'Close main menu when trying to do that in the 2nd one'
-Event.OngoingPlayer
-if(menuState2.isFocused)
-if(buttonsHeld == menuState._toggleMenu)
-{
-  if(menuState.isOpen)
-    menuState.Close();
-  else
-    menuState.Open();
-}
-
-rule: 'Go back in main menu when trying to do that in the 2nd one'
-Event.OngoingPlayer
-if(menuState2.isFocused)
-if(menuState2.history.Length == 1)
-if(buttonsHeld == [BUTTON_BACK])
-{
-  menuState.GoBack();
-}
-
-rule: 'Go to proper page in the right menu'
-Event.OngoingPlayer
-if(!IsDummyBot())
-{
-  String goTo: 
-    menuState.isOpen ?
-      (menuState.HistoryContains(PAGE_TIMELINE_ID) ? PAGE_TIMELINE_EDIT_ID : 
-        menuState.HistoryContains(PAGE_PLAYER_SETTINGS_ID) ? PAGE_SELECT_PLAYERS_ID : 
-      '') : 
-    '';
-
-  WaitUntil(goTo != EvaluateOnce(goTo), 99999);
-
-  if(goTo) {
-    menuState2.Open();
-    menuState2.GoTo(goTo, true);
-  } else {
-    menuState2.Close();
-    menuState.SetFocused();
-  }
-  
-  Loop();
-}
-
-rule: 'Go to Timeline'
-Event.OngoingPlayer
-if(menuState.isOpen)
-if(menuState.isFocused)
-if(buttonsHeld == [BUTTON_MODIFIER, BUTTON_SWITCH])
-{
-  menuState.GoTo(PAGE_TIMELINE_ID);
-}
-
-rule: 'Add Timeline Info'
-Event.OngoingPlayer
-{
-  switchToTimelineIdx = menuState.AddMenuDescription(Description.New($"Press {ButtonFormatter([BUTTON_MODIFIER, BUTTON_SWITCH])}​ to open Timeline menu", COLOR_SWITCH));
-}
-
 rule: 'Pick position handle increase/decrease distance'
 Event.OngoingPlayer
 if(pickPosition.RULE_UpdateRaycastDistanceCondition())
@@ -153,4 +55,22 @@ rule: 'Player Info'
 Event.OngoingPlayer
 {
   PlayerInfo(playerName, buttonsHeld, pageStatusAppliedStatuses);
+}
+
+rule: '[Timeline] Start playing'
+if(timeline.isPlaying)
+{
+  Timeline.RuleLogic(timeline);
+}
+
+rule: 'Render left menu' 10
+Event.OngoingPlayer
+{
+  menuState.RULE_Render();
+}
+
+rule: 'Render right menu' 10
+Event.OngoingPlayer
+{
+  menuState2.RULE_Render();
 }

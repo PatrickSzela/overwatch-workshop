@@ -50,7 +50,7 @@ if(timeline.isPlaying)
 
   LoopIfConditionIsTrue();
 
-  menuState2.Render();
+  menuState2.MarkToRerender();
 }
 
 rule: 'Timeline/Edit Focus current item when started playing'
@@ -61,7 +61,7 @@ if(menuState2.items)
 if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
 {
   menuState2.SetHoveredItemIdx(timeline.index);
-  menuState2.Render();
+  menuState2.MarkToRerender();
 }
 
 rule: 'Timeline/Play Pause Switch text if playing'

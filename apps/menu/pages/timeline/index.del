@@ -37,22 +37,3 @@ if(menuState.pageId == PAGE_TIMELINE_ID)
     items: PageTimelineItems()
   );
 }
-
-rule: 'Add Timeline Info'
-Event.OngoingPlayer
-if(!menuState.HistoryContains(PAGE_TIMELINE_ID))
-{
-  menuState.descriptionsMenu[switchToTimelineIdx].visible = true;
-  menuState.Render();
-
-  WaitUntil(menuState.HistoryContains(PAGE_TIMELINE_ID), 99999);
-  
-  menuState.descriptionsMenu[switchToTimelineIdx].visible = false;
-  menuState.Render();
-}
-
-rule: '[Timeline] Start playing'
-if(timeline.isPlaying)
-{
-  Timeline.RuleLogic(timeline);
-}

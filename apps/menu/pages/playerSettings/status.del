@@ -127,7 +127,7 @@ if(menuState.pageId == PAGE_STATUS_ID)
     }
   }
   
-  menuState.Render();
+  menuState.MarkToRerender();
 
   LoopIfConditionIsTrue();
 }

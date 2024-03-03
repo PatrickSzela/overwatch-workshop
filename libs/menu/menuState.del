@@ -59,6 +59,8 @@ class MenuState {
   public Boolean isFocused;
   # Whether menu is currently in refresh stage.
   public Boolean isRefreshing: pageId == '<REFRESH>';
+  # Whether menu should rerender.
+  public Boolean shouldRerender;
   # Combination of buttons used to toggle menu on and off.
   public Button[] _toggleMenu;
   # ID of root page.
@@ -106,7 +108,7 @@ class MenuState {
     emptyText = new Text("It's a bit empty in here...");
 
     // render closed title
-    Render();
+    MarkToRerender();
   }
 
   // helpers
@@ -124,7 +126,7 @@ class MenuState {
     // DisableInspectorRecording();
 
     hoveredItem.MarkToRerender();
-    Render();
+    MarkToRerender();
   }
 
   # Forcefully rerenders specified item. Call after manually adding description.
@@ -134,7 +136,7 @@ class MenuState {
     // DisableInspectorRecording();
 
     item.MarkToRerender();
-    Render();
+    MarkToRerender();
   }
 
   # Forcefully rerenders all visible items.
@@ -146,7 +148,7 @@ class MenuState {
     foreach(Component item! in visibleItems)
       item.MarkToRerender();
     
-    Render();
+    MarkToRerender();
   }
   
   public void SetEnabled(Boolean enabled!) "[MenuState] Set Enabled" {
@@ -272,7 +274,7 @@ class MenuState {
       isOpen = true;
 
       if(isFocused) hoveredItem.OnEnter();
-      Render();
+      MarkToRerender();
     }
   }
 
@@ -285,7 +287,7 @@ class MenuState {
       isOpen = false;
       
       if(isFocused) hoveredItem.OnLeave();
-      Render();
+      MarkToRerender();
     }
   }
 
@@ -303,7 +305,7 @@ class MenuState {
     if(isOpen) {
       hoveredItem.OnEnter();
       // `AddItems` already adds items to render queue
-      Render();
+      MarkToRerender();
     }
   }
 
@@ -352,7 +354,7 @@ class MenuState {
       }
     }
 
-    Render();
+    MarkToRerender();
   }
 
   public virtual void ButtonDown(Button button!) "[MenuState] Button Down" {
@@ -377,7 +379,7 @@ class MenuState {
     }
 
     if(isOpen) {
-      Render();
+      MarkToRerender();
     }
   }
 
@@ -391,7 +393,7 @@ class MenuState {
 
     if(isOpen) {
       hoveredItem.OnButtonUp(button);
-      Render();
+      MarkToRerender();
     }
   }
 
@@ -484,10 +486,20 @@ class MenuState {
     renderedTexts.merged += renderedTexts.descriptions;
   }
 
+  public void MarkToRerender() {
+    // EnableInspectorRecording();
+    // LogToInspector($'{EventPlayer()}: Mark to rerender');
+    // DisableInspectorRecording();
+
+    shouldRerender = true;
+  }
+
   public void Render() "[MenuState] Render" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: Render');
     // DisableInspectorRecording();
+
+    shouldRerender = false;
 
     if(isOpen) {
       RenderVisibleItems();
@@ -495,6 +507,12 @@ class MenuState {
     } else {
       RenderClosedItems();
     }
+  }
+
+  public void RULE_Render() {
+    WaitUntil(shouldRerender, 99999);
+    Render();
+    Loop();
   }
 
   protected void HandleScroll() "[MenuState] Handle Scroll" {
