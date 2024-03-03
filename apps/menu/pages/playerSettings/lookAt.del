@@ -45,7 +45,7 @@ Vector PageLookAtRayCast(Player player):
 Component[] PageLookAtItems() {
   // position
   ComponentWithValue position = new ComponentWithValue(<String>PageLookAtChoice.POSITION, Vector.Zero);
-  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE)));
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE), order: -20));
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
   };

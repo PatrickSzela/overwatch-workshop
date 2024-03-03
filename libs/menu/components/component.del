@@ -69,22 +69,22 @@ class Component {
 
   public virtual void SetPrimaryAction(String description!, (Component) => void action!) "t" {
     onPrimaryAction = action;
-    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_PRIMARY)}​ to {description}"));
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_PRIMARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_PRIMARY)));
   }
 
   public virtual void SetSecondaryAction(String description!, (Component) => void action!) "t" {
     onSecondaryAction = action;
-    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_SECONDARY)}​ to {description}"));
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_SECONDARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_SECONDARY)));
   }
 
   public virtual void SetTertiaryAction(String description!, (Component) => void action!) "t" {
     onTertiaryAction = action;
-    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_TERTIARY)}​ to {description}"));
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_TERTIARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_TERTIARY)));
   }
 
   public virtual void SetQuaternaryAction(String description!, (Component) => void action!) "t" {
     onQuaternaryAction = action;
-    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_QUATERNARY)}​ to {description}"));
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_QUATERNARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_QUATERNARY)));
   }
 
   public virtual void HandleActions() "[Component] Handle Action" {

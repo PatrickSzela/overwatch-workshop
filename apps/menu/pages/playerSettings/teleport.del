@@ -14,7 +14,7 @@ Vector PageTeleportGetObjectivePosition(Carousel it): it.value == -2 ? PayloadPo
 
 Component[] PageTeleportItems() {
   Component position = new Component(PAGE_TELEPORT_POSITION_NAME);
-  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE)));
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE), order: -20));
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);
   };

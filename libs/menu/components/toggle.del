@@ -23,7 +23,7 @@ class Toggle: ComponentWithValue
 
     this.valueFormatter = (it) => BooleanFormatter(it.value);
 
-    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle"));
+    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE)));
   }
 
   // events

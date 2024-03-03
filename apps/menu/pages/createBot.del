@@ -57,7 +57,7 @@ Component[] PageCreateBotItems() {
   slot.onChange = (value, it) => pageCreateBotProps.slot = value;
 
   ComponentWithValue position = new ComponentWithValue(PAGE_CREATE_BOT_POSITION_NAME, pageCreateBotProps.position);
-  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE)));
+  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE), order: -20));
   
   position.onEnter = (it) => {
     pickPosition.Enable(Color.Red);

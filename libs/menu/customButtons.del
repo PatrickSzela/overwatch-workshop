@@ -33,6 +33,9 @@ Button BUTTON_SWITCH:     buttonsSettings[6];
 Button BUTTON_INCREASE:   buttonsSettings[7];
 Button BUTTON_DECREASE:   buttonsSettings[8];
 
+Number ButtonDescriptionOrder(Button button):
+  buttonsSettings.IndexOf(button) - 12;
+
 // Button BUTTON_PRIMARY: Button.Ability2;
 // Button BUTTON_SECONDARY: Button.Reload;
 // Button BUTTON_TERTIARY: Button.Interact;

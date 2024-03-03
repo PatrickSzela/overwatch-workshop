@@ -21,7 +21,7 @@ class Carousel: ComponentWithValue
     
     ComponentWithValueConstructor(text, !options.Contains(defaultValue) ? options.First : defaultValue, null);
 
-    AddDescription(Description.New('Use [←] or [→] to select an option'));
+    AddDescription(Description.New('Use [←] or [→] to select an option', order: -19));
   }
 
   public override void OnNavigate(Vector direction!) "[Carousel] OnNavigate" {
