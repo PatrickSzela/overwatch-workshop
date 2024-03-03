@@ -61,13 +61,18 @@ Component[] PageLookAtItems() {
   position.onButtonUp = (button, it) => {
     pickPosition.StopChangingRaycaseDistance();
   };
-  position.SetSecondaryAction('Choose the position', (it) => {
-    (<ComponentWithValue>it).SetValue(pickPosition.position);
-    pageLookAtProps = { choice: PageLookAtChoice.POSITION, value: pickPosition.position, ..pageLookAtProps };
-  });
 
   Radio positionRadio = new Radio(menuState, <String>PageLookAtChoice.POSITION, PAGE_LOOK_AT_NAME);
   positionRadio.child = position;
+  positionRadio.onChange = (checked, it) => {
+    pageLookAtProps = { choice: PageLookAtChoice.POSITION, value: (<ComponentWithValue>position).value, ..pageLookAtProps };
+  };
+
+  position.SetSecondaryAction('Choose the position', (it) => {
+    positionRadio.SetValue(true);
+    (<ComponentWithValue>it).SetValue(pickPosition.position);
+    pageLookAtProps = { choice: PageLookAtChoice.POSITION, value: (<ComponentWithValue>position).value, ..pageLookAtProps };
+  });
 
   // objective, player, looking position of player
   Component[] carousels = [];
@@ -83,15 +88,17 @@ Component[] PageLookAtItems() {
     carousel.valueFormatter = choice == PageLookAtChoice.OBJECTIVE ? 
       (it) => ObjectiveFormatter(it.value) : 
       (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
+
+    Radio radio = new Radio(menuState, <String>choice, PAGE_LOOK_AT_NAME);
+    radio.child = carousel;
+
     carousel.onChange = (value, it) => {
+      radio.SetValue(true);
       pageLookAtProps = { choice: choice, value: value, ..pageLookAtProps };
     };
     carousel.onPrimaryAction = (it) => {
       pageLookAtProps = { choice: choice, value: (<Carousel>it).value, ..pageLookAtProps };
     };
-
-    Radio radio = new Radio(menuState, <String>choice, PAGE_LOOK_AT_NAME);
-    radio.child = carousel;
 
     carousels += radio;
   }
