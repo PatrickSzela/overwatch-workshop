@@ -61,7 +61,7 @@ Component[] PageLookAtItems() {
   position.onButtonUp = (button, it) => {
     pickPosition.StopChangingRaycaseDistance();
   };
-  position.SetPrimaryAction('Choose the position', (it) => {
+  position.SetSecondaryAction('Choose the position', (it) => {
     (<ComponentWithValue>it).SetValue(pickPosition.position);
     pageLookAtProps = { choice: PageLookAtChoice.POSITION, value: pickPosition.position, ..pageLookAtProps };
   });
