@@ -29,8 +29,6 @@ globalvar Number createdBotsIdx = 0;
 
 playervar PageCreateBotProps pageCreateBotProps = { hero: Hero.Reinhardt, position: Vector.Zero, slot: -1, team: Team.Team1 };
 playervar Number botIdx = 0;
-// workaround because the bots will have their original names on client-side
-playervar String playerName = $"{EventPlayer()}";
 
 Component[] PageCreateBotItems() {
   Carousel hero = new Carousel(

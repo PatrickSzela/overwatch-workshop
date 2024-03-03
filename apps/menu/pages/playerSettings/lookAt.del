@@ -140,7 +140,7 @@ if(menuState.pageId == PAGE_LOOK_AT_ID)
     pickPosition.CreateAdditionalSphere(
       color: Color.Green,
       position: PageLookAtRayCast(EvaluateOnce(p)),
-      text: $"{EvaluateOnce(p)}'s look position:\n{PickPosition.RayCast(EvaluateOnce(p))}",
+      text: $"{EvaluateOnce(p).playerName}'s look position:\n{PickPosition.RayCast(EvaluateOnce(p))}",
       lineEnd: EvaluateOnce(p).EyePosition()
     );
 

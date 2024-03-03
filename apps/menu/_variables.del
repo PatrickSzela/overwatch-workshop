@@ -2,6 +2,7 @@ import '../../libs/menu/_index.del';
 import '../../libs/pickPosition/pickPosition.del';
 import '../../libs/playerInfo.del';
 import '../../libs/timeline/timeline.del';
+
 globalvar Menu menu;
 globalvar Menu menu2;
 playervar MenuState menuState;
@@ -12,3 +13,6 @@ playervar Player[] selectedPlayersWithoutSelf = [];
 
 playervar PickPosition pickPosition = new PickPosition();
 globalvar Timeline timeline = Timeline.New();
+
+// workaround because the bots will have their original names on client-side
+playervar String playerName = $"{EventPlayer()}";
