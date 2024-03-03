@@ -5,7 +5,7 @@ globalvar Number timelineActionsId = -1;
 struct Timeline {
   public Action[] actions;
   public Number index;
-  public Boolean isPlaying;
+  public Number isPlaying;
   public Boolean isRepeating;
 
   public static Timeline New():
@@ -26,15 +26,15 @@ struct Timeline {
   }
 
   public static void Play(ref Timeline timelineRef) {
-    timelineRef.isPlaying = true;
+    timelineRef.isPlaying = TotalTimeElapsed();
   }
 
   public static void Pause(ref Timeline timelineRef) {
-    timelineRef.isPlaying = false;
+    timelineRef.isPlaying = 0;
   }
 
   public static void Stop(ref Timeline timelineRef) {
-    timelineRef.isPlaying = false;
+    timelineRef.isPlaying = 0;
     timelineRef.index = 0;
   }
 
@@ -43,7 +43,9 @@ struct Timeline {
   }
 
   public static void GoToId(ref Timeline timelineRef, in Number id) {
-    timelineRef.index = timelineRef.actions.Map((i) => i.id).IndexOf(id) - 1;
+    Number final! = timelineRef.actions.Map((i) => i.id).IndexOf(id) - 1;
+    if(final <= timelineRef.index && TotalTimeElapsed() > timelineRef.isPlaying || final > timelineRef.index)
+      timelineRef.index = final;
   }
 
   // to be used in a rule
@@ -58,7 +60,7 @@ struct Timeline {
     if(timelineRef.index == timelineRef.actions.Length)
       timelineRef.index = 0;
 
-    if(timelineRef.isRepeating)
+    if(timelineRef.isRepeating && timelineRef.isPlaying != TotalTimeElapsed())
       LoopIfConditionIsTrue();
 
     timelineRef.isPlaying = false;

@@ -17,7 +17,7 @@ Component PageTimelineAddJumpToMenuItem() {
     defaultValue: 0
   );
 
-  component.AddDescription(Description.New('This action can crash the server if there are no Wait actions in between', COLOR_WARNING));
+  component.AddDescription(Description.New('This action won\'t work if there are no Wait actions in between', COLOR_WARNING));
 
   component.SetPrimaryAction("Apply", (it) => {
     Timeline.AddAction(timeline, ACTION_JumpToAction((<NumberInput>it).value));
