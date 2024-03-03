@@ -5,7 +5,7 @@ import '../../_variables.del';
 // TODO: migrate to playerText when multiple texts are supported properly
 
 String PAGE_HEAL_DAMAGE_TAKEN_ID: 'healDamageTaken';
-String PAGE_HEAL_DAMAGE_TAKEN_NAME: 'Heal/Damage Taken';
+String PAGE_HEAL_DAMAGE_TAKEN_NAME: 'Show Heal/Damage Taken Above Heads';
 
 single struct PageHealDamageTakenProps {
   public Boolean show;

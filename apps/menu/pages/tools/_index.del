@@ -11,9 +11,10 @@ Component[] PageToolsItems() {
   return [
     <Component>new Text('Player info:')
   ] + PagePlayerInfoMenuItem() + [
-    PageHealDamageTakenMenuItem(),
     new Text(),
+    PageHealDamageTakenMenuItem(),
     PageSlowMotionMenuItem(),
+    new Text(),
     PageDiagnosticsMenuItem()
   ];
 }

@@ -6,7 +6,7 @@ String PAGE_PLAYER_INFO_NAME: 'Show Player Info';
 
 Component[] PagePlayerInfoMenuItem() {
   Toggle main = new Toggle(
-    text: 'Enabled',
+    text: 'Name, hero and health',
     defaultChecked: playerInfoProps.enabled
   );
   main.onChange = (checked, it) => {
@@ -15,7 +15,7 @@ Component[] PagePlayerInfoMenuItem() {
   };
 
   Toggle transform = new Toggle(
-    text: 'Transform',
+    text: 'Position, facing and speed',
     defaultChecked: playerInfoProps.showTransform
   );
   transform.onChange = (checked, it) => {
@@ -24,7 +24,7 @@ Component[] PagePlayerInfoMenuItem() {
   };
 
   Toggle buttons = new Toggle(
-    text: 'Buttons',
+    text: 'Pressed buttons',
     defaultChecked: playerInfoProps.showButtons
   );
   buttons.onChange = (checked, it) => {
@@ -33,7 +33,7 @@ Component[] PagePlayerInfoMenuItem() {
   };
 
   Toggle statuses = new Toggle(
-    text: 'Statuses',
+    text: 'Applied statuses',
     defaultChecked: playerInfoProps.showStatuses
   );
   statuses.onChange = (checked, it) => {
