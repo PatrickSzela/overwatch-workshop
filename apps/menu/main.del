@@ -13,7 +13,7 @@ import './pages2/index.del';
 import './switchMenu.del';
 import '../../libs/utils/rules/pauseMatchTime.del';
 import '../../libs/playerInfo.del';
-import './customGameSettings.lobby';
+import './settings.del';
 
 // TODO: mimic inputs
 // TODO: mark menu as dirty
