@@ -77,7 +77,7 @@ if(!IsDummyBot())
       '') : 
     '';
 
-  WaitUntil(goTo != EvaluateOnce(goTo) || buttonsHeld == [BUTTON_MODIFIER, BUTTON_SWITCH], 99999);
+  WaitUntil(goTo != EvaluateOnce(goTo), 99999);
 
   if(goTo) {
     menuState2.Open();
