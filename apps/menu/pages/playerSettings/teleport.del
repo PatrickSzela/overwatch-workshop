@@ -14,22 +14,9 @@ Vector PageTeleportGetObjectivePosition(Carousel it): it.value == -2 ? PayloadPo
 
 Component[] PageTeleportItems() {
   Component position = new Component(PAGE_TELEPORT_POSITION_NAME);
-  position.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE), order: -20));
-  position.onEnter = (it) => {
-    pickPosition.Enable(Color.Red);
-  };
-  position.onLeave = (it) => {
-    pickPosition.Disable();
-  };
-  position.onButtonDown = (button, it) => {
-    if(buttonsHeld == [BUTTON_INCREASE])
-      pickPosition.StartChangingRaycaseDistance(0.1);
-    else if(buttonsHeld == [BUTTON_DECREASE])
-      pickPosition.StartChangingRaycaseDistance(-0.1);
-  };
-  position.onButtonUp = (button, it) => {
-    pickPosition.StopChangingRaycaseDistance();
-  };
+  
+  pickPosition.EnhanceComponent(pickPosition, position);
+
   position.SetPrimaryAction('Apply', (it) => {
     Teleport(selectedPlayers, pickPosition.position);
   });

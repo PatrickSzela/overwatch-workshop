@@ -1,4 +1,5 @@
 import '../utils/string.formatters.del';
+import '../menu/components/component.del';
 
 class PickPosition {
   public static Number MAX_DISTANCE: 100;
@@ -64,15 +65,37 @@ class PickPosition {
     LoopIfConditionIsTrue();
   }
 
+  public void EnhanceComponent(PickPosition pickPosition, Component component) "[PickPosition] Enchance Component" {
+    component.AddDescription(Description.New(PickPosition.CHANGE_DISTANCE_DESCRIPTION(BUTTON_INCREASE, BUTTON_DECREASE), order: -20));
+
+    component.onEnter = (it) => {
+      pickPosition.Enable(Color.Red);
+    };
+    component.onLeave = (it) => {
+      pickPosition.Disable();
+    };
+
+    component.onButtonDown = (button, it) => {
+      if(buttonsHeld == [BUTTON_INCREASE])
+        pickPosition.StartChangingRaycaseDistance(0.1);
+      else if(buttonsHeld == [BUTTON_DECREASE])
+        pickPosition.StartChangingRaycaseDistance(-0.1);
+    };
+    component.onButtonUp = (button, it) => {
+      pickPosition.StopChangingRaycaseDistance();
+    };
+  }
+
   // this CANNOT be a subroutine
-  public void CreateAdditionalSphere(in Vector position!, in Color color!, in String text! = null, in Vector lineEnd! = null) {
+  public void CreateAdditionalSphere(in Vector position!, in Color color!, in String text! = null, in Vector lineEnd! = null, in Boolean visibility! = true) {
     Render(
       effectStorage: additionalEffects,
       textStorage: additionalTexts,
       color: color,
       position: position,
       text: text,
-      lineEnd: lineEnd
+      lineEnd: lineEnd,
+      visibility: visibility
     );
   }
 
@@ -86,35 +109,35 @@ class PickPosition {
     additionalTexts = [];
   }
 
-  public void Render(ref Any[] effectStorage!, ref Any[] textStorage!, in Vector position!, in Color color!, in String text! = null, in Vector lineEnd! = null) {
+  public void Render(ref Any[] effectStorage!, ref Any[] textStorage!, in Vector position!, in Color color!, in String text! = null, in Vector lineEnd! = null, in Boolean visibility! = true) {
     effectStorage += CreateEffect(
-      EventPlayer(),
-      Effect.Sphere,
-      color,
-      UpdateEveryFrame(position),
-      RADIUS,
-      EffectRev.PositionRadiusAndColor
+      VisibleTo: visibility ? EventPlayer() : null,
+      Type: Effect.Sphere,
+      Color: color,
+      Position: UpdateEveryFrame(position),
+      Radius: RADIUS,
+      Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
     );
 
     if(lineEnd != null) {
       effectStorage += CreateBeamEffect(
-        EventPlayer(),
-        BeamType.GrappleBeam,
-        lineEnd,
-        UpdateEveryFrame(position),
-        Color.Black,
-        EffectRev.PositionAndRadius
+        VisibleTo: visibility ? EventPlayer() : null,
+        BeamType: BeamType.GrappleBeam,
+        StartPosition: lineEnd,
+        EndPosition: UpdateEveryFrame(position),
+        Color: Color.Black,
+        Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
       );
     }
 
     if(text != null) {
       textStorage += CreateInWorldText(
-        EventPlayer(),
-        $"{text}\n",
-        UpdateEveryFrame(position),
-        TEXT_SIZE,
-        Clipping.DoNotClip,
-        InworldTextRev.VisibleToPositionStringAndColor
+        VisibleTo: visibility ? EventPlayer() : null,
+        Header: $"{text}\n",
+        Position: UpdateEveryFrame(position),
+        Scale: TEXT_SIZE,
+        Clipping: Clipping.DoNotClip,
+        Reevaluation: InworldTextRev.VisibleToPositionStringAndColor
       );
     }
   }
