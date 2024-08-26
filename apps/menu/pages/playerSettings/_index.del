@@ -9,6 +9,7 @@ import './abilities/_index.del';
 import './kill.del';
 import './resurrect.del';
 import './respawn.del';
+import './respawnPoint.del';
 import './remove.del';
 import './menuAccess.del';
 
@@ -26,6 +27,7 @@ Component[] PagePlayerSettingsItems() {
     PageKillMenuItem(),
     PageResurrectMenuItem(),
     PageRespawnMenuItem(),
+    PageSetRespawnPointMenuItem(),
     PageRemoveMenuItem(),
     PageMenuAccessMenuItem()
   ];

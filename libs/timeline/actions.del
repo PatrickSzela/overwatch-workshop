@@ -105,6 +105,11 @@ Action ACTION_StopLookingAt(Player[] players, Vector position):
 Action ACTION_Respawn(Player[] players): 
   Action.New($'Respawn([{PlayersFormatter(players)}])', () => {
     Respawn(players);
+
+    foreach(Player player in players) {
+      if(player.respawnPoint != null)
+        player.Teleport(player.respawnPoint);
+    }
   });
 
 

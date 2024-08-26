@@ -1,0 +1,54 @@
+import '../../_variables.del';
+
+String PAGE_RESPAWN_POINT_ID: 'respawnPoint';
+String PAGE_RESPAWN_POINT_NAME: 'Set Respawn Point';
+
+Component PageSetRespawnPointMenuItem() {
+  ComponentWithValue position = new ComponentWithValue(PAGE_RESPAWN_POINT_NAME, selectedPlayers.respawnPoint);
+  position.id = PAGE_RESPAWN_POINT_ID;
+  position.valueFormatter = (it) => it.value == null ? 'None' : it.value;
+
+  pickPosition.EnhanceComponent(pickPosition, position);
+
+  position.SetPrimaryAction("Apply", (it) => {
+    selectedPlayers.respawnPoint = pickPosition.position;
+    (<ComponentWithValue>it).SetValue(pickPosition.position);
+  });
+
+  position.SetSecondaryAction("Remove", (it) => {
+    selectedPlayers.respawnPoint = null;
+    (<ComponentWithValue>it).SetValue(null);
+  });
+
+  return position;
+}
+
+rule: 'Player Settings/Set Respawn Point: Teleport to respawn point after dying'
+Event.OngoingPlayer
+if(EventPlayer().IsDead())
+if(respawnPoint != null)
+{
+  WaitUntil(EventPlayer().IsAlive(), 999);
+  Teleport(EventPlayer(), respawnPoint);
+}
+
+rule: 'Player Settings/Set Respawn Point: Create Spheres' 50
+Event.OngoingPlayer
+if(menuState.isOpen)
+if(menuState.hoveredItem.id == PAGE_RESPAWN_POINT_ID)
+{
+  foreach(Player p! in AllPlayers()) {
+    pickPosition.CreateAdditionalSphere(
+      color: Color.Green,
+      position: EvaluateOnce(p).respawnPoint,
+      text: $"{EvaluateOnce(p).playerName}'s respawn position:\n{EvaluateOnce(p).respawnPoint}",
+      visibility: EvaluateOnce(p).respawnPoint != null
+    );
+
+    Wait(0.05);
+  }
+
+  WaitUntil(menuState.hoveredItem.id != PAGE_RESPAWN_POINT_ID || !menuState.isOpen, 99999);
+
+  pickPosition.DestroyAdditionalSpheres();
+}

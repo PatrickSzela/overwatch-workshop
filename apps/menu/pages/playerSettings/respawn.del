@@ -8,6 +8,9 @@ Component PageRespawnMenuItem() {
 
   respawn.SetPrimaryAction("Apply", (it) => {
     Respawn(selectedPlayers);
+    
+    if(respawnPoint != null) 
+      Teleport(EventPlayer(), respawnPoint);
   });
 
   respawn.SetTertiaryAction("Add to timeline", (it) => {

@@ -16,3 +16,4 @@ globalvar Timeline timeline = Timeline.New();
 
 // workaround because the bots will have their original names on client-side
 playervar String playerName = $"{EventPlayer()}";
+playervar Vector respawnPoint;
