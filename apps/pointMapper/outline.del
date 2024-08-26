@@ -1,0 +1,64 @@
+single struct Vertex {
+  public Vector position;
+  public Vector[] connectedTo;
+}
+
+struct Outline {
+  public String algorithm;
+  public Vertex[] vertices;
+
+  public Any[] effectLineIds;
+  public Any[] effectVerticeIds;
+
+  public static Outline BASE: { algorithm: '', effectLineIds: [], effectVerticeIds: [], vertices: [] };
+
+  public ref void RenderLines(in Vector origin, in Number scale) {
+    foreach(Vertex vertex in vertices) {
+      // Vector _origin: Vector(origin.X, HostPlayer().Position().Y + 0.25, origin.Z);
+      Vector _origin: Vector(origin.X, origin.Y + 0.25, origin.Z);
+
+      foreach(Vector connectedTo in vertex.connectedTo) {
+        effectLineIds += CreateBeamEffect(
+          LocalPlayer(), 
+          BeamType.GrappleBeam, 
+          _origin + EvaluateOnce(vertex.position * scale), 
+          _origin + EvaluateOnce(connectedTo * scale), 
+          Color.Red, 
+          EffectRev.VisibleToPositionAndRadius
+        );
+      }
+
+      MinWait();
+    }
+  }
+
+  public ref void RenderVertices(in Vector origin, in Number scale) {
+    foreach(Vertex vertex in vertices) {
+      // Vector _origin: Vector(origin.X, HostPlayer().Position().Y + 0.25, origin.Z);
+      Vector _origin: Vector(origin.X, origin.Y + 0.25, origin.Z);
+
+      effectVerticeIds += CreateEffect(
+        LocalPlayer(), 
+        Effect.Sphere, 
+        Color.Red, 
+        _origin + EvaluateOnce(vertex.position * scale), 
+        0.05, 
+        EffectRev.VisibleToPositionAndRadius
+      );
+
+      MinWait();
+    }
+  }
+
+  public ref void Clear() {
+    foreach(Any effect in effectLineIds) {
+      DestroyEffect(effect);
+    }
+    foreach(Any effect in effectVerticeIds) {
+      DestroyEffect(effect);
+    }
+
+    effectLineIds = [];
+    effectVerticeIds = [];
+  }
+}

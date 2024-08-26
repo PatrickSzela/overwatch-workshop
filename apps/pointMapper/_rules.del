@@ -1,0 +1,93 @@
+import "../../libs/utils/diagnostic.del";
+import "../../libs/utils/string.formatters.del";
+import "./menu/teleport.del";
+import "./_variables.del";
+import "./_helpers.del";
+
+// rule: 'Start game'
+// if(!IsGameInProgress())
+// {
+//   StartGameMode();
+// }
+
+rule: 'Spawn Dummies'
+{
+  Wait(5);
+
+  // contesting dummies
+  foreach (Team team in [Team.Team1, Team.Team2]) {
+    dummiesContesting += AddDummies(1, team);
+    SetInvisible(LastCreatedEntity(), InvisibleTo.All);
+  }
+
+  modeStarted = true;
+}
+
+Number dummiesAmount: AllPlayers().FilteredArray((i) => i.IsDummy()).Length;
+
+rule: 'Status'
+{
+  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
+  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
+  CreateDiagnosticText($"──────────────────────");
+  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
+  CreateDiagnosticText($"Entity count: {EntityCount()}/256", EntityCount() > 192, EntityCount() > 224);
+  CreateDiagnosticText($"Dummies spawned: {dummiesAmount}/23", dummiesAmount > 16, dummiesAmount > 20);
+  CreateDiagnosticText($"Outline count: {allPoints.Length}");
+  CreateDiagnosticText($"──────────────────────");
+  CreateDiagnosticText($"Position: {LocalPlayer().Position()}");
+  CreateDiagnosticText($"Facing: {LocalPlayer().FacingDirection()}");
+  CreateDiagnosticText($"Force contesting: {BooleanFormatter(forceContesting)}");
+  CreateDiagnosticText($"Is on objective: {BooleanFormatterYesNo(LocalPlayer().isOnObjective)}");
+
+  CreateHudText(
+    VisibleTo: LocalPlayer(), 
+    Text: $"\n\nIs on objective: {BooleanFormatterYesNo(LocalPlayer().isOnObjective)}",
+    Location: Location.Top, 
+    SortOrder: 100, 
+    TextColor: LocalPlayer().isOnObjective ? Color.Green : Color.Red, 
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
+  );
+}
+
+rule: 'Server check if player is on objective'
+Event.OngoingPlayer
+if(!IsDummyBot(EventPlayer()))
+if(EventPlayer().IsOnObjective())
+{
+  isOnObjective = true;
+}
+
+rule: 'Server check if player is not on objective'
+Event.OngoingPlayer
+if(!IsDummyBot(EventPlayer()))
+if(!EventPlayer().IsOnObjective())
+{
+  isOnObjective = false;
+}
+
+rule: 'Start contesting when enabled'
+Event.OngoingGlobal
+if(forceContesting)
+if(modeStarted)
+{
+  Teleport(dummiesContesting, CurrentObjectivePosition());
+}
+
+rule: 'Stop contesting when disabled'
+Event.OngoingGlobal
+if(!forceContesting)
+if(modeStarted)
+{
+  foreach(Player dummy in dummiesContesting) {
+    dummy.Teleport(SpawnPoints(dummy.Team())[0]);
+  }
+}
+
+rule: 'Teleport players to objective on spawn'
+Event.OngoingPlayer
+if(HasSpawned(EventPlayer()))
+if(!IsDummyBot(EventPlayer()))
+{
+  PageTeleportHandleTeleport();
+}

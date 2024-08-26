@@ -1,0 +1,35 @@
+import '../_variables.del';
+
+String PAGE_START_MAPPING_ID: 'startMapping';
+String PAGE_START_MAPPING_NAME: 'Start Mapping';
+
+globalvar Boolean waitForControlPoint = false;
+
+Component PageStartMappingMenuItem() {
+  Component startMapping = new Component(PAGE_START_MAPPING_NAME);
+
+  startMapping.SetPrimaryAction('Apply', (it) => {
+    if(step == Step.Nothing) {
+      waitForControlPoint = true;
+    } else {
+      SmallMessage(EventPlayer(), "Mapping already in progress");
+    }
+  });
+
+  startMapping.AddDescription(Description.New("With every subsequent run the chance to crash the server gets higher", Color.Orange, true, 1));
+
+  return startMapping;
+}
+
+rule: 'Wait for the point to unlock - clash bug'
+if(waitForControlPoint)
+if(step == Step.Nothing)
+{
+  if(IsControlModePointLocked()) {
+    SmallMessage(AllPlayers(), "Waiting for Control Point to unlock...");
+    WaitUntil(!IsControlModePointLocked(), 30);
+  }
+  
+  step = Step.Preparing;
+  waitForControlPoint = false;
+}

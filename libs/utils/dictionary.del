@@ -15,22 +15,22 @@ struct Dictionary<K, V> {
   }
   
   # Sets a `value` in the `dictionary` at `key`.
-  public void Set(ref Dictionary<K, V> dictionary, in K key, in V value) {
-    dictionary.Values[dictionary.Keys.IndexOf(key)] = value;
+  public ref void Set(in K key, in V value) {
+    Values[Keys.IndexOf(key)] = value;
   }
   
   # Adds a `value` to the `dictionary` at `key`.
-  public void Add(ref Dictionary<K, V> dictionary, in K key, in V value) {
-    dictionary.Keys[dictionary.Keys.Length] = key;
-    dictionary.Values[dictionary.Values.Length] = value;
+  public ref void Add(in K key, in V value) {
+    Keys[Keys.Length] = key;
+    Values[Values.Length] = value;
   }
 
   # Sets a `value` in the `dictionary` at `key`. Will add the `key` if it doesn't exist.
-  public void SetOrAdd(ref Dictionary<K, V> dictionary, in K key, in V value) {
-    Number index! = dictionary.Keys.IndexOf(key);
+  public ref void SetOrAdd(in K key, in V value) {
+    Number index! = Keys.IndexOf(key);
     if (index == -1) // Key not found; add it.
-      Add(dictionary, key, value);
+      Add(key, value);
     else
-      dictionary.Values[index] = value;
+      Values[index] = value;
   }
 }

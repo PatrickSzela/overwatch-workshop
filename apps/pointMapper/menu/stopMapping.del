@@ -1,0 +1,19 @@
+import '../_variables.del';
+
+String PAGE_STOP_MAPPING_ID: 'stopMapping';
+String PAGE_STOP_MAPPING_NAME: 'Stop Mapping';
+
+Component PageStopMappingMenuItem() {
+  Component stopMapping = new Component(PAGE_STOP_MAPPING_NAME);
+  
+  stopMapping.SetPrimaryAction("Apply", (it) => {
+    if(step != Step.Nothing) {
+      step = Step.Nothing;
+    } else {
+      SmallMessage(EventPlayer(), "Mapping not in progress");
+    }
+  });
+
+  return stopMapping;
+}
+

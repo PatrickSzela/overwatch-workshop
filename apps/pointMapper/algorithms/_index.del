@@ -1,0 +1,34 @@
+import '../_variables.del';
+import './sniffer.del';
+
+rule: 'Preparing'
+if(step == Step.Preparing)
+{
+  SmallMessage(AllPlayers(), "Preparing");
+
+  outline.Clear();
+
+  Wait(0.1);
+  allPoints.Clear();
+  Wait(0.1);
+  step = Step.WorkingSniffer;
+}
+
+rule: 'Drawing'
+if(step == Step.Drawing)
+{
+  SmallMessage(AllPlayers(), "Drawing");
+  Wait(0.1);
+
+  // EnableInspectorRecording();
+  // LogToInspector($"Drawing {outline.Length}​ points");
+  // DisableInspectorRecording();
+
+  outline.RenderLines(center, scale);
+  outline.RenderVertices(center, scale);
+
+  SmallMessage(AllPlayers(), "Finished");
+  // EnableInspectorRecording();
+
+  step = Step.Nothing;
+}

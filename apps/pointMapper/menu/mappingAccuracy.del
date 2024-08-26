@@ -1,0 +1,33 @@
+import '../../../libs/menu/components/numberInput.del';
+import '../_variables.del';
+
+String PAGE_MAPPING_ACCURACY_ID: 'mappingAccuracy';
+String PAGE_MAPPING_ACCURACY_NAME: 'Mapping Accuracy';
+
+globalvar Number tempScale! = scale;
+
+Component PageMappingAccuracyMenuItem() {
+  NumberInput mappingAccuracy = new NumberInput(
+    menuState: menuState, 
+    text: PAGE_MAPPING_ACCURACY_NAME,
+    integralLength: 2,
+    fractionalLength: 1,
+    defaultValue: scale * 100,
+    unit: ' cm'
+  );
+
+  mappingAccuracy.onLeave = ((it) => {
+    tempScale = (<NumberInput>it).value / 100;
+  });
+
+  mappingAccuracy.AddDescription(Description.New("If mapping is in progress, accuracy will be applied in the next run", Color.SkyBlue));
+
+  return mappingAccuracy;
+}
+
+rule: 'Apply scale once mapping is finished'
+if(step == Step.Nothing)
+if(tempScale != scale)
+{
+  scale = tempScale;
+}

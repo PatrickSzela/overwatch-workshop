@@ -1,0 +1,50 @@
+import '../../libs/menu/components/component.del'; 
+import '../../libs/menu/components/componentWithValue.del'; 
+import '../../libs/menu/components/text.del'; 
+import '../../libs/menu/components/link.del'; 
+import '../../libs/menu/components/numberInput.del'; 
+// import '../../libs/menu/components/toggle.del';
+// import '../../libs/menu/components/checkbox.del'; 
+// import '../../libs/menu/components/radio.del'; 
+// import '../../libs/menu/components/carousel.del'; 
+import "../../libs/utils/rules/skipToMatch.del";
+import "../../libs/utils/rules/pauseMatchTime.del";
+import "./_rules.del";
+import "./_variables.del";
+import "./menu/_index.del";
+import "./algorithms/_index.del";
+import './settings.del';
+
+// TODO: finish Stop Mapping
+// TODO: set custom starting position
+// TODO: generate very simplified boundaries at start
+// TODO: setting to toggle Y axis being attached to host
+// TODO: toggle red spheres
+// TODO: free cam
+// TODO: toggle player collisions
+
+// TODO: figure out HLC with 1.5 cm accuracy and lower (limit accuracy to 2cm for now)
+// TODO: pregenerate bots (causes random server load spikes for some reason...)
+// TODO: check delays when leaving the point (~1 sec grace period)
+// TODO: handle push bot/payload
+// TODO: bring back Cuber algorithm
+
+rule: 'Generate Menu State'
+Event.OngoingPlayer
+if(!IsDummyBot())
+{
+  menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
+  menuState.SetFocused();
+}
+
+rule: 'Generate Menu'
+{
+  DisableInspectorRecording();
+  menu = new Menu(LocalPlayer().menuState);
+}
+
+rule: 'Render left menu' 100
+Event.OngoingPlayer
+{
+  menuState.RULE_Render();
+}

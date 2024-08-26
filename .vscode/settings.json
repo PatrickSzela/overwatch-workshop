@@ -1,6 +1,7 @@
 {
   "conventionalCommits.scopes": [
     "menu",
-    "mysteryModifiers"
+    "mysteryModifiers",
+    "pointMapper"
   ]
 }

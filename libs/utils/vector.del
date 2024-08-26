@@ -1,7 +1,7 @@
-import 'bigArray.del';
-import 'number.del';
+import './bigArray.del';
+import './number.del';
 
-Vector SnapToClosestAxis(Vector vec) {
+Vector SnapToClosestAxis(in Vector vec) {
   Vector ret;
 
   if(AbsoluteValue(vec.X) >= AbsoluteValue(vec.Z))
@@ -22,7 +22,7 @@ Vector ScreenPositionToWorld(Number x, Number y): LocalPlayer().EyePosition() + 
   ) + 3 * LocalPlayer().FacingDirection()
 );
 
-Vector RotateAroundY(Vector vec, Number degree) {
+Vector RotateAroundY(in Vector vec, in Number degree) {
   return Vector(
     CosineFromDegrees(degree) * vec.X - SineFromDegrees(degree) * vec.Z, 
     vec.Y, 
@@ -42,24 +42,26 @@ Vector[] DirectionsBetweenVectors(in Vector[] arr) {
   return ret;
 }
 
-Number PerpendicularDistance(Vector pt, Vector lineStart, Vector lineEnd) {
-  Number dx = lineEnd.X - lineStart.X;
-  Number dy = lineEnd.Z - lineStart.Z;
+// for 3D
+// https://github.com/JeremyBYU/simplifyline/blob/master/src/SimplifyLine/SimplifyLine.cpp
+Number PerpendicularDistance(in Vector pt, in Vector lineStart, in Vector lineEnd) {
+  Number dx! = lineEnd.X - lineStart.X;
+  Number dy! = lineEnd.Z - lineStart.Z;
   
-  Number mag = SquareRoot(dx * dx + dy * dy);
+  Number mag! = SquareRoot(dx * dx + dy * dy);
 
   if(mag > 0) {
     dx /= mag;
     dy /= mag;
   }
 
-  Number pvx = pt.X - lineStart.X;
-  Number pvy = pt.Z - lineStart.Z;
+  Number pvx! = pt.X - lineStart.X;
+  Number pvy! = pt.Z - lineStart.Z;
 
-  Number pvdot = dx * pvx + dy * pvy;
+  Number pvdot! = dx * pvx + dy * pvy;
 
-  Number ax = pvx - pvdot * dx;
-  Number ay = pvy - pvdot * dy;
+  Number ax! = pvx - pvdot * dx;
+  Number ay! = pvy - pvdot * dy;
 
   return SquareRoot(ax * ax + ay * ay);
 }
@@ -69,9 +71,9 @@ BigArray<Vector> SmoothenBetweenVectors(in BigArray<Vector> arr) {
   if(arr.Length < 3) 
     return arr;
 
-  BigArray<Vector> ret = new BigArray<Vector>([]);
+  BigArray<Vector> ret = { multiArray: [[]], Length: 0 };
   Vector[] cache = [];
-  Number maxAngle = 45;
+  Number maxAngle! = 45;
 
   for(Number i! = 0; i < arr.Length; i++) {
     cache += arr.Get(i);
@@ -80,24 +82,25 @@ BigArray<Vector> SmoothenBetweenVectors(in BigArray<Vector> arr) {
       continue;
     }
 
-    Number l = cache.Length - 1;
+    Number length: cache.Length - 1;
+    Number[] angles = [
+      AngleBetweenVectors(cache[length - 2] - cache[0], cache[length - 1] - cache[0]),
+      AngleBetweenVectors(cache[length - 2] - cache[0], cache[length] - cache[0]),
+      AngleBetweenVectors(cache[length - 1] - cache[0], cache[length] - cache[0])
+    ];
 
-    Number angleBetweenFirstSecond = AngleBetweenVectors(cache[l - 2] - cache[0], cache[l - 1] - cache[0]);
-    Number angleBetweenThirdFirst = AngleBetweenVectors(cache[l - 2] - cache[0], cache[l] - cache[0]);
-    Number angleBetweenThirdSecond = AngleBetweenVectors(cache[l - 1] - cache[0], cache[l] - cache[0]);
-
-    Number d1 = DistanceBetween(cache[0], cache[l - 2]);
-    Number d2 = DistanceBetween(cache[0], cache[l - 1]);
+    Number d1: DistanceBetween(cache[0], cache[length - 2]);
+    Number d2: DistanceBetween(cache[0], cache[length - 1]);
 
     maxAngle = 90 / SquareRoot(d1^2 + d2^2);
 
-    if((angleBetweenThirdFirst + angleBetweenThirdSecond) > angleBetweenFirstSecond || angleBetweenFirstSecond > maxAngle) {     
+    if((angles[1] + angles[2]) > angles[0] || angles[0] > maxAngle) {     
       ret.Append(cache[0]);
       cache = cache.Slice(cache.Length - 3, 3);
     }
 
-    if(i % (ServerLoadAverage() > 100 ? 10 : 20)  == 0) 
-      Wait();
+    if(i % (ServerLoadAverage() > 100 ? 20 : 40) == 0) 
+      MinWait();
   }
 
   ret.Concat(cache);
@@ -111,32 +114,33 @@ BigArray<Vector> SmoothenBetweenVectors(in BigArray<Vector> arr) {
 BigArray<Vector> SmoothenRDP(in BigArray<Vector> arr, in Number epsilon, in Boolean isPolygon) {
   if(arr.Length <= 2 + (isPolygon ? 0 : -1)) return arr;
 
-  Number start = isPolygon ? -1 : 0;
-  Number end = arr.Length + (isPolygon ? 0 : -1);
-  BigArray<Vector> ret = new BigArray<Vector>([]);
+  Number start! = isPolygon ? -1 : 0;
+  Number end! = arr.Length + (isPolygon ? 0 : -1);
+  BigArray<Vector> ret = { multiArray: [[]], Length: 0 };
 
   while(start < end) {
     if(start > -1)
       ret.Append(arr.Get(start));
 
-    Number newEnd = end;
+    Number newEnd! = end;
 
     while(true) {
-      Number maxDistanceIndex = 0;
-      Number maxDistance = 0;
+      Number maxDistanceIndex! = 0;
+      Number maxDistance! = 0;
 
       for(Number i! = start + 1; i < newEnd; i++) {
-        Number d = PerpendicularDistance(arr.Get(i), 
+        Number d! = PerpendicularDistance(arr.Get(i), 
           arr.Get(start == -1 ? arr.Length - 1 : start == arr.Length ? 0 : start), 
-          arr.Get(newEnd == -1 ? arr.Length - 1 : newEnd == arr.Length ? 0 : newEnd));
+          arr.Get(newEnd == -1 ? arr.Length - 1 : newEnd == arr.Length ? 0 : newEnd)
+        );
 
         if(d > maxDistance) {
           maxDistanceIndex = i;
           maxDistance = d;
         }
 
-        if(i % (ServerLoadAverage() > 100 ? 5 : 10) == 0) 
-          Wait();
+        if(i % (ServerLoadAverage() > 80 ? 20 : 40) == 0) 
+          MinWait();
       }
 
       if(maxDistance <= epsilon)

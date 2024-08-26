@@ -1,0 +1,33 @@
+import '../_variables.del';
+import '../../../libs/menu/components/text.del';
+import './mappingAccuracy.del';
+import './startMapping.del';
+// import './stopMapping.del';
+import './teleport.del';
+import './nextObjective.del';
+
+String PAGE_ROOT_ID: 'root';
+String PAGE_ROOT_NAME: 'Main Menu';
+
+Component[] PageRootItems() {
+  return <Component[]>[
+    PageStartMappingMenuItem(),
+    new Text(" "),
+    new Text("Settings:"),
+    PageMappingAccuracyMenuItem(),
+    // PageStopMappingMenuItem(),
+    new Text(" "),
+    new Text("Objective:"),
+    PageTeleportMenuItem()
+  ] + PageNextObjectiveMenuItem();
+}
+
+rule: 'Root'
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_ROOT_ID)
+{
+  menuState.CreatePage(
+    title: PAGE_ROOT_NAME,
+    items: PageRootItems()
+  );
+}

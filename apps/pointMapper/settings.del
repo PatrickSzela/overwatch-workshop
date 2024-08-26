@@ -1,0 +1,72 @@
+settings
+{
+  lobby
+	{
+		Allow Players Who Are In Queue: Yes
+		Max Spectators: 12
+		Max Team 1 Players: 1
+		Max Team 2 Players: 1
+	}
+
+  modes
+	{
+		General
+		{
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
+		}
+
+		Assault
+		{
+			Capture Speed Modifier: 500%
+		}
+
+		// Clash
+		// {
+		// 	Capture Speed Modifier: 500%
+		// }
+
+		// Control
+		// {
+		// 	Capture Speed Modifier: 500%
+		// 	Score To Win: 3
+		// 	Scoring Speed Modifier: 500%
+		// }
+
+		// Flashpoint
+		// {
+		// 	Capture Speed Modifier: 500%
+		// 	Score To Win: 10
+		// 	Scoring Speed Modifier: 500%
+		// }
+
+		// Hybrid
+		// {
+		// 	Capture Speed Modifier: 500%
+		// }
+	}
+
+	extensions
+	{
+		Spawn More Dummy Bots
+	}
+
+  main
+  {
+    Mode Name: "Point Boundaries Mapper"
+    Description: "Automatically map more accurate boundaries of control points
+
+With the default (2.5 cm) accuracy, it takes around 30 secs to 1 min to map the outline of the objective, depending on its size.
+
+Controls:
+[Crouch + Interact] - Open/Close menu
+[Ultimate] - Go back (when in submenu)/Close menu (when in root)
+The rest of controls depends on currently hovered menu item and are listed below the menu itself
+
+----------
+Version: 2.0.0
+Workshop Code: MD8Q1W
+Discord: PatPatPatriq"
+  }
+}

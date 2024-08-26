@@ -1,6 +1,8 @@
 rule: 'Pause Match Time'
-if(CurrentGameMode() == GameMode.Skirmish)
 {
+  // let other rules that set match time do their work first
+  Wait(1);
+
   DisableCompletion();
   SetMatchTime(260);
   PauseMatchTime();
