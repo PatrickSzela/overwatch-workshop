@@ -5,6 +5,8 @@ import '../../_variables.del';
 String PAGE_CHANGE_HERO_ID: 'changeHero';
 String PAGE_CHANGE_HERO_NAME: 'Change Hero';
 
+playervar Hero changeHero;
+
 Component PageChangeHeroMenuItem() {
   Carousel carousel! = new Carousel(
     text: PAGE_CHANGE_HERO_NAME, 
@@ -15,7 +17,7 @@ Component PageChangeHeroMenuItem() {
   carousel.valueFormatter = (it) => HeroWithIconFormatter(it.value);
 
   carousel.SetPrimaryAction("Apply", (it) => {
-    ForcePlayerHero(selectedPlayers, (<Carousel>it).value);
+    selectedPlayers.changeHero = (<Carousel>it).value;
   });
   carousel.SetTertiaryAction("Add to timeline", (it) => {
     Timeline.AddAction(timeline, ACTION_ChangeHero(selectedPlayers, (<Carousel>it).value));
@@ -33,4 +35,13 @@ Component PageChangeHeroMenuItem() {
   });
   
   return carousel;
+}
+
+rule: 'Player Settings/Change Hero: Set hero (workaround for dummies)'
+Event.OngoingPlayer
+if(changeHero)
+{
+  WaitUntil(changeHero != EventPlayer().Hero(), 99999);
+  ForcePlayerHero(EventPlayer(), changeHero);
+  Loop();
 }
