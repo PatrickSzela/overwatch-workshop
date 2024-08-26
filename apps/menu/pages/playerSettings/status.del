@@ -63,13 +63,13 @@ if(menuState.pageId == PAGE_STATUS_ID)
     items: PageStatusItems()
   );
 
-  playerInfoProps.Enable(playerInfoProps);
-  playerInfoProps.EnableStatuses(playerInfoProps);
+  playerInfoProps.Enable();
+  playerInfoProps.EnableStatuses();
 
   WaitUntil(menuState.pageId != PAGE_STATUS_ID, 99999);
 
-  playerInfoProps.Disable(playerInfoProps);
-  playerInfoProps.DisableStatuses(playerInfoProps);
+  playerInfoProps.Disable();
+  playerInfoProps.DisableStatuses();
 }
 
 void PageStatusAppliedStatusesInfo(Status status, in String name) {

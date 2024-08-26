@@ -74,11 +74,11 @@ if(menuState.pageId == PAGE_HEALTH_ID)
     items: PageHealthItems()
   );
 
-  playerInfoProps.Enable(playerInfoProps);
+  playerInfoProps.Enable();
 
   WaitUntil(menuState.pageId != PAGE_HEALTH_ID, 99999);
 
-  playerInfoProps.Disable(playerInfoProps);
+  playerInfoProps.Disable();
 }
 
 rule: 'Auto heal'

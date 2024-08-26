@@ -8,36 +8,36 @@ struct PlayerInfoProps {
   public Number showButtons;
   public Number showStatuses;
 
-  public void Enable(ref PlayerInfoProps props) {
-    props.enabled++;
+  public ref void Enable() {
+    enabled++;
   }
 
-  public void Disable(ref PlayerInfoProps props) {
-    props.enabled = Max(0, props.enabled - 1);
+  public ref void Disable() {
+    enabled = Max(0, enabled - 1);
   }
 
-  public void EnableTransform(ref PlayerInfoProps props) {
-    props.showTransform++;
+  public ref void EnableTransform() {
+    showTransform++;
   }
 
-  public void DisableTransform(ref PlayerInfoProps props) {
-    props.showTransform = Max(0, props.showTransform - 1);
+  public ref void DisableTransform() {
+    showTransform = Max(0, showTransform - 1);
   }
   
-  public void EnableButtons(ref PlayerInfoProps props) {
-    props.showButtons++;
+  public ref void EnableButtons() {
+    showButtons++;
   }
 
-  public void DisableButtons(ref PlayerInfoProps props) {
-    props.showButtons = Max(0, props.showButtons - 1);
+  public ref void DisableButtons() {
+    showButtons = Max(0, showButtons - 1);
   }
 
-  public void EnableStatuses(ref PlayerInfoProps props) {
-    props.showStatuses++;
+  public ref void EnableStatuses() {
+    showStatuses++;
   }
 
-  public void DisableStatuses(ref PlayerInfoProps props) {
-    props.showStatuses = Max(0, props.showStatuses - 1);
+  public ref void DisableStatuses() {
+    showStatuses = Max(0, showStatuses - 1);
   }
 
   public static PlayerInfoProps BASE: 

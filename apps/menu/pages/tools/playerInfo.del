@@ -10,8 +10,8 @@ Component[] PagePlayerInfoMenuItem() {
     defaultChecked: playerInfoProps.enabled
   );
   main.onChange = (checked, it) => {
-    if(checked) playerInfoProps.Enable(playerInfoProps);
-    else playerInfoProps.Disable(playerInfoProps);
+    if(checked) playerInfoProps.Enable();
+    else playerInfoProps.Disable();
   };
 
   Toggle transform = new Toggle(
@@ -19,8 +19,8 @@ Component[] PagePlayerInfoMenuItem() {
     defaultChecked: playerInfoProps.showTransform
   );
   transform.onChange = (checked, it) => {
-    if(checked) playerInfoProps.EnableTransform(playerInfoProps);
-    else playerInfoProps.DisableTransform(playerInfoProps);
+    if(checked) playerInfoProps.EnableTransform();
+    else playerInfoProps.DisableTransform();
   };
 
   Toggle buttons = new Toggle(
@@ -28,8 +28,8 @@ Component[] PagePlayerInfoMenuItem() {
     defaultChecked: playerInfoProps.showButtons
   );
   buttons.onChange = (checked, it) => {
-    if(checked) playerInfoProps.EnableButtons(playerInfoProps);
-    else playerInfoProps.DisableButtons(playerInfoProps);
+    if(checked) playerInfoProps.EnableButtons();
+    else playerInfoProps.DisableButtons();
   };
 
   Toggle statuses = new Toggle(
@@ -37,8 +37,8 @@ Component[] PagePlayerInfoMenuItem() {
     defaultChecked: playerInfoProps.showStatuses
   );
   statuses.onChange = (checked, it) => {
-    if(checked) playerInfoProps.EnableStatuses(playerInfoProps);
-    else playerInfoProps.DisableStatuses(playerInfoProps);
+    if(checked) playerInfoProps.EnableStatuses();
+    else playerInfoProps.DisableStatuses();
   };
 
   return [main, transform, buttons, statuses];

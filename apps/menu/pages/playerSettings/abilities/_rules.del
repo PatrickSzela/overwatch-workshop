@@ -125,11 +125,11 @@ Event.OngoingPlayer
 if(!menuState.HistoryContains('timeline'))
 if(menuState.history[2].id == PAGE_ABILITIES_ID)
 {
-  playerInfoProps.Enable(playerInfoProps);
-  playerInfoProps.EnableButtons(playerInfoProps);
+  playerInfoProps.Enable();
+  playerInfoProps.EnableButtons();
 
   WaitUntil(menuState.history[2].id != PAGE_ABILITIES_ID, 99999);
 
-  playerInfoProps.Disable(playerInfoProps);
-  playerInfoProps.DisableButtons(playerInfoProps);
+  playerInfoProps.Disable();
+  playerInfoProps.DisableButtons();
 }

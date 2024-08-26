@@ -61,11 +61,11 @@ if(menuState.pageId == PAGE_TELEPORT_ID)
     items: PageTeleportItems()
   );
 
-  playerInfoProps.Enable(playerInfoProps);
-  playerInfoProps.EnableTransform(playerInfoProps);
+  playerInfoProps.Enable();
+  playerInfoProps.EnableTransform();
 
   WaitUntil(menuState.pageId != PAGE_TELEPORT_NAME, 99999);
 
-  playerInfoProps.Disable(playerInfoProps);
-  playerInfoProps.DisableTransform(playerInfoProps);
+  playerInfoProps.Disable();
+  playerInfoProps.DisableTransform();
 }
