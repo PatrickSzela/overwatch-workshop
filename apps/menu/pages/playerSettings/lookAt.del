@@ -138,7 +138,7 @@ if(menuState.pageId == PAGE_LOOK_AT_ID)
   pickPosition.DestroyAdditionalSpheres();
 }
 
-rule: 'Look At: Start/Stop looking at'
+rule: 'Player Settings/Look At: Start/Stop looking at'
 Event.OngoingPlayer
 {
   WaitUntil(pageLookAtPlayerSettings != EvaluateOnce(pageLookAtPlayerSettings), 99999);

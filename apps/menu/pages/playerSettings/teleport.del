@@ -43,7 +43,7 @@ Component[] PageTeleportItems() {
   );
   player.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
   player.SetPrimaryAction("Apply", (it) => {
-      Teleport(selectedPlayers, (<Carousel>it).value);
+    Teleport(selectedPlayers, (<Carousel>it).value);
   });
   player.SetTertiaryAction('Add to Timeline', (it) => {
     Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, (<Carousel>it).value));
