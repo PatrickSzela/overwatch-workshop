@@ -73,10 +73,16 @@ if(menuState.pageId == PAGE_HEALTH_ID)
     title: PAGE_HEALTH_NAME, 
     items: PageHealthItems()
   );
+}
 
+rule: 'Player Settings/Health: Show Player Info'
+Event.OngoingPlayer
+if(menuState.isOpen)
+if(menuState.pageId == PAGE_HEALTH_ID)
+{
   playerInfoProps.Enable();
 
-  WaitUntil(menuState.pageId != PAGE_HEALTH_ID, 99999);
+  WaitUntil(!menuState.isOpen || menuState.pageId != PAGE_HEALTH_ID, 99999);
 
   playerInfoProps.Disable();
 }

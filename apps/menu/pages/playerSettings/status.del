@@ -62,11 +62,17 @@ if(menuState.pageId == PAGE_STATUS_ID)
     title: PAGE_STATUS_NAME, 
     items: PageStatusItems()
   );
+}
 
+rule: 'Player Settings/Status: Show Player Info'
+Event.OngoingPlayer
+if(menuState.isOpen)
+if(menuState.pageId == PAGE_STATUS_ID)
+{
   playerInfoProps.Enable();
   playerInfoProps.EnableStatuses();
 
-  WaitUntil(menuState.pageId != PAGE_STATUS_ID, 99999);
+  WaitUntil(!menuState.isOpen || menuState.pageId != PAGE_STATUS_ID, 99999);
 
   playerInfoProps.Disable();
   playerInfoProps.DisableStatuses();

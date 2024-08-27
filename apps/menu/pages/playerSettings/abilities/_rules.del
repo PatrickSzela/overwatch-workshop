@@ -165,13 +165,14 @@ if(IsButtonHeld(EventPlayer(), Button.Interact))
 
 rule: 'Show current ability info' 50
 Event.OngoingPlayer
+if(menuState.isOpen)
 if(!menuState.HistoryContains('timeline'))
 if(menuState.history[2].id == PAGE_ABILITIES_ID)
 {
   playerInfoProps.Enable();
   playerInfoProps.EnableButtons();
 
-  WaitUntil(menuState.history[2].id != PAGE_ABILITIES_ID, 99999);
+  WaitUntil(!menuState.isOpen || menuState.history[2].id != PAGE_ABILITIES_ID, 99999);
 
   playerInfoProps.Disable();
   playerInfoProps.DisableButtons();

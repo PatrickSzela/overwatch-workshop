@@ -60,11 +60,17 @@ if(menuState.pageId == PAGE_TELEPORT_ID)
     title: PAGE_TELEPORT_NAME, 
     items: PageTeleportItems()
   );
+}
 
+rule: 'Player Settings/Teleport: Show Player Info'
+Event.OngoingPlayer
+if(menuState.isOpen)
+if(menuState.pageId == PAGE_TELEPORT_ID)
+{
   playerInfoProps.Enable();
   playerInfoProps.EnableTransform();
 
-  WaitUntil(menuState.pageId != PAGE_TELEPORT_NAME, 99999);
+  WaitUntil(!menuState.isOpen || menuState.pageId != PAGE_TELEPORT_ID, 99999);
 
   playerInfoProps.Disable();
   playerInfoProps.DisableTransform();
