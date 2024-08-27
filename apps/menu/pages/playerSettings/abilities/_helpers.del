@@ -37,14 +37,14 @@ Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCaro
       PageAbilitiesOptions.STOP
     ],
     defaultValue: 
-      selectedPlayersWithoutSelf[0].pageAbilitiesKeepHoldingButton.Contains(ability) ? PageAbilitiesOptions.START_HOLDING :
-      selectedPlayersWithoutSelf[0].pageAbilitiesKeepSpammingButton.Contains(ability) ? PageAbilitiesOptions.START_SPAMMING :
+      selectedPlayers[0].pageAbilitiesKeepHoldingButton.Contains(ability) ? PageAbilitiesOptions.START_HOLDING :
+      selectedPlayers[0].pageAbilitiesKeepSpammingButton.Contains(ability) ? PageAbilitiesOptions.START_SPAMMING :
       PageAbilitiesOptions.PRESS
   );
 
   item.SetPrimaryAction("Apply", (it) => {
-    selectedPlayersWithoutSelf.pageAbilitiesKeepSpammingButton.ModRemoveByValue(ability);
-    selectedPlayersWithoutSelf.pageAbilitiesKeepHoldingButton.ModRemoveByValue(ability);
+    selectedPlayers.pageAbilitiesKeepSpammingButton.ModRemoveByValue(ability);
+    selectedPlayers.pageAbilitiesKeepHoldingButton.ModRemoveByValue(ability);
 
     StopHoldingButton(selectedPlayersWithoutSelf, ability);
 
@@ -54,10 +54,9 @@ Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCaro
     if((<Carousel>it).value == PageAbilitiesOptions.PRESS) {
       StartHoldingButton(selectedPlayersWithoutSelf, ability);
     } else if((<Carousel>it).value == PageAbilitiesOptions.START_HOLDING) {
-      selectedPlayersWithoutSelf.pageAbilitiesKeepHoldingButton.ModAppend(ability);
-      StartHoldingButton(selectedPlayersWithoutSelf, ability);
+      selectedPlayers.pageAbilitiesKeepHoldingButton.ModAppend(ability);
     } else if((<Carousel>it).value == PageAbilitiesOptions.START_SPAMMING) {
-      selectedPlayersWithoutSelf.pageAbilitiesKeepSpammingButton.ModAppend(ability);
+      selectedPlayers.pageAbilitiesKeepSpammingButton.ModAppend(ability);
     }
   });
 
@@ -71,11 +70,11 @@ Carousel PageAbilitiesCarousel(String text!, Button ability!) "PageAbilitiesCaro
 
   item.SetTertiaryAction('Add to Timeline', (it) => {
     if((<Carousel>it).value == PageAbilitiesOptions.STOP)
-      Timeline.AddAction(timeline, ACTION_StopHoldingButton(selectedPlayersWithoutSelf, ability));
+      Timeline.AddAction(timeline, ACTION_StopHoldingButton(selectedPlayers, ability));
     if((<Carousel>it).value == PageAbilitiesOptions.PRESS)
-      Timeline.AddAction(timeline, ACTION_PressButton(selectedPlayersWithoutSelf, ability));
+      Timeline.AddAction(timeline, ACTION_PressButton(selectedPlayers, ability));
     if((<Carousel>it).value == PageAbilitiesOptions.START_HOLDING)
-      Timeline.AddAction(timeline, ACTION_StartHoldingButton(selectedPlayersWithoutSelf, ability));
+      Timeline.AddAction(timeline, ACTION_StartHoldingButton(selectedPlayers, ability));
   });
 
   return item;
@@ -143,6 +142,7 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
 
   // use
   Carousel use = PageAbilitiesCarousel('Use', ability);
+  use.AddDescription(Description.New(PAGE_ABILITIES_STOP, COLOR_INFO));
 
   // TOOD: merge with other Charge
   if(ability == Button.Ultimate) {

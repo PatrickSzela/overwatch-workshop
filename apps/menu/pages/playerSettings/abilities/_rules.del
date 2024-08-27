@@ -84,10 +84,35 @@ if(pageAbilitiesInfiniteResource)
   LoopIfConditionIsTrue();
 }
 
+rule: 'Hold button'
+Event.OngoingPlayer
+if(!menuState.isOpen)
+if(pageAbilitiesKeepHoldingButton)
+{
+  // workaround for ability not being used even when button is held when exiting menu
+  MinWait();
+  
+  foreach(Button button in pageAbilitiesKeepHoldingButton) {
+    StartHoldingButton(EventPlayer(), button);
+  }
+
+  WaitUntil(pageAbilitiesKeepHoldingButton != EvaluateOnce(pageAbilitiesKeepHoldingButton) || menuState.isOpen, 99999);
+
+  foreach(Button button in allButtons) {
+    StopHoldingButton(EventPlayer(), button);
+  }
+
+  LoopIfConditionIsTrue();
+}
+
 rule: 'Spam button'
 Event.OngoingPlayer
+if(!menuState.isOpen)
 if(pageAbilitiesKeepSpammingButton)
 {
+  // workaround for ability not being used even when button is held when exiting menu
+  MinWait();
+
   // if primary/secondary fire are set to be spammed along with other abilities, treat them as confirmation buttons
   Button[] abilities! = pageAbilitiesKeepSpammingButton.FilteredArray((i) => i != Button.PrimaryFire && i != Button.SecondaryFire);
   Button[] fires! = pageAbilitiesKeepSpammingButton.FilteredArray((i) => i == Button.PrimaryFire || i == Button.SecondaryFire);
@@ -110,6 +135,7 @@ if(pageAbilitiesKeepSpammingButton)
   }
 
   WaitUntil(
+    menuState.isOpen ||
     !pageAbilitiesKeepSpammingButton ||
     pageAbilitiesKeepSpammingButton
       .Map((button, idx) => !IsUsingAbility(EventPlayer(), button))
@@ -118,6 +144,23 @@ if(pageAbilitiesKeepSpammingButton)
 
   Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
+}
+
+rule: 'Stop holding/spamming buttons'
+Event.OngoingPlayer
+if(!menuState.isOpen)
+if(IsButtonHeld(EventPlayer(), Button.Interact))
+{
+  WaitUntil(menuState.isOpen || !IsButtonHeld(EventPlayer(), Button.Interact), 5);
+  AbortIfConditionIsFalse();
+
+  pageAbilitiesKeepHoldingButton = [];
+  pageAbilitiesKeepSpammingButton = [];
+
+  // just in case
+  foreach(Button button in allButtons) {
+    StopHoldingButton(EventPlayer(), button);
+  }
 }
 
 rule: 'Show current ability info' 50
