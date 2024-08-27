@@ -21,12 +21,6 @@ settings
     disabled Escort
     disabled Push
     disabled Deathmatch
-    
-    Practice Range
-    {
-      enabled maps
-      {}
-    }
   }
   main
   {
