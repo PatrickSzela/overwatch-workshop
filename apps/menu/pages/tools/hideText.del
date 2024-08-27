@@ -1,0 +1,14 @@
+import '../../_variables.del';
+
+String PAGE_HIDE_TEXT_ID: 'hideText';
+String PAGE_HIDE_TEXT_NAME: 'Hide text when menu is closed';
+
+Component PageHideTextMenuItem() {
+  Toggle hideText = new Toggle(PAGE_HIDE_TEXT_NAME, menuState.hideTextWhenClosed);
+
+  hideText.onChange = (checked, it) => {
+    menuState.hideTextWhenClosed = checked;
+  };
+
+  return hideText;
+}

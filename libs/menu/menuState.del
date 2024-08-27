@@ -59,6 +59,8 @@ class MenuState {
   public Boolean isFocused;
   # Whether menu is currently in refresh stage.
   public Boolean isRefreshing: pageId == '<REFRESH>';
+  # Whether the text explaining how to toggle menu should be hidden when menu is closed.
+  public Boolean hideTextWhenClosed;
   # Whether menu should rerender.
   public Boolean shouldRerender;
   # Combination of buttons used to toggle menu on and off.
@@ -399,7 +401,7 @@ class MenuState {
 
   // phase 2: render
   protected void RenderClosedItems() {
-    renderedTexts.merged = isPuppet ? [] : [
+    renderedTexts.merged = isPuppet || hideTextWhenClosed ? [] : [
       { 
         text: $"Press {ButtonFormatter(_toggleMenu)}​ to toggle Menu", 
         color: COLOR_NEUTRAL
