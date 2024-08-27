@@ -11,7 +11,7 @@ import './_variables.del';
 import './pages/_index.del';
 import './pages2/index.del';
 import './switchMenu.del';
-import '../../libs/utils/rules/pauseMatchTime.del';
+import '../../libs/utils/rules/pauseMatchTime.skirmish.del';
 import '../../libs/playerInfo.del';
 import './settings.del';
 
