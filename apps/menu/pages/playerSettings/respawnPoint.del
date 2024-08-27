@@ -35,7 +35,7 @@ if(respawnPoint != null)
 rule: 'Player Settings/Set Respawn Point: Create Spheres' 50
 Event.OngoingPlayer
 if(menuState.isOpen)
-if(menuState.hoveredItem.id == PAGE_RESPAWN_POINT_ID)
+if([PAGE_RESPAWN_ID, PAGE_RESPAWN_POINT_ID].Contains(menuState.hoveredItem.id))
 {
   foreach(Player p! in AllPlayers()) {
     pickPosition.CreateAdditionalSphere(
@@ -48,7 +48,7 @@ if(menuState.hoveredItem.id == PAGE_RESPAWN_POINT_ID)
     Wait(0.05);
   }
 
-  WaitUntil(menuState.hoveredItem.id != PAGE_RESPAWN_POINT_ID || !menuState.isOpen, 99999);
+  WaitUntil(![PAGE_RESPAWN_ID, PAGE_RESPAWN_POINT_ID].Contains(menuState.hoveredItem.id) || !menuState.isOpen, 99999);
 
   pickPosition.DestroyAdditionalSpheres();
 }

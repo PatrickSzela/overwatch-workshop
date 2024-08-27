@@ -5,12 +5,15 @@ String PAGE_RESPAWN_NAME: 'Respawn';
 
 Component PageRespawnMenuItem() {
   Component respawn = new Component(PAGE_RESPAWN_NAME);
+  respawn.id = PAGE_RESPAWN_ID;
 
   respawn.SetPrimaryAction("Apply", (it) => {
     Respawn(selectedPlayers);
-    
-    if(respawnPoint != null) 
-      Teleport(EventPlayer(), respawnPoint);
+
+    foreach(Player player in selectedPlayers) {
+      if(player.respawnPoint != null) 
+        Teleport(player, player.respawnPoint);
+    }
   });
 
   respawn.SetTertiaryAction("Add to timeline", (it) => {
