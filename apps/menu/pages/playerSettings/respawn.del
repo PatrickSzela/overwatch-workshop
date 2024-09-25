@@ -1,4 +1,5 @@
 import '../../_variables.del';
+import './respawnPoint.del';
 
 String PAGE_RESPAWN_ID: 'respawn';
 String PAGE_RESPAWN_NAME: 'Respawn';
@@ -9,11 +10,7 @@ Component PageRespawnMenuItem() {
 
   respawn.SetPrimaryAction("Apply", (it) => {
     Respawn(selectedPlayers);
-
-    foreach(Player player in selectedPlayers) {
-      if(player.respawnPoint != null) 
-        Teleport(player, player.respawnPoint);
-    }
+    TeleportPlayersToRespawnPoint(selectedPlayers);
   });
 
   respawn.SetTertiaryAction("Add to timeline", (it) => {

@@ -28,8 +28,25 @@ Event.OngoingPlayer
 if(EventPlayer().IsDead())
 if(respawnPoint != null)
 {
-  WaitUntil(EventPlayer().IsAlive(), 999);
+  WaitUntil(EventPlayer().IsAlive() && respawnPoint != null, 99999);
   Teleport(EventPlayer(), respawnPoint);
+}
+
+rule: 'Player Settings/Custom Respawn Position: Teleport to respawn point when respawning'
+Event.OngoingPlayer
+if(!HasSpawned(EventPlayer()))
+if(respawnPoint != null)
+{
+  WaitUntil(HasSpawned(EventPlayer()) && respawnPoint != null, 99999);
+  Teleport(EventPlayer(), respawnPoint);
+}
+
+void TeleportPlayersToRespawnPoint(Player[] players) "Teleport players to respawn point" {
+  foreach(Player pl! in players) {
+    if(pl.respawnPoint != null) {
+      Teleport(pl, pl.respawnPoint);
+    }
+  }
 }
 
 rule: 'Player Settings/Custom Respawn Position: Create Spheres' 50
