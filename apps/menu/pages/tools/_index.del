@@ -11,13 +11,13 @@ String PAGE_TOOLS_NAME: 'Tools';
 
 Component[] PageToolsItems() {
   return [
+    PageSendSelfToHeroSelectMenuItem(),
+    new Text(),
     <Component>new Text('Player info:')
   ] + PagePlayerInfoMenuItem() + [
     new Text(),
     PageHealDamageTakenMenuItem(),
     PageSlowMotionMenuItem(),
-    new Text(),
-    PageSendSelfToHeroSelectMenuItem(),
     new Text(),
     PageHideTextMenuItem(),
     PageDiagnosticsMenuItem()
