@@ -4,6 +4,7 @@ import './slowMotion.del';
 import './diagnostics.del';
 import './playerInfo.del';
 import './hideText.del';
+import './sendSelfToHeroSelect.del';
 
 String PAGE_TOOLS_ID: 'tools';
 String PAGE_TOOLS_NAME: 'Tools';
@@ -15,6 +16,8 @@ Component[] PageToolsItems() {
     new Text(),
     PageHealDamageTakenMenuItem(),
     PageSlowMotionMenuItem(),
+    new Text(),
+    PageSendSelfToHeroSelectMenuItem(),
     new Text(),
     PageHideTextMenuItem(),
     PageDiagnosticsMenuItem()

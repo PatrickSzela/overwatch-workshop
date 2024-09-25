@@ -1,0 +1,10 @@
+// based on https://workshop.codes/wiki/articles/send+a+player+back+to+hero+select
+// this won't work if Respawn as random hero is enabled
+void SendToHeroSelect(Player[] players) "Send to Hero Select" {
+  StopForcingHero(players);
+
+  foreach(Player pl! in players)
+    SetAllowedHeroes(pl, AllHeroes() - pl.Hero());
+
+  ResetHeroAvailability(players);
+}

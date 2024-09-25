@@ -1,0 +1,17 @@
+import '../../_variables.del';
+import '../../../../libs/utils/player.sendToHeroSelect.del';
+import '../playerSettings/changeHero.del';
+
+String PAGE_SEND_SELF_TO_HERO_SELECT_ID: 'sendSelfToHeroSelect';
+String PAGE_SEND_SELF_TO_HERO_SELECT_NAME: 'Send Yourself To Hero Select Screen';
+
+Component PageSendSelfToHeroSelectMenuItem() {
+  Component sendSelfToHeroSelect = new Component(PAGE_SEND_SELF_TO_HERO_SELECT_NAME);
+
+  sendSelfToHeroSelect.SetPrimaryAction("Apply", (it) => {
+    changeHero = null;
+    SendToHeroSelect([EventPlayer()]);
+  });
+  
+  return sendSelfToHeroSelect;
+}
