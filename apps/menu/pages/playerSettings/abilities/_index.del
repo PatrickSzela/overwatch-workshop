@@ -1,4 +1,6 @@
 import '../../../../../libs/menu/components/link.del';
+import '../../../../../libs/menu/components/carousel.del';
+import '../../../_variables.del';
 import './_rules.del';
 import './_helpers.del';
 
@@ -6,6 +8,7 @@ String PAGE_ABILITIES_ID: 'abilities';
 String PAGE_ABILITIES_NAME: 'Abilities';
 
 String PAGE_ABILITIES_STOP: $"Hold {ButtonFormatterSingle(Button.Interact)} for 5 secs to stop forcing using abilities and be able to use open menu";
+String PAGE_ABILITIES_SET_WEAPON: 'Set Weapon';
 
 Component[] PageAbilitiesItems() {
   Component[] list = [];
@@ -18,7 +21,20 @@ Component[] PageAbilitiesItems() {
     list.Last.child = PageAbilitiesCarousel($"{button}", button);
   }
 
-  return list;
+  Carousel setWeapon = new Carousel(
+    text: PAGE_ABILITIES_SET_WEAPON,
+    options: [1, 2],
+    defaultValue: Weapon(selectedPlayers.First)
+  );
+
+  setWeapon.SetPrimaryAction('Apply', (it) => {
+    SetWeapon(selectedPlayers, (<Carousel>it).value);
+  });
+  setWeapon.SetTertiaryAction("Add to timeline", (it) => {
+    Timeline.AddAction(timeline, ACTION_SetWeapon(selectedPlayers, (<Carousel>it).value));
+  });
+
+  return list + new Text() + setWeapon;
 }
 
 rule: 'Player Settings/Abilities' 50
