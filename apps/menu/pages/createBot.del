@@ -32,7 +32,8 @@ playervar Number botIdx = 0;
 
 Component[] PageCreateBotItems() {
   // workaround for `pageCreateBotProps` containing wrong slot in deathmatch like modes even though the component shows correct information
-  pageCreateBotProps.team = availableTeams.First;
+  if(!availableTeams.Contains(pageCreateBotProps.team))
+    pageCreateBotProps.team = availableTeams.First;
 
   Carousel hero = new Carousel(
     text: PAGE_CREATE_BOT_HERO_NAME,
