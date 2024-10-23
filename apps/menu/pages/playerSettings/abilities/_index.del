@@ -9,6 +9,7 @@ String PAGE_ABILITIES_NAME: 'Abilities';
 
 String PAGE_ABILITIES_STOP: $"Hold {ButtonFormatterSingle(Button.Interact)} for 5 secs to stop forcing using abilities and be able to use open menu";
 String PAGE_ABILITIES_SET_WEAPON: 'Set Weapon';
+String PAGE_ABILITIES_CANCEL_PRIMARY_ACTION: 'Stop Ability';
 
 Component[] PageAbilitiesItems() {
   Component[] list = [];
@@ -20,6 +21,16 @@ Component[] PageAbilitiesItems() {
     };
     list.Last.child = PageAbilitiesCarousel($"{button}", button);
   }
+
+  Component cancelPrimaryAction = new Component(PAGE_ABILITIES_CANCEL_PRIMARY_ACTION);
+
+  cancelPrimaryAction.SetPrimaryAction("Apply", (it) => {
+    CancelPrimaryAction(selectedPlayers);
+  });
+  cancelPrimaryAction.SetTertiaryAction("Add to timeline", (it) => {
+    Timeline.AddAction(timeline, ACTION_CencelPrimaryAction(selectedPlayers));
+  });
+  cancelPrimaryAction.AddDescription(Description.New("Equivalent to a short stun", COLOR_INFO));
 
   Carousel setWeapon = new Carousel(
     text: PAGE_ABILITIES_SET_WEAPON,
@@ -34,7 +45,7 @@ Component[] PageAbilitiesItems() {
     Timeline.AddAction(timeline, ACTION_SetWeapon(selectedPlayers, (<Carousel>it).value));
   });
 
-  return list + new Text() + setWeapon;
+  return list + new Text() + cancelPrimaryAction + setWeapon;
 }
 
 rule: 'Player Settings/Abilities' 50

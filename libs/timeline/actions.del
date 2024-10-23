@@ -38,6 +38,12 @@ Action ACTION_StopHoldingButton(Player[] players, Button button):
     StopHoldingButton(players, button);
   });
 
+// cancel primary action
+Action ACTION_CencelPrimaryAction(Player[] players): 
+  Action.New($'Cancel action([{PlayersFormatter(players)}])', () => {
+    CancelPrimaryAction(players);
+  });
+
 
 // weapon
 Action ACTION_SetWeapon(Player[] players, Number weapon): 
