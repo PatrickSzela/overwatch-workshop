@@ -53,7 +53,8 @@ Any CreatePlayerInfoHud(in Boolean enabled, in String text, in Number idx):
     UpdateEveryFrame(text),
     null,
     Location.Right,
-    50 + sortedPlayers.IndexOf(EventPlayer()) * 10 + idx
+    50 + sortedPlayers.IndexOf(EventPlayer()) * 10 + idx,
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
   );
 
 void PlayerInfo(in String playerName, in Button[] buttonsHeld = [], in String[] appliedStatuses = []) {
