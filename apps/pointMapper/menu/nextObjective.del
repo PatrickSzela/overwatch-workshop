@@ -11,7 +11,7 @@ void PageNextObjectiveGoToNextObjective() "Next Objective: Go to Next Objective"
   Teleport(dummiesSlice, CurrentObjectivePosition());
   EnableCompletion();
 
-  SmallMessage(AllPlayers(), "Waiting until objective is captured...");
+  SmallMessageFixed(AllPlayers(), "Waiting until objective is captured...");
 
   foreach(Player player in AllPlayers()) {
     if(player.IsDummy()) continue;
@@ -22,9 +22,9 @@ void PageNextObjectiveGoToNextObjective() "Next Objective: Go to Next Objective"
     }
 
     player.Teleport(SpawnPoints(player.Team())[ObjectiveIndex()]);
-    SetStatus(player, player, Status.Asleep, 99999);
+    SetStatus(player, player, Status.Asleep, NUMBER_MAX);
 
-    WaitUntil(EvaluateOnce(ObjectiveIndex()) != ObjectiveIndex(), 99999);
+    WaitForeverUntil(EvaluateOnce(ObjectiveIndex()) != ObjectiveIndex());
 
     ClearStatus(player, Status.Asleep);
     player.Teleport(CurrentObjectivePosition());

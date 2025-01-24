@@ -1,0 +1,114 @@
+Boolean RayCastedCameraDisabled():
+  IsUsingUltimate() && 
+    [Hero.Bastion, Hero.Junkrat, Hero.Doomfist].Contains(HeroOf()) ||
+  IsUsingAbility1() && 
+    [Hero.Mei].Contains(HeroOf());
+
+Vector RAY_CASTED_CAMERA_POSITION(
+  in Player player, 
+  in Vector startPosition,
+  in Vector desiredPosition
+): RayCastHitPosition(
+    StartPOS: startPosition, 
+    EndPOS: desiredPosition, 
+    PlayersToInclude: null, 
+    PlayersToExclude: player, 
+    IncludePlayerOwnedObjects: false
+  );
+
+Vector RAY_CASTED_LOOK_AT_POSITION(
+  in Player player, 
+  in Vector startPosition,
+  in Vector lookAtPosition
+): RayCastHitPosition(
+    StartPOS: startPosition,
+    EndPOS: lookAtPosition,
+    PlayersToInclude: null,
+    PlayersToExclude: player,
+    IncludePlayerOwnedObjects: false
+  );
+
+Vector RAY_CASTED_CURSOR_POSITION(
+  in Player player, 
+  in Vector startPosition,
+  in Vector desiredPosition
+): RayCastHitPosition(
+    StartPOS: startPosition,
+    EndPOS: desiredPosition,
+    PlayersToInclude: AllPlayers(),
+    PlayersToExclude: player,
+    IncludePlayerOwnedObjects: true
+  );
+
+void StartRayCastedCamera(
+  in Player player, 
+  in Vector startPosition,
+  in Vector desiredPosition,
+  in Vector lookAtPosition,
+  in Number blendSpeed,
+  in Vector finalPositionOffset = Vector(0, 0, 0)
+) {
+  StartCamera(
+    Player: player, 
+    EyePosition: UpdateEveryFrame(
+      RAY_CASTED_CAMERA_POSITION(player, startPosition, desiredPosition)
+    ) + finalPositionOffset,
+    LookAtPosition: UpdateEveryFrame(lookAtPosition),
+    BlendSpeed: blendSpeed
+  );
+
+  // EyePosition: UpdateEveryFrame(
+  //   RAY_CASTED_CAMERA_POSITION(player, lookAtPosition, RAY_CASTED_CAMERA_POSITION(player, startPosition, desiredPosition))
+  // ),
+}
+
+void StartRayCastedCameraWithLookAt(
+  in Player player, 
+  in Vector startPosition,
+  in Vector desiredPosition,
+  in Vector lookAtPosition,
+  in Number blendSpeed,
+  in Vector finalPositionOffset = Vector(0, 0, 0)
+) {
+  StartCamera(
+    Player: player, 
+    EyePosition: UpdateEveryFrame(
+      RAY_CASTED_CAMERA_POSITION(player, startPosition, desiredPosition)
+    ) + finalPositionOffset,
+    LookAtPosition: UpdateEveryFrame(
+      RAY_CASTED_LOOK_AT_POSITION(player, startPosition, lookAtPosition)
+    ),
+    BlendSpeed: blendSpeed
+  );
+}
+
+void CreateRayCastedCursor(
+  in Player player, 
+  in Vector startPosition,
+  in Vector desiredPosition,
+  ref Any[] effectStorage,
+  in Boolean visibleCondition = true
+) {
+  for(Number i! = 0; i < 5; i++) {
+    effectStorage += CreateEffect(
+      VisibleTo: visibleCondition ? player : null,
+      Type: Effect.Sphere,
+      Color: Color.Red,
+      Position: UpdateEveryFrame(
+        RAY_CASTED_CURSOR_POSITION(player, startPosition, desiredPosition)
+      ),
+      Radius: 0.15,
+      Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+    );
+
+    MinWait();
+  }
+
+  // effectStorage += CreateBeamEffect(
+  //   VisibleTo: visibleCondition ? player : null,
+  //   BeamType: BeamType.GrappleBeam,
+  //   StartPosition: UpdateEveryFrame(startPosition),
+  //   EndPosition: UpdateEveryFrame(CURSOR_POSITION),
+  //   Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  // );
+}

@@ -17,8 +17,8 @@ playervar Button[] pageAbilitiesInfiniteResource = [];
 String PAGE_ABILITIES_WARNING_BROKEN: "Due to Workshop bugs, some settings might not work correctly for some heroes";
 
 String PageAbilitiesInfo(Player player, Button button): 
-  $"Enabled: {BooleanFormatter(player.pageAbilitiesEnabled.Contains(button))}\n" +
-  $"Button held: {BooleanFormatter(player.buttonsHeld.Contains(button))}\n";
+  $"Enabled: {BooleanFormatterOnOff(player.pageAbilitiesEnabled.Contains(button))}\n" +
+  $"Button held: {BooleanFormatterOnOff(player.buttonsHeld.Contains(button))}\n";
 
 enum PageAbilitiesOptions {
   PRESS = 'Press',

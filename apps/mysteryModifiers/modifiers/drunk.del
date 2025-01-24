@@ -1,0 +1,72 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String DRUNK_NAME: 'Drunk';
+Number DRUNK_DURATION: 15;
+Number DRUNK_SLOW_MOTION_SPEED: 85;
+
+Modifier drunk: Modifier.New(
+  name: DRUNK_NAME, 
+  duration: DRUNK_DURATION,
+  slowMotionSpeed: DRUNK_SLOW_MOTION_SPEED,
+  description: [
+    "An alcohol intoxication symptoms include: trouble walking,", 
+    "loss of balance and slowed down brain functions"
+  ]
+);
+
+playervar Vector drunkMovementChase = Vector.Zero;
+playervar Vector drunkMovementFinal = Vector.Zero;
+
+rule: '[Drunk] Has Started - Global rule'
+if(ModifierHasStarted(DRUNK_NAME))
+{
+  SetSlowMotion(DRUNK_SLOW_MOTION_SPEED);
+  StartModifyingHeroVoiceLines(AllPlayers(), 0.85);
+
+  // end
+  WaitUntilModifierIsOver();
+
+  StopThrottleInDirection(AllPlayers());
+  ClearStatus(AllPlayers(), Status.KnockedDown);
+  SetSlowMotion(100);
+  StopModifyingHeroVoiceLines(AllPlayers());
+}
+
+rule: '[Drunk] Has Started - Player rule'
+Event.OngoingPlayer
+if(ModifierHasStarted(DRUNK_NAME))
+{
+  StartThrottleInDirection(EventPlayer(), drunkMovementFinal, 0.5, Relative.ToPlayer, ThrottleBehavior.AddToExistingThrottle, ThrottleRev.DirectionAndMagnitude);
+  ChaseVariableAtRate(drunkMovementFinal, drunkMovementChase, 0.01, RateChaseReevaluation.DestinationAndRate);
+
+  // end
+  WaitUntilModifierIsOver();
+
+  StopChasingVariable(drunkMovementFinal);
+  drunkMovementChase = Vector.Zero;
+  drunkMovementFinal = Vector.Zero;
+}
+
+rule: '[Drunk] Generate random vector'
+Event.OngoingPlayer
+if(ModifierHasStarted(DRUNK_NAME))
+{
+  drunkMovementChase = Vector(RandomReal(-0.01, 0.01), 0, RandomReal(-0.01, 0.01));
+
+  Wait(RandomReal(0.75, 1.25));
+
+  LoopIfConditionIsTrue();
+}
+
+rule: '[Drunk] Knock down randomly'
+Event.OngoingPlayer
+if(ModifierHasStarted(DRUNK_NAME))
+{
+  Wait(RandomReal(2, 5), WaitBehavior.AbortWhenFalse);
+
+  SetStatus(EventPlayer(), EventPlayer(), Status.KnockedDown, 1);
+
+  LoopIfConditionIsTrue(); 
+}
+

@@ -1,20 +1,24 @@
 import '../modifier.del';
 
-String GRAVITY_HIGH_NAME: 'Gravity: High';
+String GRAVITY_HIGH_NAME: 'Gravity - High';
+Number GRAVITY_HIGH_DURATION: 10;
 
-Modifier gravityHigh: {
-  name: GRAVITY_HIGH_NAME,
-  notification: GRAVITY_HIGH_NAME,
-  icon: AbilityIconString(Hero.Ramattra, Button.Ability2),
-  duration: 10, 
-  enabled: SettingToggle('Gravity - High'),
-  enable: () => {
-    SetGravity(AllPlayers(), 200);
-    SetProjectileGravity(AllPlayers(), 200);
-  },
-  disable: () => {
-    SetGravity(AllPlayers(), 100);
-    SetProjectileGravity(AllPlayers(), 100);
-  },
-  ..MODIFIER_BASE
-};
+Modifier gravityHigh: Modifier.New(
+  name: GRAVITY_HIGH_NAME, 
+  duration: GRAVITY_HIGH_DURATION,
+  description: ["Greatly increases gravity"]
+);
+
+rule: '[Gravity - High] Has Started'
+if(ModifierHasStarted(GRAVITY_HIGH_NAME))
+{
+  SetGravity(AllPlayers(), 200);
+  SetProjectileGravity(AllPlayers(), 200);
+
+  // end
+  WaitUntilModifierIsOver();
+
+  SetGravity(AllPlayers(), 100);
+  SetProjectileGravity(AllPlayers(), 100);
+}
+

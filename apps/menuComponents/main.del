@@ -12,10 +12,8 @@ import '../../libs/menu/components/carousel.del';
 import './_variables.del';
 import './pages/_index.del';
 import '../../libs/utils/rules/pauseMatchTime.del';
-import '../../libs/utils/diagnostic.del';
-import '../menu/customGameSettings.lobby';
-
-// TODO: always disable inspector, use LogToInspector wrapper
+import '../../libs/utils/diagnostics.del';
+import './settings.del';
 
 Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 
@@ -29,9 +27,6 @@ Event.OngoingPlayer
 
 rule: 'Generate Menu'
 {
-  if(!WorkshopSettingToggle("Debug", "Enable Inspector", true))
-    DisableInspectorRecording();
-  
   menu = new Menu(LocalPlayer().menuState);
 }
 

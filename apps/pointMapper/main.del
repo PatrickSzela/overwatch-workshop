@@ -7,6 +7,7 @@ import '../../libs/menu/components/numberInput.del';
 // import '../../libs/menu/components/checkbox.del'; 
 // import '../../libs/menu/components/radio.del'; 
 // import '../../libs/menu/components/carousel.del'; 
+import "../../libs/utils/helpers.del";
 import "../../libs/utils/rules/skipToMatch.del";
 import "../../libs/utils/rules/pauseMatchTime.del";
 import "./_rules.del";

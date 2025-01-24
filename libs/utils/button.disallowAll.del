@@ -1,0 +1,7 @@
+import './button.allButtons.del';
+
+void DisallowAllButtons(Player player = EventPlayer()) "Disallow All Buttons" {
+  foreach(Button button! in allButtons) {
+    DisallowButton(player, button);
+  }
+}

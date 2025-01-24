@@ -95,10 +95,10 @@ if(menuState2.isFocused)
 {
   Timeline.Stop(timeline);
 
-  WaitUntil(
+  WaitForeverUntil(
     menuState2.pageId != PAGE_TIMELINE_EDIT_ID ||
-    !menuState2.isFocused, 
-  99999);
+    !menuState2.isFocused
+  );
 
   if(componentBeingMoved != null) {
     componentBeingMoved.MarkToRerender();
@@ -106,7 +106,7 @@ if(menuState2.isFocused)
   }
   
   if(timeline.actions != editableActions - markedToRemove) {
-    SmallMessage(EventPlayer(), 'Saving actions');
+    SmallMessageFixed(EventPlayer(), 'Saving actions');
 
     Timeline.Stop(timeline);
 
@@ -156,7 +156,7 @@ if(timeline.actions != editableActions)
 
 rule: 'Show message when item has been added to timeline'
 {
-  WaitUntil(EvaluateOnce(timelineActionsId) != timelineActionsId, 99999);
-  SmallMessage(AllPlayers(), $"Added to timeline: {timeline.actions.Last}");
+  WaitForeverUntil(EvaluateOnce(timelineActionsId) != timelineActionsId);
+  SmallMessageFixed(AllPlayers(), $"Added to timeline: {timeline.actions.Last}");
   Loop();
 }

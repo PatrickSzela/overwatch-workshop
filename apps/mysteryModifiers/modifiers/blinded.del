@@ -1,0 +1,40 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String BLINDED_NAME: 'Blinded';
+Number BLINDED_DURATION: 8;
+
+globalvar Any blindedEffect;
+
+Modifier blinded: Modifier.New(
+  name: BLINDED_NAME, 
+  duration: BLINDED_DURATION,
+  description: ["Everyone's vision becomes obstructed"]
+);
+
+rule: '[Blinded] Is Preloading'
+if(ModifierIsPreloading(BLINDED_NAME))
+{
+  Boolean condition: ModifierHasStarted(BLINDED_NAME);
+
+  blindedEffect = CreateEffect(
+    VisibleTo: condition ? LocalPlayer() : null, 
+    Type: Effect.Orb, 
+    Color: Color.Black, 
+    Position: UpdateEveryFrame(LocalPlayer().EyePosition() + LocalPlayer().FacingDirection() * 0.825), 
+    Radius: 1
+  );
+}
+
+rule: '[Blinded] Has Started'
+if(ModifierHasStarted(BLINDED_NAME))
+{
+  StartForcingPlayerOutlines(AllPlayers(), AllPlayers(), false);
+  DisableNameplates(AllPlayers(), AllPlayers());
+  
+  // end
+  WaitUntilModifierIsOver();
+  DestroyEffect(blindedEffect);
+  StopForcingPlayerOutlines(AllPlayers(), AllPlayers());
+  EnableNameplates(AllPlayers(), AllPlayers());
+}

@@ -12,14 +12,14 @@ Component[] PageDebugComponentItems() {
     nonInteractive[i - 1] = new Text($"Non-interactive {i}");
 
     interactive[i - 1] = new Component($"Interactive {i}");
-    interactive[i - 1].onEnter = (it) => LogToInspector($"{it.text}: enter");
-    interactive[i - 1].onLeave = (it) => LogToInspector($"{it.text}: left");
-    interactive[i - 1].onButtonDown = (button, it) => LogToInspector($"{it.text}: {button}​ button down");
-    interactive[i - 1].onButtonUp = (button, it) => LogToInspector($"{it.text}: {button}​ button up");
-    interactive[i - 1].onNavigate = (direction, it) => LogToInspector($"{it.text}: navigated {direction}");
-    interactive[i - 1].SetPrimaryAction("Trigger Primary Action", (it) => LogToInspector($"{it.text}: primary action"));
-    interactive[i - 1].SetSecondaryAction("Trigger Secondary Action", (it) => LogToInspector($"{it.text}: secondary action"));
-    interactive[i - 1].SetTertiaryAction("Trigger Tertiary Action", (it) => LogToInspector($"{it.text}: tertiary action"));
+    interactive[i - 1].onEnter = (it) => Log($"{it.text}: enter");
+    interactive[i - 1].onLeave = (it) => Log($"{it.text}: left");
+    interactive[i - 1].onButtonDown = (button, it) => Log($"{it.text}: {button}​ button down");
+    interactive[i - 1].onButtonUp = (button, it) => Log($"{it.text}: {button}​ button up");
+    interactive[i - 1].onNavigate = (direction, it) => Log($"{it.text}: navigated {direction}");
+    interactive[i - 1].SetPrimaryAction("Trigger Primary Action", (it) => Log($"{it.text}: primary action"));
+    interactive[i - 1].SetSecondaryAction("Trigger Secondary Action", (it) => Log($"{it.text}: secondary action"));
+    interactive[i - 1].SetTertiaryAction("Trigger Tertiary Action", (it) => Log($"{it.text}: tertiary action"));
   }
 
   return nonInteractive + new Text() + interactive;

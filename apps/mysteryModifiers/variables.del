@@ -1,12 +1,19 @@
-import './prevHeroInfo.del';
+import '../../libs/playerSnapshot.del';
+
+Color COLOR_OVERWATCH: CustomColor(237, 104, 56, 255);
+
+enum ControlledBy {
+  GAME = 0,
+  STREAM = 1
+}
 
 enum State {
   NOT_STARTED,
-  COUNTDOWN,
-  ENABLE_MODIFIER,
-  WAIT_FOR_MODIFIER
+  WAITING,
+  MODIFIER_SET,
+  MODIFIER_STARTED
 }
 
+playervar PlayerSnapshot playerSnapshot;
+globalvar Modifier currentModifier;
 globalvar State state = State.NOT_STARTED;
-playervar PrevHeroInfo prevHeroInfo;
-globalvar Number historySize = 3;

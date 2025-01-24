@@ -34,7 +34,7 @@ rule: '[Sniffer] Step 0: Prepare'
 if(step == Step.WorkingSniffer)
 if(stepSniffer == StepSniffer.Nothing)
 {
-  SmallMessage(AllPlayers(), $"[Sniffer] Preparing");
+  SmallMessageFixed(AllPlayers(), $"[Sniffer] Preparing");
   Wait(0.1);
 
   // find approximate center of objective
@@ -91,7 +91,7 @@ rule: '[Sniffer] Step 1: Mapping'
 if(step == Step.WorkingSniffer)
 if(stepSniffer == StepSniffer.Mapping)
 {
-  SmallMessage(AllPlayers(), "[Sniffer] Mapping");
+  SmallMessageFixed(AllPlayers(), "[Sniffer] Mapping");
   Wait(0.1);
 
   while(step == Step.WorkingSniffer && stepSniffer == StepSniffer.Mapping) {
@@ -180,7 +180,7 @@ rule: '[Sniffer] Step 2: Simplifying'
 if(step == Step.WorkingSniffer)
 if(stepSniffer == StepSniffer.Simplifying)
 {
-  SmallMessage(AllPlayers(), "[Sniffer] Simplifying");
+  SmallMessageFixed(AllPlayers(), "[Sniffer] Simplifying");
   Wait(0.1);
 
   // EnableInspectorRecording();

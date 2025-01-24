@@ -5,7 +5,7 @@ class PickPosition {
   public static Number MAX_DISTANCE: 100;
   public static Number RADIUS: 0.25;
   public static Number TEXT_SIZE: 1;
-  public static String CHANGE_DISTANCE_DESCRIPTION(in Button increase, in Button decrease): $"Use {ButtonFormatterSingle(increase)}​ or {ButtonFormatterSingle(decrease)}​ to increase or decrease Ray Cast distance";
+  public static String CHANGE_DISTANCE_DESCRIPTION(in Button increase, in Button decrease): $"Use {ButtonFormatterSingle_Underscores(increase)}​ or {ButtonFormatterSingle_Underscores(decrease)}​ to increase or decrease Ray Cast distance";
 
   public static Vector RayCast(in Player player, in Number distance = MAX_DISTANCE): RayCastHitPosition(player.EyePosition(), player.EyePosition() + player.FacingDirection() * distance, [], [], false);
   public Vector position: PickPosition.RayCast(EventPlayer(), rayCastDistance);

@@ -1,0 +1,126 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String INVISIBILITY_NAME: 'Invisibility';
+Number INVISIBILITY_DURATION: 10;
+
+Number INVISIBILITY_RADIUS: 4.25;
+Number INVISIBILITY_EDGE: 0.25;
+
+Player[] INVISIBILITY_PLAYERS_NEARBY: 
+  PlayersWithinRadius(EventPlayer(), INVISIBILITY_RADIUS, Team.All, RadiusLOS.SurfacesAndAllBarriers) - EventPlayer();
+
+Modifier invisibility: Modifier.New(
+  name: INVISIBILITY_NAME, 
+  duration: INVISIBILITY_DURATION,
+  description: [
+    "Gain invisibility and increased movement speed", 
+    "Taking damage or standing near others will reveal you"
+  ]
+);
+
+playervar Boolean invisibilityTakenDamage = false;
+playervar Boolean invisibilityPlayersNearby = false;
+globalvar Any[] invisibilityEffects = [];
+
+Boolean IsInvisibilityEnabled(Player player = EventPlayer()): !player.invisibilityTakenDamage && !player.invisibilityPlayersNearby;
+
+rule: '[Invisibility] Is Preloading'
+if(ModifierIsPreloading(INVISIBILITY_NAME))
+{
+  Boolean CONDITION: ModifierHasStarted(INVISIBILITY_NAME) && IsInvisibilityEnabled(LocalPlayer()) ? LocalPlayer() : null;
+
+  // for(Number i! = 0; i < 1; i++) {
+  //   invisibilityEffect += CreateEffect(
+  //     VisibleTo: ModifierHasStarted(INVISIBILITY_NAME) && LocalPlayer().invisibilityEnabled ? LocalPlayer() : null, 
+  //     Type: Effect.Sphere, 
+  //     Color: CustomColor( 	118,93,189, 50), 
+  //     Position: UpdateEveryFrame(LocalPlayer().EyePosition() - LocalPlayer().FacingDirection() * 0), 
+  //     Radius: 0.75,
+  //     Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  //   );
+  // }
+
+  invisibilityEffects += CreateEffect(
+    VisibleTo: CONDITION, 
+    Type: Effect.GoodAura, 
+    // Color: CustomColor(63, 15, 72), 
+    Color: CustomColor(118, 93, 189), 
+    Position: UpdateEveryFrame(LocalPlayer().EyePosition() + LocalPlayer().FacingDirection() * 0.75), 
+    Radius: 1,
+    Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  );
+
+  invisibilityEffects += CreateEffect(
+    VisibleTo: ModifierHasStarted(INVISIBILITY_NAME) ? LocalPlayer() : null, 
+    Type: Effect.Ring, 
+    // Color: CustomColor(63, 15, 72), 
+    Color: CustomColor(118, 93, 189), 
+    Position: UpdateEveryFrame(LocalPlayer().Position()), 
+    Radius: INVISIBILITY_RADIUS + INVISIBILITY_EDGE,
+    Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  );
+
+  invisibilityEffects += CreateEffect(
+    VisibleTo: CONDITION, 
+    Type: Effect.LucioSoundBarrierProtectedSound, 
+    Position: UpdateEveryFrame(LocalPlayer().EyePosition()), 
+    Radius: 75,
+    Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  );
+}
+
+rule: '[Invisibility] Has Started'
+if(ModifierHasStarted(INVISIBILITY_NAME))
+{
+  AllPlayers().invisibilityTakenDamage = false;
+  AllPlayers().invisibilityPlayersNearby = false;
+  SetMoveSpeed(AllPlayers(), 160);
+
+  // end
+  WaitUntilModifierIsOver();
+
+  DestroyEffect(invisibilityEffects);
+  invisibilityEffects = null;
+  AllPlayers().invisibilityTakenDamage = false;
+  AllPlayers().invisibilityPlayersNearby = false;
+  SetMoveSpeed(AllPlayers(), 100);
+}
+
+rule: '[Invisibility] Player taken damage'
+Event.OnDamageTaken
+if(ModifierHasStarted(INVISIBILITY_NAME))
+{
+  invisibilityTakenDamage = true;
+  Wait(0.75, WaitBehavior.RestartWhenTrue);
+  invisibilityTakenDamage = false;
+}
+
+rule: '[Invisibility] Players nearby'
+Event.OngoingPlayer
+if(ModifierHasStarted(INVISIBILITY_NAME))
+if(INVISIBILITY_PLAYERS_NEARBY)
+{
+  invisibilityPlayersNearby = true;
+  WaitUntil(!INVISIBILITY_PLAYERS_NEARBY.Length, modifierDurationLeft);
+  invisibilityPlayersNearby = false;
+}
+
+rule: '[Invisibility] Set invisibility'
+Event.OngoingPlayer
+if(ModifierHasStarted(INVISIBILITY_NAME))
+if(IsInvisibilityEnabled())
+{
+  SetInvisible(EventPlayer(), InvisibleTo.All);
+  
+  WaitUntil(!IsInvisibilityEnabled() || !ModifierHasStarted(INVISIBILITY_NAME), modifierDurationLeft);
+
+  // MinWait();
+
+  PlayEffect(EventPlayer(), PlayEffect.ExplosionSound, Color.White, EventPlayer(), 75);
+
+  // if(ModifierHasStarted(INVISIBILITY_NAME))
+  //   BigMessage(EventPlayer(), "Revealed!");
+
+  SetInvisible(EventPlayer(), InvisibleTo.None);
+}

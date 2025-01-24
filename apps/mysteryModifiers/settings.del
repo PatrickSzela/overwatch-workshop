@@ -1,0 +1,28 @@
+settings
+{
+  lobby
+	{
+		Max FFA Players: 10
+    Max Team 1 Players: 5
+    Max Team 2 Players: 5
+	}
+  main
+  {
+    Mode Name: "Mystery Modifiers"
+    Description: "Who doesn't love some chaos?
+Charge the global meter by dealing damage, healing and using ultimates.
+Once the meter is fully charged, the same randomly selected modifier will be applied to each player.
+New: Now also with Twitch integration! Instead of charging the meter, let your chat vote on the next modifier - external application required
+
+----------
+Version: 1.0.0
+Workshop Code: 7HBSA
+Created by: PatPatPatriq"
+  }
+  extensions
+  {
+    Buff and Debuff Sounds
+    Buff Status Effects
+    Debuff Status Effects
+  }
+}

@@ -1,0 +1,8 @@
+import '../rules.del';
+
+rule: 'Start game after connecting but waiting for players'
+if(connection.connected)
+if(IsWaitingForPlayers())
+{
+  StartGameMode();
+}

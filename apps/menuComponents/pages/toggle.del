@@ -14,7 +14,7 @@ Component[] PageDebugToggleItems() {
       defaultChecked: i == 1
     );
 
-    list.Last.onChange = (checked, it) => LogToInspector($'{it.text}: value changed to {checked}');
+    list.Last.onChange = (checked, it) => Log($'{it.text}: value changed to {checked}');
   }
 
   return list;

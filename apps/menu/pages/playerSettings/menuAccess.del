@@ -13,7 +13,7 @@ Component PageMenuAccessMenuItem() {
   menuAccess.onChange = (checked, it) => {
     foreach(Player pl! in selectedPlayers) {
       if(pl == HostPlayer() && !checked) {
-        SmallMessage(EventPlayer(), "Can't disable menu for Host");
+        SmallMessageFixed(EventPlayer(), "Can't disable menu for Host");
         continue;
       }
 

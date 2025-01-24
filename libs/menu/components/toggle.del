@@ -21,9 +21,9 @@ class Toggle: ComponentWithValue
   ) "[Toggle] Constructor" {
     ComponentWithValueConstructor(text, defaultChecked, child);
 
-    this.valueFormatter = (it) => BooleanFormatter(it.value);
+    this.valueFormatter = (it) => BooleanFormatterOnOff(it.value);
 
-    AddDescription(Description.New($"Press {ButtonFormatterSingle(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE)));
+    AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE)));
   }
 
   // events

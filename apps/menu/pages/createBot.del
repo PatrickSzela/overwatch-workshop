@@ -1,6 +1,7 @@
 import '../_variables.del';
 import '../../../libs/utils/string.formatters.del';
 import '../../../libs/utils/team.availableTeams.del';
+import '../../../libs/utils/hud.del';
 import '../../../libs/menu/components/carousel.del';
 import '../../../libs/menu/components/text.del';
 
@@ -72,7 +73,7 @@ Component[] PageCreateBotItems() {
     Player bot! = CreateDummyBot(pageCreateBotProps.hero, pageCreateBotProps.team, pageCreateBotProps.slot, pageCreateBotProps.position);
 
     if(!EntityExists(bot)) {
-      SmallMessage(EventPlayer(), "Failed to create a bot");
+      SmallMessageFixed(EventPlayer(), "Failed to create a bot");
     }
   });
 
@@ -100,7 +101,7 @@ if(menuState.pageId == PAGE_CREATE_BOT_ID)
     text: $"Spawn position: {pageCreateBotProps.position}"
   );
 
-  WaitUntil(menuState.pageId != PAGE_CREATE_BOT_ID || !menuState.isOpen, 99999);
+  WaitForeverUntil(menuState.pageId != PAGE_CREATE_BOT_ID || !menuState.isOpen);
 
   pickPosition.DestroyAdditionalSpheres();
 }
@@ -121,6 +122,6 @@ if(IsDummyBot(EventPlayer()))
 
   StartForcingDummyBotName(EventPlayer(), playerName);
 
-  WaitUntil(EvaluateOnce(EventPlayer().Hero()) != EventPlayer().Hero(), 99999);
+  WaitForeverUntil(EvaluateOnce(EventPlayer().Hero()) != EventPlayer().Hero());
   LoopIfConditionIsTrue();
 }

@@ -1,31 +1,18 @@
 import '../modifier.del';
 
 String TRAMPOLINE_NAME: 'Trampoline';
+Number TRAMPOLINE_DURATION: 10;
 
-playervar Boolean trampolineEnabled = false;
-
-Modifier trampoline: {
-  name: TRAMPOLINE_NAME,
-  notification: TRAMPOLINE_NAME,
-  icon: AbilityIconString(Hero.Winston, Button.Ability1),
-  duration: 10, 
-  enabled: SettingToggle(TRAMPOLINE_NAME),
-  enable: () => {
-    foreach(Player player in AllPlayers()) {
-      player.trampolineEnabled = true;
-    }
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      player.trampolineEnabled = false;
-    }
-  },
-  ..MODIFIER_BASE
-};
+Modifier trampoline: Modifier.New(
+  name: TRAMPOLINE_NAME, 
+  duration: TRAMPOLINE_DURATION,
+  description: ["Touching the ground will launch you upwards"]
+);
 
 rule: '[Trampoline] Handle logic'
 Event.OngoingPlayer
-if(trampolineEnabled && EventPlayer().IsOnGround())
+if(ModifierHasStarted(TRAMPOLINE_NAME))
+if(IsOnGround())
 {
-  ApplyImpulse(EventPlayer(), Up(), 10, Relative.ToPlayer, ContraryMotion.Incorporate);
+  ApplyImpulse(EventPlayer(), Up(), RandomReal(7, 10), Relative.ToPlayer, ContraryMotion.Incorporate);
 }

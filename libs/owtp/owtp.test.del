@@ -1,0 +1,44 @@
+import './rules.del';
+// import './gameState.del';
+import '../utils/diagnostics.del';
+
+rule: 'Status'
+if(diagnosticsEnabled)
+{
+  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
+  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
+  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
+  CreateDiagnosticText($"Entity count: {EntityCount()}/256", EntityCount() > 192, EntityCount() > 224);
+}
+
+rule: 'Setup'
+{
+  OWTP.WaitForSpectator();
+
+  connection.DebugHud();
+  connection.RegisterMessageType([1,1,1], "TEST", [
+    ["zero", Type.NUMBER],
+    ["positiveNumber", Type.NUMBER],
+    ["negativeNumber", Type.NUMBER],
+    ["string", Type.STRING],
+    ["emptyString", Type.STRING],
+    ["true", Type.BOOLEAN],
+    ["false", Type.BOOLEAN]
+  ]);
+  connection.Connect();
+  // connection.SendMessage("connection created");
+  // Wait(3);
+  // connection.SendMessage("random msg");
+  // connection.Disconnect();
+}
+
+rule: 'My Rule'
+if(connection.message)
+{
+  define d = connection.message.data;
+  Log($"{connection.message.name}:");
+  foreach(define a in d) {
+    Log($"\"{a}\"");
+  }
+  // connection.MarkMessageAsHandled();
+}

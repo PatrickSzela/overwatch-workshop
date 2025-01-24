@@ -1,0 +1,106 @@
+import '../../../libs/utils/color.rainbow.del';
+import '../../../libs/owtp/rules.del';
+import '../../../libs/owtp/utils/notifyGameState.del';
+import '../../../libs/owtp/utils/startGameAfterConnecting.del';
+import '../../../libs/owtp/integrations/stream.del';
+import '../variables.del';
+
+enum ControlledByStreamStartPoll {
+  WORKSHOP_SETTING_BUG_WORKAROUND,
+  WHEN_MODIFIER_STARTS,
+  WHEN_MODIFIER_ENDS
+}
+
+single struct ControlledByStreamSettings {
+    public Number pollTimeout;
+    public Number startPoll;
+    public Boolean showPollHUD;
+    // public Number cancelPollInBetweenRounds;
+
+    public static ControlledByStreamSettings New(): single { 
+      pollTimeout: WorkshopSettingInteger("Global - Controlled By Stream", "Poll duration in seconds", 30, 5, 300, 0),
+      startPoll: WorkshopSettingCombo("Global - Controlled By Stream", "Start poll", 2, ["Unselectable - Workshop bug", "When Modifier starts", "When Modifier ends"], 1),
+      showPollHUD: WorkshopSettingToggle("Global - Controlled By Stream", "Show poll HUD in-game", true, 2),
+      // cancelPollInBetweenRounds: WorkshopSettingToggle("Global - Controlled By Stream", "Cancel poll in between rounds", true, 1)
+    };
+}
+
+globalvar ControlledByStreamSettings streamSettings = ControlledByStreamSettings.New();
+
+void StartPoll(in Number timeout) {
+  streamIntegration.StartPoll(
+    enabledModifiers.Randomize().Slice(0, 5), 
+    timeout
+  );
+}
+
+rule: '[Controlled By - Stream] Handle connection'
+if(controlledBy == ControlledBy.STREAM)
+{
+  OWTP.WaitForSpectator();
+
+  connection.DebugHud();
+  connection.Connect();
+
+  if(streamSettings.showPollHUD)
+    streamIntegration.CreatePollHUD();
+}
+
+rule: '[Controlled By - Stream] Start poll after modifier ends'
+if(connection.connected)
+if(streamSettings.startPoll == ControlledByStreamStartPoll.WHEN_MODIFIER_ENDS)
+if(state == State.WAITING)
+{
+  StartPoll(streamSettings.pollTimeout);
+}
+
+rule: '[Controlled By - Stream] Start poll after modifier starts'
+if(connection.connected)
+if(streamSettings.startPoll == ControlledByStreamStartPoll.WHEN_MODIFIER_STARTS)
+if(state == State.WAITING)
+{
+  StartPoll(streamSettings.pollTimeout);
+
+  while(state == State.WAITING) {
+    if(state == State.NOT_STARTED)
+      return;
+
+    WaitForeverUntil(state == State.MODIFIER_STARTED || state == State.NOT_STARTED);
+
+    if(state == State.NOT_STARTED)
+      return;
+
+    StartPoll(streamSettings.pollTimeout + modifierDurationTotal);
+    WaitForeverUntil(state == State.WAITING || state == State.NOT_STARTED);
+  }
+}
+
+rule: '[Controlled By - Stream] Start modifier'
+if(connection.connected)
+if(streamIntegration.pollWinner)
+{
+  if(state != State.WAITING) {
+    streamIntegration.ClearWinner();
+    return;
+  }
+
+  SetModifier(streamIntegration.pollWinner);
+  streamIntegration.ClearWinner();
+  PreloadModifier();
+
+  Wait(1);
+  
+  if(state != State.WAITING)
+    StopModifier(false);
+  else
+    StartModifier();
+}
+
+rule: '[Controlled By - Stream] Cancel poll if necessary'
+if(connection.connected)
+if(streamIntegration.pollInProgress)
+if(stopReason)
+// if(state == State.NOT_STARTED)
+{
+  streamIntegration.CancelPoll(stopReason);
+}

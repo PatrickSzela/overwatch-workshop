@@ -82,7 +82,7 @@ if(menuState.pageId == PAGE_HEALTH_ID)
 {
   playerInfoProps.Enable();
 
-  WaitUntil(!menuState.isOpen || menuState.pageId != PAGE_HEALTH_ID, 99999);
+  WaitForeverUntil(!menuState.isOpen || menuState.pageId != PAGE_HEALTH_ID);
 
   playerInfoProps.Disable();
 }
@@ -93,7 +93,7 @@ if(pageHealthAutoHeal)
 {
   SetPlayerHealth(EventPlayer(), EventPlayer().MaxHealth());
 
-  WaitUntil(EventPlayer().Health() < EventPlayer().MaxHealth(), 99999);
+  WaitForeverUntil(EventPlayer().Health() < EventPlayer().MaxHealth());
 
   Wait(0.1);
   LoopIfConditionIsTrue();

@@ -1,0 +1,77 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String ICE_RINK_NAME: 'Ice Rink';
+Number ICE_RINK_DURATION: 10;
+
+playervar Vector icyFloorVector = Vector.Zero;
+
+Modifier iceRink: Modifier.New(
+  name: ICE_RINK_NAME, 
+  duration: ICE_RINK_DURATION,
+  description: ["The ground is made of ice, causing everyone to slide"]
+);
+
+rule: '[Ice Rink] If Velocity was overridden'
+Event.OngoingPlayer
+if(ModifierHasStarted(ICE_RINK_NAME))
+if(IsAlive())
+if(AngleBetweenVectors(VelocityOf(), icyFloorVector) > 10)
+{
+  icyFloorVector = VelocityOf();
+}
+
+rule: '[Ice Rink] Get Vector on landing'
+Event.OngoingPlayer
+if(ModifierHasStarted(ICE_RINK_NAME))
+if(IsOnGround())
+if(IsAlive())
+{
+  icyFloorVector = VelocityOf();
+}
+
+
+rule: '[Ice Rink] Handle walking'
+Event.OngoingPlayer
+if(ModifierHasStarted(ICE_RINK_NAME))
+if(IsOnGround())
+if(IsAlive())
+{
+  icyFloorVector += FacingDirectionOf(EventPlayer()) * 0.01;
+  icyFloorVector = Vector(icyFloorVector.X, 0, icyFloorVector.Z);
+
+  if(icyFloorVector.Magnitude > 1)
+    icyFloorVector = icyFloorVector.Normalize();
+
+  MinWait();
+  LoopIfConditionIsTrue();
+}
+
+rule: '[Ice Rink] Handle walking'
+Event.OngoingPlayer
+if(ModifierHasStarted(ICE_RINK_NAME))
+if(IsOnGround())
+if(IsAlive())
+{
+  StartTransformingThrottle(
+    Player: EventPlayer(), 
+    XAxisScalar: IsOnGround(EventPlayer()) ? 0.001 : 1, 
+    YAxisScalar: IsOnGround(EventPlayer()) ? 0.001 : 1, 
+    RelativeDirection: FacingDirectionOf(EventPlayer())
+  );
+
+  StartAccelerating(
+    Player: EventPlayer(), 
+    Direction: icyFloorVector.Normalize(), 
+    Rate: 100 * SquareRoot(SquareRoot(icyFloorVector.Magnitude)) * (IsOnGround(EventPlayer()) ? 1 : 0), 
+    MaxSpeed: NUMBER_MAX, 
+    Relative: Relative.ToWorld, 
+    Reevaluation: AccelerateRev.DirectionRateAndMaxSpeed
+  );
+ 
+  WaitForeverUntil(!ModifierHasStarted(ICE_RINK_NAME) || !IsOnGround() || !IsAlive());
+
+  StopAccelerating(EventPlayer());
+  StopTransformingThrottle(EventPlayer());
+  icyFloorVector = Vector.Zero;
+}

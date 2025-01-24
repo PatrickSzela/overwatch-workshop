@@ -1,0 +1,23 @@
+import './rules.normal.del';
+// import './rules.workaround.del';
+
+globalvar OWTP connection = OWTP.New();
+
+rule: 'OWTP: Handle Send Message Queue'
+if(connection.HandleSendMessageQueue_Condition())
+{
+  connection.HandleSendMessageQueue_Rule();
+}
+
+rule: 'OWTP: Handle Packets'
+if(connection.HandlePackets_Condition())
+{
+  connection.HandlePackets_Rule();
+}
+
+rule: 'OWTP: Handle Packets Timeout'
+if(connection.HandlePacketsTimeout_Condition())
+{
+  connection.HandlePacketsTimeout_Rule();
+}
+

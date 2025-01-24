@@ -9,13 +9,13 @@ if(pageAbilitiesInfiniteAmmo)
     SetAmmo(EventPlayer(), button == Button.SecondaryFire ? 1 : 0, 1000);
   }
 
-  WaitUntil(
+  WaitForeverUntil(
     !pageAbilitiesInfiniteAmmo ||
     pageAbilitiesInfiniteAmmo
       .FilteredArray((button) => MaxAmmo(EventPlayer(), button == Button.SecondaryFire ? 1 : 0) > 0)
       .Map((button) => Ammo(EventPlayer(), button == Button.SecondaryFire ? 1 : 0) < 2)
-      .IsTrueForAny((i) => i), 
-    99999);
+      .IsTrueForAny((i) => i)
+    );
 
   Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
@@ -29,12 +29,12 @@ if(pageAbilitiesNoCooldown)
     SetAbilityCooldown(EventPlayer(), button, 0);
   }
 
-  WaitUntil(
+  WaitForeverUntil(
     !pageAbilitiesNoCooldown ||
     pageAbilitiesNoCooldown
       .Map((button) => AbilityCooldown(EventPlayer(), button) > 0)
-      .IsTrueForAny((i) => i), 
-    99999);
+      .IsTrueForAny((i) => i)
+  );
   
   Wait(0.1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
@@ -51,15 +51,15 @@ if(pageAbilitiesInfiniteCharge)
       SetAbilityCharge(EventPlayer(), button, 99);
   }
 
-  WaitUntil(
+  WaitForeverUntil(
     !pageAbilitiesInfiniteCharge ||
     pageAbilitiesInfiniteCharge
       .Map((button) => 
       (button == Button.Ultimate ? 
         UltimateChargePercent() < 100 : 
         AbilityCharge(EventPlayer(), button) < 99))
-      .IsTrueForAny((i) => i), 
-    99999);
+      .IsTrueForAny((i) => i)
+  );
 
   Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
@@ -73,12 +73,12 @@ if(pageAbilitiesInfiniteResource)
     SetAbilityResource(EventPlayer(), button, 99);
   }
 
-  WaitUntil(
+  WaitForeverUntil(
     !pageAbilitiesInfiniteResource ||
     pageAbilitiesInfiniteResource
       .Map((button, idx) => AbilityResource(EventPlayer(), button) > 0 && AbilityResource(EventPlayer(), button) < 99)
-      .IsTrueForAny((i) => i), 
-    99999);
+      .IsTrueForAny((i) => i)
+  );
   
   Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
@@ -96,7 +96,7 @@ if(pageAbilitiesKeepHoldingButton)
     StartHoldingButton(EventPlayer(), button);
   }
 
-  WaitUntil(pageAbilitiesKeepHoldingButton != EvaluateOnce(pageAbilitiesKeepHoldingButton) || menuState.isOpen, 99999);
+  WaitForeverUntil(pageAbilitiesKeepHoldingButton != EvaluateOnce(pageAbilitiesKeepHoldingButton) || menuState.isOpen);
 
   foreach(Button button in allButtons) {
     StopHoldingButton(EventPlayer(), button);
@@ -134,13 +134,13 @@ if(pageAbilitiesKeepSpammingButton)
     StopHoldingButton(EventPlayer(), button);
   }
 
-  WaitUntil(
+  WaitForeverUntil(
     menuState.isOpen ||
     !pageAbilitiesKeepSpammingButton ||
     pageAbilitiesKeepSpammingButton
       .Map((button, idx) => !IsUsingAbility(EventPlayer(), button))
       .IsTrueForAny((i) => i),
-    99999);
+  );
 
   Wait(1, WaitBehavior.AbortWhenFalse);
   LoopIfConditionIsTrue();
@@ -154,7 +154,7 @@ if(IsButtonHeld(EventPlayer(), Button.Interact))
   WaitUntil(menuState.isOpen || !IsButtonHeld(EventPlayer(), Button.Interact), 5);
   AbortIfConditionIsFalse();
 
-  SmallMessage(EventPlayer(), "Abilities are no longer forced, you can now open the menu");
+  SmallMessageFixed(EventPlayer(), "Abilities are no longer forced, you can now open the menu");
 
   pageAbilitiesKeepHoldingButton = [];
   pageAbilitiesKeepSpammingButton = [];
@@ -174,7 +174,7 @@ if(menuState.history[2].id == PAGE_ABILITIES_ID)
   playerInfoProps.Enable();
   playerInfoProps.EnableButtons();
 
-  WaitUntil(!menuState.isOpen || menuState.history[2].id != PAGE_ABILITIES_ID, 99999);
+  WaitForeverUntil(!menuState.isOpen || menuState.history[2].id != PAGE_ABILITIES_ID);
 
   playerInfoProps.Disable();
   playerInfoProps.DisableButtons();

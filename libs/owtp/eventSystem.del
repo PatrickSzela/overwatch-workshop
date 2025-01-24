@@ -1,0 +1,99 @@
+import './rules.del';
+
+// enum EventSystemState {
+//   WAITING,
+//   CREATED,
+//   STARTED,
+//   FINISHED,
+//   FAILED
+// }
+
+enum EventSystemMessage {
+  STARTED = "EVENT_STARTED",
+  FINISHED = "EVENT_FINISHED",
+  FAILED = "EVENT_FAILED"
+}
+
+// single struct Event {
+//   public String name;
+//   public Number id;
+
+//   public static Event New(String name, Number id): { id: id, name: name };
+// }
+
+// TODO: finish
+single struct EventSystem {
+  public static String EVENT_SYSTEM_NAME: "EVENT_SYSTEM";
+
+  String[] _queue;
+  String[] registeredEventNames;
+
+  public String[] queue: _queue;
+
+  public static EventSystem New() { 
+    connection.RegisterMessageType([1,1,1], EventSystem.EVENT_SYSTEM_NAME, [
+      ["eventId", Type.NUMBER]
+    ]);
+
+    return { _queue: [], registeredEventNames: [] };
+  }
+  
+  public ref void RegisterEvent(in String name, in Number id) {
+    registeredEventNames[id] = name;    
+  }
+
+  public ref void AddToQueue(in Number id) {
+    _queue += registeredEventNames[id];
+  }
+
+  ref void SendMessage(in EventSystemMessage message) {
+    connection.SendMessage(message, [
+      ["name", _queue.First]
+    ]);
+  }
+
+  public ref void EventStarted() {
+    SendMessage(EventSystemMessage.STARTED);
+  }
+
+  public ref void EventFinished() {
+    SendMessage(EventSystemMessage.FINISHED);
+    _queue = RemoveFirst(_queue);
+  }
+
+  public ref void EventFailed() {
+    SendMessage(EventSystemMessage.FAILED);
+    _queue = RemoveFirst(_queue);
+  }
+
+  // public ref Boolean QueueLoop_Condition(): _queue;
+
+  // public ref void QueueLoop_Rule() {
+  //   String event: _queue.First;
+
+  //   WaitForeverUntil(EvaluateOnce(event) != event);
+
+  //   LoopIfConditionIsTrue();
+  // }
+}
+
+globalvar EventSystem eventSystem;
+
+rule: '[Event System] Initialize'
+if(connection.enabled)
+{
+  eventSystem = EventSystem.New();
+}
+
+rule: '[Event System] Handle messages'
+if(connection.message.name == EventSystem.EVENT_SYSTEM_NAME)
+{
+  Number id: connection.message.data[0];
+  eventSystem.AddToQueue(id);
+}
+
+// rule: '[Event System] Queue loop'
+// if(eventSystem.queue)
+// {
+  
+// }

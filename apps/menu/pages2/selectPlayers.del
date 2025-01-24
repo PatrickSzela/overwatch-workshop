@@ -20,9 +20,7 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 rule: 'Player Settings/Select Players: Fix selected players when someone leaves'
 Event.OngoingPlayer
 {
-  WaitUntil(
-    AllPlayers() != EvaluateOnce(AllPlayers()),
-  99999);
+  WaitForeverUntil(AllPlayers() != EvaluateOnce(AllPlayers()));
 
   selectedPlayers = selectedPlayers.FilteredArray((i) => EntityExists(i));
 
@@ -32,9 +30,7 @@ Event.OngoingPlayer
 rule: 'Player Settings/Select Players: Update selected players without self'
 Event.OngoingPlayer
 {
-  WaitUntil(
-    selectedPlayers != EvaluateOnce(selectedPlayers),
-  99999);
+  WaitForeverUntil(selectedPlayers != EvaluateOnce(selectedPlayers));
 
   selectedPlayersWithoutSelf = selectedPlayers.Remove(EventPlayer());
 
@@ -88,10 +84,10 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
   menuState2.ReplaceItems(titles[0] + list[0] + titles[1] + list[1] + titles[2] + list[2]);
   menuState2.RerenderAllItems();
 
-  WaitUntil(
+  WaitForeverUntil(
     sortedPlayersPerTeam != EvaluateOnce(sortedPlayersPerTeam) ||
-    menuState2.pageId != PAGE_SELECT_PLAYERS_ID,
-  99999);
+    menuState2.pageId != PAGE_SELECT_PLAYERS_ID
+  );
 
   AbortIfConditionIsFalse();
   LoopIfConditionIsTrue();
@@ -102,10 +98,10 @@ Event.OngoingPlayer
 if(menuState2.isOpen)
 if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
 {
-  WaitUntil(
+  WaitForeverUntil(
     sortedPlayersPerTeamPerSlot != EvaluateOnce(sortedPlayersPerTeamPerSlot) ||
-    sortedPlayers.Map((i) => i.Hero()) != EvaluateOnce(sortedPlayers.Map((i) => i.Hero())),
-  99999);
+    sortedPlayers.Map((i) => i.Hero()) != EvaluateOnce(sortedPlayers.Map((i) => i.Hero()))
+  );
 
   // wait for rule that changes bot's name
   Wait(0.2);

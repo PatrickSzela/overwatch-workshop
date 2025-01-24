@@ -1,0 +1,130 @@
+import '../rules.del';
+import '../../utils/color.rainbow.del';
+
+enum StreamIntegrationMessage {
+  POLL_START = "POLL_START",
+  POLL_END = "POLL_END",
+  POLL_CANCEL = "POLL_CANCEL",
+  POLL_WINNER = "POLL_WINNER",
+  SEND_MESSAGE = "SEND_MESSAGE"
+}
+
+single struct StreamIntegration {
+  String[] pollChoices;
+  Number pollTimeout;
+  Boolean _pollInProgress;
+  String pollHUDText;
+  String _pollWinner;
+
+  public String pollWinner: _pollWinner;
+  public String pollInProgress: _pollInProgress;
+
+  public static StreamIntegration New() {
+    connection.RegisterMessageType([2,1,1], <String>StreamIntegrationMessage.POLL_WINNER, [
+      ["winnerIdx", Type.NUMBER]
+    ]);
+
+    return { pollChoices: [], pollTimeout: 0, _pollInProgress: false, pollHUDText: '', _pollWinner: '' };
+  }
+
+  public ref void SendMessageInChat(in String message) {
+    connection.SendMessage(StreamIntegrationMessage.SEND_MESSAGE, [
+      ["message", message]
+    ]);
+  }
+
+  public ref void ClearWinner() {
+    _pollWinner = '';
+  }
+
+  public ref void StartPoll(in String[] choices, in Number timeout) {
+    if(_pollInProgress) return;
+
+    pollChoices = choices;
+    pollTimeout = timeout;
+    _pollInProgress = true;
+    pollHUDText = Join(pollChoices.Map((i, idx) => $"{idx + 1}. {i}"), "\n");
+
+    connection.SendMessage(StreamIntegrationMessage.POLL_START, [
+      ["timeout", pollTimeout], 
+      ["choices", pollChoices]
+    ]);
+  }
+
+  public ref void EndPoll() {
+    pollHUDText = '';
+    connection.SendMessage(StreamIntegrationMessage.POLL_END);
+  }
+
+  public ref void CancelPoll(in String reason) {
+    pollHUDText = '';
+    _pollInProgress = false;
+    connection.SendMessage(StreamIntegrationMessage.POLL_CANCEL, [
+      ["reason", reason]
+    ]);
+  }
+
+  public ref void CreatePollHUD(in String title = "New poll has started! Cast your vote:\n") {
+    CreateHudText(
+      VisibleTo: LocalPlayer(),
+      Header: pollHUDText ? $"{title}{pollHUDText}\nPoll will close in {RoundToInteger(pollTimeoutDisplay, Rounding.Up)} secs" : "",
+      HeaderColor: rainbow,
+      Location: Location.Left,
+      SortOrder: -100,
+      Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,
+    );
+  }
+
+  public ref Boolean HandlePollTimeout_Condition(): _pollInProgress;
+
+  public ref void HandlePollTimeout_Rule() {
+    pollTimeoutDisplay = pollTimeout;
+
+    WaitUntil(!_pollInProgress, pollTimeout);
+    AbortIfConditionIsFalse();
+
+    EndPoll();
+
+    WaitUntil(HandlePollWinner_Condition(), 10);
+
+    if(HandlePollWinner_Condition()) {
+      Number winnerIdx: connection.message.data[0];
+      // TODO: handle case if winnerIdx is too big...
+      _pollWinner = pollChoices[winnerIdx];
+      connection.MarkMessageAsHandled();
+    } else {
+      SendMessageInChat("Failed to retrieve poll winner, picking random one...");
+      _pollWinner = pollChoices.Random();
+    }
+    
+    _pollInProgress = false;
+  }
+
+  public ref Boolean HandlePollTimeoutDisplay_Condition(): pollTimeoutDisplay;
+
+  public ref void HandlePollTimeoutDisplay_Rule() {
+    ChaseVariableOverTime(pollTimeoutDisplay, 0, pollTimeout, TimeChaseReevaluation.None);
+  }
+
+  public ref Boolean HandlePollWinner_Condition(): _pollInProgress && connection.message.name == StreamIntegrationMessage.POLL_WINNER;
+}
+
+globalvar StreamIntegration streamIntegration;
+globalvar Number pollTimeoutDisplay;
+
+rule: '[OWTP - Stream Integration] Initialize'
+{
+  streamIntegration = StreamIntegration.New();
+}
+
+rule: '[OWTP - Stream Integration] Handle Poll Timeout'
+if(streamIntegration.HandlePollTimeout_Condition())
+{
+  streamIntegration.HandlePollTimeout_Rule();
+}
+
+rule: '[OWTP - Stream Integration] Handle Poll Timeout Display'
+if(streamIntegration.HandlePollTimeoutDisplay_Condition())
+{
+  streamIntegration.HandlePollTimeoutDisplay_Rule();
+}

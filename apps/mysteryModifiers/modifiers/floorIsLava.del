@@ -1,38 +1,27 @@
 import '../modifier.del';
-import '../effects.del';
+import '../utils/effects.del';
 
 String FLOOR_IS_LAVA_NAME: 'Floor Is Lava';
+Number FLOOR_IS_LAVA_DURATION: 10;
+Number FLOOR_IS_LAVA_DOT: 50;
 
 playervar Boolean floorIsLavaEnabled = false;
 
-Modifier floorIsLava: {
-  name: FLOOR_IS_LAVA_NAME,
-  notification: FLOOR_IS_LAVA_NAME,
-  icon: AbilityIconString(Hero.Torbjorn, Button.Ultimate),
-  duration: 10, 
-  enabled: SettingToggle(FLOOR_IS_LAVA_NAME),
-  enable: () => {
-    foreach(Player player in AllPlayers()) {
-      player.floorIsLavaEnabled = true;
-    }
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      DestroyPlayerEffects(player);
-      player.floorIsLavaEnabled = false;
-    }
-  },
-  ..MODIFIER_BASE
-};
+Modifier floorIsLava: Modifier.New(
+  name: FLOOR_IS_LAVA_NAME, 
+  duration: FLOOR_IS_LAVA_DURATION,
+  description: ["The ground is made of lava. And lava is hot... very hot"]
+);
 
 rule: '[Floor Is Lava] Handle logic'
 Event.OngoingPlayer
-if(floorIsLavaEnabled && EventPlayer().IsOnGround())
+if(ModifierHasStarted(FLOOR_IS_LAVA_NAME))
+if(EventPlayer().IsOnGround())
 {
-  SetStatus(EventPlayer(), EventPlayer(), Status.Burning, 10);
-  Any dmg = StartDamageOverTime(EventPlayer(), null, 999, 25);
+  SetStatus(EventPlayer(), EventPlayer(), Status.Burning, modifierDurationLeft);
+  Any dmg = StartDamageOverTime(EventPlayer(), null, modifierDurationLeft, FLOOR_IS_LAVA_DOT);
 
-  WaitUntil(!floorIsLavaEnabled || !EventPlayer().IsOnGround(), 999);
+  WaitForeverUntil(!ModifierHasStarted(FLOOR_IS_LAVA_NAME) || !EventPlayer().IsOnGround());
 
   StopDamageOverTime(dmg);
   ClearStatus(EventPlayer(), Status.Burning);

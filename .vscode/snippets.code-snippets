@@ -1,0 +1,63 @@
+{
+  "Mystery Modifier": {
+    "prefix": ["modifier", "mystery modifier"],
+    "description": "Template for a Mystery Modifier",
+    "scope": "ostw",
+    "isFileTemplate": true,
+    "body": [
+      "import '../modifier.del';",
+      "import '../utils/effects.del';",
+      "",
+      "String ${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}NAME: '${1:Name}';",
+      "Number ${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}DURATION: ${2:10};",
+      "",
+      "Modifier $TM_FILENAME_BASE: Modifier.New(",
+      "  name: ${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}NAME, ",
+      "  duration: ${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}DURATION,",
+      "  description: [\"${3}\"]",
+      ");",
+      "",
+      "rule: '[${1:Name}] Is Preloading'",
+      "Event.OngoingPlayer",
+      "if(ModifierIsPreloading(${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}NAME))",
+      "{",
+      "  WaitBeforePreloading(1);",
+      "  CreatePlayerEffect(EventPlayer(), Effect.Ring, 1);",
+      "}",
+      "",
+      "rule: '[${1:Name}] Has Started'",
+      "Event.OngoingPlayer",
+      "if(ModifierHasStarted(${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}NAME))",
+      "{",
+      "  WaitUntilAlive();",
+      "",
+      "  // end",
+      "  WaitUntilModifierIsOver();",
+      "  DestroyPlayerEffects();",
+      "}",
+      ""
+    ]
+  },
+
+  "Mystery Modifier (HTML Template)": {
+    "prefix": ["modifier", "mystery modifier"],
+    "description": "Template for description of a modifier for workshop.codes page",
+    "scope": "markdown,html",
+    "body": [
+      "<div class=\"modifier\">",
+      "  <div class=\"modifier__header\">",
+      "    <div class=\"modifier__title\">${1} <span>${2}</span></div>  ",
+      "    <div class=\"modifier__duration\">${3} secs</div>",
+      "  </div>",
+      "  <div class=\"modifier__content\">",
+      "    <div class=\"modifier__description\">",
+      "      <p>${4}</p>",
+      "    </div>",
+      "    <ul class=\"update-notes__changes\">",
+      "      <li>${5}</li>",
+      "    </ul>",
+      "  </div>",
+      "</div>"
+    ]
+  }
+}

@@ -1,54 +1,92 @@
 import '../modifier.del';
-import './slowMotion.del';
+import './adaptiveShield.del';
+import './anaPaintball.del';
+import './antiHeal.del';
+import './blinded.del';
+import './bodyOdor.del';
+import './drunk.del';
+import './duplicateRandomHero.del';
+import './emote.del';
+import './energize.del';
+import './floorIsLava.del';
+import './goForward.del';
+import './gravityHigh.del';
+import './gravityLow.del';
+import './hacked.del';
+import './healthBoundSize.del';
+import './healthExchange.del';
+import './hypothermia.del';
+import './iceRink.del';
+import './invertControls.del';
+import './invisibility.del';
+import './jetPack.del';
+import './lagging.del';
+import './laserEyes.del';
+import './lowVisibility.del';
+import './mothWar.del';
+import './nanoBoost.del';
+import './noHud.del';
 import './playerSizeBig.del';
 import './playerSizeSmall.del';
-import './sleep.del';
-import './hacked.del';
-import './nanoBoost.del';
-import './antiHeal.del';
-import './randomHero.del';
 import './primalRage.del';
-import './gravityLow.del';
-import './gravityHigh.del';
+import './redLightGreenLight.del';
+import './sigmaDodgeball.del';
+import './sleep.del';
+import './slowMotion.del';
 import './speedBoost.del';
-import './chargeRein.del';
-import './emote.del';
-import './noHud.del';
+import './sunburn.del';
+import './tbagging.del';
+import './thirdPersonCamera.del';
+import './topDownCamera.del';
+import './torbHammerWar.del';
 import './trampoline.del';
 import './useUltimate.del';
-import './goForward.del';
-import './energize.del';
-import './invertControls.del';
-import './bodyOdor.del';
-import './floorIsLava.del';
-import './healthExchange.del';
-import './adaptiveShield.del';
+import './weakened.del';
 
 globalvar Modifier[] allModifiers = [
-  slowMotion,
+  adaptiveShield,
+  anaPaintball,
+  antiHeal,
+  blinded,
+  bodyOdor,
+  drunk,
+  duplicateRandomHero,
+  emote,
+  energize,
+  floorIsLava,
+  goForward,
+  gravityHigh,
+  gravityLow,
+  hacked,
+  healthBoundSize,
+  healthExchange,
+  hypothermia,
+  iceRink,
+  invertControls,
+  invisibility,
+  jetPack,
+  lagging,
+  laserEyes,
+  lowVisibility,
+  mothWar,
+  nanoBoost,
+  noHud,
   playerSizeBig,
   playerSizeSmall,
-  sleep,
-  hacked,
-  nanoBoost,
-  antiHeal,
-  randomHero,
   primalRage,
-  gravityLow,
-  gravityHigh,
+  redLightGreenLight,
+  sigmaDodgeball,
+  sleep,
+  slowMotion,
   speedBoost,
-  chargeRein,
-  emote,
-  noHud,
+  sunburn,
+  tbagging,
+  thirdPersonCamera,
+  topDownCamera,
+  torbHammerWar,
   trampoline,
   useUltimate,
-  goForward,
-  energize,
-  invertControls,
-  bodyOdor,
-  floorIsLava,
-  healthExchange,
-  adaptiveShield
+  weakened
 ];
 
-globalvar Modifier[] enabledModifiers = [];
+globalvar String[] enabledModifiers = [];

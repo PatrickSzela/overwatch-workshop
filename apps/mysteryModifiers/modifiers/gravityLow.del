@@ -1,20 +1,23 @@
 import '../modifier.del';
 
-String GRAVITY_LOW_NAME: 'Gravity: Low';
+String GRAVITY_LOW_NAME: 'Gravity - Low';
+Number GRAVITY_LOW_DURATION: 10;
 
-Modifier gravityLow: {
-  name: GRAVITY_LOW_NAME,
-  notification: GRAVITY_LOW_NAME,
-  icon: AbilityIconString(Hero.Mercy, Button.Jump),
-  duration: 10, 
-  enabled: SettingToggle('Gravity - Low'),
-  enable: () => {
-    SetGravity(AllPlayers(), 37.5);
-    SetProjectileGravity(AllPlayers(), 37.5);
-  },
-  disable: () => {
-    SetGravity(AllPlayers(), 100);
-    SetProjectileGravity(AllPlayers(), 100);
-  },
-  ..MODIFIER_BASE
-};
+Modifier gravityLow: Modifier.New(
+  name: GRAVITY_LOW_NAME, 
+  duration: GRAVITY_LOW_DURATION,
+  description: ["Greatly lowers gravity"]
+);
+
+rule: '[Gravity - High] Has Started'
+if(ModifierHasStarted(GRAVITY_LOW_NAME))
+{
+  SetGravity(AllPlayers(), 37.5);
+  SetProjectileGravity(AllPlayers(), 37.5);
+
+  // end
+  WaitUntilModifierIsOver();
+
+  SetGravity(AllPlayers(), 100);
+  SetProjectileGravity(AllPlayers(), 100);
+}

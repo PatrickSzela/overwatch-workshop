@@ -1,4 +1,5 @@
 import './menuState.del';
+import '../utils/helpers.del';
 
 playervar MenuState currentMenuState;
 # List of currently pressed buttons by a player.
@@ -14,7 +15,7 @@ if(currentMenuState.isOpen)
   foreach (Button button! in allButtons)
     DisallowButton(EventPlayer(), button);
 
-  WaitUntil(!currentMenuState.isOpen, 99999);
+  WaitForeverUntil(!currentMenuState.isOpen);
 
   // TODO: store & restore previous speed in case it was modified - how?
   EventPlayer().SetMoveSpeed(100);
@@ -81,7 +82,7 @@ if(ThrottleOf(EventPlayer()).X > 0.5)
 void ButtonHelper(in Button button!) {
   buttonsHeld += button;
   if(currentMenuState) currentMenuState.ButtonDown(button);
-  WaitUntil(!EventPlayer().IsButtonHeld(button), 99999);
+  WaitForeverUntil(!EventPlayer().IsButtonHeld(button));
   if(currentMenuState) currentMenuState.ButtonUp(button);
   buttonsHeld -= button;
 }

@@ -1,20 +1,23 @@
 import '../modifier.del';
 
-String PLAYER_SIZE_SMALL_NAME: 'Player Size: Small';
+String PLAYER_SIZE_SMALL_NAME: 'Player Size - Small';
+Number PLAYER_SIZE_SMALL_DURATION: 10;
 
-Modifier playerSizeSmall: {
-  name: PLAYER_SIZE_SMALL_NAME,
-  notification: PLAYER_SIZE_SMALL_NAME,
-  icon: AbilityIconString(Hero.WreckingBall, Button.Crouch),
-  duration: 10, 
-  enabled: SettingToggle('Player Size - Small'),
-  enable: () => {
-    StartScalingPlayer(AllPlayers(), 0.5);
-    StartModifyingHeroVoiceLines(AllPlayers(), 1.5);
-  },
-  disable: () => {
-    StopScalingPlayer(AllPlayers());
-    StopModifyingHeroVoiceLines(AllPlayers());
-  },
-  ..MODIFIER_BASE
-};
+Modifier playerSizeSmall: Modifier.New(
+  name: PLAYER_SIZE_SMALL_NAME, 
+  duration: PLAYER_SIZE_SMALL_DURATION,
+  description: ["Greatly reduces the size of players"]
+);
+
+rule: '[Player Size - Big] Has Started'
+if(ModifierHasStarted(PLAYER_SIZE_SMALL_NAME))
+{
+  StartScalingPlayer(AllPlayers(), 0.5);
+  StartModifyingHeroVoiceLines(AllPlayers(), 1.5);
+
+  // end
+  WaitUntilModifierIsOver();
+
+  StopScalingPlayer(AllPlayers());
+  StopModifyingHeroVoiceLines(AllPlayers());
+}

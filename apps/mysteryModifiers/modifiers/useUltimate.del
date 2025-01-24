@@ -1,22 +1,39 @@
 import '../modifier.del';
-import '../prevHeroInfo.del';
+import '../../../libs/utils/button.allowAll.del';
+import '../../../libs/utils/button.disallowAll.del';
 
 String USE_ULTIMATE_NAME: 'Use Ultimate';
+Number USE_ULTIMATE_DURATION: 10;
 
-Modifier useUltimate: {
-  name: USE_ULTIMATE_NAME,
-  notification: USE_ULTIMATE_NAME,
-  icon: AbilityIconString(Hero.Reaper, Button.Ultimate),
-  duration: 10, 
-  enabled: SettingToggle(USE_ULTIMATE_NAME),
-  enable: () => {
-    foreach(Player player in AllPlayers()) {
-      if(player.IsAlive()) {
-        SetUltimateCharge(player, 100);
-        PressButton(player, Button.Ultimate);
-        PressButton(player, Button.PrimaryFire);
-      }
-    }
-  },
-  ..MODIFIER_BASE
-};
+Modifier useUltimate: Modifier.New(
+  name: USE_ULTIMATE_NAME, 
+  duration: USE_ULTIMATE_DURATION,
+  description: ["Fully charges and forces usage of the Ultimate ability"]
+);
+
+rule: '[Use Ultimate] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(USE_ULTIMATE_NAME))
+{
+  WaitUntilAlive();
+
+  if(IsUsingUltimate()) return;
+
+  SetUltimateCharge(EventPlayer(), 100);
+  PressButton(EventPlayer(), Button.Ultimate);
+
+  MinWait();
+
+  while(UltimateChargePercent(EventPlayer()) == 100 && ModifierHasStarted(USE_ULTIMATE_NAME)) {
+    if(!IsUsingUltimate()) {
+      // if ult is cancelled, force it again
+      // this has a sideeffect of bap and sym rotating their ults, but idc because blizzard didn't bother to make things consistent across different heroes
+      // and there's no way im hardcoding stuff per hero again...
+      PressButton(EventPlayer(), Button.Ultimate);
+    } 
+    PressButton(EventPlayer(), Button.PrimaryFire);
+    
+    Wait(0.25);
+  }
+}
+

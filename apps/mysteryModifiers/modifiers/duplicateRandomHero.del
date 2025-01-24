@@ -1,0 +1,60 @@
+import '../modifier.del';
+import '../variables.del';
+import '../utils/duplicate.del';
+import '../../../libs/speedUpAbility/index.del';
+import '../../../libs/utils/string.formatters.del';
+
+String DUPLICATE_RANDOM_HERO_NAME: 'Duplicate - Random Hero';
+Number DUPLICATE_RANDOM_HERO_DURATION: 15;
+
+globalvar Hero randomHeroCache;
+
+Modifier duplicateRandomHero: Modifier.New(
+  name: DUPLICATE_RANDOM_HERO_NAME, 
+  duration: DUPLICATE_RANDOM_HERO_DURATION,
+  notification: false,  // we create a custom message in `Has Started` rule
+  description: ["Become a copy of a random hero. Greatly accelerates Ultimate generation"]
+);
+
+rule: '[Duplicate - Random Hero] Is Preloading - Select random hero'
+if(ModifierIsPreloading(DUPLICATE_RANDOM_HERO_NAME))
+{
+  randomHeroCache = RandomValueInArray(AllHeroes() - AllPlayers().Map((i) => i.Hero()));
+}
+
+rule: '[Duplicate - Random Hero] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(DUPLICATE_RANDOM_HERO_NAME))
+{
+  MinWait(); // for some reason this rule will sometimes trigger before the global one
+  PreloadDuplicate(EventPlayer(), randomHeroCache, true, true);
+}
+
+rule: '[Duplicate - Random Hero] Has Started - Notification'
+if(ModifierHasStarted(DUPLICATE_RANDOM_HERO_NAME))
+{
+  BigMessage(AllPlayers(), $"Duplicating: {HeroWithIconFormatter(randomHeroCache)}");
+}
+
+rule: '[Duplicate - Random Hero] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(DUPLICATE_RANDOM_HERO_NAME))
+{
+  WaitUntilAlive();
+
+  StartDuplicate();
+}
+
+rule: '[Duplicate - Random Hero] Setup'
+Event.OngoingPlayer
+if(ModifierHasStarted(DUPLICATE_RANDOM_HERO_NAME))
+if(IsDuplicatingFrozenReady())
+{
+  speedUpAbility.UltimateCharge(5.5);
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+
+  speedUpAbility.StopUltimateCharge();
+  StopDuplicate(EventPlayer(), IsAlive());
+}

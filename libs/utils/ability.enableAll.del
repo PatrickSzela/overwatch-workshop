@@ -1,0 +1,12 @@
+void EnableAllAbilities(Player player = EventPlayer()) "Enable All Abilities" {
+  SetPrimaryFireEnabled(player, true);
+  SetSecondaryFireEnabled(player, true);
+  SetAbility1Enabled(player, true);
+  SetAbility2Enabled(player, true);
+  SetUltimateAbilityEnabled(player, true);
+  SetReloadEnabled(player, true);
+  SetMeleeEnabled(player, true);
+  SetJumpEnabled(player, true);
+  SetCrouchEnabled(player, true);
+  AllowButton(player, Button.Interact);
+}

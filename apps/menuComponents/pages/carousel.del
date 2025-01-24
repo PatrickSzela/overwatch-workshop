@@ -23,7 +23,7 @@ Component[] PageDebugCarouselItems() {
   ];
 
   items.Last.valueFormatter = (it) => HeroWithIconFormatter(it.value);
-  items.Last.onChange = (value, it) => LogToInspector($"{it.text}: value changed to \"{value}\"");
+  items.Last.onChange = (value, it) => Log($"{it.text}: value changed to \"{value}\"");
 
   return items;
 }

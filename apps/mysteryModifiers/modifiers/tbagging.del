@@ -1,0 +1,24 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String TBAGGING_NAME: 'T-Bagging';
+Number TBAGGING_DURATION: 10;
+
+Modifier tbagging: Modifier.New(
+  name: TBAGGING_NAME, 
+  duration: TBAGGING_DURATION,
+  description: ["Your crouch button might be broken..."]
+);
+
+rule: '[T-Bagging] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(TBAGGING_NAME))
+if(!IsInAir())
+{
+  Wait(RandomReal(0.1, 0.5), WaitBehavior.AbortWhenFalse);
+  StartHoldingButton(EventPlayer(), Button.Crouch);
+  Wait(RandomReal(0.05, 0.15));
+  StopHoldingButton(EventPlayer(), Button.Crouch);
+
+  LoopIfConditionIsTrue();
+}

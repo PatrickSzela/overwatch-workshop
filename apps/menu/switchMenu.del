@@ -22,20 +22,20 @@ rule: 'Create description about switching menu'
 Event.OngoingPlayer
 if(!IsDummyBot())
 {
-  switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(BUTTON_SWITCH)}​ to switch to right side', COLOR_SWITCH, visible: false, order: 99));
-  switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle(BUTTON_SWITCH)}​ to switch to left side', COLOR_SWITCH, visible: false, order: 99));
+  switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle_Underscores(BUTTON_SWITCH)}​ to switch to right side', COLOR_SWITCH, visible: false, order: 99));
+  switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle_Underscores(BUTTON_SWITCH)}​ to switch to left side', COLOR_SWITCH, visible: false, order: 99));
 }
 
 rule: 'Show description about switching menu on currently focused menu' 99
 Event.OngoingPlayer
 if(!IsDummyBot())
 {
-  WaitUntil(
+  WaitForeverUntil(
     menuState.isFocused != EvaluateOnce(menuState.isFocused) ||
     menuState2.isOpen != EvaluateOnce(menuState2.isOpen) ||
     menuState.isLocked != EvaluateOnce(menuState.isLocked) ||
     menuState2.isLocked != EvaluateOnce(menuState2.isLocked),
-  99999);
+  );
 
   menuState.descriptionsMenu[switchFocusDescriptionIdx[0]].visible = menuState.isFocused && menuState2.isOpen && !menuState.isLocked;
   menuState2.descriptionsMenu[switchFocusDescriptionIdx[1]].visible = menuState2.isFocused && !menuState.isLocked;
@@ -77,7 +77,7 @@ if(!IsDummyBot())
       '') : 
     '';
 
-  WaitUntil(goTo != EvaluateOnce(goTo), 99999);
+  WaitForeverUntil(goTo != EvaluateOnce(goTo));
 
   if(goTo) {
     menuState2.Open();
@@ -93,7 +93,7 @@ if(!IsDummyBot())
 rule: 'Add open timeline description'
 Event.OngoingPlayer
 {
-  switchToTimelineIdx = menuState.AddMenuDescription(Description.New($"Press {ButtonFormatter([BUTTON_MODIFIER, BUTTON_SWITCH])}​ to open Timeline menu", COLOR_SWITCH, order: 98));
+  switchToTimelineIdx = menuState.AddMenuDescription(Description.New($"Press {ButtonFormatter_Underscores([BUTTON_MODIFIER, BUTTON_SWITCH])}​ to open Timeline menu", COLOR_SWITCH, order: 98));
 }
 
 rule: 'Show/hide open timeline description' 51
@@ -104,10 +104,10 @@ if(!menuState.HistoryContains(PAGE_TIMELINE_ID))
   menuState.descriptionsMenu[switchToTimelineIdx].visible = true;
   menuState.MarkToRerender();
 
-  WaitUntil(
+  WaitForeverUntil(
     menuState.HistoryContains(PAGE_TIMELINE_ID) ||
     menuState.isLocked, 
-  99999);
+  );
   
   menuState.descriptionsMenu[switchToTimelineIdx].visible = false;
   menuState.MarkToRerender();

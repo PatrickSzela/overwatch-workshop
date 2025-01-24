@@ -1,0 +1,117 @@
+import './utils/button.allButtons.del';
+
+single struct PlayerSnapshot {
+  public Vector position;
+  public Vector facingDirection;
+  public Hero hero;
+  public Number health;
+  public Number[] cooldowns;
+  public Number[] resources;
+  public Number ultimateCharge;
+  public Number weapon;
+  public Number[] ammos;
+
+  public static PlayerSnapshot New(in Player player = EventPlayer()): { 
+    position: player.Position(),
+    facingDirection: player.FacingDirection(),
+    hero: player.Hero(), 
+    health: player.Health(), 
+    cooldowns: allButtons.Map((i) => AbilityCooldown(player, i)),
+    resources: allButtons.Map((i) => AbilityResource(player, i)),
+    ultimateCharge: UltimateChargePercent(player), 
+    weapon: Weapon(player),
+    ammos: [Ammo(player, 0), Ammo(player, 1)]
+  };
+
+  // public ref void Apply(in Boolean restoreHealth = true) {
+  //   // if(info.hero == player.Hero()) {
+  //   //   Respawn(player);
+  //   //   player.Teleport(position);
+  //   // }
+
+  //   RestoreHero();
+
+    
+  //   if(restoreHealth) 
+  //     SetPlayerHealth(EventPlayer(), Max(health, 100));
+
+  //   if(restoreAmmo) {
+      
+  //   }
+
+  //   SetUltimateCharge(EventPlayer(), ultimateCharge);
+  //   SetWeapon(EventPlayer(), weapon);
+  // }
+
+  public ref void RestorePosition() {
+    Teleport(EventPlayer(), position);
+  }
+
+  public ref void RestoreFacingDirection() {
+    SetFacing(EventPlayer(), facingDirection, Relative.ToWorld);
+  }
+
+  public ref void RestoreHero(in Boolean respawnIfTheSameHero = false) {
+    Vector position = PositionOf();
+    Vector camera = FacingDirectionOf();
+
+    if(respawnIfTheSameHero) {
+      if(hero == HeroOf())
+        ForcePlayerHero(EventPlayer(), (AllHeroes() - HeroOf()).Random());
+    }
+
+    ForcePlayerHero(EventPlayer(), hero);
+    StopForcingHero();
+
+    MinWait();
+
+    SetFacing(EventPlayer(), camera, Relative.ToWorld);
+  }
+
+  public ref void RestoreHealth(in Number minHealth = 100) {
+    SetPlayerHealth(EventPlayer(), Max(health, minHealth));
+  }
+
+  public ref void RestoreCooldowns() {
+    for(Number i! = 0; i < allButtons.Length; i++) {
+      SetAbilityCooldown(EventPlayer(), allButtons[i], cooldowns[i]);
+    }
+  }
+
+  public ref void RestoreResources() {
+    for(Number i! = 0; i < allButtons.Length; i++) {
+      SetAbilityResource(EventPlayer(), allButtons[i], resources[i]);
+    }
+  }
+
+  public ref void RestoreCooldownsResources() {
+    for(Number i! = 0; i < allButtons.Length; i++) {
+      SetAbilityCooldown(EventPlayer(), allButtons[i], cooldowns[i]);
+      SetAbilityResource(EventPlayer(), allButtons[i], resources[i]);
+    }
+  }
+
+  public ref void RestoreUltimateCharge() {
+    SetUltimateCharge(EventPlayer(), ultimateCharge);
+  }
+
+  public ref void RestoreWeapon() {
+    SetWeapon(EventPlayer(), weapon);
+  }
+
+  public ref void RestoreAmmos() {
+    for(Number i! = 0; i < ammos.Length; i++) 
+      SetAmmo(EventPlayer(), i, ammos[i]);
+  }
+
+  public ref void RestoreAll(in Boolean respawnIfTheSameHero = false, in Number minHealth = 100) {
+    RestorePosition();
+    RestoreFacingDirection();
+    RestoreHero(respawnIfTheSameHero);
+    RestoreHealth(minHealth);
+    RestoreCooldownsResources();
+    RestoreUltimateCharge();
+    RestoreWeapon();
+    RestoreAmmos();
+  }
+}

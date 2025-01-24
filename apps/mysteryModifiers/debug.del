@@ -1,0 +1,88 @@
+import '../../libs/utils/player.del';
+import '../../libs/utils/player.sendToHeroSelect.del';
+
+globalvar Boolean skipAssemblySetup = WorkshopSettingToggle("Debug", "Skip Assembling Heroes and Setup", false);
+globalvar Boolean spawnDummyBots = WorkshopSettingToggle("Debug", "Spawn dummy bots on Workshop maps for testing purposes", false);
+
+rule: '[Debug] Skip assembling heroes'
+if(skipAssemblySetup)
+if(IsAssemblingHeroes())
+{
+  SetMatchTime(1);
+}
+
+rule: '[Debug] Skip in setup'
+if(skipAssemblySetup)
+if(IsInSetup())
+{
+  SetMatchTime(1);
+}
+
+rule: '[Debug] Send to hero select screen'
+Event.OngoingPlayer
+if(IsButtonHeld(EventPlayer(), Button.Crouch))
+if(IsButtonHeld(EventPlayer(), Button.Interact))
+if(WorkshopSettingToggle("Debug", "Enable send to Hero selection screen", false))
+{
+  SendToHeroSelect([EventPlayer()]);
+}
+
+rule: '[Debug] Spawn dummy bots'
+if(spawnDummyBots)
+if(ToString(CurrentMap()).Contains("Workshop"))
+{
+  WaitForeverUntil(HasSpawned(HostPlayer()));
+
+  foreach(Team team! in [Team.Team1, Team.Team2, Team.All]) {
+    if(TeamOf(HostPlayer()) == team || TeamOf(HostPlayer()) == OppositeTeamOf(team)) {
+      Number idx: team == Team.Team1 ? 0 : 1;
+
+      CreateDummyBot(Hero.Roadhog, team, 2, Vector(idx * 3, 0, 0));
+      MinWait();
+      CreateDummyBot(Hero.Ana, team, 3, Vector(idx * 3, 0, 3));
+      MinWait();
+      CreateDummyBot(Hero.Soldier76, team, 4, Vector(idx * 3, 0, 6));
+      MinWait();
+
+      // StartHealOverTime(LastCreatedEntity(), null, NUMBER_MAX, NUMBER_MAX);
+      // SetStatus(LastCreatedEntity(), null, Status.Unkillable);
+    }
+  }
+}
+
+rule: '[Debug] Dummy bot has respawned'
+Event.OngoingPlayer
+if(spawnDummyBots)
+if(IsDummyBot())
+if(IsDead())
+{
+  Number idx: TeamOf() == Team.Team1 ? 0 : 1;
+  Wait(0.1);
+  Resurrect();
+  EventPlayer().Teleport(Vector(idx * 3, 0, (2 - SlotOf()) * 3));
+}
+
+rule: '[Debug] Force dummy bots to look at host'
+Event.OngoingPlayer
+if(spawnDummyBots)
+if(IsDummyBot())
+{
+  StartFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), HostPlayer().EyePosition()), 25, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
+}
+
+rule: '[Debug] Start next modifier'
+if(!IsButtonHeld(HostPlayer(), Button.Crouch))
+if(IsButtonHeld(HostPlayer(), Button.Interact))
+if(WorkshopSettingToggle("Debug", "Start or stop modifier with Interact button", false))
+{
+  if(state == State.WAITING) {
+    PreloadModifier();
+    Wait(0.5);
+    charge = 0;
+    StartModifier();
+  } else if(state == State.MODIFIER_STARTED) {
+    StopModifier();
+    Wait(0.1);
+    SetModifier(RandomValueInArray(enabledModifiers - modifierHistory));
+  }
+}

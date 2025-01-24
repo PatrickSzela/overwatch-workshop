@@ -1,18 +1,21 @@
 import '../modifier.del';
 
 String HACKED_NAME: 'Hacked';
+Number HACKED_DURATION: 5;
 
-Modifier hacked: {
-  name: HACKED_NAME,
-  notification: HACKED_NAME,
-  icon: AbilityIconString(Hero.Sombra, Button.SecondaryFire),
-  duration: 5, 
-  enabled: SettingToggle(HACKED_NAME),
-  enable: () => {
-    SetStatus(AllPlayers(), null, Status.Hacked, 999);
-  },
-  disable: () => {
-    ClearStatus(AllPlayers(), Status.Hacked);
-  },
-  ..MODIFIER_BASE
-};
+Modifier hacked: Modifier.New(
+  name: HACKED_NAME, 
+  duration: HACKED_DURATION,
+  description: ["Stops players from using their abilities"]
+);
+
+rule: '[Hacked] Has Started'
+if(ModifierHasStarted(HACKED_NAME))
+{
+  SetStatus(AllPlayers(), null, Status.Hacked, NUMBER_MAX);
+
+  // end
+  WaitUntilModifierIsOver();
+  
+  ClearStatus(AllPlayers(), Status.Hacked);
+}

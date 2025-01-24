@@ -1,0 +1,27 @@
+import './string.del';
+
+enum Type {
+  ARRAY = 1, //= "ARRAY",
+  BOOLEAN = 2, //= "BOOLEAN",
+  // NULL = "NULL", // it's not possible to differentiate it from 0 in Workshop
+  NUMBER = 3, //= "NUMBER",
+  STRING = 4, //= "STRING",
+  VECTOR = 5 //= "VECTOR"
+}
+
+Type TypeOf(in Any value) {
+  if(true >= value) {
+    return Type.BOOLEAN;
+  } else if(CountOf(value) > 0 || value == []) {
+    return Type.ARRAY;
+  } else if(DoNotOptimize(value * 1) == value && !ToString(value).Contains(" ")) {
+    return Type.NUMBER;
+  } else if(EntityExists(value) || ToString(value) == value) {
+    return Type.STRING;
+  // } else if(DoNotOptimize(value * 0) == Vector.Zero) {
+  } else if(CharInString(value, 0) == "(") {
+    return Type.VECTOR;
+  } else {
+    return Type.STRING;
+  }
+}

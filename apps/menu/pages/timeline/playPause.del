@@ -38,13 +38,13 @@ if(timeline.isPlaying)
   // trigger `onRender()` to update the color
   menuState2.RerenderHoveredItem();
 
-  WaitUntil(
+  WaitForeverUntil(
     timeline.index != idx ||
     !menuState2.isOpen ||
     !menuState2.items ||
     menuState2.pageId != PAGE_TIMELINE_EDIT_ID ||
-    !timeline.isPlaying,
-  99999);
+    !timeline.isPlaying
+  );
 
   menuState2.items[idx].MarkToRerender();
 
@@ -71,7 +71,7 @@ if(timeline.isPlaying)
 {
   menuState.RerenderItem(pagePlayPauseComponent);
 
-  WaitUntil(!timeline.isPlaying, 99999);
+  WaitForeverUntil(!timeline.isPlaying);
 
   if(menuState.pageId == PAGE_TIMELINE_ID)
     menuState.RerenderItem(pagePlayPauseComponent);

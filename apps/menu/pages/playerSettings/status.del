@@ -72,7 +72,7 @@ if(menuState.pageId == PAGE_STATUS_ID)
   playerInfoProps.Enable();
   playerInfoProps.EnableStatuses();
 
-  WaitUntil(!menuState.isOpen || menuState.pageId != PAGE_STATUS_ID, 99999);
+  WaitForeverUntil(!menuState.isOpen || menuState.pageId != PAGE_STATUS_ID);
 
   playerInfoProps.Disable();
   playerInfoProps.DisableStatuses();
@@ -80,7 +80,7 @@ if(menuState.pageId == PAGE_STATUS_ID)
 
 void PageStatusAppliedStatusesInfo(Status status, in String name) {
   pageStatusAppliedStatuses += name;
-  WaitUntil(!HasStatus(EventPlayer(), status), 99999);
+  WaitForeverUntil(!HasStatus(EventPlayer(), status));
   ModifyVariable(pageStatusAppliedStatuses, Operation.RemoveFromArrayByValue, name);
 }
 
@@ -88,7 +88,7 @@ void PageStatusSetStatus(Status status) {
   if(HasStatus(selectedPlayers[0], status)) {
     ClearStatus(selectedPlayers, status);
   } else {
-    SetStatus(selectedPlayers, EventPlayer(), status, 99999);
+    SetStatus(selectedPlayers, EventPlayer(), status, NUMBER_MAX);
   }
 }
 
@@ -115,11 +115,11 @@ Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.pageId == PAGE_STATUS_ID)
 {
-  WaitUntil(
+  WaitForeverUntil(
     selectedPlayers[0].pageStatusAppliedStatuses != EvaluateOnce(selectedPlayers[0].pageStatusAppliedStatuses) ||
     !menuState.isOpen ||
-    menuState.pageId != PAGE_STATUS_ID,
-  99999);
+    menuState.pageId != PAGE_STATUS_ID
+  );
 
   AbortIfConditionIsFalse();
 

@@ -10,7 +10,7 @@ import './componentWithValue.del';
 class NumberInput: ComponentWithValue
 {
   public Button BUTTON_EDIT_MODE: BUTTON_QUATERNARY;
-  public String DESCRIPTION: $'Press {ButtonFormatterSingle(BUTTON_EDIT_MODE)}​ to {editMode ? "disable" : "enable"}​ Edit Mode';
+  public String DESCRIPTION: $'Press {ButtonFormatterSingle_Underscores(BUTTON_EDIT_MODE)}​ to {editMode ? "disable" : "enable"}​ Edit Mode';
   
   public MenuState _menuState;
   public Boolean editMode;

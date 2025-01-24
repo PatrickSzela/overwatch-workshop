@@ -1,20 +1,24 @@
 import '../modifier.del';
 
-String PLAYER_SIZE_BIG_NAME: 'Player Size: Big';
+String PLAYER_SIZE_BIG_NAME: 'Player Size - Big';
+Number PLAYER_SIZE_BIG_DURATION: 10;
 
-Modifier playerSizeBig: {
-  name: PLAYER_SIZE_BIG_NAME,
-  notification: PLAYER_SIZE_BIG_NAME,
-  icon: AbilityIconString(Hero.Baptiste, Button.Crouch),
-  duration: 10, 
-  enabled: SettingToggle('Player Size - Big'),
-  enable: () => {
-    StartScalingPlayer(AllPlayers(), 2);
-    StartModifyingHeroVoiceLines(AllPlayers(), 0.5);
-  },
-  disable: () => {
-    StopScalingPlayer(AllPlayers());
-    StopModifyingHeroVoiceLines(AllPlayers());
-  },
-  ..MODIFIER_BASE
-};
+Modifier playerSizeBig: Modifier.New(
+  name: PLAYER_SIZE_BIG_NAME, 
+  duration: PLAYER_SIZE_BIG_DURATION,
+  description: ["Greatly increases the size of players"]
+);
+
+rule: '[Player Size - Big] Has Started'
+if(ModifierHasStarted(PLAYER_SIZE_BIG_NAME))
+{
+  StartScalingPlayer(AllPlayers(), 2);
+  StartModifyingHeroVoiceLines(AllPlayers(), 0.5);
+
+  // end
+  WaitUntilModifierIsOver();
+
+  StopScalingPlayer(AllPlayers());
+  StopModifyingHeroVoiceLines(AllPlayers());
+}
+

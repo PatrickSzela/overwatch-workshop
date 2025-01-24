@@ -1,0 +1,147 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String LASER_EYES_NAME: 'Laser Eyes';
+Number LASER_EYES_DURATION: 10;
+Number LASER_EYES_DOT: 25;
+
+Vector LASER_EYES_LOOK_AT(Player player = EventPlayer()): player.EyePosition() + player.FacingDirection() * 100;
+
+Vector LASER_EYES_LOOK_AT_RAY_CAST_POSITION(Player player = EventPlayer(), Number distance = 100): RayCastHitPosition(
+  StartPOS: player.EyePosition(),
+  EndPOS: LASER_EYES_LOOK_AT(player),
+  PlayersToInclude: AllPlayers(),
+  PlayersToExclude: player,
+  IncludePlayerOwnedObjects: true
+);
+
+Player LASER_EYES_LOOK_AT_RAY_CAST_PLAYER(Player player = EventPlayer()): RayCastHitPlayer(
+  StartPOS: player.EyePosition(),
+  EndPOS: LASER_EYES_LOOK_AT(player),
+  PlayersToInclude: AllPlayers(),
+  PlayersToExclude: player,
+  IncludePlayerOwnedObjects: true
+);
+
+single struct LaserEyesData {
+  public Any[] effects = [];
+  public Number burning = 0;
+  public Any dot = null;
+
+  public static LaserEyesData New(): { effects: [], burning: 0, dot: null };
+}
+
+globalvar Any[] laserEyesGlobalEffects = [];
+playervar LaserEyesData laserEyesData = LaserEyesData.New();
+
+Modifier laserEyes: Modifier.New(
+  name: LASER_EYES_NAME, 
+  duration: LASER_EYES_DURATION,
+  description: [
+    "Gain ability to emit beams of energy from your eyes,",
+    "dealing damage over time to a player you look at"
+  ]
+);
+
+rule: '[Laser Eyes] Is Preloading - Global rule'
+if(ModifierIsPreloading(LASER_EYES_NAME))
+{
+  for(Number i! = 0; i < 2; i++)
+    laserEyesGlobalEffects += CreateBeamEffect(
+      VisibleTo: ModifierHasStarted(LASER_EYES_NAME) && IsAlive(LocalPlayer()) ? LocalPlayer() : null, 
+      BeamType: BeamType.BadBeam,
+      StartPosition: UpdateEveryFrame(LocalPlayer().EyePosition() + WorldVectorOf((EvaluateOnce(i) ? Right() : Left()) * 0.15, LocalPlayer(), LocalVector.Rotation)),
+      EndPosition: UpdateEveryFrame(LASER_EYES_LOOK_AT(LocalPlayer())),
+      Color: CustomColor(200, 0, 19, 25),
+      Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+    );
+
+  laserEyesGlobalEffects += CreateEffect(
+    VisibleTo: ModifierHasStarted(LASER_EYES_NAME) && IsAlive(LocalPlayer()) ? AllPlayers() : null,
+    Type: Effect.EnergySound,
+    Color: Color.White,
+    Position: LocalPlayer(),
+    Radius: 50,
+    Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  );
+}
+
+rule: '[Laser Eyes] Is Preloading - Player rule'
+Event.OngoingPlayer
+if(ModifierIsPreloading(LASER_EYES_NAME))
+{
+  WaitBeforePreloading(2);
+
+  laserEyesData.effects += CreateBeamEffect(
+    VisibleTo: ModifierHasStarted(LASER_EYES_NAME) && IsAlive() ? AllPlayers() - EventPlayer() : null, 
+    BeamType: BeamType.BadBeam,
+    StartPosition: UpdateEveryFrame(EyePosition()),
+    EndPosition: UpdateEveryFrame(LASER_EYES_LOOK_AT_RAY_CAST_POSITION(EventPlayer(), 99.5)),
+    Color: Color.Red,
+    Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  );
+
+  MinWait();
+
+  laserEyesData.effects += CreateEffect(
+    VisibleTo: ModifierHasStarted(LASER_EYES_NAME) && IsAlive() ? AllPlayers() : null,
+    Type: Effect.GoodAura,
+    Color: CustomColor(200, 0, 19, 255),
+    Position: UpdateEveryFrame(LASER_EYES_LOOK_AT_RAY_CAST_POSITION(EventPlayer(), 99.5)),
+    Radius: 0.025,
+    Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  );
+}
+
+rule: '[Laser Eyes] Has Started - Global rule'
+if(ModifierHasStarted(LASER_EYES_NAME))
+{
+  // end
+  WaitUntilModifierIsOver();
+  
+  DestroyEffect(laserEyesGlobalEffects);
+  laserEyesGlobalEffects = [];
+}
+
+rule: '[Laser Eyes] Has Started - Player rule'
+Event.OngoingPlayer
+if(ModifierHasStarted(LASER_EYES_NAME))
+{
+  // end
+  WaitUntilModifierIsOver();
+  
+  DestroyEffect(laserEyesData.effects);
+  laserEyesData = LaserEyesData.New();
+}
+
+rule: '[Laser Eyes] Damage if looking at player'
+Event.OngoingPlayer
+if(ModifierHasStarted(LASER_EYES_NAME))
+if(LASER_EYES_LOOK_AT_RAY_CAST_PLAYER())
+if(IsAlive())
+{
+  Player player = LASER_EYES_LOOK_AT_RAY_CAST_PLAYER();
+  laserEyesData.dot = StartDamageOverTime(player, EventPlayer(), modifierDurationLeft, LASER_EYES_DOT);
+  player.laserEyesData.burning++;
+
+  Wait(0.1);
+
+  WaitUntil(LASER_EYES_LOOK_AT_RAY_CAST_PLAYER() != player || IsDead(), modifierDurationLeft);
+
+  StopDamageOverTime(laserEyesData.dot);
+  laserEyesData.dot = null;
+  player.laserEyesData.burning = Max(player.laserEyesData.burning - 1, 0);
+
+  MinWait();
+  LoopIfConditionIsTrue();
+}
+
+// rule: '[Laser Eyes] Apply burning effect'
+// Event.OngoingPlayer
+// if(ModifierHasStarted(LASER_EYES_NAME))
+// if(laserEyesData.burning)
+// {
+//   SetStatus(EventPlayer(), null, Status.Burning, modifierDurationLeft);
+//   WaitUntil(!laserEyesData.burning || IsDead() || !ModifierHasStarted(LASER_EYES_NAME), modifierDurationLeft);
+//   ClearStatus(EventPlayer(), Status.Burning);
+// }

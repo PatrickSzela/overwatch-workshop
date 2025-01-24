@@ -1,4 +1,4 @@
-import "../../libs/utils/diagnostic.del";
+import "../../libs/utils/diagnostics.del";
 import "../../libs/utils/string.formatters.del";
 import "./menu/teleport.del";
 import "./_variables.del";
@@ -37,7 +37,7 @@ rule: 'Status'
   CreateDiagnosticText($"──────────────────────");
   CreateDiagnosticText($"Position: {LocalPlayer().Position()}");
   CreateDiagnosticText($"Facing: {LocalPlayer().FacingDirection()}");
-  CreateDiagnosticText($"Force contesting: {BooleanFormatter(forceContesting)}");
+  CreateDiagnosticText($"Force contesting: {BooleanFormatterOnOff(forceContesting)}");
   CreateDiagnosticText($"Is on objective: {BooleanFormatterYesNo(LocalPlayer().isOnObjective)}");
 
   CreateHudText(

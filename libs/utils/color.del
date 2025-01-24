@@ -1,0 +1,11 @@
+import './number.del';
+
+Color FadeColor(in Vector start, in Vector end, in Number scalar, in Number alpha = 255):
+  CustomColor(
+    start.X * (1 - scalar) + end.X * (scalar), 
+    start.Y * (1 - scalar) + end.Y * (scalar), 
+    start.Z * (1 - scalar) + end.Z * (scalar), 
+  alpha);
+
+Color VectorToColor(in Vector vector, in Number alpha = 255): 
+  CustomColor(vector.X, vector.Y, vector.Z, alpha);

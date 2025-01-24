@@ -1,0 +1,51 @@
+import './owtp.del';
+
+// NOTE: backup solution in case normal one is broken again
+
+rule: 'OWTP: Handle Button - Primary Fire'
+if(connection.HandleButton_Condition(Button.PrimaryFire))
+{
+  connection.HandleButton_Rule(Button.PrimaryFire);
+}
+
+
+rule: 'OWTP: Handle Button - Secondary Fire'
+if(connection.HandleButton_Condition(Button.SecondaryFire))
+{
+  connection.HandleButton_Rule(Button.SecondaryFire);
+}
+
+
+rule: 'OWTP: Handle Button - Ability 1'
+if(connection.HandleButton_Condition(Button.Ability1))
+{
+  connection.HandleButton_Rule(Button.Ability1);
+}
+
+
+rule: 'OWTP: Handle Button - Ability 2'
+if(connection.HandleButton_Condition(Button.Ability2))
+{
+  connection.HandleButton_Rule(Button.Ability2);
+}
+
+
+rule: 'OWTP: Handle Button - Ultimate'
+if(connection.HandleButton_Condition(Button.Ultimate))
+{
+  connection.HandleButton_Rule(Button.Ultimate);
+}
+
+
+rule: 'OWTP: Handle Button - Jump'
+if(connection.HandleButton_Condition(Button.Jump))
+{
+  connection.HandleButton_Rule(Button.Jump);
+}
+
+
+rule: 'OWTP: Handle Button - Interact'
+if(connection.HandleButton_Condition(Button.Interact))
+{
+  connection.HandleButton_Rule(Button.Interact);
+}

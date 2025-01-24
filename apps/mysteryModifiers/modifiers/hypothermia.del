@@ -1,0 +1,105 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String HYPOTHERMIA_NAME: 'Hypothermia';
+Number HYPOTHERMIA_DURATION: 15;
+
+Number HYPOTHERMIA_PLAYER_RADIUS: 2.5;
+
+Boolean HYPOTHERMIA_IS_WARMING_UP: 
+  (SpeedOf() > 0) * 0.5 + 
+    HasStatus(EventPlayer(), Status.Burning) * 2 + 
+    HasStatus(EventPlayer(), Status.PhasedOut) * 2 +
+    HasStatus(EventPlayer(), Status.Invincible) * 2 +
+    (PlayersWithinRadius(EventPlayer(), HYPOTHERMIA_PLAYER_RADIUS, Team.All, RadiusLOS.SurfacesAndEnemyBarriers) - EventPlayer()).Length * 1.01;
+
+Number HYPOTHERMIA_RATE: 20 - (20 * HYPOTHERMIA_IS_WARMING_UP);
+
+playervar Number hypothermiaFreezePercentage = 0;
+globalvar Any[] hypothermiaHUDs = [];
+
+Modifier hypothermia: Modifier.New(
+  name: HYPOTHERMIA_NAME, 
+  duration: HYPOTHERMIA_DURATION,
+  description: [
+    "Keep yourself warm or you'll freeze! Moving around, standing near others",
+    "and setting yourself on fire will help you stay warm"
+  ]
+);
+
+rule: '[Hypothermia] Is Preloading - Global rule'
+if(ModifierIsPreloading(HYPOTHERMIA_NAME))
+{
+  hypothermiaHUDs = CreateNiceProgressBar(
+    value: LocalPlayer().hypothermiaFreezePercentage, 
+    displayValue: "",
+    text: "Freeze",
+    progressBarColor: Color.SkyBlue,
+    textColor: Color.White,
+    position: Vector(1.65, -0.2575),
+    scale: 0.75,
+    fallbackText: $"Freeze percentage at: {LocalPlayer().hypothermiaFreezePercentage.Ceil()}%",
+    visibilityCondition: ModifierHasStarted(HYPOTHERMIA_NAME),
+    preferFallback: LocalPlayer().preferFallbackHud,
+  );
+}
+
+// rule: '[Hypothermia] Is Preloading - Player rule'
+// Event.OngoingPlayer
+// if(ModifierIsPreloading(HYPOTHERMIA_NAME))
+// {
+//   WaitBeforePreloading(1);
+//   CreatePlayerEffect(EventPlayer(), Effect.MeiFrozenEffect, 1, visibleCondition: hypothermiaFreezePercentage > 50);
+//   // MinWait();
+//   // CreatePlayerEffect(EventPlayer(), Effect.MeiFrozenSound, 50, visibleCondition: hypothermiaFreezePercentage > 50);
+// }
+
+rule: '[Hypothermia] Has Started - Global rule'
+if(ModifierHasStarted(HYPOTHERMIA_NAME))
+{
+  WaitUntilModifierIsOver();
+
+  DestroyNiceProgressBar(hypothermiaHUDs);
+}
+
+rule: '[Hypothermia] Has Started - Player rule'
+Event.OngoingPlayer
+if(ModifierHasStarted(HYPOTHERMIA_NAME))
+if(IsAlive())
+{
+  ChaseVariableAtRate(
+    variable: hypothermiaFreezePercentage, 
+    destination: HYPOTHERMIA_RATE > 0 ? 100 : 0, 
+    rate: AbsoluteValue(HYPOTHERMIA_RATE),
+    reevaluation: RateChaseReevaluation.DestinationAndRate
+  );
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+
+  StopChasingVariable(hypothermiaFreezePercentage);
+  hypothermiaFreezePercentage = 0;
+  SetMoveSpeed(EventPlayer(), 100);
+}
+
+rule: '[Hypothermia] Freeze player if not moving'
+Event.OngoingPlayer
+if(ModifierHasStarted(HYPOTHERMIA_NAME))
+if(hypothermiaFreezePercentage == 100)
+{
+  SetStatus(EventPlayer(), null, Status.Frozen, modifierDurationLeft);
+
+  WaitUntilModifierIsOverOrCondition(hypothermiaFreezePercentage != 100);
+
+  ClearStatus(EventPlayer(), Status.Frozen);
+}
+
+rule: '[Hypothermia] Set movement speed based on freeze percentage'
+Event.OngoingPlayer
+if(ModifierHasStarted(HYPOTHERMIA_NAME))
+{
+  WaitForeverUntil(hypothermiaFreezePercentage != EvaluateOnce(hypothermiaFreezePercentage));
+  SetMoveSpeed(EventPlayer(), 100 - hypothermiaFreezePercentage * 0.5);
+  Wait(0.5);
+  LoopIfConditionIsTrue();
+}

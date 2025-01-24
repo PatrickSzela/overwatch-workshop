@@ -36,7 +36,7 @@ rule: 'Player Settings/Change Hero: Set hero (workaround for dummies)'
 Event.OngoingPlayer
 if(changeHero)
 {
-  WaitUntil(changeHero != null && changeHero != EventPlayer().Hero(), 99999);
+  WaitForeverUntil(changeHero != null && changeHero != EventPlayer().Hero());
   ForcePlayerHero(EventPlayer(), changeHero);
   Loop();
 }

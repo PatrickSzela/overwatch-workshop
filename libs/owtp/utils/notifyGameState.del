@@ -1,0 +1,36 @@
+import '../rules.del';
+
+enum GameStateMessage {
+  // TODO: add assembling heroes & in setup (how to handle control mode & competitive?)
+  NONE = "NONE",
+  STARTED = "GAME_STARTED",
+  IN_PROGRESS = "GAME_IN_PROGRESS",
+  IN_BETWEEN_ROUNDS = "GAME_IN_BETWEEN_ROUNDS",
+  FINISHED = "GAME_FINISHED"
+}
+
+rule: '[OWTP - GAME STATE] Game started'
+{
+  connection.SendMessage(GameStateMessage.STARTED, [
+    ["mode", CurrentGameMode()], 
+    ["map", CurrentMap()]
+  ]);
+}
+
+rule: '[OWTP - GAME STATE] Game in progress'
+if(IsGameInProgress() || CurrentGameMode() == GameMode.Skirmish)
+{
+  connection.SendMessage(GameStateMessage.IN_PROGRESS);
+}
+
+rule: '[OWTP - GAME STATE] Game finished'
+if(IsMatchComplete())
+{
+  connection.SendMessage(GameStateMessage.FINISHED);
+}
+
+rule: '[OWTP - GAME STATE] In between rounds'
+if(IsBetweenRounds() && !IsMatchComplete())
+{
+  connection.SendMessage(GameStateMessage.IN_BETWEEN_ROUNDS);
+}

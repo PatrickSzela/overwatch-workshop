@@ -10,7 +10,7 @@ Component PageStopMappingMenuItem() {
     if(step != Step.Nothing) {
       step = Step.Nothing;
     } else {
-      SmallMessage(EventPlayer(), "Mapping not in progress");
+      SmallMessageFixed(EventPlayer(), "Mapping not in progress");
     }
   });
 

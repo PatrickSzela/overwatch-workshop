@@ -1,0 +1,28 @@
+import '../variables.del';
+
+playervar Any[] effects = [];
+
+// TODO: wrapper for beams
+
+void CreatePlayerEffect(in Player player = EventPlayer(), Effect effect, in Number radius, in Any color = null, in Boolean visibleToSelf = true, in Boolean visibleCondition = true) {
+  player.effects += CreateEffect(
+    state == State.MODIFIER_STARTED && visibleCondition ? 
+      (visibleToSelf ? AllPlayers() : AllPlayers() - EvaluateOnce(player)) 
+      : null, 
+    effect, 
+    color == null ? player.Team() : color, 
+    EvaluateOnce(player), 
+    EvaluateOnce(radius), 
+  EffectRev.VisibleToPositionAndRadius);
+}
+
+void DestroyPlayerEffects(in Player player = EventPlayer()) {
+  DestroyEffect(player.effects);
+  player.effects = [];
+}
+
+void DestroyAllPlayersEffects() {
+  foreach(Player player in AllPlayers()) {
+    DestroyPlayerEffects(player);
+  }
+}

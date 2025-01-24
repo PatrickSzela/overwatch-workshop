@@ -1,0 +1,39 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String LAGGING_NAME: 'Lagging';
+Number LAGGING_DURATION: 10;
+
+Modifier lagging: Modifier.New(
+  name: LAGGING_NAME, 
+  duration: LAGGING_DURATION,
+  description: ["Randomly teleport back in time to your previous location"]
+);
+
+rule: '[Lagging] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(LAGGING_NAME))
+{
+  Wait(RandomReal(1, 2), WaitBehavior.AbortWhenFalse);
+
+  playerSnapshot = PlayerSnapshot.New();
+
+  Wait(RandomReal(0.25, 0.75), WaitBehavior.AbortWhenFalse);
+
+  StartForcingPlayerPosition(EventPlayer(), playerSnapshot.position);
+
+  Wait(0.05);
+
+  StopForcingPlayerPosition();
+
+  // playerSnapshot.RestorePosition();
+  // playerSnapshot.RestoreFacingDirection();
+  // playerSnapshot.RestoreHero(false);
+  // playerSnapshot.RestoreHealth(0);
+  // playerSnapshot.RestoreCooldownsResources();
+  // playerSnapshot.RestoreUltimateCharge();
+  // playerSnapshot.RestoreWeapon();
+  // playerSnapshot.RestoreAmmos();
+  
+  LoopIfConditionIsTrue();
+}

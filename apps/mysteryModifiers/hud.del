@@ -1,0 +1,103 @@
+import '../../libs/utils/hud.progressBar.del';
+import '../../libs/utils/helpers.del';
+import '../../libs/utils/color.del';
+import '../../libs/utils/number.del';
+
+playervar Boolean tooltipChangeProgressBarPosition = false;
+playervar Boolean preferFallbackHud = false;
+playervar Boolean preferFallbackHudOverride = false;
+globalvar Boolean hideModifierChargeMeter = true;
+globalvar Number progressBarBreathingScalar = 0;
+
+// TODO: split controlled by game specific stuff to different file
+
+rule: 'Create UI'
+{
+  Number CHARGE_PERCENTAGE: (charge / gameSettings.chargeDestination) * 100;
+  Number MODIFIER_PERCENTAGE: (modifierDurationLeft / modifierDurationTotal) * 100;
+  Number MODIFIER_DURATION: modifierDurationLeft;
+  Number BREATHING_SCALAR_START: 0.675;
+  Number BREATHING_SCALAR_FADED: Max(0, (charge / gameSettings.chargeDestination - BREATHING_SCALAR_START) * (1 / (1 - BREATHING_SCALAR_START))) * progressBarBreathingScalar;
+  Color COLOR_ORANGE_TO_WHITE: FadeColor(Vector(255, 255, 255), Vector(237, 104, 56), BREATHING_SCALAR_FADED);
+
+  StartBreatheMultiplier(progressBarBreathingScalar, 850);
+
+  CreateNiceProgressBar(
+    value: state == State.MODIFIER_STARTED ? MODIFIER_PERCENTAGE : CHARGE_PERCENTAGE, 
+    displayValue: state == State.MODIFIER_STARTED ? $"{MODIFIER_DURATION.Ceil()}" : $"{CHARGE_PERCENTAGE.Floor()}%",
+    text: state == State.MODIFIER_STARTED ? currentModifier.name : "Modifier charge",
+    progressBarColor: state == State.MODIFIER_STARTED ? COLOR_OVERWATCH : COLOR_ORANGE_TO_WHITE,
+    textColor: Color.White,
+    position: Vector(0, -0.9),
+    scale: 0.75,
+    fallbackText: state == State.MODIFIER_STARTED ?
+      $"{currentModifier.name}​ ends in: {MODIFIER_DURATION.Ceil()}​ sec" :
+      $"Modifier charge at: {CHARGE_PERCENTAGE.Floor()}%",
+    visibilityCondition: !hideModifierChargeMeter || state == State.MODIFIER_STARTED,
+    preferFallback: LocalPlayer().preferFallbackHud || LocalPlayer().preferFallbackHudOverride,
+  );
+
+  CreateHudText(
+    VisibleTo: LocalPlayer(), 
+    Header: " ????? ", 
+    Subheader: "Mystery Modifiers", 
+    Text: "By Patriq", 
+    Location: Location.Right, 
+    SortOrder: -3, 
+    HeaderColor: Color.Blue, 
+    Spectators: Spectators.VisibleAlways,
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
+  );
+
+  CreateHudText(
+    VisibleTo: state == State.MODIFIER_STARTED ? LocalPlayer() : null, 
+    Text: $"Current modifier: {currentModifier.name}", 
+    TextColor: rainbow,
+    Location: Location.Left, 
+    SortOrder: -2, 
+    Spectators: Spectators.VisibleAlways,
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
+  );
+
+  for(Number i! = 0; i < 3; i++)
+    CreateHudText(
+      VisibleTo: currentModifier.description[EvaluateOnce(i)] && state == State.MODIFIER_STARTED ? LocalPlayer() : null, 
+      Subheader: $"{currentModifier.description[EvaluateOnce(i)]}", 
+      Location: Location.Left, 
+      SortOrder: -1, 
+      Spectators: Spectators.VisibleAlways,
+      Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
+    );
+
+  CreateHudText(
+    VisibleTo: LocalPlayer().tooltipChangeProgressBarPosition ? LocalPlayer() : null, Subheader: $"If you're a console player or your Field of View isn't set to 103, hold {InputBindingFormatterSingle(Button.Interact)} for 3 seconds", 
+    Location: Location.Left,
+    SortOrder: -10, 
+    Spectators: Spectators.VisibleAlways
+  );
+}
+
+rule: 'Change meter position when holding Interact for 3s'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Interact))
+{
+  WaitUntil(!EventPlayer().IsButtonHeld(Button.Interact), 3);
+  AbortIfConditionIsFalse();
+  preferFallbackHud = !preferFallbackHud;
+  SmallMessageWithIcon(EventPlayer(), $"Moved custom HUD to {preferFallbackHud ? "top left" : "center of the screen"}", IconString(Icon.Eye));
+}
+
+rule: 'Show tooltip about ability to change position of the meter'
+Event.OngoingPlayer
+if(HasSpawned())
+{
+  tooltipChangeProgressBarPosition = true;
+  Wait(10);
+
+  WaitForeverUntil(!IsInSpawnRoom());
+
+  tooltipChangeProgressBarPosition = false;
+
+  WaitForeverUntil(IsInSpawnRoom() || IsDead());
+  Loop();
+}

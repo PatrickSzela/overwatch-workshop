@@ -1,0 +1,82 @@
+import '../modifier.del';
+
+String LOW_VISIBILITY_NAME: 'Low Visibility';
+Number LOW_VISIBILITY_DURATION: 10;
+Number LOW_VISIBILITY_START_DISTANCE: 10;
+Number LOW_VISIBILITY_FADE_DISTANCE: 10;
+Number LOW_VISIBILITY_END_DISTANCE: LOW_VISIBILITY_START_DISTANCE + LOW_VISIBILITY_FADE_DISTANCE;
+
+Modifier lowVisibility: Modifier.New(
+  name: LOW_VISIBILITY_NAME, 
+  duration: LOW_VISIBILITY_DURATION,
+  description: ["Greatly reduces visibility range"]
+);
+
+globalvar Any[] lowVisibilityEffects = [];
+
+rule: '[Low Visibility] Is Preloading'
+if(ModifierIsPreloading(LOW_VISIBILITY_NAME))
+{
+  Boolean condition: ModifierHasStarted(LOW_VISIBILITY_NAME);
+  Number count: 50;
+
+  for(Number i! = 0; i < count; i++) {
+    Number strength: (i / count) <= 0.85 ? CosineFromDegrees(i / (count * 0.85) * 90) : 1;
+
+    lowVisibilityEffects += CreateEffect(
+      VisibleTo: condition ? LocalPlayer() : null, 
+      Type: Effect.Sphere, 
+      Color: Color.Black, 
+      Position: UpdateEveryFrame(LocalPlayer().EyePosition()), 
+      Radius: EvaluateOnce(LOW_VISIBILITY_START_DISTANCE + strength * LOW_VISIBILITY_FADE_DISTANCE)
+      // Radius: LOW_VISIBILITY_START_DISTANCE
+    );
+
+    if(i % 5 == 0) MinWait();
+  }
+
+  MinWait();
+
+  for(Number i! = 0; i < 5; i++) {
+    lowVisibilityEffects += CreateEffect(
+      VisibleTo: condition ? LocalPlayer() : null, 
+      Type: Effect.GoodAura, 
+      Color: Color.Black, 
+      Position: UpdateEveryFrame(LocalPlayer().EyePosition() + LocalPlayer().FacingDirection() * 0.75), 
+      Radius: 1
+    );
+
+    if(count % 5 == 0) MinWait();
+  }
+}
+
+rule: '[Low Visibility] Has Started'
+if(ModifierHasStarted(LOW_VISIBILITY_NAME))
+{
+  // end
+  WaitUntilModifierIsOver();
+  DestroyEffect(lowVisibilityEffects);
+  lowVisibilityEffects = [];
+}
+
+
+rule: '[Low Visibility] Disable outlines'
+Event.OngoingPlayer
+if(ModifierHasStarted(LOW_VISIBILITY_NAME))
+{
+  Number distance: LOW_VISIBILITY_START_DISTANCE + LOW_VISIBILITY_FADE_DISTANCE * 0.15;
+
+  Player[] _playersTooFar: AllPlayers().Filter((p) => DistanceBetween(EventPlayer(), p) > distance);
+  Player[] playersTooFar = _playersTooFar;
+
+  StartForcingPlayerOutlines(EventPlayer(), playersTooFar, false);
+  DisableNameplates(EventPlayer(), playersTooFar);
+
+  WaitForeverUntil(_playersTooFar != playersTooFar || !ModifierHasStarted(LOW_VISIBILITY_NAME));
+
+  StopForcingPlayerOutlines(EventPlayer(), AllPlayers());
+  EnableNameplates(EventPlayer(), playersTooFar);
+
+  LoopIfConditionIsTrue();
+}
+

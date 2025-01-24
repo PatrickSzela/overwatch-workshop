@@ -133,7 +133,7 @@ if(menuState.pageId == PAGE_LOOK_AT_ID)
     Wait(0.05);
   }
 
-  WaitUntil(menuState.pageId != PAGE_LOOK_AT_ID || !menuState.isOpen, 99999);
+  WaitForeverUntil(menuState.pageId != PAGE_LOOK_AT_ID || !menuState.isOpen);
 
   pickPosition.DestroyAdditionalSpheres();
 }
@@ -141,7 +141,7 @@ if(menuState.pageId == PAGE_LOOK_AT_ID)
 rule: 'Player Settings/Look At: Start/Stop looking at'
 Event.OngoingPlayer
 {
-  WaitUntil(pageLookAtPlayerSettings != EvaluateOnce(pageLookAtPlayerSettings), 99999);
+  WaitForeverUntil(pageLookAtPlayerSettings != EvaluateOnce(pageLookAtPlayerSettings));
 
   pageLookAtPlayerSettings.forceRefresh = false;
 

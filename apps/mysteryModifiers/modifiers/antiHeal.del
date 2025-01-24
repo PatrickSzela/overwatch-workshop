@@ -1,31 +1,41 @@
 import '../modifier.del';
-import '../effects.del';
+import '../utils/effects.del';
 
 String ANTI_HEAL_NAME: 'Anti-Heal';
+Number ANTI_HEAL_DURATION: 5;
 
-Modifier antiHeal: {
-  name: ANTI_HEAL_NAME,
-  notification: ANTI_HEAL_NAME,
-  icon: AbilityIconString(Hero.Ana, Button.Ability2),
-  duration: 5, 
-  enabled: SettingToggle(ANTI_HEAL_NAME),
-  preload: () => {
-    foreach(Player player in AllPlayers()) {
-      CreatePlayerEffect(player, Effect.AnaBioticGrenadeNoHealingEffect, 1);
-      CreatePlayerEffect(player, Effect.Cloud, 0.25, CustomColor(127, 0, 255, 127), false);
-      CreatePlayerEffect(player, Effect.BadAuraSound, 100);
+Modifier antiHeal: Modifier.New(
+  name: ANTI_HEAL_NAME, 
+  duration: ANTI_HEAL_DURATION,
+  description: ["Prevents everyone from being healed"]
+);
 
-      Wait();
-    }
-  },
-  enable: () => {
-    SetHealingReceived(AllPlayers(), 0);
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      DestroyPlayerEffects(player);
-    }
+rule: '[Anti-Heal] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(ANTI_HEAL_NAME))
+{
+  WaitBeforePreloading(2);
 
-    SetHealingReceived(AllPlayers(), 100);
-  }
-};
+  CreatePlayerEffect(EventPlayer(), Effect.AnaBioticGrenadeNoHealingEffect, 1);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.Cloud, 0.25, CustomColor(127, 0, 255, 127), false);
+
+}
+
+rule: '[Anti-Heal] Has Started - Global'
+if(ModifierHasStarted(ANTI_HEAL_NAME))
+{
+  SetHealingReceived(AllPlayers(), 0);
+
+  // end
+  WaitUntilModifierIsOver();
+  
+  SetHealingReceived(AllPlayers(), 100);
+}
+
+rule: '[Anti-Heal] Has Started - Player'
+Event.OngoingPlayer
+if(ModifierHasStarted(ANTI_HEAL_NAME))
+{
+  PlayEffect(EventPlayer(), PlayEffect.AnaBioticGrenadeNoHealingSound, Color.White, EventPlayer(), 50);
+}

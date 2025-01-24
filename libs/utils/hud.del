@@ -1,0 +1,7 @@
+void SmallMessageFixed(in Player | Player[] visibleTo = EventPlayer(), in Any header = "") {
+  SmallMessage(visibleTo, $"   {header}");
+}
+
+void SmallMessageWithIcon(in Player | Player[] visibleTo = EventPlayer(), in Any header = "", in String icon = IconString(Icon.ExclamationMark)) {
+  SmallMessage(visibleTo, $"   {icon}  {header}");
+}

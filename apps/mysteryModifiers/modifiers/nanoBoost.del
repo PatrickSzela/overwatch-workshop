@@ -1,33 +1,38 @@
 import '../modifier.del';
-import '../effects.del';
+import '../utils/effects.del';
 
 String NANO_BOOST_NAME: 'Nano Boost';
+Number NANO_BOOST_DURATION: 8;
 
-Modifier nanoBoost: {
-  name: NANO_BOOST_NAME,
-  notification: NANO_BOOST_NAME,
-  icon: AbilityIconString(Hero.Ana, Button.Ultimate),
-  duration: 8, 
-  enabled: SettingToggle(NANO_BOOST_NAME),
-  preload: () => {
-    foreach(Player player in AllPlayers()) {
-      CreatePlayerEffect(player, Effect.AnaNanoBoostedEffect, 1);
-      CreatePlayerEffect(player, Effect.AnaNanoBoostedSound, 50);
+Modifier nanoBoost: Modifier.New(
+  name: NANO_BOOST_NAME, 
+  duration: NANO_BOOST_DURATION,
+  description: ["Increases damage output. Heals upon activation"]
+);
 
-      Wait();
-    }
-  },
-  enable: () => {
-    Heal(AllPlayers(), null, 250);
-    SetDamageDealt(AllPlayers(), 150);
-    // SetDamageReceived(AllPlayers(), 50);
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      DestroyPlayerEffects(player);
-    }
+rule: '[Nano Boost] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(NANO_BOOST_NAME))
+{
+  WaitBeforePreloading(2);
+  
+  CreatePlayerEffect(EventPlayer(), Effect.AnaNanoBoostedEffect, 1);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.AnaNanoBoostedSound, 50);
+}
 
-    SetDamageDealt(AllPlayers(), 100);
-    // SetDamageReceived(AllPlayers(), 100);
-  }
-};
+rule: '[Nano Boost] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(NANO_BOOST_NAME))
+{
+  WaitUntilAlive();
+
+  Heal(AllPlayers(), null, 250);
+  SetDamageDealt(EventPlayer(), 150);
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+  DestroyPlayerEffects();
+
+  SetDamageDealt(EventPlayer(), 100);
+}

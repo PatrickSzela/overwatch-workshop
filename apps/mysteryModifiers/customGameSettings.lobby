@@ -1,9 +1,0 @@
-{
-  "Extensions": {
-    "Buff and Debuff Sounds": true,
-    "Buff Status Effects": true,
-    "Debuff Status Effects": true
-  },
-  "Mode Name": "Mystery Modifiers",
-  "Description": "Who doesn't love some chaos?\nCharge the global meter by dealing damage, healing and using ultimates.\nOnce the meter is fully charged, the same randomly selected modifier will be applied to each player.\n\n----------\nVersion: 0.5.0\nWorkshop Code: 7HBSA\nDiscord: PatPatPatriq"
-}

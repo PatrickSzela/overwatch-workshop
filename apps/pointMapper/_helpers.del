@@ -11,8 +11,8 @@ Player[] AddDummies(Number amount! = 1, Team team! = Team.Team2) "Add dummies" {
     DisableMovementCollisionWithPlayers(LastCreatedEntity());
     DisableMovementCollisionWithEnvironment(LastCreatedEntity(), true);
     SetGravity(LastCreatedEntity(), 0);
-    SetStatus(LastCreatedEntity(), HostPlayer(), Status.Invincible, 9999);
-    SetStatus(LastCreatedEntity(), HostPlayer(), Status.PhasedOut, 9999);
+    SetStatus(LastCreatedEntity(), HostPlayer(), Status.Invincible, NUMBER_MAX);
+    SetStatus(LastCreatedEntity(), HostPlayer(), Status.PhasedOut, NUMBER_MAX);
 
     Wait(ServerLoadAverage() > 100 ? 0.5 : 0.25);
   }

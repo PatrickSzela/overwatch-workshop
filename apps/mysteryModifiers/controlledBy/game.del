@@ -1,0 +1,101 @@
+import '../../../libs/utils/log.del';
+
+single struct ControlledByGameSettings {
+  public Number chargeDestination;
+  public Number chargeDecreaseStart;
+  public Number chargeDecreaseRate;
+  public Number damageChargeScalar;
+  public Number healingChargeScalar;
+  public Number ultimateChargeScalar;
+
+  public static ControlledByGameSettings New(): {
+    chargeDestination: 
+      WorkshopSettingInteger("Global - Controlled By Game", "Points required to trigger modifier", 50, 5, 100, 0),
+    chargeDecreaseStart: 
+      (WorkshopSettingInteger("Global - Controlled By Game", "Percentage above which to decrease points over time", 75, 1, 100, 1) + 1) / 100,
+    chargeDecreaseRate: 
+      WorkshopSettingReal("Global - Controlled By Game", "Rate at which decrease points over time", 0.5, 0, 10, 2),
+    damageChargeScalar: 
+      WorkshopSettingReal("Global - Controlled By Game", "Percentage of damage done that will be converted to Points", 1.25, 0, 100, 3) / 100,
+    healingChargeScalar: 
+      WorkshopSettingReal("Global - Controlled By Game", "Percentage of healing done that will be converted to Points", 1, 0, 100, 4) / 100,
+    ultimateChargeScalar: 
+      WorkshopSettingReal("Global - Controlled By Game", "Points to grant per Ultimate usage", 2, 0, 100, 5)
+  };
+}
+
+globalvar Number charge = 0;
+globalvar ControlledByGameSettings gameSettings = ControlledByGameSettings.New();
+
+rule: '[Controlled By - Game] Handle hide modifier charging meter'
+if(controlledBy == ControlledBy.GAME)
+{
+  hideModifierChargeMeter = WorkshopSettingToggle("Global - Controlled By Game", "Hide Modifier charge meter", false, 6);
+}
+
+rule: '[Controlled By - Game] Charging meter logic'
+if(controlledBy == ControlledBy.GAME)
+if(state == State.WAITING)
+{
+  ChaseVariableAtRate(charge, 0, 
+    charge < gameSettings.chargeDestination * gameSettings.chargeDecreaseStart ? 
+      0 : 
+      gameSettings.chargeDecreaseRate,
+  RateChaseReevaluation.DestinationAndRate);
+
+  // select next modifier so we can preload it
+  // make sure to not apply the same modifier again
+  SetModifier(RandomValueInArray(enabledModifiers - modifierHistory));
+  
+  WaitForeverUntil(charge >= gameSettings.chargeDestination * 0.5);
+
+  PreloadModifier();
+
+  WaitForeverUntil(charge >= gameSettings.chargeDestination);
+
+  MinWait();
+  
+  StopChasingVariable(charge);
+  charge = 0;
+  StartModifier();
+}
+
+rule: '[Controlled By - Game] Stop charging meter logic'
+if(controlledBy == ControlledBy.GAME)
+if(state == State.NOT_STARTED)
+{  
+  charge = 0; 
+}
+
+rule: '[Controlled By - Game] Add points on Ultimate usage'
+Event.OngoingPlayer
+if(controlledBy == ControlledBy.GAME)
+if(IsUsingUltimate(EventPlayer()))
+{
+  if(state == State.WAITING)
+    charge += gameSettings.ultimateChargeScalar;
+}
+
+rule: '[Controlled By - Game] Add points on damage dealt'
+Event.OnDamageDealt
+if(controlledBy == ControlledBy.GAME)
+if(state == State.WAITING)
+{
+  charge += gameSettings.damageChargeScalar * EventDamage();
+}
+
+rule: '[Controlled By - Game] Add points on healing dealt'
+Event.OnHealingDealt
+if(controlledBy == ControlledBy.GAME)
+if(state == State.WAITING)
+{
+  if(Healer() != Healee())
+    charge += gameSettings.healingChargeScalar * EventHealing();
+}
+
+rule: '[Controlled By - Game] Start mode if waiting for players'
+if(controlledBy == ControlledBy.GAME)
+if(IsWaitingForPlayers())
+{
+  EnableModifiersLogic();
+}

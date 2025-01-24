@@ -1,0 +1,167 @@
+import './log.del';
+import './array.del';
+import './string.formatters.del';
+import './number.digits.del';
+import './number.join.del';
+import './typeOf.del';
+
+// TODO: handle other characters
+String JsonEscapeString(in String string): 
+  StringReplace(string, "\\", "\\\\")
+    .Replace("\"", "\\\"")
+    .Replace("\/", "\\\/");
+
+# NOTE: This method uses `Wait` internally so it doesn't crash the server when parsing big arrays. When it's called in multiple rules at the same time, it WILL break.
+String ToJSON(Any[] array) "[JSON] To JSON" {
+  DisableInspectorRecording();
+
+  String json = "[";
+  Number idx = 0;
+  Any[][] arrayStack = [];
+  Number[] idxStack = [];
+  Number total = 0;
+  Number nestedLevel = 0;
+
+  // WORKAROUND: variables wrapped in array so they don't get merged with other items in arrays...
+
+  while(true) {
+    if(idx == array.Length) {
+      // reached end of array
+      json = $"{json}]";
+
+      if(nestedLevel) {
+        // go back up
+        array = Pop(arrayStack);
+        idx = Pop(idxStack);
+        nestedLevel--;
+      } else {
+        // no more data to handle
+        break;
+      }
+    } else {
+      Any element = array[idx];
+      Type type = TypeOf(element);
+
+      if(idx) {
+        json = $"{json},";
+      }
+
+      switch(type) {
+        case Type.ARRAY:
+        case Type.VECTOR:
+          if(type == Type.VECTOR) {
+            element = [["x", XOf(element)], ["y", YOf(element)], ["z", ZOf(element)]];
+          }
+
+          arrayStack += [array];
+          idxStack += [idx];
+          array = element;
+          idx = -1;
+          json = $"{json}[";
+          nestedLevel++;
+          break;
+
+        case Type.BOOLEAN:
+          json = $"{json}{BooleanFormatter(element)}";
+          break;
+
+        case Type.NUMBER:
+          json = $"{json}{element}";
+          break;
+
+        case Type.STRING:
+          json = $"{json}\"{JsonEscapeString(element)}\"";
+          break;
+      }
+    }
+
+    if(total % 50 == 0) MinWait();
+
+    idx++;
+    total++;
+  }
+  
+  if(inspectorEnabled)
+    EnableInspectorRecording();
+
+  return json;
+}
+
+# NOTE: This method uses `Wait` internally so it doesn't crash the server when parsing big strings. When it's called in multiple rules at the same time, it WILL break.
+# 
+# NOTE: parsed JSON must be an array
+Any[] FromJSON(String json) "[JSON] From JSON" {
+  if(json == "[]" || json == '') {
+    return [];
+  }
+
+  DisableInspectorRecording();
+
+  // remove opening and closing brackets
+  json = json.Slice(1, json.Length - 2);
+  
+  // TODO: handle encoded special chars - detect "\" character
+  // TODO: handle "[", "]" and "," characters in strings
+  // TODO: parse vectors
+  
+  Any[] data = [];
+  Any[][] stack = [];
+  Number nestedArrayCount = 0;
+  String[] currentItem = [];
+
+  for(Number i = 0; i < json.Length + 1; i++) {
+    // WORKAROUND: variables wrapped in array so they don't get merged with other items in arrays...
+    String char: json.CharAt(i);
+
+    if((char == "," || char == "]" || i == json.Length) && currentItem != []) {
+      Any parsedItem;
+
+      if(currentItem == ["t", "r", "u", "e"]) {
+        parsedItem = true;
+      } else if(currentItem == ["f", "a", "l", "s", "e"]) {
+        parsedItem = false;
+      } else if(currentItem == ["n", "u", "l", "l"]) {
+        parsedItem = null;
+      } else if(currentItem.First == "\"") {
+        parsedItem = Join(currentItem.Slice(1, currentItem.Length - 2), "");
+      } else {
+        parsedItem = JoinNumber(
+          [currentItem.First == '-' ? -1 : currentItem.First == 0 ? 0 : 1] + 
+          currentItem
+            .Slice(currentItem.First == '-' ? 1 : 0, NUMBER_MAX)
+            .Map((t) => t == '.' ? -2 : digits[digitsAsStrings.IndexOf(t)])
+        );
+      }
+      
+      // Log($"Parsed value \"{parsedItem}\": {currentItem.Length}, {currentItem[0]} {currentItem[1]} {currentItem[2]} {currentItem[3]} {currentItem[4]} {currentItem[5]}");
+
+      data += [parsedItem];
+      currentItem = [];
+
+      if(i == json.Length) break;
+    } 
+
+    if(char == "[") {
+      stack += [data];
+      data = [];
+      currentItem = [];
+      nestedArrayCount++;
+    } else if(char == "]") {
+      Any[] nestedArray = data;
+      data = Pop(stack);
+      data += [nestedArray];
+      nestedArrayCount--;
+    } else if(char != ",") {
+      currentItem += char;
+    }
+
+    // Log($"Split Arrays - {nestedArrayCount} - {data.Length}: {char}");
+
+    if(i % 50 == 0) MinWait();
+  }
+  
+  if(inspectorEnabled)
+    EnableInspectorRecording();
+
+  return data;
+}

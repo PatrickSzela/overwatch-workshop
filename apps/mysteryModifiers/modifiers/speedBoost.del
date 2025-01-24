@@ -1,32 +1,35 @@
 import '../modifier.del';
-import '../effects.del';
+import '../utils/effects.del';
 
 String SPEED_BOOST_NAME: 'Speed Boost';
+Number SPEED_BOOST_DURATION: 10;
 
-Modifier speedBoost: {
-  name: SPEED_BOOST_NAME,
-  notification: SPEED_BOOST_NAME,
-  icon: AbilityIconString(Hero.Soldier76, Button.Ability1),
-  duration: 10, 
-  enabled: SettingToggle(SPEED_BOOST_NAME),
-  preload: () => {
-    foreach(Player player in AllPlayers()) {
-      CreatePlayerEffect(player, Effect.LucioSoundBarrierProtectedEffect, 1);
-      // CreatePlayerEffect(player, Effect.Soldier76SprintingEffect, 1);
-      // CreatePlayerEffect(player, Effect.MercyDamageBoostedEffect, 1);
-      CreatePlayerEffect(player, Effect.WreckingBallPiledriverFireSound, 50);
+Modifier speedBoost: Modifier.New(
+  name: SPEED_BOOST_NAME, 
+  duration: SPEED_BOOST_DURATION,
+  description: ["Greatly increases movement speed"]
+);
 
-      Wait();
-    }
-  },
-  enable: () => {
-    SetMoveSpeed(AllPlayers(), 200);
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      DestroyPlayerEffects(player);
-    }
+rule: '[Speed Boost] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(SPEED_BOOST_NAME))
+{
+  WaitBeforePreloading(2);
+  
+  CreatePlayerEffect(EventPlayer(), Effect.LucioSoundBarrierProtectedEffect, 1);
+  // CreatePlayerEffect(EventPlayer(), Effect.Soldier76SprintingEffect, 1);
+  // CreatePlayerEffect(EventPlayer(), Effect.MercyDamageBoostedEffect, 1);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.WreckingBallPiledriverFireSound, 50);
+}
 
-    SetMoveSpeed(AllPlayers(), 100);
-  }
-};
+rule: '[Speed Boost] Has Started'
+if(ModifierHasStarted(SPEED_BOOST_NAME))
+{
+  SetMoveSpeed(AllPlayers(), 200);
+
+  // end
+  WaitUntilModifierIsOver();
+
+  SetMoveSpeed(AllPlayers(), 100);
+}

@@ -28,7 +28,7 @@ Event.OngoingPlayer
 if(EventPlayer().IsDead())
 if(respawnPoint != null)
 {
-  WaitUntil(EventPlayer().IsAlive() && respawnPoint != null, 99999);
+  WaitForeverUntil(EventPlayer().IsAlive() && respawnPoint != null);
   Teleport(EventPlayer(), respawnPoint);
 }
 
@@ -37,7 +37,7 @@ Event.OngoingPlayer
 if(!HasSpawned(EventPlayer()))
 if(respawnPoint != null)
 {
-  WaitUntil(HasSpawned(EventPlayer()) && respawnPoint != null, 99999);
+  WaitForeverUntil(HasSpawned(EventPlayer()) && respawnPoint != null);
   Teleport(EventPlayer(), respawnPoint);
 }
 
@@ -65,7 +65,7 @@ if([PAGE_RESPAWN_ID, PAGE_RESPAWN_POINT_ID].Contains(menuState.hoveredItem.id))
     Wait(0.05);
   }
 
-  WaitUntil(![PAGE_RESPAWN_ID, PAGE_RESPAWN_POINT_ID].Contains(menuState.hoveredItem.id) || !menuState.isOpen, 99999);
+  WaitForeverUntil(![PAGE_RESPAWN_ID, PAGE_RESPAWN_POINT_ID].Contains(menuState.hoveredItem.id) || !menuState.isOpen);
 
   pickPosition.DestroyAdditionalSpheres();
 }

@@ -403,7 +403,7 @@ class MenuState {
   protected void RenderClosedItems() {
     renderedTexts.merged = isPuppet || hideTextWhenClosed ? [] : [
       { 
-        text: $"Press {ButtonFormatter(_toggleMenu)}​ to toggle Menu", 
+        text: $"Press {ButtonFormatter_Underscores(_toggleMenu)}​ to toggle Menu", 
         color: COLOR_NEUTRAL
       }
     ];
@@ -512,7 +512,7 @@ class MenuState {
   }
 
   public void RULE_Render() {
-    WaitUntil(shouldRerender, 99999);
+    WaitForeverUntil(shouldRerender);
     Render();
     Loop();
   }
@@ -592,11 +592,11 @@ class MenuState {
   }
 
   public void WaitUntilButtonDown(in String id, in Button button) {
-    WaitUntil(onButtonDown(id, button), 99999);
+    WaitForeverUntil(onButtonDown(id, button));
   }
 
   public void WaitUntilButtonUp(in String id, in Button button) {
-    WaitUntil(!onButtonDown(id, button), 99999);
+    WaitForeverUntil(!onButtonDown(id, button));
   }
 
   // events

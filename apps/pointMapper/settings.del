@@ -67,6 +67,11 @@ The rest of controls depends on currently hovered menu item and are listed below
 ----------
 Version: 2.0.0
 Workshop Code: MD8Q1W
-Discord: PatPatPatriq"
+Created by: PatPatPatriq"
   }
+	workshop
+	{
+		Enable Inspector: Off
+		Show Diagnostics: On
+	}
 }

@@ -1,0 +1,58 @@
+import './json.del';
+import './diagnostics.del';
+
+rule: 'Status'
+if(diagnosticsEnabled)
+{
+  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
+  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
+  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
+  CreateDiagnosticText($"Entity count: {EntityCount()}/256", EntityCount() > 192, EntityCount() > 224);
+}
+
+rule: "[JSON] Test edge cases"
+if(HasSpawned(HostPlayer()))
+{
+  // define data! = [true,false, true];
+  define data! = [true,false,0,123.45,-123.45,"test","",[0,"",[],[123,45]]];
+  // define data! = [
+  //   ["player", ToString(HostPlayer())],
+  //   ["true", true], 
+  //   ["false", false],
+  //   ["null", null],
+  //   ["number", 123],
+  //   ["zero", 0],
+  //   ["string", "test"],
+  //   ["empty string", ""],
+  //   ["array", [1,2,3]],
+  //   ["array bigger", [1,2,3,4,5]],
+  //   ["one element array", [1]],
+  //   ["array of empty stuff", [0,false,"",Vector(0,0,0),null]],
+  //   ["empty array", []],
+  //   ["vector", Vector(1,2,3)],
+  //   ["vector of zeros", Vector(0,0,0)]
+  // ];
+
+  String json = ToJSON(data);
+
+  Wait(0.5);
+
+  define parsed = FromJSON(json);
+
+  // for(Number i = 0; i < parsed.Length; i++) {
+  //   // Log($"[\"{data[i][0]}\", \"{data[i][1]}\"] == [\"{parsed[i][0]}\", \"{parsed[i][1]}\"] = [{data[i][0] == parsed[i][0]}, {data[i][1] == parsed[i][1]}]");
+  //   Log($"\"{parsed[i]}\" == \"{data[i]}\" = {parsed[i] == data[i]}");
+  // }
+
+  Wait(0.5);
+
+  String json2 = ToJSON(parsed);
+
+  Log($"Stringified data: {json}");
+  Log($"Stringified after parsing: {json2}");
+  Log($"Strings compare: {json == json2 ? "Success" : "Failed"}");
+
+  // Wait(0.5);
+
+  // Loop();
+}

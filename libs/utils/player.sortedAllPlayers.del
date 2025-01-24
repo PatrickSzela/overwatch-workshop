@@ -1,3 +1,5 @@
+import './helpers.del';
+
 globalvar Player[] sortedPlayers = [];
 globalvar Player[][] sortedPlayersPerTeam = [[], [], []];
 globalvar Player[][] sortedPlayersPerTeamPerSlot = [[], [], []];
@@ -6,7 +8,7 @@ rule: 'Sorted Players'
 {
   Number[] sorted: AllPlayers().Map((i) => (TeamOf(i) == Team.Team1 ? 0 : TeamOf(i) == Team.Team2 ? 100 : 10000) + SlotOf(i));
 
-  WaitUntil(sorted != EvaluateOnce(sorted), 99999);
+  WaitForeverUntil(sorted != EvaluateOnce(sorted));
   
   sortedPlayersPerTeam = [[], [], []];
 

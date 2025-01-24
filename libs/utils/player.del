@@ -1,7 +1,12 @@
-Boolean IsScopedIn(Player player): 
+import './number.del';
+
+Boolean IsScopedIn(Player player = EventPlayer()): 
   [Hero.Ana, Hero.Ashe, Hero.Widowmaker].Contains(player.Hero()) && player.IsFiringSecondary();
 
-Boolean IsEmoting(Player player):
+Boolean IsHoldingShield(Player player = EventPlayer()):
+  [Hero.Reinhardt, Hero.Brigitte].Contains(player.Hero()) && player.IsFiringSecondary();
+
+Boolean IsEmoting(Player player = EventPlayer()):
   $" {IsCommunicatingAnyEmote(player)}" != " 0";
 
 Boolean IsHUDPreferred(Player player): 
@@ -25,3 +30,24 @@ Boolean IsUsingAbility(Player player, Button button):
 
 Vector GetDirectionFromPlayerEyes(Player player, Vector vector): 
   player.EyePosition().DirectionTowards(vector);
+
+Boolean IsSpectator(in Player player = EventPlayer()): SlotOf(player) < 0;
+
+Boolean IsKillable(in Player player = EventPlayer()):
+  !HasStatus(player, Status.Invincible) && 
+  !HasStatus(player, Status.Unkillable) && 
+  !HasStatus(player, Status.PhasedOut);
+
+void KillIfKillable(in Player player = EventPlayer(), in Player killer) {
+  if(IsKillable(player)) {
+    Kill(player, killer);
+  }
+}
+
+void KillIfKillableElseDamage(in Player player = EventPlayer(), in Player killer) {
+  if(IsKillable(player)) {
+    Kill(player, killer);
+  } else {
+    Damage(player, killer, NUMBER_MAX);
+  }
+}

@@ -1,31 +1,71 @@
-single struct Modifier {
-  public String name;
-  public String notification;
-  public String icon;
-  public Number duration;
-  public Boolean enabled;
-
-  public () => void preload;
-  public () => void enable;
-  public () => void disable;
+enum ModifierState {
+  NONE,
+  PRELOAD,
+  STARTED,
+  ENDED
 }
 
-Modifier MODIFIER_BASE: {
-  name: '', 
-  notification: '', 
-  icon: '', 
-  duration: -1, 
-  enabled: false,
+single struct Modifier {
+  public String name;
+  public Boolean notification;
+  public Number duration;
+  public Boolean enabled;
+  public ModifierState state;
+  public Number slowMotionSpeed;
+  public Boolean canDurationBeExtended;
+  public String[] description;
 
-  preload: () => {
-    LogToInspector('Preload not implemented');
-  }, 
-  enable: () => {
-    LogToInspector('Enable not implemented');
-  }, 
-  disable: () => {
-    LogToInspector('Disable not implemented');
+  public Boolean preloading: state == ModifierState.PRELOAD;
+  public Boolean started: state == ModifierState.STARTED;
+  public Boolean ended: state == ModifierState.ENDED;
+
+  public static Modifier New(String name, String[] description, Boolean notification = true, Number duration = -1, Boolean canDurationBeExtended = true, Number slowMotionSpeed = 100): { 
+    name: name,
+    notification: notification,
+    duration: duration, 
+    enabled: WorkshopSettingToggle("Modifier", name, true, 1),
+    state: ModifierState.NONE,
+    slowMotionSpeed: slowMotionSpeed,
+    canDurationBeExtended: canDurationBeExtended,
+    description: description
+  };
+
+  public ref void Preload() {
+    state = ModifierState.PRELOAD;
   }
-};
 
-Boolean SettingToggle(in String name): WorkshopSettingToggle("Modifier", name, true, 1);
+  public ref void Disable() {
+    state = ModifierState.ENDED;
+  }
+
+  public ref void Enable() {
+    state = ModifierState.STARTED;
+  }
+}
+
+Boolean CurrentModifierIs(in String name): currentModifier.name == name;
+Boolean ModifierIsPreloading(in String name): currentModifier.name == name && currentModifier.state == ModifierState.PRELOAD;
+Boolean ModifierHasStarted(in String name): currentModifier.name == name && currentModifier.state == ModifierState.STARTED;
+
+# Waits before continuing preloading to not overwhelm server and weaker PCs/consoles
+void WaitBeforePreloading(in Number multiplier = 1) {
+  Wait(ONE_TICK * AllPlayers().IndexOf(EventPlayer()) * multiplier);
+}
+
+void WaitUntilAlive(in Player player = EventPlayer()) { 
+  WaitUntil(IsAlive(player), modifierDurationLeft);
+  AbortIfConditionIsFalse();
+  if(!IsAlive(player)) Abort();
+}
+
+void WaitUntilIsDeadOrModifierIsOver(in Player player = EventPlayer()) {
+  WaitUntil(IsDead(player) || currentModifier.state == ModifierState.ENDED, modifierDurationLeft);
+}
+
+void WaitUntilModifierIsOver() {
+  WaitUntil(currentModifier.state == ModifierState.ENDED, modifierDurationLeft);
+}
+
+void WaitUntilModifierIsOverOrCondition(in Boolean condition) {
+  WaitUntil(currentModifier.state == ModifierState.ENDED || condition, modifierDurationLeft);
+}

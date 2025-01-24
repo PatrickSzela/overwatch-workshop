@@ -1,0 +1,161 @@
+import '../modifier.del';
+
+String RED_LIGHT_GREEN_LIGHT_NAME: 'Red Light, Green Light';
+Number RED_LIGHT_GREEN_LIGHT_DURATION: 15;
+
+globalvar Any[] redLightGreenLightText = [];
+globalvar Any[] redLightGreenLightEffects = [];
+globalvar Boolean redLightGreenLightDoNotMove = false;
+globalvar Number redLightGreenLightCount = 0;
+playervar Boolean redLightGreenLightBeam = false;
+playervar Player redLightGreenLightKnockback = null;
+
+Modifier redLightGreenLight: Modifier.New(
+  name: RED_LIGHT_GREEN_LIGHT_NAME, 
+  duration: RED_LIGHT_GREEN_LIGHT_DURATION,
+  description: ["Don't move and use abilities once light turns red"]
+);
+
+rule: '[Red Light, Green Light] Is Preloading - Global'
+if(ModifierIsPreloading(RED_LIGHT_GREEN_LIGHT_NAME))
+{
+  Boolean condition: ModifierHasStarted(RED_LIGHT_GREEN_LIGHT_NAME);
+
+  for(Number i! = 0; i < 2; i++) {
+    redLightGreenLightEffects += CreateEffect(
+      VisibleTo: condition ? LocalPlayer() : null, 
+      Type: Effect.GoodAura, 
+      Color: redLightGreenLightDoNotMove ? Color.Red : Color.Green, 
+      Position: UpdateEveryFrame(LocalPlayer().EyePosition() + LocalPlayer().FacingDirection() * 0.75), 
+      Radius: 1,
+      Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+    );
+  }
+
+  // setting this here so the sparkles don't immediately change colors after event ends
+  redLightGreenLightDoNotMove = false;
+}
+
+rule: '[Red Light, Green Light] Is Preloading - Player'
+Event.OngoingPlayer
+if(ModifierIsPreloading(RED_LIGHT_GREEN_LIGHT_NAME))
+{
+  WaitBeforePreloading();
+
+  redLightGreenLightEffects += CreateBeamEffect(
+    VisibleTo: redLightGreenLightBeam ? AllPlayers() : null, 
+    BeamType: BeamType.BadBeam, 
+    Color: Color.Red, 
+    StartPosition: PositionOf() + Up() * 100, 
+    EndPosition: PositionOf(), 
+    Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  );
+}
+
+rule: '[Red Light, Green Light] Has Started'
+if(ModifierHasStarted(RED_LIGHT_GREEN_LIGHT_NAME))
+{
+  // end
+  WaitUntilModifierIsOver();
+
+  DestroyEffect(redLightGreenLightEffects);
+  redLightGreenLightEffects = [];
+  redLightGreenLightCount = 0;
+
+  AllPlayers().redLightGreenLightBeam = false;
+  AllPlayers().redLightGreenLightKnockback = null;
+}
+
+rule: '[Red Light, Green Light] Handle Color'
+if(ModifierHasStarted(RED_LIGHT_GREEN_LIGHT_NAME))
+{
+  // TODO: make last possible red light last until the modifier ends
+  Wait(
+    redLightGreenLightDoNotMove ? 
+      RandomReal() % 2 + 2 :
+      (redLightGreenLightCount ? RandomReal() % 2 : 2) + 2,
+    WaitBehavior.AbortWhenFalse
+  );
+
+  redLightGreenLightDoNotMove = !redLightGreenLightDoNotMove;
+  
+  if(redLightGreenLightDoNotMove) {
+    BigMessage(AllPlayers(), "Don't move!");
+    redLightGreenLightCount++;
+    PlayEffect(AllPlayers(), PlayEffect.DebuffImpactSound, Color.White, LocalPlayer(), 100);
+  } 
+  else {
+    PlayEffect(AllPlayers(), PlayEffect.BuffImpactSound, Color.White, LocalPlayer(), 50);
+  }
+
+  LoopIfConditionIsTrue();
+}
+
+rule: '[Red Light, Green Light] Kill if moving'
+Event.OngoingPlayer
+if(IsAlive())
+if(ModifierHasStarted(RED_LIGHT_GREEN_LIGHT_NAME))
+if(redLightGreenLightDoNotMove)
+{
+  Wait(0.75);
+
+  Button[] buttonsPressed: allButtons.Map((b) => IsButtonHeld(EventPlayer(), b));
+
+  Button[] buttonsSnapshot = buttonsPressed;
+  Vector facingSnapshot = FacingDirectionOf();
+  Vector positionSnapshot = PositionOf();
+
+  Boolean buttonsDiff: buttonsPressed != buttonsSnapshot;
+  // Boolean facingDiff: DistanceBetween(FacingDirectionOf(), facingSnapshot) > 0.2;
+  Boolean facingDiff: false;
+  Boolean positionDiff: DistanceBetween(PositionOf(), positionSnapshot) > 0.5;
+
+  WaitForeverUntil(!redLightGreenLightDoNotMove || !IsAlive() || buttonsDiff || facingDiff || positionDiff);
+  AbortIfConditionIsFalse();
+
+  String deathReason = buttonsDiff ? "ability usage" : facingDiff ? "looking around" : "movement";
+
+  if(IsKillable()) {
+    SmallMessageWithIcon(EventPlayer(), $"Died due to {deathReason}", IconString(Icon.Warning));
+    Log($"[Red Light Green Light]: {EventPlayer()} died due to {deathReason}{deathReason == "movement" && redLightGreenLightKnockback ? $" (caused by {redLightGreenLightKnockback})" : ""}");
+  } else {
+    SmallMessageWithIcon(EventPlayer(), "Survived", IconString(Icon.Happy));
+  }
+
+  KillIfKillableElseDamage(
+    EventPlayer(), 
+    deathReason == "movement" && redLightGreenLightKnockback ? 
+      redLightGreenLightKnockback : 
+      EventPlayer()
+  );
+
+  redLightGreenLightKnockback = null;
+
+  redLightGreenLightBeam = true;
+  PlayEffect(AllPlayers(), PlayEffect.BadExplosion, Color.Red, EventPlayer(), 1.5);
+  PlayEffect(AllPlayers(), PlayEffect.ExplosionSound, Color.Red, EventPlayer(), 100);
+}
+
+rule: '[Red Light, Green Light] Hide beam'
+Event.OngoingPlayer
+if(redLightGreenLightBeam)
+{
+  Wait(0.25, WaitBehavior.IgnoreCondition);
+  redLightGreenLightBeam = false;
+}
+
+rule: '[Red Light, Green Light] Clear player who dealt knockback if stopped moving'
+Event.PlayerReceivedKnockback
+if(ModifierHasStarted(RED_LIGHT_GREEN_LIGHT_NAME))
+if(redLightGreenLightKnockback)
+if(!SpeedOf())
+{
+  redLightGreenLightKnockback = null;
+}
+
+rule: '[Red Light, Green Light] Store player who dealt knockback'
+Event.PlayerReceivedKnockback
+if(ModifierHasStarted(RED_LIGHT_GREEN_LIGHT_NAME))
+{
+  redLightGreenLightKnockback = Attacker();
+}

@@ -28,7 +28,7 @@ class Link: Component
     this.submenuID = submenuID;
     this.openButton = openButton;
 
-    AddDescription(Description.New($"Press {ButtonFormatterSingle(openButton)}​ to open submenu", order: ButtonDescriptionOrder(openButton)));
+    AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(openButton)}​ to open submenu", order: ButtonDescriptionOrder(openButton)));
   }
 
   public override void Render() "[Link] Render" {

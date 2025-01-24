@@ -1,0 +1,42 @@
+settings
+{
+  modes
+  {
+    General
+    {
+      Hero Limit: Off
+      Respawn Time Scalar: 0%
+      Game Mode Start: Manual
+    }
+    Skirmish
+    {
+      enabled maps
+      {
+        Workshop Island Night
+      }
+    }
+    disabled Control
+    disabled Hybrid
+    disabled Assault
+    disabled Escort
+    disabled Push
+    disabled Deathmatch
+  }
+  main
+  {
+    Mode Name: "Menu Components"
+    Description: "Controls:
+[Crouch + Interact] - Open/Close menu
+[Ultimate] - Go back (when in submenu)/Close menu (when in root)
+The rest of controls depends on currently hovered menu item and are listed below the menu itself
+
+----------
+Version: 1.0.0
+Created by: PatPatPatriq"
+  }
+  workshop
+  {
+    Enable Inspector: Off
+    Show Diagnostics: On
+  }
+}

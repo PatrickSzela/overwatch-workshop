@@ -14,13 +14,17 @@ Vector SnapToClosestAxis(in Vector vec) {
 
 // based on https://workshop.codes/wiki/articles/rendering-an-inworld-text-at-a-specific-onscreen-position
 // from center
-Vector ScreenPositionToWorld(Number x, Number y): LocalPlayer().EyePosition() + 100 * (
-  x * WorldVectorOf(Right(), LocalPlayer(), LocalVector.Rotation) +
-  y * DirectionFromAngles(
-    HorizontalAngleFromDirection(LocalPlayer().FacingDirection()), 
-    VerticalAngleFromDirection(LocalPlayer().FacingDirection()) - 90
-  ) + 3 * LocalPlayer().FacingDirection()
-);
+Vector ScreenPositionToWorld(Number x, Number y): 
+  LocalPlayer().EyePosition() + 100 * (
+    x * WorldVectorOf(Right(), LocalPlayer(), LocalVector.Rotation) +
+    y * DirectionFromAngles(
+      HorizontalAngleFromDirection(LocalPlayer().FacingDirection()), 
+      VerticalAngleFromDirection(LocalPlayer().FacingDirection()) - 90
+    ) + 3 * LocalPlayer().FacingDirection()
+  );
+
+Vector ScreenPositionToWorldVector(Vector vector): 
+  ScreenPositionToWorld(vector.X, vector.Y);
 
 Vector RotateAroundY(in Vector vec, in Number degree) {
   return Vector(

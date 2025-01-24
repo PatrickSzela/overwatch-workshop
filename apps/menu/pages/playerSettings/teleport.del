@@ -70,7 +70,7 @@ if(menuState.pageId == PAGE_TELEPORT_ID)
   playerInfoProps.Enable();
   playerInfoProps.EnableTransform();
 
-  WaitUntil(!menuState.isOpen || menuState.pageId != PAGE_TELEPORT_ID, 99999);
+  WaitForeverUntil(!menuState.isOpen || menuState.pageId != PAGE_TELEPORT_ID);
 
   playerInfoProps.Disable();
   playerInfoProps.DisableTransform();

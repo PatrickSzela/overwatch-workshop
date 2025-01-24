@@ -1,51 +1,42 @@
 import '../modifier.del';
-import '../effects.del';
+import '../utils/effects.del';
 
 String BODY_ODOR_NAME: 'Body Odor';
+Number BODY_ODOR_DURATION: 10;
 Number BODY_ODOR_RADIUS: 5;
+Number BODY_ODOR_DOT: 35;
 
-playervar Boolean bodyOdorEnabled = false;
 playervar Any bodyOdorDotId;
 
-Modifier bodyOdor: {
-  name: BODY_ODOR_NAME,
-  notification: BODY_ODOR_NAME,
-  icon: AbilityIconString(Hero.Reaper, Button.Ability1),
-  duration: 10, 
-  enabled: SettingToggle(BODY_ODOR_NAME),
-  preload: () => {
-    foreach(Player player in AllPlayers()) {
-      CreatePlayerEffect(player, Effect.Cloud, 1, CustomColor(78, 168, 9, 127), false);
-      CreatePlayerEffect(player, Effect.Ring, BODY_ODOR_RADIUS, CustomColor(78, 168, 9, 127));
-      CreatePlayerEffect(player, Effect.BadAuraSound, 100);
+Modifier bodyOdor: Modifier.New(
+  name: BODY_ODOR_NAME, 
+  duration: BODY_ODOR_DURATION,
+  description: ["Standing close to other players will deal damage over time to them"]
+);
 
-      Wait();
-    }
-  },
-  enable: () => {
-    foreach(Player player in AllPlayers()) {
-      player.bodyOdorEnabled = true;
-    }
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      DestroyPlayerEffects(player);
-      player.bodyOdorEnabled = false;
-    }
-  },
-  ..MODIFIER_BASE
-};
+rule: '[Body Odor] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(BODY_ODOR_NAME))
+{
+  WaitBeforePreloading(3);
+  
+  CreatePlayerEffect(EventPlayer(), Effect.Cloud, 1, CustomColor(78, 168, 9, 127), false);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.Ring, BODY_ODOR_RADIUS, CustomColor(78, 168, 9, 127));
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.BadAuraSound, 100);
+}
 
 rule: '[Body Odor] Deal damage to nearby players'
 Event.OngoingPlayer
-if(bodyOdorEnabled && IsAlive(EventPlayer()))
+if(ModifierHasStarted(BODY_ODOR_NAME))
 {
-  Player[] _playersNearby: PlayersWithinRadius(EventPlayer().Position(), BODY_ODOR_RADIUS, Team.All, RadiusLOS.SurfacesAndAllBarriers).FilteredArray((player) => player != EventPlayer());
+  Player[] _playersNearby: PlayersWithinRadius(EventPlayer().Position(), BODY_ODOR_RADIUS, Team.All, RadiusLOS.SurfacesAndAllBarriers) - EventPlayer();
   Player[] playersNearby = _playersNearby;
 
-  bodyOdorDotId = StartDamageOverTime(playersNearby, EventPlayer(), 999, 20);
+  bodyOdorDotId = StartDamageOverTime(playersNearby, EventPlayer(), modifierDurationLeft, BODY_ODOR_DOT);
 
-  WaitUntil(_playersNearby != playersNearby || !bodyOdorEnabled || !IsAlive(EventPlayer()), 999);
+  WaitForeverUntil(_playersNearby != playersNearby || !ModifierHasStarted(BODY_ODOR_NAME));
   
   StopDamageOverTime(bodyOdorDotId);
   LoopIfConditionIsTrue();

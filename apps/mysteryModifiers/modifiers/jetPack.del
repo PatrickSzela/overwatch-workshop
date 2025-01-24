@@ -1,0 +1,114 @@
+import '../modifier.del';
+import '../utils/effects.del';
+import '../../../libs/utils/vector.del';
+
+String JET_PACK_NAME: 'Jet Pack';
+Number JET_PACK_DURATION: 15;
+
+Boolean JET_PACK_IS_USING: ModifierHasStarted(JET_PACK_NAME) && jetPackResource && IsButtonHeld(EventPlayer(), Button.Jump) && IsInAir() && !IsOnWall();
+
+globalvar Any[] jetPackHUDs = null;
+playervar Number jetPackResource = 100;
+playervar Boolean jetPackIsUsing = false;
+playervar Boolean jetPackIsResourceRegenerating = false;
+
+Modifier jetPack: Modifier.New(
+  name: JET_PACK_NAME, 
+  duration: JET_PACK_DURATION,
+  description: [
+    "Hold the Jump button to gain height, while also consuming fuel",
+    "Fuel regenerates after a short duration of not using it"
+  ]
+);
+
+rule: '[Jet Pack] Is Preloading - Global rule'
+if(ModifierIsPreloading(JET_PACK_NAME))
+{
+  jetPackHUDs = CreateNiceProgressBar(
+    value: LocalPlayer().jetPackResource, 
+    displayValue: "",
+    text: "Fuel",
+    progressBarColor: Color.White,
+    textColor: Color.White,
+    position: Vector(1.65, -0.2575),
+    scale: 0.75,
+    fallbackText: $"Fuel at: {LocalPlayer().jetPackResource.Ceil()}%",
+    visibilityCondition: ModifierHasStarted(JET_PACK_NAME),
+    preferFallback: LocalPlayer().preferFallbackHud,
+  );
+}
+
+rule: '[Jet Pack] Is Preloading - Player rule'
+Event.OngoingPlayer
+if(ModifierIsPreloading(JET_PACK_NAME))
+{
+  WaitBeforePreloading();
+  CreatePlayerEffect(EventPlayer(), Effect.WreckingBallPiledriverFireSound, 75, visibleCondition: jetPackIsUsing);
+}
+
+rule: '[Jet Pack] Has Started - Global rule'
+if(ModifierHasStarted(JET_PACK_NAME))
+{
+  // end
+  WaitUntilModifierIsOver();
+
+  DestroyNiceProgressBar(jetPackHUDs);
+  jetPackHUDs = null;
+}
+
+rule: '[Jet Pack] Has Started - Player rule'
+Event.OngoingPlayer
+if(ModifierHasStarted(JET_PACK_NAME))
+{
+  StartAccelerating(EventPlayer(), Up(), 
+    jetPackIsUsing ? 
+      VelocityOf().Y < 0 ? 45 : 30
+      : 0, 
+    3, 
+    Relative.ToPlayer, 
+    AccelerateRev.DirectionRateAndMaxSpeed
+  );
+
+  ChaseVariableAtRate(jetPackResource, 
+    jetPackIsUsing ? 0 : 
+      jetPackIsResourceRegenerating ? 100 : 
+      jetPackResource, 
+    jetPackIsResourceRegenerating ? 40 : 20, 
+    RateChaseReevaluation.DestinationAndRate
+  );
+  
+  WaitUntilModifierIsOver();
+  DestroyPlayerEffects();
+
+  StopChasingVariable(jetPackResource);
+  StopAccelerating();
+  jetPackResource = 100;
+}
+
+rule: '[Jet Pack] Whether player is using Jet Pack'
+Event.OngoingPlayer
+if(JET_PACK_IS_USING)
+{
+  jetPackIsUsing = true;
+
+  WaitUntil(!JET_PACK_IS_USING, modifierDurationLeft);
+
+  jetPackIsUsing = false;
+}
+
+
+rule: '[Jet Pack] Handle movement speed & whether resource should regenerate'
+Event.OngoingPlayer
+if(jetPackIsUsing)
+{
+  jetPackIsResourceRegenerating = false;
+  SetMoveSpeed(EventPlayer(), 120);
+
+  WaitUntil(!jetPackIsUsing, modifierDurationLeft);
+  SetMoveSpeed(EventPlayer(), 100);
+
+  WaitUntil(jetPackIsUsing, 0.5);
+  LoopIfConditionIsTrue();
+  
+  jetPackIsResourceRegenerating = true;
+}

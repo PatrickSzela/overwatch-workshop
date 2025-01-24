@@ -1,4 +1,4 @@
-globalvar Boolean diagnosticsEnabled = true;
+globalvar Boolean diagnosticsEnabled = WorkshopSettingToggle("Debug", "Show Diagnostics", false);
 
 # Creates a HUD Text in top right corner that will automatically change color depending whether `colorOrange` or `colorRed` are set to `true` (`colorRed` has a higher priority).
 Any CreateDiagnosticText(String text, Boolean colorOrange = false, Boolean colorRed = false, Boolean visible = diagnosticsEnabled): CreateHudText(

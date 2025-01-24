@@ -1,0 +1,160 @@
+import '../modifier.del';
+import '../utils/effects.del';
+import '../../../libs/utils/player.camera.del';
+
+String TOP_DOWN_CAMERA_NAME: 'Top Down Camera';
+Number TOP_DOWN_CAMERA_DURATION: 13;
+
+Number TOP_DOWN_CAMERA_ZOOM: 15;
+Number TOP_DOWN_CAMERA_LOOK_AT_OFFSET: 5;
+Number TOP_DOWN_CAMERA_BLEND_SPEED: 25;
+Number TOP_DOWN_CAMERA_MAX_Y_FACING: 0;
+
+Boolean TOP_DOWN_CAMERA_CONDITION: 
+  ModifierHasStarted(TOP_DOWN_CAMERA_NAME) && LocalPlayer().topDownCameraEnabled;
+
+Vector TOP_DOWN_CAMERA_START_POSITION: LocalPlayer().EyePosition();
+Vector TOP_DOWN_CAMERA_DESIRED_POSITION: 
+  TOP_DOWN_CAMERA_START_POSITION + Up() * TOP_DOWN_CAMERA_ZOOM;
+Vector TOP_DOWN_CAMERA_LOOK_AT_POSITION: 
+  TOP_DOWN_CAMERA_START_POSITION + 
+  LocalPlayer().FacingDirection() * Vector(1, 0, 1) * TOP_DOWN_CAMERA_LOOK_AT_OFFSET;
+// Vector TOP_DOWN_CAMERA_CAMERA_LOOK_AT_POSITION: (TOP_DOWN_CAMERA_START_POSITION + TOP_DOWN_CAMERA_CURSOR_POSITION) / 2;
+Vector TOP_DOWN_CAMERA_CURSOR_DESIRED_POSITION: 
+  TOP_DOWN_CAMERA_START_POSITION + LocalPlayer().FacingDirection() * 50;
+
+Modifier topDownCamera: Modifier.New(
+  name: TOP_DOWN_CAMERA_NAME, 
+  duration: TOP_DOWN_CAMERA_DURATION,
+  description: ["Forces Top Down Camera"]
+);
+
+globalvar Any[] topDownCameraEffects = [];
+playervar Boolean topDownCameraEnabled = false;
+playervar Vector topDownCameraPrevFacingDir = Vector.Zero;
+
+rule: '[Top Down Camera] Is preloading'
+if(ModifierIsPreloading(TOP_DOWN_CAMERA_NAME))
+{
+  CreateRayCastedCursor(
+    player: LocalPlayer(),
+    startPosition: TOP_DOWN_CAMERA_START_POSITION,
+    desiredPosition: TOP_DOWN_CAMERA_CURSOR_DESIRED_POSITION,
+    effectStorage: topDownCameraEffects,
+    visibleCondition: TOP_DOWN_CAMERA_CONDITION
+  );
+}
+
+rule: '[Top Down Camera] Has Started'
+if(ModifierHasStarted(TOP_DOWN_CAMERA_NAME))
+{
+  AllPlayers().topDownCameraEnabled = true;
+
+  // end
+  WaitUntilModifierIsOver();
+
+  DestroyEffect(topDownCameraEffects);
+  topDownCameraEffects = [];
+  AllPlayers().topDownCameraEnabled = false;
+  AllPlayers().preferFallbackHudOverride = false;
+  StopFacing(AllPlayers());
+}
+
+// rule: '[Top Down Camera] Has Started - Player rule'
+// Event.OngoingPlayer
+// if(ModifierHasStarted(TOP_DOWN_CAMERA_NAME))
+// {
+//   // StartTransformingThrottle(EventPlayer(), 0, 0, Forward());
+//   // StartFacing(
+//   //   EventPlayer(), 
+//   //   WorldVectorOf(ThrottleOf(), EventPlayer(), LocalVector.Rotation), 
+//   //   ThrottleOf().Magnitude ? 10 * 
+//   //     AngleBetweenVectors(
+//   //       FacingDirectionOf(), 
+//   //       WorldVectorOf(ThrottleOf(), EventPlayer(), LocalVector.Rotation)
+//   //     ) : 0, 
+//   //   Relative.ToWorld, 
+//   //   FacingRev.DirectionAndTurnRate
+//   // );
+
+//   WaitUntilModifierIsOver();
+
+//   StopTransformingThrottle();
+//   StopFacing();
+// }
+
+rule: '[Top Down Camera] Temporarily disable for abilities that would break it'
+Event.OngoingPlayer
+if(ModifierHasStarted(TOP_DOWN_CAMERA_NAME))
+if(topDownCameraEnabled)
+if(RayCastedCameraDisabled())
+{
+  topDownCameraEnabled = false;
+
+  WaitUntil(!RayCastedCameraDisabled() || !ModifierHasStarted(TOP_DOWN_CAMERA_NAME), modifierDurationLeft);
+
+  if(!ModifierHasStarted(TOP_DOWN_CAMERA_NAME))
+    return;
+
+  topDownCameraEnabled = true;
+}
+
+rule: '[Top Down Camera] Start/stop camera'
+Event.OngoingPlayer
+if(ModifierHasStarted(TOP_DOWN_CAMERA_NAME))
+if(topDownCameraEnabled)
+{
+  StartRayCastedCamera(
+    player: EventPlayer(),
+    startPosition: TOP_DOWN_CAMERA_START_POSITION,
+    desiredPosition: TOP_DOWN_CAMERA_DESIRED_POSITION,
+    lookAtPosition: TOP_DOWN_CAMERA_LOOK_AT_POSITION,
+    blendSpeed: TOP_DOWN_CAMERA_BLEND_SPEED,
+    finalPositionOffset: Down() * 0.25
+  );
+  preferFallbackHudOverride = true;
+
+  WaitUntil(!topDownCameraEnabled, modifierDurationLeft);
+
+  StopCamera();
+  preferFallbackHudOverride = false;
+}
+
+rule: '[Top Down Camera] Store previous facing direction'
+Event.OngoingPlayer
+if(ModifierHasStarted(TOP_DOWN_CAMERA_NAME))
+if(topDownCameraEnabled)
+{
+  Vector facing = FacingDirectionOf();
+  MinWait();
+  topDownCameraPrevFacingDir = FacingDirectionOf() - facing;
+  LoopIfConditionIsTrue();
+}
+
+
+rule: '[Top Down Camera] Clamp Y component of facing direction'
+Event.OngoingPlayer
+if(ModifierHasStarted(TOP_DOWN_CAMERA_NAME))
+if(topDownCameraEnabled)
+if(FacingDirectionOf().Y > TOP_DOWN_CAMERA_MAX_Y_FACING)
+{
+  Vector facingDirDiff: FacingDirectionOf() - topDownCameraPrevFacingDir;
+  
+  StartFacing(
+    Player: EventPlayer(), 
+    Direction: Vector(
+      FacingDirectionOf().X + topDownCameraPrevFacingDir.X, 
+      TOP_DOWN_CAMERA_MAX_Y_FACING, 
+      FacingDirectionOf().Z + topDownCameraPrevFacingDir.Z
+    ), 
+    TurnRate: NUMBER_MAX, 
+    Relative: Relative.ToWorld,
+    Reevaluation: FacingRev.DirectionAndTurnRate
+  );
+
+  MinWait();
+
+  LoopIfConditionIsTrue();
+
+  StopFacing();
+}

@@ -1,0 +1,85 @@
+import '../rules.del';
+import '../../utils/player.sortedAllPlayers.del';
+
+enum PlayerMessage {
+  JOINED = "PLAYER_JOINED",
+  LEFT = "PLAYER_LEFT",
+  MOVED = "PLAYER_MOVED"
+}
+
+single struct PlayerData {
+  public Player player;
+  public String name;
+  public Number team;
+  public Number slot;
+
+  public static PlayerData New(in Player player): { 
+    player: player,
+    name: ToString(player),
+    team: TeamOf(player) == Team.Team1 ? 0 : TeamOf(player) == Team.Team2 ? 1 : 2,
+    slot: SlotOf(player) 
+  };
+
+  public static Any[][] ToJson(in PlayerData data): [
+    ["name", data.name], 
+    ["team", data.team], 
+    ["slot", data.slot]
+  ];
+}
+
+// Any[][] Construct(in Player player = EventPlayer()): [
+//   ["name", ToString(player)], 
+//   ["team", TeamOf(player) == Team.Team1 ? 0 : TeamOf(player) == Team.Team2 ? 1 : 2], 
+//   ["slot", SlotOf(player)]
+// ];
+
+// Any[] Construct2(in Player player = EventPlayer()): [player, TeamOf(player) == Team.Team1 ? 0 : TeamOf(player) == Team.Team2 ? 1 : 2, SlotOf(player)];
+
+// playervar Any[][] playerData;
+// globalvar Any[][][] playersData;
+
+// rule: '[OWTP - PLAYER STATE] Player joined or switched slot/team'
+// Event.OngoingPlayer
+// {
+//   playerData = Construct();
+//   connection.SendMessage(PlayerMessage.LEFT, playerData);
+
+//   WaitForeverUntil(playerData != Construct());
+
+//   // if player actually leaves this never triggers
+//   connection.SendMessage(PlayerMessage.MOVED, Construct());
+//   Loop();
+// }
+
+rule: '[OWTP - PLAYER STATE] Player left'
+{
+  // Player[] players = sortedPlayers;
+  PlayerData[] constructPlayersData: sortedPlayers.Map((i) => PlayerData.New(i));
+  PlayerData[] playersData = constructPlayersData;
+
+  WaitForeverUntil(playersData != constructPlayersData);
+
+  PlayerData[] newPlayersData = constructPlayersData;
+
+  // foreach(Any[][] player in players - sortedPlayers) {
+  //   connection.SendMessage(PlayerMessage.LEFT, player);
+  // }
+
+  // foreach(Any[][] player in sortedPlayers - players) {
+  //   connection.SendMessage(PlayerMessage.JOINED, player);
+  // }
+
+  // TODO: player joined/moved
+  // TODO: handle player left called twice with garbage data in 2nd call
+
+  // TODO: instead of this mess, just send all players with one call
+
+  foreach(PlayerData p in playersData) {
+    if(!EntityExists(p.player)) {
+      connection.SendMessage(PlayerMessage.LEFT, PlayerData.ToJson(p));
+    }
+  }
+
+  MinWait();
+  Loop();
+}

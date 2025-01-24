@@ -1,0 +1,6 @@
+import './game.del';
+import './stream.del';
+
+globalvar ControlledBy controlledBy = <ControlledBy>WorkshopSettingCombo("Global", "Modifiers are controlled by", 0, [
+  "Game", "Stream"
+], 0); 

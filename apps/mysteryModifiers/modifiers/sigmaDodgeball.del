@@ -1,0 +1,90 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String SIGMA_DODGEBALL_NAME: 'Sigma Dodgeball';
+Number SIGMA_DODGEBALL_DURATION: 15;
+
+Modifier sigmaDodgeball: Modifier.New(
+  name: SIGMA_DODGEBALL_NAME, 
+  duration: SIGMA_DODGEBALL_DURATION,
+  description: [
+    "Greatly increases damage and accelerates cooldown of Accretion",
+    "Getting an elimination resets Accretion's cooldown",
+    "Grants ability to fly and reduces the size of shield"
+  ]
+);
+
+rule: '[Sigma Dodgeball] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(SIGMA_DODGEBALL_NAME))
+{
+  PreloadDuplicate(EventPlayer(), Hero.Sigma, true, true);
+}
+
+rule: '[Sigma Dodgeball] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
+{
+  WaitUntilAlive();
+
+  StartDuplicate();
+}
+
+rule: '[Sigma Dodgeball] Setup'
+Event.OngoingPlayer
+if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
+if(IsDuplicatingFrozenReady())
+{
+  SetAbility1Enabled(EventPlayer(), false);
+  SetPrimaryFireEnabled(EventPlayer(), false);
+  SetMeleeEnabled(EventPlayer(), false);
+  SetUltimateAbilityEnabled(EventPlayer(), false);
+
+  SetDamageDealt(EventPlayer(), 1000);
+  StartScalingBarriers(EventPlayer(), 0.5);
+
+  speedUpAbility.Cooldown(Button.Ability2, 10);
+
+  StartAccelerating(EventPlayer(), Up(), 
+    EventPlayer().IsButtonHeld(Button.Jump) ? 
+      VelocityOf().Y < 0 ? 45 : 30
+      : 0, 
+    3, 
+    Relative.ToPlayer, 
+    AccelerateRev.DirectionRateAndMaxSpeed
+  );
+
+  WaitUntilIsDeadOrModifierIsOver();
+
+  SetAbility1Enabled(EventPlayer(), true);
+  SetPrimaryFireEnabled(EventPlayer(), true);
+  SetMeleeEnabled(EventPlayer(), true);
+  SetUltimateAbilityEnabled(EventPlayer(), true);
+
+  SetDamageDealt(EventPlayer(), 100);
+  StopScalingBarriers(EventPlayer());
+
+  speedUpAbility.StopCooldown(Button.Ability2);
+
+  StopAccelerating();
+
+  StopDuplicate(EventPlayer(), IsAlive());
+}
+
+rule: '[Sigma Dodgeball] Reset rock cooldown on kill'
+Event.OnElimination
+if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
+if(IsDuplicatingFrozenReady())
+{
+  WaitUntil(!IsUsingAbility2(), 3);
+  SetAbilityCooldown(EventPlayer(), Button.Ability2, 0);
+}
+
+rule: '[Sigma Dodgeball] Use Ability 1 on Primary Fire'
+Event.OngoingPlayer
+if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
+if(IsDuplicatingFrozenReady())
+if(IsButtonHeld(EventPlayer(), Button.PrimaryFire))
+{
+  PressButton(EventPlayer(), Button.Ability2);
+}

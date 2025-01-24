@@ -1,0 +1,12 @@
+globalvar Button[] spectatorButtons = [
+  Button.PrimaryFire,       // LCtrl    - Move Slow
+  Button.SecondaryFire,     // LShift   - Move Fast
+  Button.Ability1,          // Q        - Move Down
+  Button.Ability2,          // M1       - Spectate Lock On
+  Button.Ultimate,          // Z        - Disable Camera Blending
+  // Button.Reload,
+  // Button.Melee,
+  Button.Jump,              // F        - Modify FOV
+  // Button.Crouch,
+  Button.Interact           // E        - Move Up
+];

@@ -1,0 +1,5 @@
+import './number.del';
+
+void WaitForeverUntil(in Boolean continueCondition) {
+  WaitUntil(continueCondition, NUMBER_MAX);
+}

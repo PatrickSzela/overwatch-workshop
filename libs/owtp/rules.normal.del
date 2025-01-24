@@ -1,0 +1,7 @@
+import './owtp.del';
+
+rule: 'OWTP: Handle Buttons'
+if(connection.HandleButtons_Condition())
+{
+  connection.HandleButtons_Rule();
+}

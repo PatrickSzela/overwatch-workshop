@@ -1,1 +1,30 @@
+import "./string.del";
+
+Number ONE_TICK: 0.016;
+Number NUMBER_MAX: 100000000;
+
 Number Sign(Number value): value < 0 ? -1 : value > 0 ? 1 : 0;
+
+Number FromBinary(in Boolean[] array) {
+  Number sum = 0;
+  for(Number i = 0; i < array.Length; i++) {
+    if(array[i]) 
+      sum += RaiseToPower(2, i);
+  }
+  return sum;
+}
+
+Boolean[] ToBinary(in Number number) {
+  Number cache = number;
+  Boolean[] result = [];
+  while(cache > 0) {
+    result += number % 2 ? true : false;
+    cache = RoundToInteger(cache, Rounding.Down);
+  }
+  return result;
+}
+
+void StartBreatheMultiplier(ref Number variable, in Number speed = 500) {
+  Number calculation: (CosineFromDegrees((TotalTimeElapsed() * speed) % 360) + 1) / 2;
+  ChaseVariableAtRate(variable, calculation, NUMBER_MAX, RateChaseReevaluation.DestinationAndRate);
+}

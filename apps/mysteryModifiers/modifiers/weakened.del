@@ -1,0 +1,62 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+// TODO: slower shooting speed when available
+
+String WEAKENED_NAME: 'Weakened';
+Number WEAKENED_DURATION: 10;
+
+Modifier weakened: Modifier.New(
+  name: WEAKENED_NAME, 
+  duration: WEAKENED_DURATION,
+  description: [
+    "Lowers move speed, cooldowns, resources and ultimate charge generation",
+    "Increased damage and lowered healing received. Slightly increased gravity"
+  ]
+);
+
+rule: '[Weakened] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(WEAKENED_NAME))
+{
+  WaitBeforePreloading(2);
+  CreatePlayerEffect(EventPlayer(), Effect.ZenyattaOrbOfDiscordTargetEffect, 1);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.ZenyattaOrbOfDiscordTargetSound, 1);
+}
+
+rule: '[Weakened] Has Started - Global rule'
+if(ModifierHasStarted(WEAKENED_NAME))
+{
+  SetDamageReceived(AllPlayers(), 125);
+  SetHealingReceived(AllPlayers(), 75);
+  SetMoveSpeed(AllPlayers(), 75);
+  SetGravity(AllPlayers(), 125);
+  StartModifyingHeroVoiceLines(AllPlayers(), 0.85);
+
+  // end
+  WaitUntilModifierIsOver();
+  DestroyAllPlayersEffects();
+
+  SetDamageReceived(AllPlayers(), 100);
+  SetHealingReceived(AllPlayers(), 100);
+  SetMoveSpeed(AllPlayers(), 100);
+  SetGravity(AllPlayers(), 100);
+  StopModifyingHeroVoiceLines(AllPlayers());
+}
+
+rule: '[Weakened] Has Started - Player rule'
+Event.OngoingPlayer
+if(ModifierHasStarted(WEAKENED_NAME))
+{
+  speedUpAbility.AllCooldowns(0.75);
+  speedUpAbility.AllResources(0.75);
+  speedUpAbility.UltimateCharge(0.75);
+
+  // end
+  WaitUntilModifierIsOver();
+  
+  speedUpAbility.StopAllCooldowns();
+  speedUpAbility.StopAllResources();
+  speedUpAbility.StopUltimateCharge();
+}

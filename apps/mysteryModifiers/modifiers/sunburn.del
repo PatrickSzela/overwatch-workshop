@@ -1,0 +1,37 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String SUNBURN_NAME: 'Sunburn';
+Number SUNBURN_DURATION: 13;
+Number SUNBURN_DOT: 35;
+
+Vector SUNBURN_START_POSITION: PositionOf();
+Vector SUNBURN_END_POSITION: EyePosition() + Up() * 100;
+
+Number SUNBURN_RAYCAST: 
+  RayCastHitPlayer(SUNBURN_END_POSITION, SUNBURN_START_POSITION, AllPlayers(), null, true) == EventPlayer() && 
+    !HasStatus(EventPlayer(), Status.PhasedOut) && 
+    !HasStatus(EventPlayer(), Status.Invincible) && 
+    !(IsHoldingShield() && FacingDirectionOf().Y > 0.5);
+
+playervar Any sunburnDot;
+
+Modifier sunburn: Modifier.New(
+  name: SUNBURN_NAME, 
+  duration: SUNBURN_DURATION,
+  description: ["Increased Sun activity detected. Seek shelter immediately"]
+);
+
+rule: '[Sunburn] Apply burning'
+Event.OngoingPlayer
+if(ModifierHasStarted(SUNBURN_NAME))
+if(SUNBURN_RAYCAST)
+{
+  SetStatus(EventPlayer(), null, Status.Burning, modifierDurationLeft);
+  sunburnDot = StartDamageOverTime(EventPlayer(), null, modifierDurationLeft, SUNBURN_DOT);
+
+  WaitUntilModifierIsOverOrCondition(!SUNBURN_RAYCAST);
+
+  ClearStatus(EventPlayer(), Status.Burning);
+  StopDamageOverTime(sunburnDot);
+}

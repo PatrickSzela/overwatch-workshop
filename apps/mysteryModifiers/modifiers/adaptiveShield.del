@@ -1,45 +1,56 @@
 import '../modifier.del';
-import '../effects.del';
+import '../utils/effects.del';
 
 String ADAPTIVE_SHIELD_NAME: 'Adaptive Shield';
+Number ADAPTIVE_SHIELD_DURATION: 7;
+
+Number ADAPTIVE_SHIELD_HEALTH_BASE: 100;
+Number ADAPTIVE_SHIELD_HEALTH_ENEMY: 100;
+Number ADAPTIVE_SHIELD_RADIUS: 10;
 
 playervar Any adaptiveShieldHealthPoolId;
-// imagine if there was an option to check if health pool still exists....
 playervar Number adaptiveShieldHealth = 0;
 
-void adaptiveShieldPreload() "[Adaptive Shield] Preload" {
-  foreach(Player player in AllPlayers()) {
-    CreatePlayerEffect(player, Effect.WreckingBallAdaptiveShieldTargetEffect, 1, visibleCondition: EvaluateOnce(player).adaptiveShieldHealth > 0);
-    CreatePlayerEffect(player, Effect.WreckingBallAdaptiveShieldTargetSound, 100, visibleCondition: EvaluateOnce(player).adaptiveShieldHealth > 0);
+Modifier adaptiveShield: Modifier.New(
+  name: ADAPTIVE_SHIELD_NAME, 
+  duration: ADAPTIVE_SHIELD_DURATION,
+  description: ["Creates temporary extra health that increases with more nearby enemies"]
+);
 
-    Wait();
-  }
+rule: '[Adaptive Shield] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(ADAPTIVE_SHIELD_NAME))
+{
+  Boolean condition: (<Player>EvaluateOnce(EventPlayer())).adaptiveShieldHealth > 0;
+
+  WaitBeforePreloading(2);
+
+  CreatePlayerEffect(EventPlayer(), Effect.WreckingBallAdaptiveShieldTargetEffect, 1, visibleCondition: condition);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.WreckingBallAdaptiveShieldTargetSound, 100, visibleCondition: condition);
 }
 
-Modifier adaptiveShield: {
-  name: ADAPTIVE_SHIELD_NAME,
-  notification: ADAPTIVE_SHIELD_NAME,
-  icon: AbilityIconString(Hero.WreckingBall, Button.Ability2),
-  duration: 7,
-  enabled: SettingToggle(ADAPTIVE_SHIELD_NAME),
-  preload: adaptiveShieldPreload,
-  enable: () => {
-    foreach(Player player in AllPlayers()) {
-      if(player.IsAlive()) {
-        player.adaptiveShieldHealth = 100 + PlayersWithinRadius(player.Position(), 10, OppositeTeamOf(player.Team()), RadiusLOS.Surfaces).Length * 100;
-        player.adaptiveShieldHealthPoolId = AddHealthPoolToPlayer(player, HealthType.Health, player.adaptiveShieldHealth, false);
-      }
-    }
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      DestroyPlayerEffects(player);
-      RemoveHealthPoolFromPlayer(player.adaptiveShieldHealthPoolId);
-      player.adaptiveShieldHealthPoolId = 0;
-    }
-  }
-};
+rule: '[Adaptive Shield] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(ADAPTIVE_SHIELD_NAME))
+{
+  WaitUntilAlive();
 
+  Player[] nearby: PlayersWithinRadius(PositionOf(), ADAPTIVE_SHIELD_RADIUS, OppositeTeamOf(TeamOf()), RadiusLOS.Surfaces).Filter((p) => IsAlive(p));
+  
+  adaptiveShieldHealth = ADAPTIVE_SHIELD_HEALTH_BASE + nearby.Length * ADAPTIVE_SHIELD_HEALTH_ENEMY;
+  adaptiveShieldHealthPoolId = AddHealthPoolToPlayer(EventPlayer(), HealthType.Health, adaptiveShieldHealth, false, false); // non-recoverable shields have bugged UI
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+  DestroyPlayerEffects();
+  
+  RemoveHealthPoolFromPlayer(adaptiveShieldHealthPoolId);
+  adaptiveShieldHealth = 0;
+  adaptiveShieldHealthPoolId = null;
+}
+
+// imagine if there was an option to check if health pool still exists....
 rule: '[Adaptive Shield] On damage taken, reduce fake health to see if health pool still exists'
 Event.OnDamageTaken
 if(adaptiveShieldHealthPoolId)

@@ -1,5 +1,5 @@
 import '../../../../libs/utils/vector.del';
-import '../../../../libs/utils/diagnostic.del';
+import '../../../../libs/utils/diagnostics.del';
 import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 

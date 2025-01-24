@@ -9,8 +9,12 @@ String SlotFormatter(Number number): $"{number == -1 ? 'First available' : numbe
 
 String ObjectiveFormatter(Number objective): $"{objective == -1 ? 'Current' : objective == -2 ? 'Payload' : alphabet[objective]}";
 
-String BooleanFormatter(Boolean bool): $"{bool ? 'On' : 'Off'}";
-String BooleanFormatterYesNo(Boolean bool): $"{bool ? 'Yes' : 'No'}";
+String BooleanFormatter(Boolean bool): bool ? 'true' : 'false';
+String BooleanFormatterOnOff(Boolean bool): bool ? 'On' : 'Off';
+String BooleanFormatterYesNo(Boolean bool): bool ? 'Yes' : 'No';
 
-String ButtonFormatterSingle(Button button): $"[_{button}_]";
-String ButtonFormatter(Button[] buttons): $"[_{buttons[0]}_{buttons[1] != null ? $' + _{buttons[1]}_' : ''}{buttons[2] ? $' + _{buttons[2]}_' : ''}]";
+String InputBindingFormatterSingle(Button button): $"[{InputBindingString(button)}]";
+String InputBindingFormatter(Button[] buttons): $"[{InputBindingString(buttons[0])}{buttons[1] != null ? $' + {InputBindingString(buttons[1])}' : ''}{buttons[2] ? $' + {InputBindingString(buttons[2])}' : ''}]";
+
+String ButtonFormatterSingle_Underscores(Button button): $"[_{button}_]";
+String ButtonFormatter_Underscores(Button[] buttons): $"[_{buttons[0]}_{buttons[1] != null ? $' + _{buttons[1]}_' : ''}{buttons[2] ? $' + _{buttons[2]}_' : ''}]";

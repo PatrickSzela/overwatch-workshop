@@ -1,0 +1,89 @@
+import '../modifier.del';
+
+String THIRD_PERSON_CAMERA_NAME: 'Third Person Camera';
+Number THIRD_PERSON_CAMERA_DURATION: 13;
+
+Vector THIRD_PERSON_CAMERA_OFFSET: Vector(0, 0.65, 0);
+Number THIRD_PERSON_CAMERA_ZOOM: 3;
+Number THIRD_PERSON_CAMERA_BLEND_SPEED: 1000;
+
+Boolean THIRD_PERSON_CAMERA_CONDITION: 
+  ModifierHasStarted(THIRD_PERSON_CAMERA_NAME) && LocalPlayer().thirdPersonCameraEnabled;
+
+Vector THIRD_PERSON_CAMERA_START_POSITION: LocalPlayer().EyePosition();
+Vector THIRD_PERSON_CAMERA_DESIRED_POSITION: 
+  LocalPlayer().EyePosition() - 
+  LocalPlayer().FacingDirection() * THIRD_PERSON_CAMERA_ZOOM + 
+  WorldVectorOf(THIRD_PERSON_CAMERA_OFFSET, LocalPlayer(), LocalVector.Rotation);
+Vector THIRD_PERSON_CAMERA_LOOK_AT_POSITION: 
+  LocalPlayer().EyePosition() + LocalPlayer().FacingDirection() * 50;
+Vector THIRD_PERSON_CAMERA_CURSOR_DESIRED_POSITION: 
+  THIRD_PERSON_CAMERA_LOOK_AT_POSITION;
+
+globalvar Any[] thirdPersonCameraEffects = [];
+playervar Boolean thirdPersonCameraEnabled = false;
+
+Modifier thirdPersonCamera: Modifier.New(
+  name: THIRD_PERSON_CAMERA_NAME, 
+  duration: THIRD_PERSON_CAMERA_DURATION,
+  description: ["Forces Third Person Camera"]
+);
+
+rule: '[Third Person Camera] Is preloading'
+if(ModifierIsPreloading(THIRD_PERSON_CAMERA_NAME))
+{
+  CreateRayCastedCursor(
+    player: LocalPlayer(),
+    startPosition: THIRD_PERSON_CAMERA_START_POSITION,
+    desiredPosition: THIRD_PERSON_CAMERA_CURSOR_DESIRED_POSITION,
+    effectStorage: thirdPersonCameraEffects,
+    visibleCondition: THIRD_PERSON_CAMERA_CONDITION
+  );
+}
+
+rule: '[Third Person Camera] Has Started'
+if(ModifierHasStarted(THIRD_PERSON_CAMERA_NAME))
+{
+  AllPlayers().thirdPersonCameraEnabled = true;
+
+  // end
+  WaitUntilModifierIsOver();
+  
+  DestroyEffect(thirdPersonCameraEffects);
+  thirdPersonCameraEffects = [];
+  AllPlayers().thirdPersonCameraEnabled = false;
+}
+
+rule: '[Third Person Camera] Temporarily disable for abilities that would break it'
+Event.OngoingPlayer
+if(ModifierHasStarted(THIRD_PERSON_CAMERA_NAME))
+if(thirdPersonCameraEnabled)
+if(RayCastedCameraDisabled())
+{
+  thirdPersonCameraEnabled = false;
+
+  WaitUntil(!RayCastedCameraDisabled() || !ModifierHasStarted(THIRD_PERSON_CAMERA_NAME), modifierDurationLeft);
+
+  if(!ModifierHasStarted(THIRD_PERSON_CAMERA_NAME))
+    return;
+
+  thirdPersonCameraEnabled = true;
+}
+
+rule: '[Third Person Camera] Disable in certain scenarios'
+Event.OngoingPlayer
+if(ModifierHasStarted(THIRD_PERSON_CAMERA_NAME))
+if(thirdPersonCameraEnabled)
+{
+  StartRayCastedCamera(
+    player: EventPlayer(),
+    startPosition: THIRD_PERSON_CAMERA_START_POSITION,
+    desiredPosition: THIRD_PERSON_CAMERA_DESIRED_POSITION,
+    lookAtPosition: THIRD_PERSON_CAMERA_LOOK_AT_POSITION,
+    blendSpeed: THIRD_PERSON_CAMERA_BLEND_SPEED
+  );
+
+  WaitUntil(!thirdPersonCameraEnabled, modifierDurationLeft);
+
+  StopCamera();
+}

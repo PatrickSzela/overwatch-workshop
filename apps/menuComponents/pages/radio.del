@@ -16,7 +16,7 @@ Component[] PageDebugRadioItems() {
       defaultChecked: i == 5
     );
 
-    items.Last.onChange = (checked, it) => LogToInspector($'{it.text}: value changed to {checked}');
+    items.Last.onChange = (checked, it) => Log($'{it.text}: value changed to {checked}');
   }
 
   return items;

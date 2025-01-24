@@ -1,53 +1,41 @@
 import '../modifier.del';
-import '../effects.del';
+import '../utils/effects.del';
 
 String HEALTH_EXCHANGE_NAME: 'Health Exchange';
+Number HEALTH_EXCHANGE_DURATION: 10;
 
-playervar Boolean healthExchangeEnabled = false;
+Modifier healthExchange: Modifier.New(
+  name: HEALTH_EXCHANGE_NAME, 
+  duration: HEALTH_EXCHANGE_DURATION,
+  description: ["Dealing damage to other players heals you, and healing others damages you"]
+);
 
-Modifier healthExchange: {
-  name: HEALTH_EXCHANGE_NAME,
-  notification: HEALTH_EXCHANGE_NAME,
-  icon: AbilityIconString(Hero.Moira, Button.Ability2),
-  duration: 10, 
-  enabled: SettingToggle(HEALTH_EXCHANGE_NAME),
-  preload: () => {
-    foreach(Player player in AllPlayers()) {
-      CreatePlayerEffect(player, Effect.BadAura, 1, Color.Violet);
-      CreatePlayerEffect(player, Effect.ZenyattaOrbOfDiscordTargetSound, 100);
+rule: '[Health Exchange] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(HEALTH_EXCHANGE_NAME))
+{
+  WaitBeforePreloading(2);
 
-      Wait();
-    }
-  },
-  enable: () => {
-    foreach(Player player in AllPlayers()) {
-      player.healthExchangeEnabled = true;
-    }
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      DestroyPlayerEffects(player);
-      player.healthExchangeEnabled = false;
-    }
-  },
-  ..MODIFIER_BASE
-};
+  CreatePlayerEffect(EventPlayer(), Effect.BadAura, 1, Color.Violet);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.ZenyattaOrbOfDiscordTargetSound, 100);
+}
 
 rule: '[Health Exchange] Heal on dealing damage'
 Event.OnDamageDealt
-if(healthExchangeEnabled)
+if(ModifierHasStarted(HEALTH_EXCHANGE_NAME))
 {
   if(Victim() != EventPlayer()) {
-    Heal(EventPlayer(), EventPlayer(), EventDamage() * 0.25);
+    Heal(EventPlayer(), Victim(), EventDamage() * 0.25);
   }
 }
 
 rule: '[Health Exchange] Deal damage on healing'
 Event.OnHealingDealt
-if(healthExchangeEnabled)
+if(ModifierHasStarted(HEALTH_EXCHANGE_NAME))
 {
   if(Healee() != EventPlayer()) {
-    Damage(EventPlayer(), EventPlayer(), EventHealing() * 0.5);
+    Damage(EventPlayer(), Healee(), EventHealing() * 0.5);
   }
 }
 

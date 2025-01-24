@@ -1,0 +1,28 @@
+globalvar Boolean inspectorEnabled;
+
+void EnableInspector() {
+  inspectorEnabled = true;
+  EnableInspectorRecording();
+}
+
+void DisableInspector() {
+  inspectorEnabled = false;
+  DisableInspectorRecording();
+}
+
+void Log(in Any text) {
+  EnableInspectorRecording();
+
+  LogToInspector(text);
+
+  if(!inspectorEnabled) 
+    DisableInspectorRecording();
+}
+
+rule: '[LOG] Handle initial state' -99999
+{
+  inspectorEnabled  = WorkshopSettingToggle("Debug", "Enable Inspector", true);
+
+  if(!inspectorEnabled)
+    DisableInspectorRecording();
+}

@@ -1,0 +1,30 @@
+import './speedUpAbility.del';
+
+playervar SpeedUpAbility speedUpAbility;
+
+rule: '[Speed Up Ability] Initialize'
+Event.OngoingPlayer
+{
+  speedUpAbility = SpeedUpAbility.New();
+}
+
+rule: '[Speed Up Ability] Handle cooldowns'
+Event.OngoingPlayer
+if(speedUpAbility.HandleCooldowns_Condition())
+{
+  speedUpAbility.HandleCooldowns_Rule();
+}
+
+rule: '[Speed Up Ability] Handle resources'
+Event.OngoingPlayer
+if(speedUpAbility.HandleResources_Condition())
+{
+  speedUpAbility.HandleResources_Rule();
+}
+
+rule: '[Speed Up Ability] Handle Ultimate charge'
+Event.OngoingPlayer
+if(speedUpAbility.HandleUltimateCharge_Condition())
+{
+  speedUpAbility.HandleUltimateCharge_Rule();
+}

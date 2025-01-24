@@ -1,31 +1,33 @@
 import '../modifier.del';
-import '../effects.del';
+import '../utils/effects.del';
 
-String INVERT_CONTROLS_NAME: 'Invert Controls';
+String INVERT_CONTROLS_NAME: 'Inverted Controls';
+Number INVERT_CONTROLS_DURATION: 10;
 
-Modifier invertControls: {
-  name: INVERT_CONTROLS_NAME,
-  notification: INVERT_CONTROLS_NAME,
-  icon: AbilityIconString(Hero.WreckingBall, Button.Ability1),
-  duration: 10, 
-  enabled: SettingToggle(INVERT_CONTROLS_NAME),
-  preload: () => {
-    foreach(Player player in AllPlayers()) {
-      CreatePlayerEffect(player, Effect.BadAura, 0.25);
-      CreatePlayerEffect(player, Effect.BadAuraSound, 100);
+Modifier invertControls: Modifier.New(
+  name: INVERT_CONTROLS_NAME, 
+  duration: INVERT_CONTROLS_DURATION,
+  description: ["Movement controls are inverted"]
+);
 
-      Wait();
-    }
-  },
-  enable: () => {
-    StartTransformingThrottle(AllPlayers(), -1, -1, LocalPlayer().FacingDirection());
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      DestroyPlayerEffects(player);
-    }
+rule: '[Invert Controls] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(INVERT_CONTROLS_NAME))
+{
+  WaitBeforePreloading(2);
+  
+  CreatePlayerEffect(EventPlayer(), Effect.BadAura, 0.25);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.BadAuraSound, 100);
+}
 
-    StopTransformingThrottle(AllPlayers());
-  },
-  ..MODIFIER_BASE
-};
+rule: '[Invert Controls] Has Started'
+if(ModifierHasStarted(INVERT_CONTROLS_NAME))
+{
+  StartTransformingThrottle(AllPlayers(), -1, -1, LocalPlayer().FacingDirection());
+
+  // end
+  WaitUntilModifierIsOver();
+  
+  StopTransformingThrottle(AllPlayers());
+}

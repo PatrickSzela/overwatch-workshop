@@ -1,10 +1,11 @@
 import '../_variables.del';
 import './sniffer.del';
+import '../../../libs/utils/hud.del';
 
 rule: 'Preparing'
 if(step == Step.Preparing)
 {
-  SmallMessage(AllPlayers(), "Preparing");
+  SmallMessageFixed(AllPlayers(), "Preparing");
 
   outline.Clear();
 
@@ -17,7 +18,7 @@ if(step == Step.Preparing)
 rule: 'Drawing'
 if(step == Step.Drawing)
 {
-  SmallMessage(AllPlayers(), "Drawing");
+  SmallMessageFixed(AllPlayers(), "Drawing");
   Wait(0.1);
 
   // EnableInspectorRecording();
@@ -27,7 +28,7 @@ if(step == Step.Drawing)
   outline.RenderLines(center, scale);
   outline.RenderVertices(center, scale);
 
-  SmallMessage(AllPlayers(), "Finished");
+  SmallMessageFixed(AllPlayers(), "Finished");
   // EnableInspectorRecording();
 
   step = Step.Nothing;

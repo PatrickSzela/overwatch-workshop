@@ -1,31 +1,33 @@
 import '../modifier.del';
-import '../effects.del';
+import '../utils/effects.del';
 
 String GO_FORWARD_NAME: 'Go Forward';
+Number GO_FORWARD_DURATION: 10;
 
-Modifier goForward: {
-  name: GO_FORWARD_NAME,
-  notification: GO_FORWARD_NAME,
-  icon: AbilityIconString(Hero.Mauga, Button.Ability1),
-  duration: 10, 
-  enabled: SettingToggle(GO_FORWARD_NAME),
-  preload: () => {
-    foreach(Player player in AllPlayers()) {
-      CreatePlayerEffect(player, Effect.BadAura, 0.25);
-      CreatePlayerEffect(player, Effect.BadAuraSound, 100);
+Modifier goForward: Modifier.New(
+  name: GO_FORWARD_NAME, 
+  duration: GO_FORWARD_DURATION,
+  description: ["Forces player to go forward"]
+);
 
-      Wait();
-    }
-  },
-  enable: () => {
-    StartThrottleInDirection(AllPlayers(), Forward(), 2, Relative.ToPlayer, ThrottleBehavior.AddToExistingThrottle);
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      DestroyPlayerEffects(player);
-    }
-    
-    StopThrottleInDirection(AllPlayers());
-  },
-  ..MODIFIER_BASE
-};
+rule: '[Go Forward] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(GO_FORWARD_NAME))
+{
+  WaitBeforePreloading(2);
+
+  CreatePlayerEffect(EventPlayer(), Effect.BadAura, 0.25);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.BadAuraSound, 100);
+}
+
+rule: '[Go Forward] Has Started'
+if(ModifierHasStarted(GO_FORWARD_NAME))
+{
+  ForceThrottle(AllPlayers(), 1, 1, 0, 0, -1, 1);
+
+  // end
+  WaitUntilModifierIsOver();
+  
+  StopForcingThrottle(AllPlayers());
+}

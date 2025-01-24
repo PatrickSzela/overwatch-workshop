@@ -24,11 +24,11 @@ void PageTeleportHandleTeleport() "Teleport: Handle Teleport to Objective" {
 
     Wait(1);
 
-    SmallMessage(EventPlayer(), "Teleport to a safe spot");
-    WaitUntil(EventPlayer().IsOnGround() || !notOnGround, 99999);
+    SmallMessageFixed(EventPlayer(), "Teleport to a safe spot");
+    WaitForeverUntil(EventPlayer().IsOnGround() || !notOnGround);
 
     if(EventPlayer().IsButtonHeld(Button.Ability2)) {
-      WaitUntil(!EventPlayer().IsButtonHeld(Button.Ability2), 99999);
+      WaitForeverUntil(!EventPlayer().IsButtonHeld(Button.Ability2));
     }
   }
 

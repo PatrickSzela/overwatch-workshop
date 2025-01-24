@@ -1,0 +1,66 @@
+import '../modifier.del';
+import '../utils/duplicate.del';
+import '../../../libs/speedUpAbility/index.del';
+
+String ANA_PAINTBALL_NAME: 'Ana\'s Sleep Dart Paintball';
+Number ANA_PAINTBALL_DURATION: 15;
+
+Modifier anaPaintball: Modifier.New(
+  name: ANA_PAINTBALL_NAME, 
+  duration: ANA_PAINTBALL_DURATION,
+  description: [
+    "Sleep Dart instantly kills a victim. Greatly accelerates Sleep Dart cooldown,",
+    "and getting an elimination resets it"
+  ]
+);
+
+rule: '[Ana Paintball] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(ANA_PAINTBALL_NAME))
+{
+  PreloadDuplicate(EventPlayer(), Hero.Ana, true, true);
+}
+
+rule: '[Ana Paintball] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(ANA_PAINTBALL_NAME))
+{
+  WaitUntilAlive();
+
+  StartDuplicate();
+}
+
+rule: '[Ana Paintball] Setup'
+Event.OngoingPlayer
+if(ModifierHasStarted(ANA_PAINTBALL_NAME))
+if(IsDuplicatingFrozenReady())
+{
+  SetAbility2Enabled(EventPlayer(), false);
+  SetAmmo(EventPlayer(), 0, 9999);
+  SetMaxAmmo(EventPlayer(), 0, 9999);
+  speedUpAbility.Cooldown(Button.Ability1, 5);
+
+  WaitUntilIsDeadOrModifierIsOver();
+
+  SetAbility2Enabled(EventPlayer(), true);
+  speedUpAbility.StopCooldown(Button.Ability1);
+  StopDuplicate(EventPlayer(), IsAlive());
+}
+
+rule: '[Ana Paintball] Kill on sleeping someone'
+Event.OnDamageDealt
+if(ModifierHasStarted(ANA_PAINTBALL_NAME))
+if(IsDuplicatingFrozenReady())
+if(EventAbility() == Button.Ability1)
+{
+  KillIfKillableElseDamage(Victim(), EventPlayer());
+}
+
+rule: '[Ana Paintball] Reset sleep dart cooldown on kill'
+Event.OnElimination
+if(ModifierHasStarted(ANA_PAINTBALL_NAME))
+if(IsDuplicatingFrozenReady())
+{
+  WaitUntil(!IsUsingAbility1(), 3);
+  SetAbilityCooldown(EventPlayer(), Button.Ability1, 0);
+}

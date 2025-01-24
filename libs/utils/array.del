@@ -1,3 +1,6 @@
+import './string.del';
+import './log.del';
+
 # Add an `item` into the `array` on position `index`.
 T[] AddAtPosition<T>(T[] array, T item, Number index):
   array.Slice(0, index) + [item] + array.Slice(index, 999);
@@ -14,8 +17,45 @@ T[] ShiftAndPush<T>(T[] array, Number amount): amount > 0 ?
 # Reverses an `array`.
 T[] Reverse<T>(T[] array): array.SortedArray((_, idx) => -idx);
 
+# Removes first item from an `array`.
+T[] RemoveFirst<T>(T[] array): array.Slice(1, NUMBER_MAX);
+
+# Removes last item from an `array`.
+T[] RemoveLast<T>(T[] array): array.Slice(0, array.Length - 1);
+
+# Removes last item from an `array` and returns it.
+T Pop<T>(ref T[] array) {
+  T item! = array.Last;
+  array = RemoveLast(array);
+  return item;
+}
+
+# Splits an `array` into 2 parts based on first occurrence of `separator`.
+# 
+# NOTE: this method assumes `separator` occurs at least once in the `array`.
+T[][] SplitFirst<T>(in T[] array, in T separator): 
+  [array.Slice(0, array.IndexOf(separator)), array.Slice(array.IndexOf(separator) + 1, NUMBER_MAX)];
+
+# Splits an `array` into parts based on `separator`.
+T[][] Split<T>(in T[] array, in T separator) {
+  Number slot = 0;
+  T[][] parts = [[]];
+
+  foreach(T n in array) {
+    if(<Any>n == <Any>separator) {
+      // comma found
+      slot++;
+      parts[slot] = [];
+    } else {
+      parts[slot] += n;
+    }
+  }
+
+  return parts;
+}
+
 # Joins elements of `array` into a String while also putting `separator` between them.
-String Join(in Any[] array, in String separator) {
+String Join(in Any[] array, in String separator = ", ") {
   if(!array.Length) return "";
   String ret! = array[0];
   Any[] arr! = array.Slice(1, array.Length - 1);
@@ -25,7 +65,26 @@ String Join(in Any[] array, in String separator) {
   return ret;
 }
 
-String InlineJoin10(Any[] array, String separator): 
+// TODO: remove?
+String JoinO(in Any[] array, in String separator = ", ") {
+  if(!array.Length) return "";
+  DisableInspectorRecording();
+
+  String ret = array[0];
+  Any[] arr = array.Slice(1, array.Length - 1);
+
+  for(Number i = 0; i < arr.Length; i++) {
+    ret = $"{ret}{separator}{arr[i]}";
+    if(i % 50 == 0) MinWait();
+  }
+
+  if(inspectorEnabled)
+    EnableInspectorRecording();
+  return ret;
+}
+
+# NOTE: Doesn't handle falsy values
+String InlineJoin10(Any[] array, String separator = ", "): 
   (array[0] ? $"{array[0]}" : '') +
   (array[1] ? $"{separator}{array[1]}" : '') +
   (array[2] ? $"{separator}{array[2]}" : '') +

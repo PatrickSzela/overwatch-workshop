@@ -1,0 +1,74 @@
+import '../modifier.del';
+import '../utils/duplicate.del';
+
+String MOTH_WAR_NAME: 'Moth War';
+Number MOTH_WAR_DURATION: 15 + 0.25;
+
+Modifier mothWar: Modifier.New(
+  name: MOTH_WAR_NAME, 
+  duration: MOTH_WAR_DURATION,
+  canDurationBeExtended: false,
+  description: [
+    "Dr. Ziegler became fed up with healing others, and decided to", 
+    "take matters into her own hands"
+  ]
+);
+
+rule: '[Moth War] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(MOTH_WAR_NAME))
+{
+  PreloadDuplicate(EventPlayer(), Hero.Mercy, true, true, false);
+}
+
+rule: '[Moth War] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(MOTH_WAR_NAME))
+{
+  WaitUntilAlive();
+  
+  StartDuplicate();
+}
+
+rule: '[Moth War] Setup'
+Event.OngoingPlayer
+if(ModifierHasStarted(MOTH_WAR_NAME))
+if(IsDuplicatingFrozenReady())
+{
+  SetDamageDealt(EventPlayer(), 200);
+  AllowButton(EventPlayer(), Button.Ultimate);
+  SetUltimateCharge(EventPlayer(), 100);
+  PressButton(EventPlayer(), Button.Ultimate);
+
+  // WORKAROUND: disabling ability itself doesn't disable a prompt about resurrecting, so set cooldown instead...
+  // SetAbility2Enabled(EventPlayer(), false);
+  SetAbilityCooldown(EventPlayer(), Button.Ability2, 999); 
+
+  WaitUntilIsDeadOrModifierIsOver();
+
+  // SetAbility2Enabled(EventPlayer(), true);
+  SetDamageDealt(EventPlayer(), 100);
+  StopDuplicate(EventPlayer(), IsAlive());
+}
+
+rule: '[Moth War] Press Button safeguard'
+Event.OngoingPlayer
+if(ModifierHasStarted(MOTH_WAR_NAME))
+if(IsDuplicatingFrozen())
+if(UltimateChargePercent() == 100)
+{
+  PressButton(EventPlayer(), Button.Ultimate);
+  Wait(0.1);
+  LoopIfConditionIsTrue();
+}
+
+rule: '[Moth War] Swap weapon'
+Event.OngoingPlayer
+if(ModifierHasStarted(MOTH_WAR_NAME))
+if(IsDuplicatingFrozen())
+if(Weapon() == 1)
+{
+  SetWeapon(EventPlayer(), 2);
+  Wait(0.1);
+  LoopIfConditionIsTrue();
+}

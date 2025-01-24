@@ -1,0 +1,294 @@
+import '../utils/helpers.del';
+import '../utils/button.spectatorButtons.del';
+import '../utils/string.ascii.del';
+import '../utils/number.join.del';
+import '../utils/json.del';
+import '../utils/player.del';
+
+enum OWTP_MessageName {
+  CONNECT = "OWTP_CONNECT",
+  DISCONNECT = "OWTP_DISCONNECT",
+  ERROR = "OWTP_ERROR",
+  PACKETS_CONFIRMED = "OWTP_PACKETS_CONFIRMED",
+  CONFIRMATION_RECEIVED = "OWTP_CONFIRMATION_RECEIVED",
+  REGISTER_MESSAGE_STRUCTURE = "OWTP_REGISTER_MESSAGE_STRUCTURE"
+}
+
+enum OWTP_MessageData {
+  MESSAGE_NAME = "OWTP_messageName",
+  ERROR_CODE = "errorCode",
+  PACKETS = "packets",
+  REGISTER_MESSAGE_STRUCTURE_NAME = "name",
+  REGISTER_MESSAGE_STRUCTURE_ID = "id",
+  REGISTER_MESSAGE_STRUCTURE_DATA_TYPES = "dataTypes"
+}
+
+enum OWTP_ErrorCode {
+  INVALID_PACKET = "INVALID_PACKET",
+  INVALID_MESSAGE = "INVALID_MESSAGE",
+  TIMED_OUT = "TIMED_OUT"
+}
+
+enum OWTP_ReservedPackets {
+  START_END_CONFIRM = 127,
+  COMMA = 126,
+  CONNECT = 125
+}
+
+single struct Message {
+  String _name;
+  Any[] _data;
+
+  public String name: _name;
+  public Any[] data: _data;
+
+  public static Message New(String name, Any[] data = []): 
+    { _name: name, _data: data };
+}
+
+single struct MessageStructure {
+  public String name;
+  public String[] dataNames;
+  public Type[] dataTypes;
+
+  public static MessageStructure New(String name, String[] dataNames = [], Type[] dataTypes = []): 
+    { name: name, dataNames: dataNames, dataTypes: dataTypes };
+}
+
+single struct OWTP {
+  Boolean _enabled;
+  Boolean _connected;
+  Button[] buttonsBuffer;
+  Number[] packetsBuffer;
+  Any[] sendMessageQueue;
+  public Message message;
+  (Number | OWTP_ReservedPackets)[][] registeredMessageIds;
+  MessageStructure[] registeredMessageStructures;
+
+  public Boolean enabled: _enabled;
+  public Boolean connected: _connected;
+
+  public static OWTP New(): { 
+    _enabled: false, 
+    _connected: false, 
+    packetsBuffer: [], 
+    buttonsBuffer: [], 
+    sendMessageQueue: [],
+    message: null, 
+    registeredMessageIds: [
+      [OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT]
+    ],
+    registeredMessageStructures: [
+      MessageStructure.New("CONNECT")
+    ] 
+  };
+
+  public ref void MarkMessageAsHandled() {
+    message = null;
+  }
+
+  # Will pause the execution of the current rule until connection has been established
+  public ref void Connect() {
+    if(_connected) return;
+
+    _enabled = true;
+    SendMessage(OWTP_MessageName.CONNECT);
+
+    WaitForeverUntil(message.name[0] == "CONNECT" || !_enabled);
+
+    if(!_enabled) return;
+
+    _connected = true;
+  }
+
+  public ref void Disconnect() {
+    if(!_connected) return;
+
+    SendMessage(OWTP_MessageName.DISCONNECT);
+    
+    _enabled = false;
+    _connected = false;
+    packetsBuffer = [];
+    message = null;
+  }
+
+  public ref void SendMessage(in Any type, in Any[][] data = []) {
+    // WORKAROUND: wrapped in another array so they don't get merged with other items in arrays...
+    sendMessageQueue += [[type, data]];
+  }
+
+  ref void SendError(in OWTP_ErrorCode errorCode) {
+    SendMessage(OWTP_MessageName.ERROR, [
+      [OWTP_MessageData.ERROR_CODE, errorCode], 
+      [OWTP_MessageData.PACKETS, packetsBuffer]
+    ]);
+    packetsBuffer = [];
+  }
+
+  // TODO: rename to RegisterReceivedMessageType
+  public ref void RegisterMessageType(in Number[] id, in String name, in Any[][] dataTypes = []) {
+    registeredMessageIds += id;
+    registeredMessageStructures += MessageStructure.New(name, dataTypes.Map((i) => i[0]), dataTypes.Map((i) => i[1]));
+    
+    SendMessage(OWTP_MessageName.REGISTER_MESSAGE_STRUCTURE, [
+      [OWTP_MessageData.REGISTER_MESSAGE_STRUCTURE_NAME, name],
+      [OWTP_MessageData.REGISTER_MESSAGE_STRUCTURE_ID, id],
+      [OWTP_MessageData.REGISTER_MESSAGE_STRUCTURE_DATA_TYPES, dataTypes]
+    ]);
+  }
+
+  ref Message DecodeMessage(in Number[] packets) {
+    // remove start, confirmation & end packets and split it by comma
+    Number[][] parts = Split(packets.Remove(<Number>OWTP_ReservedPackets.START_END_CONFIRM), <Number>OWTP_ReservedPackets.COMMA);
+    Number[] id: parts[0];
+    Number[] encodedData: parts[1];
+
+    // WORKAROUND: apparently you can't get index of array item in an array, thanks Workshop for making my life difficult...
+    // Number idx = registeredMessageIds.IndexOf(parts[0]);
+
+    MessageStructure structure;
+    for(Number i = 0; i < registeredMessageIds.Length; i++) {
+      if(registeredMessageIds[i] == id) {
+        structure = registeredMessageStructures[i];
+        break;
+      }
+    }
+
+    if(!structure) 
+      return null;
+
+    return Message.New(
+      structure.name, 
+      // encoded data doesn't contain "[" and "]" to reduce amount of packets
+      FromJSON($"[{DecodeAsciiString(encodedData)}]")
+    );
+  }
+
+  // Handle Send Message Queue
+  // NOTE: triggering SendMessage from 2 different rules at the same time breaks JSON parser, so we store them in queue and sending them from one rule
+  public ref Boolean HandleSendMessageQueue_Condition(): sendMessageQueue;
+
+  public ref void HandleSendMessageQueue_Rule() {
+    Any type: sendMessageQueue.First[0];
+    Any[][] data: sendMessageQueue.First[1];
+
+    Log(ToJSON([[OWTP_MessageData.MESSAGE_NAME, type]] + data));
+
+    sendMessageQueue = RemoveFirst(sendMessageQueue);
+
+    LoopIfConditionIsTrue();
+  }
+
+  // Handle Button
+  // NOTE: backup solution in case normal one is broken again
+  public ref Boolean HandleButton_Condition(in Button button): 
+    _enabled && IsButtonHeld(HostPlayer(), button) && !buttonsBuffer.Contains(button);
+
+  public ref void HandleButton_Rule(in Button button) {
+    buttonsBuffer += button;
+  }
+
+  // Handle Buttons
+  public ref Boolean HandleButtons_Condition(): _enabled;
+
+  public ref void HandleButtons_Rule() {
+    Button[] pressedButtons: spectatorButtons.Filter((button, idx) => HostPlayer().IsButtonHeld(button));
+    Button[] unhandledButtons: pressedButtons - buttonsBuffer;
+
+    WaitForeverUntil(unhandledButtons || !_enabled);
+
+    AbortIfConditionIsFalse();
+
+    buttonsBuffer = buttonsBuffer.Append(unhandledButtons);
+    
+    Loop();
+  }
+
+  // Handle Packets
+  public ref Boolean HandlePackets_Condition():
+    enabled && buttonsBuffer && spectatorButtons.IsTrueForAll((button, idx) => !HostPlayer().IsButtonHeld(button));
+
+  public ref void HandlePackets_Rule() {
+    // TODO: possibly decode packets here
+    Number segment: packetsBuffer.Last;
+
+    packetsBuffer += FromBinary(spectatorButtons.Map((button, idx) => buttonsBuffer.Contains(button)));
+    Number count = packetsBuffer.Filter((i) => i == OWTP_ReservedPackets.START_END_CONFIRM).Length;
+
+    if(segment <= 0 || segment > OWTP_ReservedPackets.START_END_CONFIRM) {
+      // no inputs detected or segment is too big, this should never happen
+      SendError(OWTP_ErrorCode.INVALID_PACKET);
+    } else if(count == 0) {
+      // buffer not started with MESSAGE_START_END_CONFIRM, possibly player pressed a button by accident
+      packetsBuffer = [];
+    } else if(count == 2) {
+      if(segment == OWTP_ReservedPackets.START_END_CONFIRM) {
+        // packet's end, send confirmation
+        SendMessage(OWTP_MessageName.PACKETS_CONFIRMED, [
+          [OWTP_MessageData.PACKETS, packetsBuffer]
+        ]);
+        // clean up any unhandled messages, so if the same message is sent the rules will retrigger
+        message = null;
+      } else {
+        // packet declined
+        SendError(OWTP_ErrorCode.INVALID_MESSAGE);
+      }
+    } else if(count == 3 && segment == OWTP_ReservedPackets.START_END_CONFIRM) {
+      // packet confirmed
+      message = DecodeMessage(packetsBuffer);
+      packetsBuffer = [];
+
+      if(message) {
+        SendMessage(OWTP_MessageName.CONFIRMATION_RECEIVED);
+      } else {
+        SendError(OWTP_ErrorCode.INVALID_MESSAGE);
+      }
+    }
+
+    buttonsBuffer = [];
+  }
+
+  // Handle Packets Timeout
+  public ref Boolean HandlePacketsTimeout_Condition(): enabled && packetsBuffer;
+
+  public ref void HandlePacketsTimeout_Rule() {
+    Number[] copy = packetsBuffer;
+    WaitUntil(copy != packetsBuffer, 1);
+
+    AbortIfConditionIsFalse();
+
+    if(copy != packetsBuffer) {
+      LoopIfConditionIsTrue();
+    }
+
+    SendError(OWTP_ErrorCode.TIMED_OUT);
+  }
+
+  public void DebugHud() {
+    // TODO: connection status HUD
+
+    DebugHudHelper($"Is connected: {BooleanFormatterYesNo(_connected)}\n");
+    DebugHudHelper(
+      $"Client-side buttons:\n{InlineJoin10(spectatorButtons.Filter((button, idx) => HostPlayer().IsButtonHeld(button)))}"
+    );
+    DebugHudHelper($"Server-side buttons:\n{InlineJoin10(buttonsBuffer)}");
+    DebugHudHelper($"Packets buffer:\n{InlineJoin10(packetsBuffer)}");
+    DebugHudHelper($"Current message name:\n{message.name}");
+  }
+
+  void DebugHudHelper(in String text) {
+    CreateHudText(
+      VisibleTo: HostPlayer(),
+      Subheader: $"{text}{LOTS_OF_SPACES}", 
+      Spectators: Spectators.VisibleAlways
+    );
+  }
+
+  public static void WaitForSpectator() {
+    // for some reason this won't work if placed in the condition or in WaitUntil...
+    while(!IsSpectator(HostPlayer())) {
+      Wait(1);
+      Loop();
+    }
+  }
+}

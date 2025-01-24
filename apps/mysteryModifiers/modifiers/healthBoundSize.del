@@ -1,0 +1,25 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String HEALTH_BOUND_SIZE_NAME: 'Health-Bound Size';
+Number HEALTH_BOUND_SIZE_DURATION: 10;
+
+Modifier healthBoundSize: Modifier.New(
+  name: HEALTH_BOUND_SIZE_NAME, 
+  duration: HEALTH_BOUND_SIZE_DURATION,
+  description: ["Players' size depends on their current health"]
+);
+
+rule: '[Health-Bound Size] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(HEALTH_BOUND_SIZE_NAME))
+{
+  Number scale: NormalizedHealth();
+  StartScalingPlayer(EventPlayer(), 0.5 + scale * 1.5, true);
+  StartModifyingHeroVoiceLines(EventPlayer(), 1.5 - scale);
+
+  // end
+  WaitUntilModifierIsOver();
+  StopScalingPlayer(EventPlayer());
+  StopModifyingHeroVoiceLines(EventPlayer());
+}

@@ -1,20 +1,25 @@
 import '../modifier.del';
 
 String SLOW_MOTION_NAME: 'Slow Motion';
+Number SLOW_MOTION_DURATION: 10;
+Number SLOW_MOTION_SPEED: 50;
 
-Modifier slowMotion: {
-  name: SLOW_MOTION_NAME,
-  notification: SLOW_MOTION_NAME,
-  icon: AbilityIconString(Hero.Tracer, Button.Ability2),
-  duration: 5, 
-  enabled: SettingToggle(SLOW_MOTION_NAME),
-  enable: () => {    
-    SetSlowMotion(50);
-    StartModifyingHeroVoiceLines(AllPlayers(), 0.1);
-  },
-  disable: () => {    
-    SetSlowMotion(100);
-    StopModifyingHeroVoiceLines(AllPlayers());
-  },
-  ..MODIFIER_BASE
-};
+Modifier slowMotion: Modifier.New(
+  name: SLOW_MOTION_NAME, 
+  duration: SLOW_MOTION_DURATION,
+  slowMotionSpeed: SLOW_MOTION_SPEED,
+  description: ["Greatly slows down the time"]
+);
+
+rule: '[Slow Motion] Has Started'
+if(ModifierHasStarted(SLOW_MOTION_NAME))
+{
+  SetSlowMotion(SLOW_MOTION_SPEED);
+  StartModifyingHeroVoiceLines(AllPlayers(), 0.1);
+
+  // end
+  WaitUntilModifierIsOver();
+
+  SetSlowMotion(100);
+  StopModifyingHeroVoiceLines(AllPlayers());
+}

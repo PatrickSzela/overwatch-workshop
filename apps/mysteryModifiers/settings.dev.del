@@ -1,0 +1,55 @@
+settings
+{
+	modes
+	{
+		Skirmish
+		{
+			enabled maps
+			{
+				Workshop Island Night
+			}
+		}
+    // Deathmatch {
+    //   enabled maps
+		// 	{
+		// 		Workshop Island Night
+		// 	}
+    // }
+
+		General
+		{
+			Game Mode Start: Manual
+			Hero Limit: Off
+			Limit Roles: Off
+			Respawn Time Scalar: 0%
+		}
+	}
+	// heroes
+	// {
+	// 	General
+	// 	{
+	// 		Ability Cooldown Time: 0%
+	// 		Spawn With Ultimate Ready: On
+	// 		Ultimate Generation: 500%
+	// 		Ultimate Generation - Combat: 500%
+	// 		Ultimate Generation - Passive: 500%
+	// 	}
+	// }
+	workshop
+	{
+		Enable send to Hero selection screen: On
+		Global modifier duration scalar: 1.000
+		Modifiers are controlled by: 0
+		Percentage above which to decrease points over time: 100
+		Percentage of damage done that will be converted to Points: 1.300
+		Percentage of healing done that will be converted to Points: 1.000
+		Points required to trigger modifier: 5
+		Points to grant per Ultimate usage: 2.000
+		Poll duration in seconds: 5
+		Rate at which decrease points over time: 0.500
+		Show Diagnostics: On
+		Skip Assembling Heroes and Setup: On
+		Spawn dummy bots on Workshop maps for testing purposes: On
+		Start or stop modifier with Interact button: On
+	}
+}

@@ -1,49 +1,63 @@
 import '../modifier.del';
-import '../duplicate.del';
+import '../utils/duplicate.del';
 
 String PRIMAL_RAGE_NAME: 'Primal Rage';
+Number PRIMAL_RAGE_DURATION: 10 + 0.25;
+Number PRIMAL_RAGE_HEALTH: 350;
 
-playervar Boolean primalRageEnabled = false;
+Modifier primalRage: Modifier.New(
+  name: PRIMAL_RAGE_NAME, 
+  duration: PRIMAL_RAGE_DURATION,
+  canDurationBeExtended: false,
+  description: ["Winton is angy"]
+);
 
-Modifier primalRage: {
-  name: PRIMAL_RAGE_NAME,
-  notification: PRIMAL_RAGE_NAME,
-  icon: AbilityIconString(Hero.Winston, Button.Ultimate),
-  duration: 10, 
-  enabled: SettingToggle(PRIMAL_RAGE_NAME),
-  preload: () => {
-    foreach(Player player in AllPlayers()) {
-      PreloadDuplicate(player, Hero.Winston, false, true);
-      Wait();
-    }
-  },
-  enable: () => {
-    foreach(Player player in AllPlayers()) {
-      if(player.IsAlive()) {
-        StartDuplicate(player);
-        player.primalRageEnabled = true;
-      }
-    }
-  },
-  disable: () => {
-    foreach(Player player in AllPlayers()) {
-      player.primalRageEnabled = false;
-    }
-  },
-};
-
-rule: '[Primal Rage] Press Button'
+rule: '[Primal Rage] Is Preloading'
 Event.OngoingPlayer
-if(primalRageEnabled && duplicationState == DuplicateState.ENABLED)
+if(ModifierIsPreloading(PRIMAL_RAGE_NAME))
 {
-  CancelPrimaryAction(EventPlayer());
+  PreloadDuplicate(EventPlayer(), Hero.Winston, true, true, false);
+}
+
+rule: '[Primal Rage] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(PRIMAL_RAGE_NAME))
+{
+  WaitUntilAlive();
+  
+  StartDuplicate();
+}
+
+rule: '[Primal Rage] Setup'
+Event.OngoingPlayer
+if(ModifierHasStarted(PRIMAL_RAGE_NAME))
+if(IsDuplicatingFrozenReady())
+{
+  AllowButton(EventPlayer(), Button.Ultimate);
   SetUltimateCharge(EventPlayer(), 100);
   PressButton(EventPlayer(), Button.Ultimate);
-  SetMaxHealth(EventPlayer(), 50);
 
-  WaitUntil(!primalRageEnabled || duplicationState == DuplicateState.DISABLED, 999);
-  WaitUntil(!IsUsingUltimate(EventPlayer()), 10);
+  WaitUntilIsDeadOrModifierIsOver();
 
   SetMaxHealth(EventPlayer(), 100);
-  StopDuplicate(EventPlayer());
+  StopDuplicate(EventPlayer(), IsAlive());
+}
+
+rule: '[Primal Rage] Press Button safeguard'
+Event.OngoingPlayer
+if(ModifierHasStarted(PRIMAL_RAGE_NAME))
+if(IsDuplicatingFrozenReady())
+if(UltimateChargePercent() == 100)
+{
+  PressButton(EventPlayer(), Button.Ultimate);
+  Wait(0.1);
+  LoopIfConditionIsTrue();
+}
+
+rule: '[Primal Rage] Set Max Health when Ultimate is active'
+Event.OngoingPlayer
+if(ModifierHasStarted(PRIMAL_RAGE_NAME))
+if(IsUsingUltimate())
+{
+  SetMaxHealth(EventPlayer(), PRIMAL_RAGE_HEALTH / MaxHealth() * 100);
 }
