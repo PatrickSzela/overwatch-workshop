@@ -233,7 +233,7 @@ single struct OWTP {
         // packet declined
         SendError(OWTP_ErrorCode.INVALID_MESSAGE);
       }
-    } else if(count == 3 && segment == OWTP_ReservedPackets.START_END_CONFIRM) {
+    } else if(count == 4 && segment == OWTP_ReservedPackets.START_END_CONFIRM) {
       // packet confirmed
       message = DecodeMessage(packetsBuffer);
       packetsBuffer = [];
