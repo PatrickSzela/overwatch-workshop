@@ -17,20 +17,16 @@ if(ModifierIsPreloading(TORB_HAMMER_WAR_NAME))
   PreloadDuplicate(EventPlayer(), Hero.Torbjorn, true, true);
 }
 
-rule: '[Torbjörn\'s Hammer War] Has Started'
+rule: '[Torbjörn\'s Hammer War] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(TORB_HAMMER_WAR_NAME))
 {
   WaitUntilAlive();
-  
-  StartDuplicate();
-}
 
-rule: '[Torbjörn\'s Hammer War] Setup'
-Event.OngoingPlayer
-if(ModifierHasStarted(TORB_HAMMER_WAR_NAME))
-if(IsDuplicatingFrozenReady())
-{
+  StartDuplicate();
+
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+  
   SetAbility1Enabled(EventPlayer(), false);
 
   WaitUntilIsDeadOrModifierIsOver();

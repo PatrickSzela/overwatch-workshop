@@ -21,20 +21,16 @@ if(ModifierIsPreloading(ANA_PAINTBALL_NAME))
   PreloadDuplicate(EventPlayer(), Hero.Ana, true, true);
 }
 
-rule: '[Ana Paintball] Has Started'
+rule: '[Ana Paintball] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(ANA_PAINTBALL_NAME))
 {
   WaitUntilAlive();
 
   StartDuplicate();
-}
 
-rule: '[Ana Paintball] Setup'
-Event.OngoingPlayer
-if(ModifierHasStarted(ANA_PAINTBALL_NAME))
-if(IsDuplicatingFrozenReady())
-{
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+
   SetAbility2Enabled(EventPlayer(), false);
   SetAmmo(EventPlayer(), 0, 9999);
   SetMaxAmmo(EventPlayer(), 0, 9999);

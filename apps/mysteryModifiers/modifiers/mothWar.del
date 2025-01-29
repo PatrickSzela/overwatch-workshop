@@ -21,20 +21,16 @@ if(ModifierIsPreloading(MOTH_WAR_NAME))
   PreloadDuplicate(EventPlayer(), Hero.Mercy, true, true, false);
 }
 
-rule: '[Moth War] Has Started'
+rule: '[Moth War] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(MOTH_WAR_NAME))
 {
   WaitUntilAlive();
-  
-  StartDuplicate();
-}
 
-rule: '[Moth War] Setup'
-Event.OngoingPlayer
-if(ModifierHasStarted(MOTH_WAR_NAME))
-if(IsDuplicatingFrozenReady())
-{
+  StartDuplicate();
+
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+
   SetDamageDealt(EventPlayer(), 200);
   AllowButton(EventPlayer(), Button.Ultimate);
   SetUltimateCharge(EventPlayer(), 100);

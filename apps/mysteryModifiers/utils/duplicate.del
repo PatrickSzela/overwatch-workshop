@@ -61,6 +61,7 @@ void StartDuplicate(in Player player = EventPlayer()) {
 }
 
 void StopDuplicate(in Player player = EventPlayer(), in Boolean restoreHealth = true) {
+  WaitUntil(player.duplicationState == DuplicateState.ENABLED, 1);
   player.duplicationData.restoreHealth = restoreHealth;
   player.duplicationState = DuplicateState.DISABLED;
 }

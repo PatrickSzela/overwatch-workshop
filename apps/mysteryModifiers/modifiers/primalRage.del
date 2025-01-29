@@ -19,20 +19,16 @@ if(ModifierIsPreloading(PRIMAL_RAGE_NAME))
   PreloadDuplicate(EventPlayer(), Hero.Winston, true, true, false);
 }
 
-rule: '[Primal Rage] Has Started'
+rule: '[Primal Rage] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(PRIMAL_RAGE_NAME))
 {
   WaitUntilAlive();
-  
-  StartDuplicate();
-}
 
-rule: '[Primal Rage] Setup'
-Event.OngoingPlayer
-if(ModifierHasStarted(PRIMAL_RAGE_NAME))
-if(IsDuplicatingFrozenReady())
-{
+  StartDuplicate();
+
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+
   AllowButton(EventPlayer(), Button.Ultimate);
   SetUltimateCharge(EventPlayer(), 100);
   PressButton(EventPlayer(), Button.Ultimate);

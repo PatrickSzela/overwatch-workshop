@@ -21,20 +21,16 @@ if(ModifierIsPreloading(SIGMA_DODGEBALL_NAME))
   PreloadDuplicate(EventPlayer(), Hero.Sigma, true, true);
 }
 
-rule: '[Sigma Dodgeball] Has Started'
+rule: '[Sigma Dodgeball] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
 {
   WaitUntilAlive();
 
   StartDuplicate();
-}
 
-rule: '[Sigma Dodgeball] Setup'
-Event.OngoingPlayer
-if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
-if(IsDuplicatingFrozenReady())
-{
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+  
   SetAbility1Enabled(EventPlayer(), false);
   SetPrimaryFireEnabled(EventPlayer(), false);
   SetMeleeEnabled(EventPlayer(), false);

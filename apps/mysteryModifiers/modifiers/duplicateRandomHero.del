@@ -36,20 +36,16 @@ if(ModifierHasStarted(DUPLICATE_RANDOM_HERO_NAME))
   BigMessage(AllPlayers(), $"Duplicating: {HeroWithIconFormatter(randomHeroCache)}");
 }
 
-rule: '[Duplicate - Random Hero] Has Started'
+rule: '[Duplicate - Random Hero] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(DUPLICATE_RANDOM_HERO_NAME))
 {
   WaitUntilAlive();
 
   StartDuplicate();
-}
 
-rule: '[Duplicate - Random Hero] Setup'
-Event.OngoingPlayer
-if(ModifierHasStarted(DUPLICATE_RANDOM_HERO_NAME))
-if(IsDuplicatingFrozenReady())
-{
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+
   speedUpAbility.UltimateCharge(5.5);
 
   // end
