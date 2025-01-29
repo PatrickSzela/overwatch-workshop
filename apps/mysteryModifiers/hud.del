@@ -70,10 +70,13 @@ rule: 'Create UI'
     );
 
   CreateHudText(
-    VisibleTo: LocalPlayer().tooltipChangeProgressBarPosition ? LocalPlayer() : null, Subheader: $"If you're a console player or your Field of View isn't set to 103, hold {InputBindingFormatterSingle(Button.Interact)} for 3 seconds", 
+    VisibleTo: LocalPlayer().tooltipChangeProgressBarPosition ? LocalPlayer() : null, 
+    Subheader: $"If you're a console player or your Field of View isn't set to 103,\nhold {InputBindingFormatterSingle(Button.Interact)} for 3 seconds", 
+    SubheaderColor: rainbow,
     Location: Location.Left,
     SortOrder: -10, 
-    Spectators: Spectators.VisibleAlways
+    Spectators: Spectators.VisibleAlways,
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
   );
 }
 
@@ -98,6 +101,6 @@ if(HasSpawned())
 
   tooltipChangeProgressBarPosition = false;
 
-  WaitForeverUntil(IsInSpawnRoom() || IsDead());
-  Loop();
+  // WaitForeverUntil(IsBetweenRounds());
+  // Loop();
 }
