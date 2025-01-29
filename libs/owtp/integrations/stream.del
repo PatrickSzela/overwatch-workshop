@@ -86,6 +86,7 @@ single struct StreamIntegration {
     EndPoll();
 
     WaitUntil(HandlePollWinner_Condition(), 10);
+    if(IsMatchComplete()) return;
 
     if(HandlePollWinner_Condition()) {
       Number winnerIdx: connection.message.data[0];
