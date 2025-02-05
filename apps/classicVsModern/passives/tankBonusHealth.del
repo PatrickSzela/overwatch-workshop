@@ -1,0 +1,21 @@
+globalvar Number tankBonusHealthEnabledGlobal = WorkshopSettingCombo("Passive - Tank Role Health", "Enable Tank Role Passive Health Bonus for", 5, teamAndHeroCombo, 0);
+globalvar Number tankBonusHealth = WorkshopSettingInteger("Passive - Tank Role Health", "Additional health", 150, 0, 500, 1);
+globalvar Number tankBonusHealthSkipDoomfist = WorkshopSettingToggle("Passive - Tank Role Health", "Don't give bonus health to Doomfist", true, 2);
+
+playervar Boolean tankBonusHealthEnabled = false;
+playervar Any tankBonusHealthPoolId;
+
+rule: "Create tank health pool"
+Event.OngoingPlayer
+if(tankBonusHealthEnabled)
+if(AllTankHeroes().Contains(HeroOf()))
+if((HeroOf() == Hero.Dva && IsInAlternateForm()) == false)
+{
+  tankBonusHealthPoolId = AddHealthPoolToPlayer(
+    Player: EventPlayer(),
+    HealthType: HealthType.Health,
+    MaxHealth: tankBonusHealth
+  );
+  WaitForeverUntil(!AllTankHeroes().Contains(HeroOf()) || (HeroOf() == Hero.Dva && IsInAlternateForm() || !tankBonusHealthEnabled));
+  RemoveHealthPoolFromPlayer(tankBonusHealthPoolId);
+}

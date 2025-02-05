@@ -1,0 +1,61 @@
+globalvar Number selfHealingPassiveEnabledGlobal = WorkshopSettingCombo("Passive - Self Healing", "Enable Self Healing Passive for", 5, teamAndHeroCombo, 0);
+globalvar Number selfHealingPassiveBaseHealth = WorkshopSettingInteger("Passive - Self Healing", "Base Healing", 10, 0, 50, 1);
+globalvar Number selfHealingPassiveMaxHealthPercentage = WorkshopSettingReal("Passive - Self Healing", "Percentage of Max Health", 5, 0, 100, 2);
+globalvar Number selfHealingPassiveDelay = WorkshopSettingReal("Passive - Self Healing", "Delay after taking damage in seconds", 5, 0.1, 10, 3);
+globalvar Number selfHealingPassiveDelaySupports = WorkshopSettingReal("Passive - Self Healing", "Delay after taking damage in seconds (Supports)", 2.5, 0.1, 10, 4);
+
+playervar Boolean selfHealingPassiveEnabled = false;
+playervar Any selfHealingId;
+playervar Boolean isSelfHealing;
+// playervar Any selfHealingEffects = [];
+playervar Boolean stopSelfHealing = false;
+
+// rule: 'Damage self with Interact'
+// Event.OngoingPlayer
+// Team.All
+// Player.All
+// if(IsButtonHeld(EventPlayer(), Button.Interact))
+// {
+//   Damage(EventPlayer(), EventPlayer(), 100);
+// }
+
+rule: 'Stop self healing on damage taken'
+Event.OnDamageTaken
+if(selfHealingPassiveEnabled)
+{
+  stopSelfHealing = true;
+  Wait(AllSupportHeroes().Contains(HeroOf()) ? selfHealingPassiveDelaySupports : selfHealingPassiveDelay, WaitBehavior.RestartWhenTrue);
+  StopHealOverTime(selfHealingId);
+  stopSelfHealing = false;
+}
+
+rule: 'Handle self healing'
+Event.OngoingPlayer
+if(selfHealingPassiveEnabled)
+if(stopSelfHealing == false)
+if(IsAlive())
+if(Health() < MaxHealth())
+{
+  // for some reason this rule will trigger before OnDamageTaken
+  MinWait();
+  AbortIfConditionIsFalse();
+
+  isSelfHealing = true;
+  selfHealingId = StartHealOverTime(EventPlayer(), null, NUMBER_MAX, 
+    selfHealingPassiveBaseHealth + 
+      MaxHealthOfType(EventPlayer(), HealthType.Health) * (selfHealingPassiveMaxHealthPercentage / 100)
+  );
+  WaitUntil(Health() >= MaxHealth() || IsDead() || stopSelfHealing || !selfHealingPassiveEnabled, NUMBER_MAX);
+  StopHealOverTime(selfHealingId);
+  isSelfHealing = false;
+}
+
+// rule: 'Create self healing effect'
+// Event.OngoingPlayer
+// if(selfHealingPassiveEnabled)
+// {
+//   CreateEffect(isSelfHealing ? AllPlayers() : null, Effect.HealTargetActiveEffect, TeamOf(), EventPlayer(), 1, EffectRev.VisibleToPositionRadiusAndColor);
+//   selfHealingEffects = Append(selfHealingEffects, LastCreatedEntity());
+//   CreateEffect(isSelfHealing ? AllPlayers() : null, Effect.HealTargetEffect, TeamOf(), EventPlayer(), 1, EffectRev.VisibleToPositionRadiusAndColor);
+//   selfHealingEffects = Append(selfHealingEffects, LastCreatedEntity());
+// }

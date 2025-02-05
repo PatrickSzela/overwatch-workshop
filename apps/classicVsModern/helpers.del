@@ -1,0 +1,9 @@
+void AllowHeroes(in Player player = EventPlayer(), in Boolean classic, in Boolean modern) {
+  if(classic && modern) {
+    SetAllowedHeroes(player, AllHeroes());
+  } else if(classic) {
+    SetAllowedHeroes(player, AllowedHeroes());
+  } else {
+    SetAllowedHeroes(EventPlayer(), AllHeroes() - AllowedHeroes());
+  }
+}

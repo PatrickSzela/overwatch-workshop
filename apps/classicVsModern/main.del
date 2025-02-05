@@ -1,0 +1,50 @@
+import './helpers.del';
+import './settings.del';
+import './passives/selfHealing.del';
+import './passives/tankBonusHealth.del';
+import '../../libs/utils/helpers.del';
+import '../../libs/utils/log.del';
+
+String[] teamCombo: ["Do not select - Custom Game bug", "Team 1", "Team 2", "Both teams"];
+String[] teamAndHeroCombo: ["Do not select - Custom Game bug", "Team 1", "Team 2", "Both teams", "Only Classic heroes", "Only Modern heroes", "None"];
+
+globalvar Boolean allowClassicHeroes = WorkshopSettingCombo("Global", "Enable Classic heroes for", 1, teamCombo, 0);
+globalvar Boolean allowModernHeroes = WorkshopSettingCombo("Global", "Enable Modern heroes for", 2, teamCombo, 1);
+
+playervar Hero[] classicHeroes 64 = [];
+playervar Hero[] modernHeroes 65 = [];
+
+rule: 'Import code in top right'
+{
+  CreateHudText(LocalPlayer(), " 5KMTT ", "Classic vs Modern Heroes", "By Patriq", Location.Right, 0, Color.Orange, Spectators: Spectators.VisibleAlways);
+}
+
+rule: 'Set allowed heroes'
+Event.OngoingPlayer
+if(AllowedHeroes().Length)
+{
+  classicHeroes = AllowedHeroes();
+  modernHeroes = AllHeroes() - AllowedHeroes();
+
+  AllowHeroes(
+    player: EventPlayer(), 
+    classic: [TeamOf() == Team.Team1 ? 1 : 2, 3].Contains(allowClassicHeroes), 
+    modern: [TeamOf() == Team.Team1 ? 1 : 2, 3].Contains(allowModernHeroes)
+  );
+}
+
+rule: 'Initialize settings'
+Event.OngoingPlayer
+if(HasSpawned())
+{
+  tankBonusHealthEnabled = [TeamOf() == Team.Team1 ? 1 : 2, 3, modernHeroes.Contains(HeroOf()) ? 5 : 4].Contains(tankBonusHealthEnabledGlobal);
+  selfHealingPassiveEnabled = [TeamOf() == Team.Team1 ? 1 : 2, 3, modernHeroes.Contains(HeroOf()) ? 5 : 4].Contains(selfHealingPassiveEnabledGlobal);
+
+  // workshop can't detect if Doomfist is a tank of DPS
+  if(tankBonusHealthSkipDoomfist && HeroOf() == Hero.Doomfist) {
+    tankBonusHealthEnabled = false;
+  }
+
+  WaitForeverUntil(HeroOf() != EvaluateOnce(HeroOf()) || TeamOf() != EvaluateOnce(TeamOf()));
+  LoopIfConditionIsTrue();
+}

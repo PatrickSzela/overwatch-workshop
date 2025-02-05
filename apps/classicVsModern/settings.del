@@ -1,0 +1,25 @@
+
+settings 
+{
+  main 
+  {
+    Mode Name: "Classic vs Modern Heroes"
+    Description: "Have you ever thought how the game would look like, if you could put classic Overwatch 1 heroes against modern Overwatch 2 ones, or even if you could mix them all together?
+Well now you can, with configurable Self Healing and Tank Bonus Health passives!
+
+----------
+Version: 1.0.0
+Workshop Code: 5KMTT
+Created by: PatPatPatriq"
+  }
+  modes 
+  {
+    Practice Range 
+    {
+    }
+  }
+  workshop
+	{
+		Enable Inspector: Off
+	}
+}
