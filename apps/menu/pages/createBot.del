@@ -29,7 +29,7 @@ single struct PageCreateBotProps {
 globalvar Number createdBotsIdx = 0;
 
 playervar PageCreateBotProps pageCreateBotProps = { hero: Hero.Reinhardt, position: Vector.Zero, slot: -1, team: Team.Team1 };
-playervar Number botIdx = 0;
+playervar Number botIdx;
 
 Component[] PageCreateBotItems() {
   // workaround for `pageCreateBotProps` containing wrong slot in deathmatch like modes even though the component shows correct information
@@ -71,6 +71,7 @@ Component[] PageCreateBotItems() {
   Component spawnBot = new Component(PAGE_CREATE_BOT_SPAWN_NAME);
   spawnBot.SetPrimaryAction("Spawn the bot", (it) => {
     CreateDummyBotWithMessage(pageCreateBotProps.hero, pageCreateBotProps.team, pageCreateBotProps.slot, pageCreateBotProps.position);
+    LastCreatedEntity().botIdx = -1;
   });
 
   return [hero, team, slot, position, new Text(), spawnBot];
@@ -104,12 +105,12 @@ if(menuState.pageId == PAGE_CREATE_BOT_ID)
 
 rule: 'Create Bot: Set Name'
 Event.OngoingPlayer
-if(IsDummyBot(EventPlayer()))
+if(botIdx != 0)
 {
   // workaround for a bug that uses old hero info in `StartForcingDummyBotName`
   Wait(0.1);
 
-  if(!botIdx) {
+  if(botIdx == -1) {
     createdBotsIdx += 1;
     botIdx = createdBotsIdx;
   }
