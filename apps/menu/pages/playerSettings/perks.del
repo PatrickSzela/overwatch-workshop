@@ -1,0 +1,16 @@
+import '../../../../libs/menu/components/toggle.del';
+import '../../../../libs/utils/player.grantMaxPerkLevel.del';
+import '../../_variables.del';
+
+String PAGE_MAX_PERK_LEVEL_ID: 'maxPerkLevel';
+String PAGE_MAX_PERK_LEVEL_NAME: 'Grant Max Perk Level';
+
+Component PageMaxPerkLevelMenuItem() {
+  Component maxPerkLevel = new Component(PAGE_MAX_PERK_LEVEL_NAME);
+  
+  maxPerkLevel.SetPrimaryAction("Apply", (it) => {
+    GrantMaxPerkLevel(selectedPlayers);
+  });
+
+  return maxPerkLevel;
+}

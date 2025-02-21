@@ -6,7 +6,7 @@ import '../../../../../libs/utils/string.formatters.del';
 import '../../../_variables.del';
 
 playervar Button selectedButton;
-playervar Button[] pageAbilitiesEnabled = allButtons;
+// playervar Button[] pageAbilitiesEnabled = allButtons;
 playervar Button[] pageAbilitiesKeepHoldingButton = [];
 playervar Button[] pageAbilitiesKeepSpammingButton = [];
 playervar Button[] pageAbilitiesInfiniteAmmo = [];
@@ -15,10 +15,6 @@ playervar Button[] pageAbilitiesInfiniteCharge = [];
 playervar Button[] pageAbilitiesInfiniteResource = [];
 
 String PAGE_ABILITIES_WARNING_BROKEN: "Due to Workshop bugs, some settings might not work correctly for some heroes";
-
-String PageAbilitiesInfo(Player player, Button button): 
-  $"Enabled: {BooleanFormatterOnOff(player.pageAbilitiesEnabled.Contains(button))}\n" +
-  $"Button held: {BooleanFormatterOnOff(player.buttonsHeld.Contains(button))}\n";
 
 enum PageAbilitiesOptions {
   PRESS = 'Press',
@@ -113,32 +109,33 @@ Toggle PageAbilitiesToggleGenerator(String text!, Number defaultChecked!, ((Bool
 Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuItemsGenerator" {
   Component[] list = [];
 
+  // TODO: restore
   // enabled
   // since we can't disable Interact button...
-  if(ability != Button.Interact) {
-    list += PageAbilitiesToggleGenerator(
-      text: 'Enabled',
-      defaultChecked: selectedPlayers[0].pageAbilitiesEnabled.Contains(ability),
-      onApply: (value) => {
-        if(value)
-          selectedPlayers.pageAbilitiesEnabled.ModAppend(ability);
-        else
-          selectedPlayers.pageAbilitiesEnabled.ModRemoveByValue(ability);
+  // if(ability != Button.Interact) {
+  //   list += PageAbilitiesToggleGenerator(
+  //     text: 'Enabled',
+  //     defaultChecked: selectedPlayers[0].pageAbilitiesEnabled.Contains(ability),
+  //     onApply: (value) => {
+  //       if(value)
+  //         selectedPlayers.pageAbilitiesEnabled.ModAppend(ability);
+  //       else
+  //         selectedPlayers.pageAbilitiesEnabled.ModRemoveByValue(ability);
 
-        if(ability == Button.PrimaryFire) SetPrimaryFireEnabled(selectedPlayers, value);
-        else if(ability == Button.SecondaryFire) SetSecondaryFireEnabled(selectedPlayers, value);
-        else if(ability == Button.Ability1) SetAbility1Enabled(selectedPlayers, value);
-        else if(ability == Button.Ability2) SetAbility2Enabled(selectedPlayers, value);
-        else if(ability == Button.Ultimate) SetUltimateAbilityEnabled(selectedPlayers, value);
-        else if(ability == Button.Reload) SetReloadEnabled(selectedPlayers, value);
-        else if(ability == Button.Melee) SetMeleeEnabled(selectedPlayers, value);
-        else if(ability == Button.Jump) SetJumpEnabled(selectedPlayers, value);
-        else SetCrouchEnabled(selectedPlayers, value);
-      }
-    );
+  //       if(ability == Button.PrimaryFire) SetPrimaryFireEnabled(selectedPlayers, value);
+  //       else if(ability == Button.SecondaryFire) SetSecondaryFireEnabled(selectedPlayers, value);
+  //       else if(ability == Button.Ability1) SetAbility1Enabled(selectedPlayers, value);
+  //       else if(ability == Button.Ability2) SetAbility2Enabled(selectedPlayers, value);
+  //       else if(ability == Button.Ultimate) SetUltimateAbilityEnabled(selectedPlayers, value);
+  //       else if(ability == Button.Reload) SetReloadEnabled(selectedPlayers, value);
+  //       else if(ability == Button.Melee) SetMeleeEnabled(selectedPlayers, value);
+  //       else if(ability == Button.Jump) SetJumpEnabled(selectedPlayers, value);
+  //       else SetCrouchEnabled(selectedPlayers, value);
+  //     }
+  //   );
 
-    list += new Text();
-  }
+  //   list += new Text();
+  // }
 
   // use
   Carousel use = PageAbilitiesCarousel('Use', ability);

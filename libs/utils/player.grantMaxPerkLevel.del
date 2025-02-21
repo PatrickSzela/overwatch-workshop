@@ -1,0 +1,25 @@
+import './number.del';
+import './team.availableTeams.del';
+import './dummyBot.del';
+
+Number GRANT_MAX_PERK_LEVEL_HEALTH: 10000;
+
+void GrantMaxPerkLevel(Player[] players!) "Grant Max Perk Level" {
+  Player[] dummies! = [];
+
+  foreach(Team team! in availableTeams) {
+    dummies += CreateDummyBotWithMessage(Hero.Roadhog, team, -1, Vector(0, NUMBER_MAX, 0));
+  }
+
+  AddHealthPoolToPlayer(dummies, HealthType.Health, GRANT_MAX_PERK_LEVEL_HEALTH, true, false);
+  SetStatus(dummies, null, Status.Unkillable);
+  
+  foreach(Player player! in players) {
+    Heal(dummies, null, NUMBER_MAX);
+    MinWait();
+    Damage(dummies.Filter((i) => TeamOf(i) == OppositeTeamOf(TeamOf(player))), player, GRANT_MAX_PERK_LEVEL_HEALTH);
+    MinWait();
+  }
+
+  DestroyDummyBotsInVariable(dummies);
+}
