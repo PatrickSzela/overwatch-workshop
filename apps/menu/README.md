@@ -27,6 +27,10 @@ It allows you to:
 
 Most of these actions can also be added to the **Timeline**, which allows you to create a playable action set that can be played on repeat even with the menu itself being closed.
 
+More information about the Workshop mode available on the [Workshop.codes](https://workshop.codes/not-so-simple-menu/) website
+
+Source code written in [OSTW](https://github.com/ItsDeltin/Overwatch-Script-To-Workshop)
+
 #### Custom Game Settings
 
 Because, as of the day of writing this, the Custom Game menus are pretty broken, and precompiled settings cannot even be imported, after compiling and importing the code, you must change these settings manually, in the specified order:
