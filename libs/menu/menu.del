@@ -17,13 +17,10 @@ enum MenuLocation {
 class Menu {
   public static Number MAX_ITEMS: 15;
 
-  public MenuLocation location;
   public Any[] hudTexts;
 
   public constructor(ref MenuState state, in MenuLocation location = MenuLocation.Left) {
-    this.location = location;
-
-    GenerateHUDTexts(state);
+    GenerateHUDTexts(state, location);
   }
 
   private Any CreateHudTextHelper(ref MenuState state, in Number i, Location location) { 
@@ -49,7 +46,7 @@ class Menu {
     );
   }
 
-  public void GenerateHUDTexts(ref MenuState state) {
+  public void GenerateHUDTexts(ref MenuState state, in MenuLocation location = MenuLocation.Left) {
     for(Number i! = 0; i < MAX_ITEMS + 10; i++) {
       if(location == MenuLocation.Left)
         hudTexts[i] = CreateHudTextHelper(state, i, Location.Left);
