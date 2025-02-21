@@ -29,9 +29,19 @@ if(!IsDummyBot())
 
 rule: 'Generate Menu'
 {
+  // WORKAROUND: Practice Range doesn't handle loading the menu very well...
+  if(CurrentGameMode() == GameMode.PracticeRange) {
+    WaitForeverUntil(HasSpawned(HostPlayer()));
+    Wait(0.25);
+    SmallMessageFixed(AllPlayers(), "Loading menu, please wait...");
+    Wait(0.25);
+  }
+
   // TODO: add info about state being a variable of LocalPlayer
   menu = new Menu(LocalPlayer().menuState);
   menu2 = new Menu(LocalPlayer().menuState2, MenuLocation.Right);
+
+  SmallMessageFixed(AllPlayers(), "Menu loaded");
 }
 
 rule: 'Pick position handle increase/decrease distance'
