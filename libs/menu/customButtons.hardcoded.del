@@ -1,0 +1,28 @@
+globalvar Button[] buttonsSettings;
+
+rule: 'Set buttons'
+{
+  buttonsSettings = [BUTTON_PRIMARY,
+    BUTTON_SECONDARY,
+    BUTTON_TERTIARY,
+    BUTTON_QUATERNARY,
+    BUTTON_BACK,
+    BUTTON_MODIFIER,
+    BUTTON_SWITCH,
+    BUTTON_INCREASE,
+    BUTTON_DECREASE
+  ];
+}
+
+Button BUTTON_PRIMARY: Button.Ability2;
+Button BUTTON_SECONDARY: Button.Reload;
+Button BUTTON_TERTIARY: Button.Interact;
+Button BUTTON_QUATERNARY: Button.Melee;
+Button BUTTON_BACK: Button.Ultimate;
+Button BUTTON_MODIFIER: Button.Crouch;
+Button BUTTON_SWITCH: Button.Ability1;
+Button BUTTON_INCREASE: Button.PrimaryFire;
+Button BUTTON_DECREASE: Button.SecondaryFire;
+
+Number ButtonDescriptionOrder(Button button):
+  buttonsSettings.IndexOf(button) - 12;
