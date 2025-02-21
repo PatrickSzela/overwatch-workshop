@@ -16,7 +16,7 @@ Because, as of the day of writing this, the Custom Game menus are pretty broken,
 
 1. **Modes:**
 
-- Enable **Classic** modes - if the modes are duplicated, load `Overwatch: Classic` preset (if available) and remember which modes are enabled, then enable the exact same modes in this step. Optionally also enable **Competitive Rules** for these modes too
+- Enable **Classic** modes - if the modes are duplicated, load _Overwatch: Classic_ preset (if available) and remember which modes are enabled, then enable the exact same modes in this step. Optionally also enable **Competitive Rules** for these modes too
 - Disable **Practice Range** mode - this mode is only enabled as a workaround so we can import the code
 - Open **All** menu:
   - Set **Tank Role Passive Health Bonus** to `Disabled`
