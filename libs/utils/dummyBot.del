@@ -1,0 +1,20 @@
+import './number.del';
+import './hud.del';
+
+Player CreateDummyBotWithMessage(in Hero hero, in Team team = Team.Team1, in Number slot = -1, in Vector position = null) {
+  CreateDummyBot(hero, team, slot, position);
+
+  if(!EntityExists(LastCreatedEntity()))
+    SmallMessageFixed(EventPlayer(), "Failed to create a bot");
+
+  return LastCreatedEntity();
+}
+
+void DestroyDummyBotInVariable(in Player player) {
+  DestroyDummyBot(TeamOf(player), SlotOf(player));
+}
+
+void DestroyDummyBotsInVariable(in Player[] players) {
+  foreach(Player player! in players)
+    DestroyDummyBotInVariable(player);
+}

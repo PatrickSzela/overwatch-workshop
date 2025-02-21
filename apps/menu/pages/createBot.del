@@ -70,11 +70,7 @@ Component[] PageCreateBotItems() {
 
   Component spawnBot = new Component(PAGE_CREATE_BOT_SPAWN_NAME);
   spawnBot.SetPrimaryAction("Spawn the bot", (it) => {
-    Player bot! = CreateDummyBot(pageCreateBotProps.hero, pageCreateBotProps.team, pageCreateBotProps.slot, pageCreateBotProps.position);
-
-    if(!EntityExists(bot)) {
-      SmallMessageFixed(EventPlayer(), "Failed to create a bot");
-    }
+    CreateDummyBotWithMessage(pageCreateBotProps.hero, pageCreateBotProps.team, pageCreateBotProps.slot, pageCreateBotProps.position);
   });
 
   return [hero, team, slot, position, new Text(), spawnBot];
