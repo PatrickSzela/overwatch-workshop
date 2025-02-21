@@ -9,12 +9,13 @@ settings
 				Workshop Island Night
 			}
 		}
-    // Deathmatch {
-    //   enabled maps
-		// 	{
-		// 		Workshop Island Night
-		// 	}
-    // }
+    Deathmatch 
+		{
+      enabled maps
+			{
+				Workshop Island Night
+			}
+    }
 
 		General
 		{

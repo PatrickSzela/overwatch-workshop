@@ -16,14 +16,6 @@ import '../../libs/playerInfo.del';
 import '../../libs/utils/diagnostics.del';
 import './settings.del';
 
-// TODO: mimic inputs
-// TODO: mark menu as dirty
-// TODO: page creation on currentMenuState
-
-// TODO: teleport/look at flag
-// TODO: menus: player speed, gravity, attach player, communicate, invisibility, walk towards, more here https://workshop.codes/wiki/categories/actions
-// TODO: tools - ruler, spheres
-
 rule: 'Generate Menu State'
 Event.OngoingPlayer
 if(!IsDummyBot())
