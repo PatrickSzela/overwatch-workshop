@@ -1,0 +1,26 @@
+import '../../_variables.del';
+import './sendSelfToHeroSelect.del';
+import './grantSelfMaxPerkLevel.del';
+import './noCooldowns.del';
+
+String PAGE_QUICK_ACTIONS_ID: 'quickActions';
+String PAGE_QUICK_ACTIONS_NAME: 'Quick Actions';
+
+Component[] PageQuickActionsItems() {
+  return [
+    PageSendSelfToHeroSelectMenuItem(),
+    PageGrantSelfMaxPerkLevelMenuItem(),
+    new Text(),
+    PageNoCooldownsMenuItem()
+  ];
+}
+
+rule: 'Quick Actions' 50
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_QUICK_ACTIONS_ID)
+{
+  menuState.CreatePage(
+    title: PAGE_QUICK_ACTIONS_NAME, 
+    items: PageQuickActionsItems()
+  );
+}

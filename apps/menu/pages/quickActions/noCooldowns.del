@@ -1,0 +1,34 @@
+import '../../_variables.del';
+
+String PAGE_NO_COOLDOWNS_ID: 'noCooldowns';
+String PAGE_NO_COOLDOWNS_NAME: 'No cooldowns, infinite charge and resources for everyone';
+
+globalvar Boolean pageNoCooldownsEnabled = false;
+
+Component PageNoCooldownsMenuItem() {
+  Toggle noCooldowns = new Toggle(
+    text: PAGE_NO_COOLDOWNS_NAME,
+    defaultChecked: pageNoCooldownsEnabled
+  );
+
+  noCooldowns.onChange = (checked, it) => {
+    pageNoCooldownsEnabled = checked;
+  };
+  
+  return noCooldowns;
+}
+
+rule: 'Quick Actions/No Cooldowns'
+Event.OngoingPlayer
+if(pageNoCooldownsEnabled)
+{
+  pageAbilitiesNoCooldown = allButtons;
+  pageAbilitiesInfiniteCharge = allButtons;
+  pageAbilitiesInfiniteResource = allButtons;
+
+  WaitForeverUntil(!pageNoCooldownsEnabled);
+
+  pageAbilitiesNoCooldown = [];
+  pageAbilitiesInfiniteCharge = [];
+  pageAbilitiesInfiniteResource = [];
+}

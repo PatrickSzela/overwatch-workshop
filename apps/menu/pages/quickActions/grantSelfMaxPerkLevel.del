@@ -1,0 +1,16 @@
+import '../../_variables.del';
+import '../../../../libs/utils/player.grantMaxPerkLevel.del';
+import '../playerSettings/changeHero.del';
+
+String PAGE_GRANT_SELF_MAX_PERK_LEVEL_ID: 'grantSelfMaxPerkLevel';
+String PAGE_GRANT_SELF_MAX_PERK_LEVEL_NAME: 'Grant Yourself Max Perk Level';
+
+Component PageGrantSelfMaxPerkLevelMenuItem() {
+  Component grantSelfMaxPerkLevel = new Component(PAGE_GRANT_SELF_MAX_PERK_LEVEL_NAME);
+
+  grantSelfMaxPerkLevel.SetPrimaryAction("Apply", (it) => {
+    GrantMaxPerkLevel([EventPlayer()]);
+  });
+  
+  return grantSelfMaxPerkLevel;
+}

@@ -4,15 +4,12 @@ import './slowMotion.del';
 import './diagnostics.del';
 import './playerInfo.del';
 import './hideText.del';
-import './sendSelfToHeroSelect.del';
 
 String PAGE_TOOLS_ID: 'tools';
 String PAGE_TOOLS_NAME: 'Tools';
 
 Component[] PageToolsItems() {
   return [
-    PageSendSelfToHeroSelectMenuItem(),
-    new Text(),
     <Component>new Text('Player info:')
   ] + PagePlayerInfoMenuItem() + [
     new Text(),
@@ -24,7 +21,7 @@ Component[] PageToolsItems() {
   ];
 }
 
-rule: 'Player Settings' 50
+rule: 'Tools' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_TOOLS_ID)
 {
