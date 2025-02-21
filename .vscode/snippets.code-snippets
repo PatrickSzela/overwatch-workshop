@@ -1,4 +1,32 @@
 {
+  "Menu Item": {
+    "prefix": ["menu", "menu item"],
+    "description": "Template for a Menu Item",
+    "scope": "ostw",
+    "isFileTemplate": true,
+    "body": [
+      "import '../../_variables.del';",
+      "",
+      "String PAGE_${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}ID: '$TM_FILENAME_BASE';",
+      "String PAGE_${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}NAME: '${1:Name}';",
+      "",
+      "Component Page${TM_FILENAME_BASE/^(.*)$/${1:/pascalcase}/}MenuItem() {",
+      "  Component $TM_FILENAME_BASE = new Component(PAGE_${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}NAME);",
+      "",
+      "  $TM_FILENAME_BASE.SetPrimaryAction(\"Apply\", (it) => {",
+      "    Kill(selectedPlayers);",
+      "  });",
+      "",
+      "  $TM_FILENAME_BASE.SetTertiaryAction(\"Add to timeline\", (it) => {",
+      "    Timeline.AddAction(timeline, ACTION_Kill(selectedPlayers));",
+      "  });",
+      "",
+      "  return $TM_FILENAME_BASE;",
+      "}",
+      ""
+    ]
+  },
+
   "Mystery Modifier": {
     "prefix": ["modifier", "mystery modifier"],
     "description": "Template for a Mystery Modifier",
