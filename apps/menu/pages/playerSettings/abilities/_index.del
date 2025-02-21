@@ -7,7 +7,7 @@ import './_helpers.del';
 String PAGE_ABILITIES_ID: 'abilities';
 String PAGE_ABILITIES_NAME: 'Abilities';
 
-String PAGE_ABILITIES_STOP: $"Hold {ButtonFormatterSingle_Underscores(Button.Interact)} for 5 secs to stop forcing using abilities and be able to use open menu";
+String PAGE_ABILITIES_STOP: $"Hold {ButtonFormatterSingle_Underscores(Button.Interact)} for 5 secs to stop forcing using abilities and be able to open menu";
 String PAGE_ABILITIES_SET_WEAPON: 'Set Weapon';
 String PAGE_ABILITIES_CANCEL_PRIMARY_ACTION: 'Stop Ability';
 

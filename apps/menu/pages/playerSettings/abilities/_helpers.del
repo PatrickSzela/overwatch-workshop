@@ -144,7 +144,7 @@ Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuI
   Carousel use = PageAbilitiesCarousel('Use', ability);
   use.AddDescription(Description.New(PAGE_ABILITIES_STOP, COLOR_INFO));
 
-  // TOOD: merge with other Charge
+  // TODO: merge with other Charge
   if(ability == Button.Ultimate) {
     list += PageAbilitiesNumberInputGenerator(
       text: 'Charge',

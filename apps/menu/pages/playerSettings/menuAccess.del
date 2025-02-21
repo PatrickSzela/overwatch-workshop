@@ -2,7 +2,7 @@ import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 
 String PAGE_MENU_ACCESS_ID: 'menuAccess';
-String PAGE_MENU_ACCESS_NAME: 'Menu Enabled';
+String PAGE_MENU_ACCESS_NAME: 'Menu Access';
 
 Component PageMenuAccessMenuItem() {
   Toggle menuAccess = new Toggle(

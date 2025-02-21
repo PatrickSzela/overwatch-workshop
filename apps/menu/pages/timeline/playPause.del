@@ -9,6 +9,8 @@ playervar Component pagePlayPauseComponent;
 Component PageTimelinePlayPauseMenuItem() {
   Component component = new Component('Play');
 
+  component.AddDescription(Description.New(PAGE_ABILITIES_STOP, COLOR_INFO));
+
   component.onRender = (it) => {
     it.text = timeline.isPlaying ? 'Pause' : 'Play';
   };
