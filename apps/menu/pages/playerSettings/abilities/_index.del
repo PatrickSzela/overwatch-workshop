@@ -28,7 +28,7 @@ Component[] PageAbilitiesItems() {
     CancelPrimaryAction(selectedPlayers);
   });
   cancelPrimaryAction.SetTertiaryAction("Add to timeline", (it) => {
-    Timeline.AddAction(timeline, ACTION_CencelPrimaryAction(selectedPlayers));
+    Timeline.AddAction(timeline, ACTION_CancelPrimaryAction(selectedPlayers));
   });
   cancelPrimaryAction.AddDescription(Description.New("Equivalent to a short stun", COLOR_INFO));
 

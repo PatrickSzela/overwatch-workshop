@@ -39,7 +39,7 @@ Action ACTION_StopHoldingButton(Player[] players, Button button):
   });
 
 // cancel primary action
-Action ACTION_CencelPrimaryAction(Player[] players): 
+Action ACTION_CancelPrimaryAction(Player[] players): 
   Action.New($'Cancel action([{PlayersFormatter(players)}])', () => {
     CancelPrimaryAction(players);
   });
