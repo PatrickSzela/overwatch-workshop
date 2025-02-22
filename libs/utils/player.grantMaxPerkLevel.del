@@ -12,7 +12,6 @@ void GrantMaxPerkLevel(Player[] players!) "Grant Max Perk Level" {
   }
 
   AddHealthPoolToPlayer(dummies, HealthType.Health, GRANT_MAX_PERK_LEVEL_HEALTH, true, false);
-  SetStatus(dummies, null, Status.Unkillable);
   
   foreach(Player player! in players) {
     Heal(dummies, null, NUMBER_MAX);
