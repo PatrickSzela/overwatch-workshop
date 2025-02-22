@@ -11,7 +11,7 @@ String PAGE_TIMELINE_EDIT_NAME: 'Timeline Editor';
 
 // there's too much overhead when trying to have only 1 source of truth...
 playervar Action[] editableActions;
-playervar Action[] markedToRemove;
+playervar Any[] markedToRemove;
 playervar Component componentBeingMoved;
 
 Number PageEditTimelineGetActionIdx(Any id):
@@ -23,7 +23,7 @@ Component PageTimelineEditItemGenerator(in Action action) {
   component.onRender = (it) => {
     it.color = 
       componentBeingMoved == it ? COLOR_WARNING :
-      markedToRemove.Contains(action) ? COLOR_ERROR :
+      markedToRemove.Contains(action.id) ? COLOR_ERROR :
       editableActions[PageEditTimelineGetActionIdx(action.id)].disabled ? COLOR_DISABLED :
       timeline.isPlaying && timeline.index == menuState2.items.IndexOf(it) ? COLOR_SWITCH : COLOR_NEUTRAL;
   };
@@ -32,10 +32,10 @@ Component PageTimelineEditItemGenerator(in Action action) {
     action.code();
   });
   component.SetSecondaryAction("Mark/Unmark for removal", (it) => {
-    if(markedToRemove.Contains(action)) {
-      markedToRemove -= action;
+    if(markedToRemove.Contains(action.id)) {
+      markedToRemove -= action.id;
     } else {
-      markedToRemove += action;
+      markedToRemove += action.id;
     }
     it.MarkToRerender();
   });
@@ -77,6 +77,7 @@ Event.OngoingPlayer
 if(menuState2.pageId == PAGE_TIMELINE_EDIT_ID)
 {
   editableActions = [];
+  markedToRemove = [];
 
   menuState2.CreatePage(
     title: PAGE_TIMELINE_EDIT_NAME, 
@@ -105,13 +106,14 @@ if(menuState2.isFocused)
     componentBeingMoved = null;
   }
   
-  if(timeline.actions != editableActions - markedToRemove) {
+  if(timeline.actions != editableActions || markedToRemove.Length) {
     SmallMessageFixed(EventPlayer(), 'Saving actions');
 
     Timeline.Stop(timeline);
 
     // `editableActions` will be updated automatically in a rule below
-    timeline.actions = editableActions - markedToRemove;
+    timeline.actions = editableActions.Filter((i) => !markedToRemove.Contains(i.id));
+    markedToRemove = [];
   }
 
   // rerender updated color
