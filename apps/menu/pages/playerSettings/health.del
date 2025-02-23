@@ -11,6 +11,8 @@ String PAGE_HEALTH_MAX_HEALTH_ID: PAGE_HEALTH_ID + 'max';
 String PAGE_HEALTH_MAX_HEALTH_NAME: 'Max Health';
 
 playervar Boolean pageHealthAutoHeal = false;
+playervar Boolean pageHealthDisablePassive = false;
+playervar Number pageHealthAutoHealHealth = 1;
 
 // TODO: create health pool
 
@@ -54,15 +56,33 @@ Component[] PageHealthItems() {
   });
   maxHealth.AddDescription(Description.New("Applied Max Health value might differ because of Workshop limitations", COLOR_WARNING));
   
+  Toggle disablePassive = new Toggle(
+    text: "Disable Passive Health Regeneration",
+    defaultChecked: selectedPlayers[0].pageHealthDisablePassive
+  );
+  disablePassive.onChange = (checked, it) => {
+    selectedPlayers.pageHealthDisablePassive = checked;
+  };
+  
   Toggle autoHeal = new Toggle(
-    text: "Auto Heal",
+    text: "Enabled",
     defaultChecked: selectedPlayers[0].pageHealthAutoHeal
   );
   autoHeal.onChange = (checked, it) => {
     selectedPlayers.pageHealthAutoHeal = checked;
   };
 
-  return [currentHealth, maxHealth, new Text(), autoHeal];
+  NumberInput autoHealHealth = new NumberInput(
+    menuState: menuState, 
+    text: "HP Percentage",
+    defaultValue: selectedPlayers[0].pageHealthAutoHealHealth * 100,
+    unit: '%'
+  );
+  autoHealHealth.SetPrimaryAction('Apply', (it) => {
+    selectedPlayers.pageHealthAutoHealHealth = Min((<NumberInput>it).value / 100, 1);
+  });
+
+  return [currentHealth, maxHealth, new Text(), disablePassive, new Text(), new Text("Force Health:"), autoHeal, autoHealHealth];
 }
 
 rule: 'Player Settings/Health' 50
@@ -87,14 +107,24 @@ if(menuState.pageId == PAGE_HEALTH_ID)
   playerInfoProps.Disable();
 }
 
-rule: 'Auto heal'
+rule: 'Disable Passive Health Regeneration Passive'
+Event.OngoingPlayer
+if(pageHealthDisablePassive)
+if(Health() > 0.001)
+if(NormalizedHealth() < 1)
+{
+  Damage(EventPlayer(), null, 0.001);
+  Heal(EventPlayer(), null, 0.001);
+
+  Wait(2);
+  LoopIfConditionIsTrue();
+}
+
+rule: 'Force Health'
 Event.OngoingPlayer
 if(pageHealthAutoHeal)
 {
-  SetPlayerHealth(EventPlayer(), EventPlayer().MaxHealth());
-
-  WaitForeverUntil(EventPlayer().Health() < EventPlayer().MaxHealth());
-
-  Wait(0.1);
+  SetPlayerHealth(EventPlayer(), pageHealthAutoHealHealth * MaxHealth());
+  WaitForeverUntil(Health() != pageHealthAutoHealHealth * MaxHealth() || !pageHealthAutoHeal);
   LoopIfConditionIsTrue();
 }
