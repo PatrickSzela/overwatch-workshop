@@ -119,6 +119,7 @@ rule: 'Player Settings/Look At: Create Sphere' 50
 Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.pageId == PAGE_LOOK_AT_ID)
+if(menuState.isFocused)
 {
   foreach(Player p! in selectedPlayersWithoutSelf) {
     pickPosition.CreateAdditionalSphere(
@@ -131,7 +132,7 @@ if(menuState.pageId == PAGE_LOOK_AT_ID)
     Wait(0.05);
   }
 
-  WaitForeverUntil(menuState.pageId != PAGE_LOOK_AT_ID || !menuState.isOpen);
+  WaitForeverUntil(menuState.pageId != PAGE_LOOK_AT_ID || !menuState.isOpen || !menuState.isFocused);
 
   pickPosition.DestroyAdditionalSpheres();
 }
