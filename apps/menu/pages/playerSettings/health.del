@@ -122,9 +122,10 @@ if(NormalizedHealth() < 1)
 
 rule: 'Force Health'
 Event.OngoingPlayer
+if(IsAlive())
 if(pageHealthAutoHeal)
 {
   SetPlayerHealth(EventPlayer(), pageHealthAutoHealHealth * MaxHealth());
-  WaitForeverUntil(Health() != pageHealthAutoHealHealth * MaxHealth() || !pageHealthAutoHeal);
+  WaitForeverUntil(Health() != pageHealthAutoHealHealth * MaxHealth() || !pageHealthAutoHeal || IsDead());
   LoopIfConditionIsTrue();
 }
