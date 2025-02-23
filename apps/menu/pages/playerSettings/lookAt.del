@@ -120,9 +120,7 @@ Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.pageId == PAGE_LOOK_AT_ID)
 {
-  foreach(Player p! in AllPlayers()) {
-    if(p == EventPlayer()) continue;
-
+  foreach(Player p! in selectedPlayersWithoutSelf) {
     pickPosition.CreateAdditionalSphere(
       color: Color.Green,
       position: PageLookAtRayCast(EvaluateOnce(p)),
