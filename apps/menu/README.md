@@ -39,7 +39,7 @@ Because, as of the day of writing this, the Custom Game menus are pretty broken,
 
 1. **Modes:**
 
-- Disable all modes and enable **Skirmish** _(optional)_
+- Disable all modes and enable **Skirmish** and **Practice Range** _(optional)_
 - For every enabled mode:
   - Set **Enable Perks** to `On` _(optional)_
 - Open **All** menu:

@@ -30,7 +30,7 @@ if(!IsDummyBot())
 rule: 'Generate Menu'
 {
   // WORKAROUND: Practice Range doesn't handle loading the menu very well...
-  if(CurrentGameMode() == GameMode.PracticeRange) {
+  if(ToString(CurrentGameMode()) == ToString(GameMode.PracticeRange)) {
     WaitForeverUntil(HasSpawned(HostPlayer()));
     Wait(0.25);
     SmallMessageFixed(AllPlayers(), "Loading menu, please wait...");
