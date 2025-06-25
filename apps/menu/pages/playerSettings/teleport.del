@@ -36,6 +36,7 @@ Component[] PageTeleportItems() {
   objective.SetTertiaryAction('Add to Timeline', (it) => {
     Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, PageTeleportGetObjectivePosition(<Carousel>it)));
   });
+  objective.AddDescription(Description.New("Due to Workshop bugs, this setting might not work in every mode", COLOR_WARNING));
 
   Carousel player = new Carousel(
     text: PAGE_TELEPORT_PLAYER_NAME,

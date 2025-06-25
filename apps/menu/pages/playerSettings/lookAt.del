@@ -75,6 +75,10 @@ Component[] PageLookAtItems() {
       (it) => ObjectiveFormatter(it.value) : 
       (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
 
+    if(choice == PageLookAtChoice.OBJECTIVE) {
+      carousel.AddDescription(Description.New("Due to Workshop bugs, this setting might not work in every mode", COLOR_WARNING));
+    }
+
     Radio radio = new Radio(menuState, <String>choice, PAGE_LOOK_AT_NAME);
     radio.child = carousel;
 
