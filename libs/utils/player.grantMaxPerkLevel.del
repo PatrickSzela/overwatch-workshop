@@ -4,7 +4,7 @@ import './dummyBot.del';
 
 Number GRANT_MAX_PERK_LEVEL_HEALTH: 10000;
 
-void GrantMaxPerkLevel(Player[] players!) "Grant Max Perk Level" {
+void GrantMaxPerkLevel(Player[] players!) "Grant Max Perk Level/Stadium Cash" {
   Player[] dummies! = [];
 
   foreach(Team team! in availableTeams) {

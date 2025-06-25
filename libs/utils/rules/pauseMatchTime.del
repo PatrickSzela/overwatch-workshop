@@ -1,9 +1,11 @@
-rule: 'Pause Match Time'
-{
-  // let other rules that set match time do their work first
-  Wait(1);
+import '../../../libs/utils/helpers.del';
 
-  DisableCompletion();
-  SetMatchTime(260);
+globalvar Boolean pauseMatchTime = false;
+
+rule: 'Pause Match Time' 999
+if(pauseMatchTime)
+{
   PauseMatchTime();
+  WaitForeverUntil(!pauseMatchTime);
+  UnpauseMatchTime();
 }

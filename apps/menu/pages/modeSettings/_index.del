@@ -1,0 +1,29 @@
+import '../../../../libs/menu/components/link.del';
+import '../../_variables.del';
+import './pauseMatchTime.del';
+import './setMatchTime.del';
+import './completeRoundMatch.del';
+
+String PAGE_MODE_SETTINGS_ID: 'modeSettings';
+String PAGE_MODE_SETTINGS_NAME: 'Mode Settings';
+
+Component[] PageModeSettingsItems() {
+  return [
+    PagePauseMatchTimeMenuItem(),
+    PageSetMatchTimeMenuItem(),
+    new Text()
+  ] + PageCompleteRoundMatchMenuItem();
+}
+
+rule: 'Mode Settings' 50
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_MODE_SETTINGS_ID)
+{
+  menuState.CreatePage(
+    title: PAGE_MODE_SETTINGS_NAME, 
+    items: PageModeSettingsItems(),
+    [
+      Description.New("Due to Workshop bugs, some settings might not work in every mode", COLOR_WARNING)
+    ]
+  );
+}

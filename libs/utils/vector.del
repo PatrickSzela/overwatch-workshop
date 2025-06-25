@@ -1,6 +1,13 @@
 import './bigArray.del';
 import './number.del';
 
+Vector RoundVector(in Vector vector, in Number rounding):
+  Vector(
+    RoundToInteger(vector.X * rounding), 
+    RoundToInteger(vector.Y * rounding),
+    RoundToInteger(vector.Z * rounding)
+  ) / rounding;
+
 Vector SnapToClosestAxis(in Vector vec) {
   Vector ret;
 

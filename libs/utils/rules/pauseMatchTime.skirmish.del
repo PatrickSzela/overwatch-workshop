@@ -1,7 +1,0 @@
-rule: 'Pause Match Time - in Skirmish'
-if(CurrentGameMode() == GameMode.Skirmish)
-{
-  DisableCompletion();
-  SetMatchTime(260);
-  PauseMatchTime();
-}

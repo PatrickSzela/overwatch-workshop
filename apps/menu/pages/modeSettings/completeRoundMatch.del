@@ -1,0 +1,38 @@
+import '../../../../libs/menu/components/carousel.del';
+import '../../_variables.del';
+
+String PAGE_COMPLETE_ROUND_MATCH_ID: 'completeRoundMatch';
+String PAGE_COMPLETE_ROUND_NAME: 'Complete round';
+String PAGE_COMPLETE_MATCH_NAME: 'Complete match';
+
+Component[] PageCompleteRoundMatchMenuItem() {
+  Carousel completeRound = new Carousel(
+    text: PAGE_COMPLETE_ROUND_NAME,
+    options: ["Draw", "Team 1 victory", "Team 2 victory"],
+    defaultValue: "Draw"
+  );
+
+  completeRound.SetPrimaryAction("Apply", (it) => {
+    if((<Carousel>it).value == "Draw") {
+      DeclareRoundDraw();
+    } else {
+      DeclareRoundVictory((<Carousel>it).value == "Team 1 victory" ? Team.Team1 : Team.Team2);
+    }
+  });
+
+  Carousel completeMatch = new Carousel(
+    text: PAGE_COMPLETE_MATCH_NAME,
+    options: ["Draw", "Team 1 victory", "Team 2 victory"],
+    defaultValue: "Draw"
+  );
+
+  completeMatch.SetPrimaryAction("Apply", (it) => {
+    if((<Carousel>it).value == "Draw") {
+      DeclareMatchDraw();
+    } else {
+      DeclareTeamVictory((<Carousel>it).value == "Team 1 victory" ? Team.Team1 : Team.Team2);
+    }
+  });
+
+  return [completeRound, completeMatch];
+}

@@ -1,0 +1,22 @@
+import '../../../../libs/menu/components/numberInput.del';
+import '../../_variables.del';
+
+String PAGE_SET_MATCH_TIME_ID: 'setMatchTime';
+String PAGE_SET_MATCH_TIME_NAME: 'Set Match Time';
+
+Component PageSetMatchTimeMenuItem() {
+  NumberInput setMatchTime = new NumberInput(
+    menuState: menuState, 
+    text: PAGE_SET_MATCH_TIME_NAME,
+    integralLength: 5,
+    fractionalLength: 3,
+    defaultValue: MatchTime(),
+    unit: ' s'
+  );
+
+  setMatchTime.SetPrimaryAction("Apply", (it) => {
+    SetMatchTime((<NumberInput>it).value);
+  });
+
+  return setMatchTime;
+}

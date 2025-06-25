@@ -1,0 +1,19 @@
+import '../../../../libs/menu/components/toggle.del';
+import '../../../../libs/utils/rules/pauseMatchTime.del';
+import '../../_variables.del';
+
+String PAGE_PAUSE_MATCH_TIME_ID: 'pauseMatchTime';
+String PAGE_PAUSE_MATCH_TIME_NAME: 'Pause Match Time';
+
+Component PagePauseMatchTimeMenuItem() {
+  Toggle pauseMatchToggle = new Toggle(
+    text: PAGE_PAUSE_MATCH_TIME_NAME,
+    defaultChecked: pauseMatchTime
+  );
+
+  pauseMatchToggle.onChange = (checked, it) => {
+    pauseMatchTime = checked;
+  };
+
+  return pauseMatchToggle;
+}

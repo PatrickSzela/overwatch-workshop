@@ -1,2 +1,2 @@
-import './customButtons.settings.del';
-// import './customButtons.hardcoded.del';
+// import './customButtons.settings.del';
+import './customButtons.hardcoded.del';
