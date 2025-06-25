@@ -1,3 +1,4 @@
+import './utils/hero.baseSpeed.del';
 import './utils/string.formatters.del';
 import './utils/player.sortedAllPlayers.del';
 import './utils/array.del';
@@ -62,7 +63,7 @@ void PlayerInfo(in String playerName, in Button[] buttonsHeld = [], in String[] 
   String health: $"{EventPlayer().Health() + 0.0001}​ / {EventPlayer().MaxHealth() + 0.0001}​ HP";
   String position: $"Pos: {EventPlayer().Position()}";
   String facing: $"Fac: {EventPlayer().FacingDirection()}";
-  String speed: $"Spd: ({HorizontalSpeedOf(EventPlayer()) + 0.0001}, {VerticalSpeedOf(EventPlayer()) + 0.0001})​ m/s";
+  String speed: $"Spd: ({HorizontalSpeedOf() + 0.0001}, {VerticalSpeedOf() + 0.0001})​ m/s ({RoundToInteger(HorizontalSpeedOf() / baseSpeed * 100, Rounding.Nearest)}%)";
   String buttons: $"Buttons: {buttonsHeld ? InlineJoin10(buttonsHeld, ', ') : '-'}";
   String statuses: $"Statuses: {appliedStatuses ? InlineJoin10(appliedStatuses, ', ') : '-'}";
 

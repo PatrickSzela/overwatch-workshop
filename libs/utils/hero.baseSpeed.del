@@ -1,0 +1,15 @@
+import '../../libs/utils/helpers.del';
+
+playervar Number baseSpeed = 5.5;
+
+rule: 'Handle Base Speed'
+Event.OngoingPlayer
+if(HasSpawned(EventPlayer()))
+{
+  if([Hero.Tracer, Hero.Genji].Contains(HeroOf())) {
+    baseSpeed = 6;
+  }
+
+  WaitForeverUntil(HeroOf() != EvaluateOnce(HeroOf()));
+  LoopIfConditionIsTrue();
+}
