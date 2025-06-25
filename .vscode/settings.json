@@ -3,7 +3,8 @@
     "menu",
     "mysteryModifiers",
     "pointMapper",
-    "classicVsModern"
+    "classicVsModern",
+    "stadiumVsNonStadium"
   ],
   "cSpell.words": [
     "betweem",
@@ -15,6 +16,7 @@
     "Dodgeball",
     "Doomfist",
     "globalvar",
+    "Hanzo",
     "Healee",
     "Idxs",
     "Inworld",

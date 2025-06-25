@@ -1,0 +1,39 @@
+import "./settings.del";
+import '../../libs/utils/helpers.del';
+
+String[] teamCombo: ["Do not select - Custom Game bug", "Team 1", "Team 2", "Both teams", "Neither team"];
+
+globalvar Number allowClassicHeroes = WorkshopSettingCombo("Global", "Enable Stadium heroes for", 1, teamCombo, 0);
+globalvar Number allowModernHeroes = WorkshopSettingCombo("Global", "Enable Non-Stadium heroes for", 2, teamCombo, 1);
+
+playervar Hero[] classicHeroes 64 = [];
+playervar Hero[] modernHeroes 65 = [];
+
+void AllowHeroes(in Player player = EventPlayer(), in Boolean classic, in Boolean modern) {
+  if(classic && modern) {
+    SetAllowedHeroes(player, AllHeroes());
+  } else if(classic) {
+    SetAllowedHeroes(player, AllowedHeroes());
+  } else {
+    SetAllowedHeroes(EventPlayer(), AllHeroes() - AllowedHeroes());
+  }
+}
+
+rule: 'Import code in top right'
+{
+  CreateHudText(LocalPlayer(), " XTMM9 ", "Stadium vs Non-Stadium Heroes", "By Patriq", Location.Right, 0, Color.Yellow, Spectators: Spectators.VisibleAlways);
+}
+
+rule: 'Set allowed heroes'
+Event.OngoingPlayer
+if(AllowedHeroes().Length)
+{
+  classicHeroes = AllowedHeroes();
+  modernHeroes = AllHeroes() - AllowedHeroes();
+
+  AllowHeroes(
+    player: EventPlayer(), 
+    classic: [TeamOf() == Team.Team1 ? 1 : 2, 3].Contains(allowClassicHeroes), 
+    modern: [TeamOf() == Team.Team1 ? 1 : 2, 3].Contains(allowModernHeroes)
+  );
+}

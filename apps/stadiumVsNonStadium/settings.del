@@ -1,0 +1,23 @@
+settings
+{
+  lobby 
+  {
+    Return To Lobby: Never
+  }
+  modes
+  {
+    Clash
+    Control
+    Push
+  }
+  main
+  {
+    Mode Name: "Stadium vs Non-Stadium Heroes"
+    Description: "Have you ever wanted to play a Stadium game with heroes that are not enabled in it by default, against a team of either Stadium enabled heroes or non-Stadium ones? Well, now you can!
+
+----------
+Version: 1.0.0
+Workshop Code: XTMM9
+Created by: PatPatPatriq"
+  }
+}
