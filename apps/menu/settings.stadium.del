@@ -1,0 +1,37 @@
+settings
+{
+  lobby 
+  {
+    Return To Lobby: Never
+  }
+  modes
+  {
+    General
+    {
+      Hero Limit: Off
+      Respawn Time Scalar: 0%
+      Game Mode Start: Immediately
+    }
+    Clash
+    Control
+    Push
+  }
+  main
+  {
+    Mode Name: "(Not So) Simple Menu - Stadium Edition"
+    Description: "Controls:
+[Crouch + Interact] - Open/Close menu
+[Ultimate] - Go back (when in submenu)/Close menu (when in root)
+The rest of controls depends on currently hovered menu item and are listed below the menu itself
+
+----------
+Version: 2.6.2
+Workshop Code: EM1Y9
+Created by: PatPatPatriq"
+  }
+  workshop
+  {
+    Enable Inspector: Off
+    Show Diagnostics: Off
+  }
+}
