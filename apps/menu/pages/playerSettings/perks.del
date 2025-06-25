@@ -3,7 +3,7 @@ import '../../../../libs/utils/player.grantMaxPerkLevel.del';
 import '../../_variables.del';
 
 String PAGE_MAX_PERK_LEVEL_ID: 'maxPerkLevel';
-String PAGE_MAX_PERK_LEVEL_NAME: 'Grant Max Perk Level';
+String PAGE_MAX_PERK_LEVEL_NAME: 'Grant Max Perk Level/Stadium Cash';
 
 Component PageMaxPerkLevelMenuItem() {
   Component maxPerkLevel = new Component(PAGE_MAX_PERK_LEVEL_NAME);
