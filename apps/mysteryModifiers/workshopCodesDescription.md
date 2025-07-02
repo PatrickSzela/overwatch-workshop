@@ -600,6 +600,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
       <ul class="update-notes__changes">
         <li>Puts players to Sleep</li>
         <li>Players who take damage while slept will get woken up</li>
+        <li>Because of a bug that makes tanks immune to the Sleep status applied with Workshop, it had to be recreated manually - expect minor issues</li>
       </ul>
     </div>
   </div>

@@ -3,6 +3,8 @@ import '../modifier.del';
 String SLEEP_NAME: 'Sleep';
 Number SLEEP_DURATION: 5;
 
+playervar Boolean isSleeping = false; // helper for effect because HasStatus is buggy when locally evaluated :)
+
 Modifier sleep: Modifier.New(
   name: SLEEP_NAME, 
   duration: SLEEP_DURATION,
@@ -10,15 +12,40 @@ Modifier sleep: Modifier.New(
   description: ["Puts players to Sleep. Taking damage will wake you"]
 );
 
+rule: '[Sleep] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(SLEEP_NAME))
+{
+  WaitBeforePreloading();
+
+  CreatePlayerEffect(EventPlayer(), Effect.AnaSleepingEffect, 1, visibleCondition: isSleeping);
+}
+
 rule: '[Sleep] Has Started'
 Event.OngoingPlayer
 if(ModifierHasStarted(SLEEP_NAME))
 {
   WaitUntilAlive();
   
-  SetStatus(EventPlayer(), null, Status.Asleep, NUMBER_MAX);
+  SetStatus(EventPlayer(), null, Status.KnockedDown, NUMBER_MAX);
 
   // end
   WaitUntilIsDeadOrModifierIsOver();
-  ClearStatus(EventPlayer(), Status.Asleep);
+  ClearStatus(EventPlayer(), Status.KnockedDown);
+  isSleeping = false;
+}
+
+rule: '[Sleep] Wake on damage taken'
+Event.OngoingPlayer
+if(ModifierHasStarted(SLEEP_NAME))
+if(HasStatus(EventPlayer(), Status.KnockedDown))
+{
+  isSleeping = true;
+  Wait(0.5);
+
+  // not OnDamageTaken because it doesn't work with deployables :)
+  WaitUntilModifierIsOverOrCondition(NormalizedHealth() < EvaluateOnce(NormalizedHealth()));
+
+  ClearStatus(EventPlayer(), Status.KnockedDown);
+  isSleeping = false;
 }
