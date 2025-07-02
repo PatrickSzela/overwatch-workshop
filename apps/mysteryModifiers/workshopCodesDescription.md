@@ -63,7 +63,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
-      <div class="modifier__title">Baby D.Va <span>[1][2][3]</span></div>  
+      <div class="modifier__title">Baby D.Va<span>[1][2][3]</span></div>  
       <div class="modifier__duration">15 secs</div>
     </div>
     <div class="modifier__content">
@@ -274,7 +274,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
-      <div class="modifier__title">Health-Bound Size</div>  
+      <div class="modifier__title">Health-Bound Size<span>[4]</span></div>  
       <div class="modifier__duration">10 secs</div>
     </div>
     <div class="modifier__content">
@@ -492,7 +492,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
-      <div class="modifier__title">Player Size - Big</div>  
+      <div class="modifier__title">Player Size - Big<span>[4]</span></div>  
       <div class="modifier__duration">10 secs</div>
     </div>
     <div class="modifier__content">
@@ -507,7 +507,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
-      <div class="modifier__title">Player Size - Small</div>  
+      <div class="modifier__title">Player Size - Small<span>[4]</span></div>  
       <div class="modifier__duration">10 secs</div>
     </div>
     <div class="modifier__content">
@@ -637,7 +637,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
-      <div class="modifier__title">Spider-Woman <span>[1][2][3]</span></div>  
+      <div class="modifier__title">Spider-Woman<span>[1][2][3]</span></div>  
       <div class="modifier__duration">15 secs</div>
     </div>
     <div class="modifier__content">
@@ -811,6 +811,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
   <li>After this Modifier ends, player's health and Ultimate charge are restored from before the Modifier was applied</li>
   <li>Dying while this Modifier is active cancels it prematurely for that specific player and restores their Ultimate charge</li>
   <li>Because of Workshop limitations, this Modifier won't work properly on AI bots</li>
+  <li>Due to a Workshop bug, player's nameplates do not scale properly</li>
 </ol>
 
 ### **Available Settings**
