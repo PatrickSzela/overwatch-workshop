@@ -1,0 +1,40 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String VAMPIRIC_EXCHANGE_NAME: 'Vampiric Exchange';
+Number VAMPIRIC_EXCHANGE_DURATION: 10;
+
+Modifier vampiricExchange: Modifier.New(
+  name: VAMPIRIC_EXCHANGE_NAME, 
+  duration: VAMPIRIC_EXCHANGE_DURATION,
+  description: ["Dealing damage to other players heals you, but healing others depletes your health"]
+);
+
+rule: '[Vampiric Exchange] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(VAMPIRIC_EXCHANGE_NAME))
+{
+  WaitBeforePreloading(2);
+
+  CreatePlayerEffect(EventPlayer(), Effect.BadAura, 1, Color.Violet);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.ZenyattaOrbOfDiscordTargetSound, 100);
+}
+
+rule: '[Vampiric Exchange] Heal on dealing damage'
+Event.OnDamageDealt
+if(ModifierHasStarted(VAMPIRIC_EXCHANGE_NAME))
+{
+  if(Victim() != EventPlayer()) {
+    Heal(EventPlayer(), Victim(), EventDamage() * 0.25);
+  }
+}
+
+rule: '[Vampiric Exchange] Deal damage on healing'
+Event.OnHealingDealt
+if(ModifierHasStarted(VAMPIRIC_EXCHANGE_NAME))
+{
+  if(Healee() != EventPlayer()) {
+    Damage(EventPlayer(), Healee(), EventHealing() * 0.5);
+  }
+}

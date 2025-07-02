@@ -273,22 +273,6 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
-      <div class="modifier__title">Health Exchange</div>  
-      <div class="modifier__duration">10 secs</div>
-    </div>
-    <div class="modifier__content">
-      <div class="modifier__description">
-        <p>Dealing damage to other players heals you, and healing others damages you</p>
-      </div>
-      <ul class="update-notes__changes">
-        <li>25% of damage done to other Players gets converted into self-healing</li>
-        <li>50% of healing done to other Players gets converted into self-damage </li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="modifier">
-    <div class="modifier__header">
       <div class="modifier__title">Hypothermia</div>  
       <div class="modifier__duration">15 secs</div>
     </div>
@@ -766,6 +750,22 @@ Once the meter is fully charged, the same randomly selected modifier will be app
         <li>Slows down cooldowns to 75%</li>
         <li>Slows down resource restoration to 75%</li>
         <li>Slows down Ultimate generation to 75%</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
+      <div class="modifier__title">Vampiric Exchange</div>  
+      <div class="modifier__duration">10 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>Dealing damage to other players heals you, but healing others depletes your health</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>25% of damage done to other Players gets converted into self-healing</li>
+        <li>50% of healing done to other Players gets converted into self-damage </li>
       </ul>
     </div>
   </div>

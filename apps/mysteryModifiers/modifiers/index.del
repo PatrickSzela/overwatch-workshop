@@ -14,7 +14,6 @@ import './gravityHigh.del';
 import './gravityLow.del';
 import './hacked.del';
 import './healthBoundSize.del';
-import './healthExchange.del';
 import './hypothermia.del';
 import './iceRink.del';
 import './invertControls.del';
@@ -42,6 +41,7 @@ import './torbHammerWar.del';
 import './trampoline.del';
 import './useUltimate.del';
 import './weakened.del';
+import './vampiricExchange.del';
 
 globalvar Modifier[] allModifiers = [
   adaptiveShield,
@@ -59,7 +59,6 @@ globalvar Modifier[] allModifiers = [
   gravityLow,
   hacked,
   healthBoundSize,
-  healthExchange,
   hypothermia,
   iceRink,
   invertControls,
@@ -86,7 +85,8 @@ globalvar Modifier[] allModifiers = [
   torbHammerWar,
   trampoline,
   useUltimate,
-  weakened
+  weakened,
+  vampiricExchange
 ];
 
 globalvar String[] enabledModifiers = [];
