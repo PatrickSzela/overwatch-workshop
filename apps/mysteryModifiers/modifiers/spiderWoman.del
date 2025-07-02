@@ -1,0 +1,73 @@
+import '../modifier.del';
+import '../utils/effects.del';
+import '../../../libs/speedUpAbility/index.del';
+
+String SPIDER_WOMAN_NAME: 'Spider-Woman';
+Number SPIDER_WOMAN_DURATION: 15;
+
+Modifier spiderWoman: Modifier.New(
+  name: SPIDER_WOMAN_NAME, 
+  duration: SPIDER_WOMAN_DURATION,
+  description: ["With purple skin... comes a requirement for airborne kills"]
+);
+
+rule: '[Spider-Woman] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(SPIDER_WOMAN_NAME))
+{
+  PreloadDuplicate(EventPlayer(), Hero.Widowmaker, true, true, false);
+}
+
+rule: '[Spider-Woman] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(SPIDER_WOMAN_NAME))
+{
+  WaitUntilAlive();
+
+  StartDuplicate();
+
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+
+  // reload if player is on widow already
+  SetAmmo(EventPlayer(), 0, MaxAmmo(EventPlayer())); 
+  speedUpAbility.Cooldown(Button.Ability1, 5);
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+
+  speedUpAbility.StopCooldown(Button.Ability1);
+  StopDuplicate(EventPlayer(), IsAlive());
+}
+
+rule: '[Spider-Woman] Kick player out of scope when on ground'
+Event.OngoingPlayer
+if(ModifierHasStarted(SPIDER_WOMAN_NAME))
+if(IsDuplicatingFrozenReady())
+if(IsOnGround())
+{
+  WaitUntilModifierIsOverOrCondition(IsFiringSecondary());
+  AbortIfConditionIsFalse();
+  CancelPrimaryAction();
+  // PressButton(EventPlayer(), Button.SecondaryFire);
+  MinWait();
+  LoopIfConditionIsTrue();
+}
+
+rule: '[Spider-Woman] Disable scope on ground'
+Event.OngoingPlayer
+if(ModifierHasStarted(SPIDER_WOMAN_NAME))
+if(IsDuplicatingFrozenReady())
+if(IsOnGround())
+{
+  SetSecondaryFireEnabled(EventPlayer(), false);
+  WaitUntilModifierIsOverOrCondition(IsInAir());
+  SetSecondaryFireEnabled(EventPlayer(), true);
+}
+
+rule: '[Spider-Woman] Reduce Grapple Hook cooldown on kill'
+Event.OnElimination
+if(ModifierHasStarted(SPIDER_WOMAN_NAME))
+if(IsDuplicatingFrozenReady())
+{
+  SetAbilityCooldown(EventPlayer(), Button.Ability1, 0);
+}

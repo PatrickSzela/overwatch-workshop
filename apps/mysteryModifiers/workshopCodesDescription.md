@@ -637,6 +637,24 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
+      <div class="modifier__title">Spider-Woman <span>[1][2][3]</span></div>  
+      <div class="modifier__duration">15 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>With purple skin... comes a requirement for airborne kills</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>Switches player's hero to Widowmaker</li>
+        <li>Disables Secondary Fire (scoped shots) while on ground</li>
+        <li>Speeds up Grapple Hook cooldown to 500%</li>
+        <li>Getting an elimination instantly restores Grapple Hook cooldown</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
       <div class="modifier__title">Sunburn</div>  
       <div class="modifier__duration">13 secs</div>
     </div>

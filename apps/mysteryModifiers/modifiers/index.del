@@ -34,6 +34,7 @@ import './sigmaDodgeball.del';
 import './sleep.del';
 import './slowMotion.del';
 import './speedBoost.del';
+import './spiderWoman.del';
 import './sunburn.del';
 import './tbagging.del';
 import './thirdPersonCamera.del';
@@ -80,6 +81,7 @@ globalvar Modifier[] allModifiers = [
   sleep,
   slowMotion,
   speedBoost,
+  spiderWoman,
   sunburn,
   tbagging,
   thirdPersonCamera,
