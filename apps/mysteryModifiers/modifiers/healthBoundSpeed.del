@@ -1,0 +1,32 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String HEALTH_BOUND_SPEED_NAME: 'Health-Bound Speed';
+Number HEALTH_BOUND_SPEED_DURATION: 10;
+
+Modifier healthBoundSpeed: Modifier.New(
+  name: HEALTH_BOUND_SPEED_NAME, 
+  duration: HEALTH_BOUND_SPEED_DURATION,
+  description: ["Players' speed depends on their current health"]
+);
+
+rule: '[Health-Bound Speed] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(HEALTH_BOUND_SPEED_NAME))
+{
+  // end
+  WaitUntilModifierIsOver();
+  SetMoveSpeed(EventPlayer(), 100);
+}
+
+rule: '[Health-Bound Speed] Set speed on health change'
+Event.OngoingPlayer
+if(ModifierHasStarted(HEALTH_BOUND_SPEED_NAME))
+{
+  Number scale: NormalizedHealth();
+  SetMoveSpeed(EventPlayer(), (2 - scale) * 100);
+
+  WaitUntilModifierIsOverOrCondition(scale != EvaluateOnce(scale));
+  MinWait();
+  LoopIfConditionIsTrue();
+}

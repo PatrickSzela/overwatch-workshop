@@ -289,6 +289,20 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
+      <div class="modifier__title">Health-Bound Speed</div>  
+      <div class="modifier__duration">10 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>Players' speed depends on their current health</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>Scales players' speed gradually, depending on their health, starting from 100% when at full health, to 200% when at 0 health</li>
+      </ul>
+    </div>
+  </div>
+  <div class="modifier">
+    <div class="modifier__header">
       <div class="modifier__title">Hypothermia</div>  
       <div class="modifier__duration">15 secs</div>
     </div>

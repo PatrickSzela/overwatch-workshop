@@ -15,6 +15,7 @@ import './gravityHigh.del';
 import './gravityLow.del';
 import './hacked.del';
 import './healthBoundSize.del';
+import './healthBoundSpeed.del';
 import './hypothermia.del';
 import './iceRink.del';
 import './invertControls.del';
@@ -62,6 +63,7 @@ globalvar Modifier[] allModifiers = [
   gravityLow,
   hacked,
   healthBoundSize,
+  healthBoundSpeed,
   hypothermia,
   iceRink,
   invertControls,
