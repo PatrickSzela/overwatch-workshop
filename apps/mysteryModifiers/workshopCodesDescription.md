@@ -700,6 +700,21 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
+      <div class="modifier__title">The Voices<span>[3]</span></div>  
+      <div class="modifier__duration">10 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>Hello. Thanks. Boop! Good kitty. Boo boo doo de doo. Sigh...</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>Forces usage of randomly chosen communication method (voice lines, hello, thank you etc.)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
       <div class="modifier__title">Third Person Camera</div>  
       <div class="modifier__duration">13 secs</div>
     </div>

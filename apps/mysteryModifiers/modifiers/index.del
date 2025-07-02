@@ -38,6 +38,7 @@ import './speedBoost.del';
 import './spiderWoman.del';
 import './sunburn.del';
 import './tbagging.del';
+import './theVoices.del';
 import './thirdPersonCamera.del';
 import './topDownCamera.del';
 import './torbHammerWar.del';
@@ -86,6 +87,7 @@ globalvar Modifier[] allModifiers = [
   spiderWoman,
   sunburn,
   tbagging,
+  theVoices,
   thirdPersonCamera,
   topDownCamera,
   torbHammerWar,

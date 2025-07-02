@@ -1,0 +1,37 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String THE_VOICES_NAME: 'The Voices';
+Number THE_VOICES_DURATION: 10;
+
+Modifier theVoices: Modifier.New(
+  name: THE_VOICES_NAME, 
+  duration: THE_VOICES_DURATION,
+  description: ["Hello. Thanks. Boop! Good kitty. Boo boo doo de doo. Sigh..."]
+);
+
+void CommunicateHelper(Communication communication) {
+  Communicate(EventPlayer(), communication);
+}
+
+rule: '[The Voices] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(THE_VOICES_NAME))
+{
+  switch(RandomInteger(0, 9)) {
+    case 0: CommunicateHelper(Communication.Hello); break;
+    case 1: CommunicateHelper(Communication.Goodbye); break;
+    case 2: CommunicateHelper(Communication.Thanks); break;
+    case 3: CommunicateHelper(Communication.Sorry); break;
+    case 4: CommunicateHelper(Communication.Yes); break;
+    case 5: CommunicateHelper(Communication.No); break;
+    case 6: CommunicateHelper(Communication.VoiceLineUp); break;
+    case 7: CommunicateHelper(Communication.VoiceLineLeft); break;
+    case 8: CommunicateHelper(Communication.VoiceLineRight); break;
+    case 9: CommunicateHelper(Communication.VoiceLineDown); break;
+  }
+
+  Wait(RandomReal(1, 2));
+
+  LoopIfConditionIsTrue();
+}
