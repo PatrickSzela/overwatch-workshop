@@ -17,8 +17,11 @@ Because, as of the day of writing this, the Custom Game menus are pretty broken,
 
 1. **Modes:**
 
-- Enable **all, normally available** modes - if the modes are duplicated, load `Quick Play` preset and remember which modes are enabled, then enable the exact same modes in this step. Optionally also enable **Competitive Rules** for these modes too
+- Enable **all, normally available** modes - if the modes are duplicated, load `Quick Play` preset and remember which modes are enabled, then enable the exact same modes in this step
 - Disable **Skirmish** and **Deathmatch** mode - these are only enabled as a workaround so we can import the code _(optional)_
+- For every enabled mode:
+  - Set **Competitive Rules** to `On` _(optional)_
+  - Set **Enable Perks** to `On` _(optional)_
 - Open **All** menu:
   - Set **Game Mode Start** to `Manual`
   - Set **Hero Limit** to `1 per team` _(optional)_
@@ -28,5 +31,5 @@ Because, as of the day of writing this, the Custom Game menus are pretty broken,
 2. **Lobby:**
 
 - Set **Max Team 1 Players** and **Max Team 2 Players** to `5`
-- Set **Max FFA Players** to `10`
+- If **Deathmatch** mode is enabled, set **Max FFA Players** to `10`
 - Set **Max Spectators** to `12` _(optional)_
