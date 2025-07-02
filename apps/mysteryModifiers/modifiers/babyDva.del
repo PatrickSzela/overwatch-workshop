@@ -1,0 +1,38 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String BABY_DVA_NAME: 'Baby D.Va';
+Number BABY_DVA_DURATION: 15;
+
+Modifier babyDva: Modifier.New(
+  name: BABY_DVA_NAME, 
+  duration: BABY_DVA_DURATION,
+  description: ["No mech? No problem!"]
+);
+
+rule: '[Baby D.Va] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(BABY_DVA_NAME))
+{
+  PreloadDuplicate(EventPlayer(), Hero.Dva, true, true, false);
+}
+
+rule: '[Baby D.Va] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(BABY_DVA_NAME))
+{
+  WaitUntilAlive();
+
+  StartDuplicate();
+
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+    
+  SetUltimateAbilityEnabled(EventPlayer(), false);
+  Kill(EventPlayer());
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+  
+  SetUltimateAbilityEnabled(EventPlayer(), true);
+  StopDuplicate(EventPlayer(), IsAlive());
+}

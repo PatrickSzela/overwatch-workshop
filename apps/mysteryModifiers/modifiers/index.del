@@ -2,6 +2,7 @@ import '../modifier.del';
 import './adaptiveShield.del';
 import './anaPaintball.del';
 import './antiHeal.del';
+import './babyDva.del';
 import './blinded.del';
 import './bodyOdor.del';
 import './drunk.del';
@@ -47,6 +48,7 @@ globalvar Modifier[] allModifiers = [
   adaptiveShield,
   anaPaintball,
   antiHeal,
+  babyDva,
   blinded,
   bodyOdor,
   drunk,
