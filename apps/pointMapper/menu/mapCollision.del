@@ -1,0 +1,29 @@
+import '../../../libs/menu/components/toggle.del';
+import '../_variables.del';
+
+String PAGE_MAP_COLLISION_ID: 'mapCollision';
+String PAGE_MAP_COLLISION_NAME: 'Walk Through Walls';
+
+playervar Boolean mapCollisionEnabled = false;
+
+Component PageMapCollisionMenuItem() {
+  Toggle mapCollision = new Toggle(
+    text: PAGE_MAP_COLLISION_NAME,
+    defaultChecked: mapCollisionEnabled
+  );
+
+  mapCollision.onChange = (checked, it) => {
+    mapCollisionEnabled = checked;
+  };
+
+  return mapCollision;
+}
+
+rule: 'Walk Through Walls: Toggle'
+Event.OngoingPlayer
+if(mapCollisionEnabled)
+{
+  DisableMovementCollisionWithEnvironment(EventPlayer(), false);
+  WaitForeverUntil(!mapCollisionEnabled);
+  EnableMovementCollisionWithEnvironment(EventPlayer());
+}

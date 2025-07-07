@@ -17,10 +17,24 @@ settings
 			Respawn Time Scalar: 0%
 		}
 
-		Assault
-		{
-			Capture Speed Modifier: 500%
-		}
+		Skirmish
+    {
+      enabled maps
+      {
+        Workshop Island Night
+      }
+    }
+    disabled Control
+    disabled Hybrid
+    disabled Assault
+    disabled Escort
+    disabled Push
+    disabled Deathmatch
+
+		// Assault
+		// {
+		// 	Capture Speed Modifier: 500%
+		// }
 
 		// Clash
 		// {
@@ -65,7 +79,7 @@ Controls:
 The rest of controls depends on currently hovered menu item and are listed below the menu itself
 
 ----------
-Version: 2.0.0
+Version: 2.1.0
 Workshop Code: MD8Q1W
 Created by: PatPatPatriq"
   }

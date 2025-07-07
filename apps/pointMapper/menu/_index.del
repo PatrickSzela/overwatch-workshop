@@ -5,6 +5,10 @@ import './startMapping.del';
 // import './stopMapping.del';
 import './teleport.del';
 import './nextObjective.del';
+import './teleportToSpawn.del';
+import './sendToHeroSelect.del';
+import './mapCollision.del';
+import './outlineFollowsPlayerY.del';
 
 String PAGE_ROOT_ID: 'root';
 String PAGE_ROOT_NAME: 'Main Menu';
@@ -13,13 +17,20 @@ Component[] PageRootItems() {
   return <Component[]>[
     PageStartMappingMenuItem(),
     new Text(" "),
-    new Text("Settings:"),
+    new Text("Mapping settings:"),
     PageMappingAccuracyMenuItem(),
     // PageStopMappingMenuItem(),
     new Text(" "),
     new Text("Objective:"),
     PageTeleportMenuItem()
-  ] + PageNextObjectiveMenuItem();
+  ] + PageNextObjectiveMenuItem() + [
+    new Text(" "),
+    new Text("Player settings:"),
+    PageOutlineFollowsPlayerYMenuItem(),
+    PageMapCollisionMenuItem(),
+    PageTeleportToSpawnMenuItem(),
+    PageSendSelfToHeroSelectMenuItem()
+  ];
 }
 
 rule: 'Root'

@@ -1,3 +1,5 @@
+playervar Boolean outlineFollowsPlayerY = false;
+
 single struct Vertex {
   public Vector position;
   public Vector[] connectedTo;
@@ -10,12 +12,13 @@ struct Outline {
   public Any[] effectLineIds;
   public Any[] effectVerticeIds;
 
+  public Number offsetY(in Number origin): LocalPlayer().outlineFollowsPlayerY ? LocalPlayer().Position().Y : origin;
+
   public static Outline BASE: { algorithm: '', effectLineIds: [], effectVerticeIds: [], vertices: [] };
 
   public ref void RenderLines(in Vector origin, in Number scale) {
     foreach(Vertex vertex in vertices) {
-      // Vector _origin: Vector(origin.X, HostPlayer().Position().Y + 0.25, origin.Z);
-      Vector _origin: Vector(origin.X, origin.Y + 0.25, origin.Z);
+      Vector _origin: Vector(origin.X, offsetY(origin.Y) + 0.25, origin.Z);
 
       foreach(Vector connectedTo in vertex.connectedTo) {
         effectLineIds += CreateBeamEffect(
@@ -34,8 +37,7 @@ struct Outline {
 
   public ref void RenderVertices(in Vector origin, in Number scale) {
     foreach(Vertex vertex in vertices) {
-      // Vector _origin: Vector(origin.X, HostPlayer().Position().Y + 0.25, origin.Z);
-      Vector _origin: Vector(origin.X, origin.Y + 0.25, origin.Z);
+      Vector _origin: Vector(origin.X, offsetY(origin.Y) + 0.25, origin.Z);
 
       effectVerticeIds += CreateEffect(
         LocalPlayer(), 

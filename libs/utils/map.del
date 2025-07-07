@@ -1,0 +1,3 @@
+Vector CurrentObjectivePosition(): ObjectivePosition(ObjectiveIndex());
+
+Vector CurrentSpawnPosition(in Player player = EventPlayer()): SpawnPoints(player.Team())[ObjectiveIndex()];

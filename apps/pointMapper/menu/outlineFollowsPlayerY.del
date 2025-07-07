@@ -1,0 +1,17 @@
+import '../_variables.del';
+
+String PAGE_OUTLINE_FOLLOWS_PLAYER_Y_ID: 'outlineFollowsPlayerY';
+String PAGE_OUTLINE_FOLLOWS_PLAYER_Y_NAME: 'Outline Follows Player\'s Y Axis';
+
+Component PageOutlineFollowsPlayerYMenuItem() {
+  Toggle outlineFollowsPlayerYToggle = new Toggle(
+    text: PAGE_OUTLINE_FOLLOWS_PLAYER_Y_NAME,
+    defaultChecked: outlineFollowsPlayerY
+  );
+
+  outlineFollowsPlayerYToggle.onChange = (checked, it) => {
+    outlineFollowsPlayerY = checked;
+  };
+
+  return outlineFollowsPlayerYToggle;
+}

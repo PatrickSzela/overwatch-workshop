@@ -36,7 +36,6 @@ void PageTeleportHandleTeleport() "Teleport: Handle Teleport to Objective" {
   StopForcingHero(EventPlayer());
 
   SetGravity(EventPlayer(), 100);
-  DisableMovementCollisionWithEnvironment(EventPlayer(), false);
 }
 
 Component PageTeleportMenuItem() {

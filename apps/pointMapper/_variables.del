@@ -56,9 +56,5 @@ playervar Boolean finished = false;
 playervar Vector position = Vector.Zero;
 playervar Boolean wasOnObjectiveAtLeastOnce = false;
 
-Vector CurrentObjectivePosition(): ObjectivePosition(ObjectiveIndex());
-
-
-
 
 globalvar Outline outline = Outline.BASE;
