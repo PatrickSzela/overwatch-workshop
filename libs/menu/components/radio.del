@@ -23,12 +23,12 @@ class Radio: Toggle
     ToggleConstructor(text, defaultChecked, child);
 
     this.name = name;
-    this._menuState = menuState;
+    this.menuState = menuState;
   }
 
   public override void SetValue(Any checked!) "[Radio] Set Checked" {
     if(this.checked != checked && !this.checked) {
-      Component[] arr! = _menuState.items.Map((i) => i.name == name ? i : i.child.name == name ? i : null).FilteredArray((i) => i);
+      Component[] arr! = menuState.items.Map((i) => i.name == name ? i : i.child.name == name ? i : null).FilteredArray((i) => i);
 
       foreach(Component sibling! in arr) {
         if((<Toggle>sibling).checked) {

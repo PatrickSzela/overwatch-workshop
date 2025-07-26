@@ -432,10 +432,10 @@ class MenuState {
   }
 
   protected void RenderDescription() {
-    Description[] descriptionArr = hoveredItem.description;
+    Description[] descriptionArr = hoveredItem.descriptions;
 
     if(hoveredItem.child) {
-      descriptionArr += hoveredItem.child.description;
+      descriptionArr += hoveredItem.child.descriptions;
     }
 
     descriptionArr += descriptionsPage + descriptionsMenu;

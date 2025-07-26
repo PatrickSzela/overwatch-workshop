@@ -1,13 +1,22 @@
 import './number.del';
 
 Boolean IsScopedIn(Player player = EventPlayer()): 
-  [Hero.Ana, Hero.Ashe, Hero.Widowmaker].Contains(player.Hero()) && player.IsFiringSecondary();
+  [Hero.Ana, Hero.Ashe, Hero.Freja, Hero.Widowmaker].Contains(player.Hero()) && player.IsFiringSecondary();
 
 Boolean IsHoldingShield(Player player = EventPlayer()):
   [Hero.Reinhardt, Hero.Brigitte].Contains(player.Hero()) && player.IsFiringSecondary();
 
+Boolean IsCommunicatingFix(in Boolean communicationResult):
+  $" {communicationResult}" != " 0";
+
 Boolean IsEmoting(Player player = EventPlayer()):
-  $" {IsCommunicatingAnyEmote(player)}" != " 0";
+  IsCommunicatingFix(IsCommunicatingAnyEmote(player));
+
+Boolean IsSayingVoiceLine(Player player = EventPlayer()):
+  IsCommunicatingFix(IsCommunicatingAnyVoiceLine(player));
+
+Boolean IsPlacingSpray(Player player = EventPlayer()):
+  IsCommunicatingFix(IsCommunicatingAnySpray(player));
 
 Boolean IsHUDPreferred(Player player): 
   IsScopedIn(player) || IsEmoting(player) || IsDead(player) ||

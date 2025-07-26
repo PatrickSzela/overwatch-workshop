@@ -18,16 +18,28 @@ single struct Description {
 }
 
 class Component {
+  # Type of the component 
+  public String type;
+  # Unique identifier of the component
   public Any id;
-  public Color color;
+  # Name under which the value of the component is stored
   public String name;
+  # Displayed text
   public String text;
-  public Description[] description;
+  # Descriptions assigned to the component
+  public Description[] descriptions;
+  # Color of the displayed text
+  public Color color;
+  # Whether component is disabled
   public Boolean disabled;
+  # Child component
   public Component child;
-  public MenuState _menuState;
-  public String renderedText;
+  # Parent `MenuState`
+  public MenuState menuState;
+  # Whether the component should rerender during next rendering phase
   public Boolean shouldRerender;
+  # Fully rendered text
+  public String renderedText;
   
   public ((Component) => void) onRender;
   public ((Component) => void) onEnter;
@@ -52,7 +64,7 @@ class Component {
     Component child! = null
   ) "[Component] Constructor" {
     this.text = text;
-    this.description = [];
+    this.descriptions = [];
     this.child = child;
     this.color = COLOR_NEUTRAL;
 
@@ -60,7 +72,7 @@ class Component {
   }
   
   public void AddDescription(in Description description) {
-    this.description += description;
+    this.descriptions += description;
   }
 
   public void MarkToRerender() {

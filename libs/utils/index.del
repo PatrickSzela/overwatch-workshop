@@ -1,0 +1,16 @@
+import "./array.del";
+import "./bigArray.del";
+import "./color.del";
+import "./diagnostics.del";
+import "./dictionary.del";
+import "./dummyBot.del";
+import "./helpers.del";
+import "./hud.del";
+import "./json.del";
+import "./log.del";
+import "./map.del";
+import "./number.del";
+import "./player.del";
+import "./string.del";
+import "./typeOf.del";
+import "./vector.del";

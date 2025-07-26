@@ -110,10 +110,10 @@ class NumberInput: ComponentWithValue
       shouldRerender = true;
 
       _menuState.isLocked = editMode;
-      this.description[0].color = editMode ? COLOR_ERROR : COLOR_SWITCH;
-      this.description[0].text = DESCRIPTION;
-      this.description[1].visible = editMode;
-      this.description[2].visible = editMode;
+      this.descriptions[0].color = editMode ? COLOR_ERROR : COLOR_SWITCH;
+      this.descriptions[0].text = DESCRIPTION;
+      this.descriptions[1].visible = editMode;
+      this.descriptions[2].visible = editMode;
     }
   }
 
