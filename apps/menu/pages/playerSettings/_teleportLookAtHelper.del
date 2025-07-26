@@ -1,0 +1,151 @@
+import '../../../../libs/menu/components/radio.del';
+import '../../../../libs/menu/components/carousel.del';
+import '../../../../libs/utils/string.formatters.del';
+import '../../../../libs/utils/player.sortedAllPlayers.del';
+import '../../../../libs/utils/player.del';
+import '../../_variables.del';
+import './lookAt.del';
+import './teleport.del';
+
+enum PageTeleportLookAtChoice {
+  POSITION = 'Position',
+  OBJECTIVE = 'Objective',
+  PLAYER = 'Player',
+  LOOKING_PLAYER = 'Looking position of'
+}
+
+enum PageTeleportLookAtVariant {
+  ONCE = 'Once',
+  OVER_TIME = 'Over time',
+  STOP = 'Stop'
+}
+
+Vector | Player TeleportLookAtPosition(in PageTeleportLookAtChoice choice, in Any value, in Boolean isLookAt): 
+  choice == PageTeleportLookAtChoice.OBJECTIVE ? 
+    value == -2 ? PayloadPosition() : ObjectivePosition(value == -1 ? ObjectiveIndex() : value) :
+  choice == PageTeleportLookAtChoice.PLAYER ? isLookAt ? EyePosition(value) : value: 
+  choice == PageTeleportLookAtChoice.LOOKING_PLAYER ? PageTeleportLookAtRayCast(value, EventPlayer(), isLookAt ? AllPlayers() : null) :
+  value;
+
+single struct PageTeleportLookAtProps {
+  public PageTeleportLookAtChoice choice;
+  public Any value;
+  public PageTeleportLookAtVariant variant;
+  public Boolean forceRefresh;
+
+  public static PageTeleportLookAtProps BASE: {
+    choice: PageTeleportLookAtChoice.POSITION, 
+    value: Vector.Zero, 
+    variant: PageTeleportLookAtVariant.STOP, 
+    forceRefresh: false
+  };
+}
+
+playervar PageTeleportLookAtProps pageTeleportProps;
+playervar PageTeleportLookAtProps pageLookAtProps;
+playervar PageTeleportLookAtProps pageTeleportSettings = PageTeleportLookAtProps.BASE;
+playervar PageTeleportLookAtProps pageLookAtSettings = PageTeleportLookAtProps.BASE;
+
+Action ACTION_LookAtCustom(Player[] players, PageTeleportLookAtProps props): 
+  Action.New($"Look at({props.variant}, {props.choice}, {props.value}, [{players}])", () => {
+    players.pageLookAtSettings = props;
+  });
+
+Action ACTION_TeleportCustom(Player[] players, PageTeleportLookAtProps props): 
+  Action.New($"Teleport({props.variant}, {props.choice}, {props.value}, [{players}])", () => {
+    players.pageTeleportSettings = props;
+  });
+
+Vector PageTeleportLookAtRayCast(Player player, Player affectedPlayer = EventPlayer(), Player[] playersToInclude = AllPlayers()):
+  RayCastHitPosition(EyePosition(player), EyePosition(player) + FacingDirectionOf(player) * 100, playersToInclude, [player, affectedPlayer], true);
+
+Component[] PageTeleportLookAtItems(String id!, String name!, Boolean isLookAt! = false) "PageTeleportLookAtItems" {
+  // position
+  ComponentWithValue position = new ComponentWithValue(<String>PageTeleportLookAtChoice.POSITION, Vector.Zero);
+
+  pickPosition.EnhanceComponent(pickPosition, position);
+
+  Radio positionRadio = new Radio(menuState, <String>PageTeleportLookAtChoice.POSITION, name);
+  positionRadio.child = position;
+  positionRadio.onChange = (checked, it) => {
+    if(isLookAt) {
+      pageLookAtProps = { choice: PageTeleportLookAtChoice.POSITION, value: (<ComponentWithValue>position).value, ..pageLookAtProps };
+    } else {
+      pageTeleportProps = { choice: PageTeleportLookAtChoice.POSITION, value: (<ComponentWithValue>position).value, ..pageTeleportProps };
+    }
+  };
+
+  position.SetSecondaryAction('Choose the position', (it) => {
+    positionRadio.SetValue(true);
+    (<ComponentWithValue>it).SetValue(pickPosition.position);
+    if(isLookAt) {
+      pageLookAtProps = { choice: PageTeleportLookAtChoice.POSITION, value: (<ComponentWithValue>position).value, ..pageLookAtProps };
+    } else {
+      pageTeleportProps = { choice: PageTeleportLookAtChoice.POSITION, value: (<ComponentWithValue>position).value, ..pageTeleportProps };
+    }
+  });
+
+  // objective, player, looking position of player
+  Component[] carousels = [];
+
+  foreach(PageTeleportLookAtChoice choice in [PageTeleportLookAtChoice.OBJECTIVE, PageTeleportLookAtChoice.PLAYER, PageTeleportLookAtChoice.LOOKING_PLAYER]) {
+    Carousel carousel = new Carousel(
+      text: <String>choice,
+      options: 
+        choice == PageTeleportLookAtChoice.OBJECTIVE ? [-2, -1, 0, 1, 2, 3, 4] :
+        sortedPlayers,
+      defaultValue: choice == PageTeleportLookAtChoice.OBJECTIVE ? -1 : 0
+    );
+    carousel.valueFormatter = choice == PageTeleportLookAtChoice.OBJECTIVE ? 
+      (it) => ObjectiveFormatter(it.value) : 
+      (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
+
+    if(choice == PageTeleportLookAtChoice.OBJECTIVE) {
+      carousel.AddDescription(Description.New("Due to Workshop bugs, this setting might not work in every mode", COLOR_WARNING));
+    }
+
+    Radio radio = new Radio(menuState, <String>choice, name);
+    radio.child = carousel;
+
+    carousel.onChange = (value, it) => {
+      radio.SetValue(true);
+      if(isLookAt) {
+        pageLookAtProps = { choice: choice, value: value, ..pageLookAtProps };
+      } else {
+        pageTeleportProps = { choice: choice, value: value, ..pageTeleportProps };
+      }
+    };
+    carousel.onPrimaryAction = (it) => {
+      if(isLookAt) {
+        pageLookAtProps = { choice: choice, value: (<Carousel>it).value, ..pageLookAtProps };
+      } else {
+        pageTeleportProps = { choice: choice, value: (<Carousel>it).value, ..pageTeleportProps };
+      }
+    };
+
+    carousels += radio;
+  }
+
+  // apply
+  Carousel apply = new Carousel('Apply', [PageTeleportLookAtVariant.ONCE, PageTeleportLookAtVariant.OVER_TIME, PageTeleportLookAtVariant.STOP]);
+  apply.SetPrimaryAction('Apply', (it) => {
+    if(isLookAt) {
+      pageLookAtProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageLookAtProps };
+      selectedPlayers.pageLookAtSettings = pageLookAtProps;
+    } else {
+      pageTeleportProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageTeleportProps };
+      selectedPlayers.pageTeleportSettings = pageTeleportProps;
+    }
+  });
+  apply.SetTertiaryAction('Add to timeline', (it) => {
+    if(isLookAt) {
+      pageLookAtProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageLookAtProps };
+      Timeline.AddAction(timeline, ACTION_LookAtCustom(selectedPlayers, pageLookAtProps));
+    } else {
+      pageTeleportProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageTeleportProps };
+      Timeline.AddAction(timeline, ACTION_TeleportCustom(selectedPlayers, pageTeleportProps));
+    }
+  });
+
+  return [<Component>positionRadio] + carousels + [new Text(), apply];
+}

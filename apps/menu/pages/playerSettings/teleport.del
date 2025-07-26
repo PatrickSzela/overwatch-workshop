@@ -1,57 +1,8 @@
-import '../../../../libs/menu/components/carousel.del';
-import '../../../../libs/utils/player.sortedAllPlayers.del';
+import './_teleportLookAtHelper.del';
 import '../../_variables.del';
 
 String PAGE_TELEPORT_ID: 'teleport';
 String PAGE_TELEPORT_NAME: 'Teleport to';
-
-String PAGE_TELEPORT_POSITION_NAME: 'Position';
-String PAGE_TELEPORT_OBJECTIVE_NAME: 'Objective';
-String PAGE_TELEPORT_PAYLOAD_NAME: 'Payload';
-String PAGE_TELEPORT_PLAYER_NAME: 'Player';
-
-Vector PageTeleportGetObjectivePosition(Carousel it): it.value == -2 ? PayloadPosition() : ObjectivePosition(it.value == -1 ? ObjectiveIndex() : it.value);
-
-Component[] PageTeleportItems() {
-  Component position = new Component(PAGE_TELEPORT_POSITION_NAME);
-  
-  pickPosition.EnhanceComponent(pickPosition, position);
-
-  position.SetPrimaryAction('Apply', (it) => {
-    Teleport(selectedPlayers, pickPosition.position);
-  });
-  position.SetTertiaryAction('Add to Timeline', (it) => {
-    Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, pickPosition.position));
-  });
-
-  Carousel objective = new Carousel(
-    text: PAGE_TELEPORT_OBJECTIVE_NAME,
-    options: [-2, -1, 0, 1, 2, 3, 4],
-    defaultValue: -1
-  );
-  objective.valueFormatter = (it) => ObjectiveFormatter(it.value);
-  objective.SetPrimaryAction("Apply", (it) => {
-    Teleport(selectedPlayers, PageTeleportGetObjectivePosition(<Carousel>it));
-  });
-  objective.SetTertiaryAction('Add to Timeline', (it) => {
-    Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, PageTeleportGetObjectivePosition(<Carousel>it)));
-  });
-  objective.AddDescription(Description.New("Due to Workshop bugs, this setting might not work in every mode", COLOR_WARNING));
-
-  Carousel player = new Carousel(
-    text: PAGE_TELEPORT_PLAYER_NAME,
-    options: sortedPlayers
-  );
-  player.valueFormatter = (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
-  player.SetPrimaryAction("Apply", (it) => {
-    Teleport(selectedPlayers, (<Carousel>it).value);
-  });
-  player.SetTertiaryAction('Add to Timeline', (it) => {
-    Timeline.AddAction(timeline, ACTION_Teleport(selectedPlayers, (<Carousel>it).value));
-  });
-
-  return [position, objective, player];
-}
 
 rule: 'Player Settings/Teleport' 50
 Event.OngoingPlayer
@@ -59,8 +10,37 @@ if(menuState.pageId == PAGE_TELEPORT_ID)
 {
   menuState.CreatePage(
     title: PAGE_TELEPORT_NAME, 
-    items: PageTeleportItems()
+    items: PageTeleportLookAtItems(
+      id: PAGE_TELEPORT_ID, 
+      name: PAGE_TELEPORT_NAME, 
+      isLookAt: false
+    )
   );
+}
+
+rule: 'Player Settings/Look At: Start/Stop looking at'
+Event.OngoingPlayer
+{
+  WaitForeverUntil(pageTeleportSettings != EvaluateOnce(pageTeleportSettings));
+
+  pageTeleportSettings.forceRefresh = false;
+
+  DetachPlayers(EventPlayer());
+  StopForcingPlayerPosition(EventPlayer());
+
+  Vector | Player pos: TeleportLookAtPosition(pageTeleportSettings.choice, pageTeleportSettings.value, false);
+
+  if(pageTeleportSettings.variant == PageTeleportLookAtVariant.ONCE) {
+    Teleport(EventPlayer(), pos);
+  } else if(pageTeleportSettings.variant == PageTeleportLookAtVariant.OVER_TIME) {
+    if(pageTeleportSettings.choice == PageTeleportLookAtChoice.PLAYER) {
+      AttachPlayers(EventPlayer(), pos);
+    } else {
+      StartForcingPlayerPosition(EventPlayer(), pos, true);
+    }
+  }
+
+  Loop();
 }
 
 rule: 'Player Settings/Teleport: Show Player Info'

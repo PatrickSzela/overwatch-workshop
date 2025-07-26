@@ -1,125 +1,26 @@
-import '../../../../libs/menu/components/radio.del';
-import '../../../../libs/menu/components/carousel.del';
-import '../../../../libs/utils/string.formatters.del';
-import '../../../../libs/utils/player.sortedAllPlayers.del';
-import '../../../../libs/utils/player.del';
+import './_teleportLookAtHelper.del';
 import '../../_variables.del';
 
 String PAGE_LOOK_AT_ID: 'lookAt';
 String PAGE_LOOK_AT_NAME: 'Look At';
 
-enum PageLookAtChoice {
-  POSITION = 'Position',
-  OBJECTIVE = 'Objective',
-  PLAYER = 'Player',
-  LOOKING_PLAYER = 'Looking position of'
-}
-
-enum PageLookAtVariant {
-  ONCE = 'Once',
-  OVER_TIME = 'Over time',
-  STOP = 'Stop'
-}
-
-single struct PageLookAtProps {
-  public PageLookAtChoice choice;
-  public Any value;
-  public PageLookAtVariant variant;
-  public Boolean forceRefresh;
-
-  public static PageLookAtProps BASE:
-    {choice: PageLookAtChoice.POSITION, value: Vector.Zero, variant: PageLookAtVariant.STOP, forceRefresh: false};
-}
-
-Action ACTION_LookAtCustom(Player[] players, PageLookAtProps props): 
-  Action.New($"Look at({props.variant}, {props.choice}, {props.value}, [{players}])", () => {
-    players.pageLookAtPlayerSettings = props;
-  });
-
-playervar PageLookAtProps pageLookAtProps;
-playervar PageLookAtProps pageLookAtPlayerSettings = PageLookAtProps.BASE;
-
-Vector PageLookAtRayCast(Player player):
-  RayCastHitPosition(EyePosition(player), EyePosition(player) + FacingDirectionOf(player) * 100, AllPlayers(), player, true);
-
-Component[] PageLookAtItems() {
-  // position
-  ComponentWithValue position = new ComponentWithValue(<String>PageLookAtChoice.POSITION, Vector.Zero);
-
-  pickPosition.EnhanceComponent(pickPosition, position);
-
-  Radio positionRadio = new Radio(menuState, <String>PageLookAtChoice.POSITION, PAGE_LOOK_AT_NAME);
-  positionRadio.child = position;
-  positionRadio.onChange = (checked, it) => {
-    pageLookAtProps = { choice: PageLookAtChoice.POSITION, value: (<ComponentWithValue>position).value, ..pageLookAtProps };
-  };
-
-  position.SetSecondaryAction('Choose the position', (it) => {
-    positionRadio.SetValue(true);
-    (<ComponentWithValue>it).SetValue(pickPosition.position);
-    pageLookAtProps = { choice: PageLookAtChoice.POSITION, value: (<ComponentWithValue>position).value, ..pageLookAtProps };
-  });
-
-  // objective, player, looking position of player
-  Component[] carousels = [];
-
-  foreach(PageLookAtChoice choice in [PageLookAtChoice.OBJECTIVE, PageLookAtChoice.PLAYER, PageLookAtChoice.LOOKING_PLAYER]) {
-    Carousel carousel = new Carousel(
-      text: <String>choice,
-      options: 
-        choice == PageLookAtChoice.OBJECTIVE ? [-2, -1, 0, 1, 2, 3, 4] :
-        sortedPlayers,
-      defaultValue: choice == PageLookAtChoice.OBJECTIVE ? -1 : 0
-    );
-    carousel.valueFormatter = choice == PageLookAtChoice.OBJECTIVE ? 
-      (it) => ObjectiveFormatter(it.value) : 
-      (it) => PlayerWithHeroIconTeamSlotFormatter(it.value);
-
-    if(choice == PageLookAtChoice.OBJECTIVE) {
-      carousel.AddDescription(Description.New("Due to Workshop bugs, this setting might not work in every mode", COLOR_WARNING));
-    }
-
-    Radio radio = new Radio(menuState, <String>choice, PAGE_LOOK_AT_NAME);
-    radio.child = carousel;
-
-    carousel.onChange = (value, it) => {
-      radio.SetValue(true);
-      pageLookAtProps = { choice: choice, value: value, ..pageLookAtProps };
-    };
-    carousel.onPrimaryAction = (it) => {
-      pageLookAtProps = { choice: choice, value: (<Carousel>it).value, ..pageLookAtProps };
-    };
-
-    carousels += radio;
-  }
-
-  // apply
-  Carousel apply = new Carousel('Apply', [PageLookAtVariant.ONCE, PageLookAtVariant.OVER_TIME, PageLookAtVariant.STOP]);
-  apply.SetPrimaryAction('Apply', (it) => {
-    pageLookAtProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageLookAtProps };
-    selectedPlayers.pageLookAtPlayerSettings = pageLookAtProps;
-  });
-  apply.SetTertiaryAction('Add to timeline', (it) => {
-    pageLookAtProps = { variant: (<Carousel>it).value, forceRefresh: true, ..pageLookAtProps };
-    Timeline.AddAction(timeline, ACTION_LookAtCustom(selectedPlayers, pageLookAtProps));
-  });
-
-  return [<Component>positionRadio] + carousels + [new Text(), apply];
-}
-
 rule: 'Player Settings/Look At' 50
 Event.OngoingPlayer
 if(menuState.pageId == PAGE_LOOK_AT_ID)
 {
-  pageLookAtProps = PageLookAtProps.BASE;
+  pageLookAtProps = PageTeleportLookAtProps.BASE;
 
   menuState.CreatePage(
     title: PAGE_LOOK_AT_NAME, 
-    items: PageLookAtItems()
+    items: PageTeleportLookAtItems(
+      id: PAGE_LOOK_AT_ID, 
+      name: PAGE_LOOK_AT_NAME, 
+      isLookAt: true
+    )
   );
 }
 
-rule: 'Player Settings/Look At: Create Sphere' 50
+rule: 'Player Settings/Teleport and Look At: Create Sphere' 50
 Event.OngoingPlayer
 if(menuState.isOpen)
 if(menuState.pageId == PAGE_LOOK_AT_ID)
@@ -128,7 +29,7 @@ if(menuState.isFocused)
   foreach(Player p! in selectedPlayersWithoutSelf) {
     pickPosition.CreateAdditionalSphere(
       color: Color.Green,
-      position: PageLookAtRayCast(EvaluateOnce(p)),
+      position: PageTeleportLookAtRayCast(EvaluateOnce(p)),
       text: $"{EvaluateOnce(p).playerName}'s look position:\n{PickPosition.RayCast(EvaluateOnce(p))}",
       lineEnd: EvaluateOnce(p).EyePosition()
     );
@@ -141,27 +42,21 @@ if(menuState.isFocused)
   pickPosition.DestroyAdditionalSpheres();
 }
 
+
 rule: 'Player Settings/Look At: Start/Stop looking at'
 Event.OngoingPlayer
 {
-  WaitForeverUntil(pageLookAtPlayerSettings != EvaluateOnce(pageLookAtPlayerSettings));
+  WaitForeverUntil(pageLookAtSettings != EvaluateOnce(pageLookAtSettings));
 
-  pageLookAtPlayerSettings.forceRefresh = false;
+  pageLookAtSettings.forceRefresh = false;
 
   StopFacing(EventPlayer());
 
-  Any value: pageLookAtPlayerSettings.value;
-  PageLookAtChoice choice: pageLookAtPlayerSettings.choice;
-  Vector pos: 
-    choice == PageLookAtChoice.OBJECTIVE ? 
-      value == -2 ? PayloadPosition() : ObjectivePosition(value == -1 ? ObjectiveIndex() : value) :
-    choice == PageLookAtChoice.PLAYER ? EyePosition(value) : 
-    choice == PageLookAtChoice.LOOKING_PLAYER ? PageLookAtRayCast(value) :
-    value;
+  Vector pos: TeleportLookAtPosition(pageLookAtSettings.choice, pageLookAtSettings.value, true);
 
-  if(pageLookAtPlayerSettings.variant == PageLookAtVariant.ONCE) {
+  if(pageLookAtSettings.variant == PageTeleportLookAtVariant.ONCE) {
     SetFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), pos), Relative.ToWorld);
-  } else if(pageLookAtPlayerSettings.variant == PageLookAtVariant.OVER_TIME) {
+  } else if(pageLookAtSettings.variant == PageTeleportLookAtVariant.OVER_TIME) {
     StartFacing(EventPlayer(), GetDirectionFromPlayerEyes(EventPlayer(), pos), 500, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
   }
 

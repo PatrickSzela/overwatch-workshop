@@ -1,3 +1,11 @@
 import './base.del';
 
 import './settings.stadium.del';
+
+
+rule: '[Stadium] All heroes in Assemble Heroes phase'
+Event.OngoingPlayer
+if(WorkshopSettingToggle("Stadium", "Enable access to all heroes in the Assemble Your Team phase", false))
+{
+  SetAllowedHeroes(EventPlayer(), AllHeroes());
+}
