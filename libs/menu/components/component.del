@@ -1,4 +1,9 @@
-import '../menuState.del';
+// import '../menuState.del';
+import '../../utils/string.formatters.del';
+import '../../utils/index.del';
+import '../customButtons.del';
+
+
 
 single struct Description {
   public String text;
@@ -17,136 +22,254 @@ single struct Description {
   };
 }
 
+enum ComponentType {
+  Text,
+  Value,
+  Link,
+  Toggle,
+  Checkbox,
+  Radio,
+  Carousel,
+  TextInput,
+  NumberInput
+}
+
+single struct InputSettings {
+  public Number min;
+  public Number max;
+  public Boolean negative;
+  public Number integralLength;
+  public Number fractionalLength;
+  public Number length;
+  public String unit;
+
+  public static InputSettings New(): {
+    min: NUMBER_MIN,
+    max: NUMBER_MAX,
+    negative: false,
+    integralLength: 5,
+    fractionalLength: 3,
+    length: NUMBER_MAX,
+    unit: ''
+  };
+}
+
 class Component {
   # Type of the component 
-  public String type;
-  # Unique identifier of the component
-  public Any id;
+  public ComponentType type;
+  # Displayed label
+  public String label;
   # Name under which the value of the component is stored
   public String name;
-  # Displayed text
-  public String text;
+  # Value stored in the component
+  # 
+  # Usable by:
+  # - `Value` - stores displayed value
+  # - `Link` - stores Page ID that should be opened when interacted
+  # - `Toggle`, `Radio`, `Checkbox` - stores Component's current state
+  # - `Carousel` - stores currently selected option
+  # - `TextInput`, `NumberInput` - stores merged `parts`
+  public Any value;
+  # Function to retrieve default value
+  public (() => Any) defaultValue;
+  # Available options
+  # 
+  # Usable by:
+  # - `Carousel`
+  public Any[] options;
+  # Index of the currently selected option
+  # 
+  # Usable by:
+  # - `Carousel`
+  # - `TextInput`, `NumberInput`
+  protected Number index;
+  # Value split into parts
+  # 
+  # Usable by:
+  # - `TextInput`, `NumberInput` - user's provided value in edit mode
+  public Number[] parts;
+  # Formatter that generates nicely formatted String from a `value`
+  public ((Any) => String) valueFormatter;
   # Descriptions assigned to the component
   public Description[] descriptions;
   # Color of the displayed text
   public Color color;
   # Whether component is disabled
   public Boolean disabled;
-  # Child component
-  public Component child;
-  # Parent `MenuState`
-  public MenuState menuState;
+  public InputSettings inputSettings;
+  # Whether the component captures all navigation inputs from the menu
+  # 
+  # Usable by:
+  # - `TextInput`, `NumberInput`
+  public Boolean captureNavigationInputs;
+  # Button which triggers Component's built-in functionality
+  # 
+  # Usable by:
+  # - `Link` - button that opens a page
+  # - `Toggle`, `Radio`, `Checkbox` - button that toggles component's state
+  # - `TextInput`, `NumberInput` - button that toggles edit mode
+  public Button button;
   # Whether the component should rerender during next rendering phase
   public Boolean shouldRerender;
   # Fully rendered text
   public String renderedText;
-  
-  public ((Component) => void) onRender;
-  public ((Component) => void) onEnter;
-  public ((Component) => void) onLeave;
-  public ((Button, Component) => void) onButtonDown;
-  public ((Button, Component) => void) onButtonUp;
-  public ((Vector, Component) => void) onNavigate;
-  public ((Component) => void) onPrimaryAction;
-  public ((Component) => void) onSecondaryAction;
-  public ((Component) => void) onTertiaryAction;
-  public ((Component) => void) onQuaternaryAction;
+  # Child component
+  public Component child: <Component>_child;
 
-  public constructor(
-    in String text,
-    in Component child = null
+  // public static ((Any) => String) VALUE_FORMATTER: (value) => value;
+
+  // # Parent `MenuState`
+  // public MenuState menuState;
+  // # Unique identifier of the component
+  // public Number id;
+  
+  private Any _child;
+  
+  // public (() => void) onRender;
+  // public (() => void) onEnter;
+  // public (() => void) onLeave;
+  // public ((Button) => void) onButtonDown;
+  // public ((Button) => void) onButtonUp;
+  // public ((Vector) => void) onNavigate;
+  public ((Any) => void)[] actions;
+
+  public constructor (
+    in ComponentType type,
+    in String label,
+    in Component child = <Component>null
   ) {
-    ComponentConstructor(text, child);
-  }
-
-  protected void ComponentConstructor(
-    String text!,
-    Component child! = null
-  ) "[Component] Constructor" {
-    this.text = text;
+    this.type = type;
+    this.name = null;
+    this.value = null;
+    this.defaultValue = null;
+    this.valueFormatter = null;
+    this.options = [];
+    this.index = 0;
+    this.parts = [];
+    this.label = label;
     this.descriptions = [];
-    this.child = child;
     this.color = COLOR_NEUTRAL;
-
+    this.disabled = false;
+    this.inputSettings = InputSettings.New();
+    this.captureNavigationInputs = false;
+    this.button = BUTTON_PRIMARY;
+    this.renderedText = '';
     this.shouldRerender = true;
+    this._child = <Any>child;
+
+    // id: null, 
+    // menuState: null, 
+
+    // onRender: null,
+    // onEnter: null,
+    // onLeave: null,
+    // onButtonDown: null,
+    // onButtonUp: null,
+    // onNavigate: null,
+    this.actions = [];
   }
+
   
-  public void AddDescription(in Description description) {
-    this.descriptions += description;
+  public ref void AddDescription(in Description description) {
+    descriptions += description;
   }
 
-  public void MarkToRerender() {
-    this.shouldRerender = true;
+  public ref void MarkToRerender() {
+    shouldRerender = true;
   }
 
-  public virtual void SetPrimaryAction(String description!, (Component) => void action!) "t" {
-    onPrimaryAction = action;
+  public ref void SetPrimaryAction(in String description, in () => void action) {
+    actions[0] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_PRIMARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_PRIMARY)));
   }
 
-  public virtual void SetSecondaryAction(String description!, (Component) => void action!) "t" {
-    onSecondaryAction = action;
+  public ref void SetSecondaryAction(in String description, in () => void action) {
+    actions[1] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_SECONDARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_SECONDARY)));
   }
 
-  public virtual void SetTertiaryAction(String description!, (Component) => void action!) "t" {
-    onTertiaryAction = action;
+  public ref void SetTertiaryAction(in String description, in () => void action) {
+    actions[2] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TERTIARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_TERTIARY)));
   }
 
-  public virtual void SetQuaternaryAction(String description!, (Component) => void action!) "t" {
-    onQuaternaryAction = action;
+  public ref void SetQuaternaryAction(in String description, in () => void action) {
+    actions[3] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_QUATERNARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_QUATERNARY)));
   }
 
-  public virtual void HandleActions() "[Component] Handle Action" {
-    if(buttonsHeld == [BUTTON_PRIMARY]) onPrimaryAction(this);
-    else if(buttonsHeld == [BUTTON_SECONDARY]) onSecondaryAction(this);
-    else if(buttonsHeld == [BUTTON_TERTIARY]) onTertiaryAction(this);
-    else if(buttonsHeld == [BUTTON_QUATERNARY]) onQuaternaryAction(this);
-  }
+  // public virtual void HandleActions() "[Component] Handle Action" {
+  //   if(buttonsHeld == [BUTTON_PRIMARY]) onPrimaryAction(this);
+  //   else if(buttonsHeld == [BUTTON_SECONDARY]) onSecondaryAction(this);
+  //   else if(buttonsHeld == [BUTTON_TERTIARY]) onTertiaryAction(this);
+  //   else if(buttonsHeld == [BUTTON_QUATERNARY]) onQuaternaryAction(this);
+  // }
 
-  // idk why OSTW thinks using child's `Render()` method makes it recursive
-  public virtual void Render() "[Component] Render" {
-    onRender(this);
-    renderedText = child.renderedText || text;
-  }
+  // // idk why OSTW thinks using child's `Render()` method makes it recursive
+  // public virtual void Render() "[Component] Render" {
+  //   onRender(this);
+  //   renderedText = child.renderedText || label;
+  // }
 
-  // events
-  public virtual void OnEnter() "[Component] OnEnter" {
-    onEnter(this);
+  // // events
+  // public virtual void OnEnter() "[Component] OnEnter" {
+  //   onEnter(this);
 
-    if(child)
-      child.OnEnter();
-  }
+  //   if(child)
+  //     child.OnEnter();
+  // }
 
-  public virtual void OnLeave() "[Component] OnLeave" {
-    onLeave(this);
+  // public virtual void OnLeave() "[Component] OnLeave" {
+  //   onLeave(this);
 
-    if(child)
-      child.OnLeave();
-  }
+  //   if(child)
+  //     child.OnLeave();
+  // }
   
-  public virtual void OnButtonDown(Button button!) "[Component] OnButtonDown" {
-    onButtonDown(button, this);
+  // public virtual void OnButtonDown(Button button!) "[Component] OnButtonDown" {
+  //   onButtonDown(button, this);
 
-    HandleActions();
+  //   HandleActions();
     
-    if(child)
-      child.OnButtonDown(button);
-  }
+  //   if(child)
+  //     child.OnButtonDown(button);
+  // }
 
-  public virtual void OnButtonUp(Button button!) "[Component] OnButtonUp" {
-    onButtonUp(button, this);
+  // public virtual void OnButtonUp(Button button!) "[Component] OnButtonUp" {
+  //   onButtonUp(button, this);
 
-    if(child)
-      child.OnButtonUp(button);
-  }
+  //   if(child)
+  //     child.OnButtonUp(button);
+  // }
 
-  public virtual void OnNavigate(Vector direction!) "[Component] OnNavigate" {
-    onNavigate(direction, this);
+  // public virtual void OnNavigate(Vector direction!) "[Component] OnNavigate" {
+  //   onNavigate(direction, this);
 
-    if(child)
-      child.OnNavigate(direction);
-  }
+  //   if(child)
+  //     child.OnNavigate(direction);
+  // }
+}
+
+playervar Component test = new Component(ComponentType.Text, 'Test');
+playervar Component test2 = new Component(ComponentType.Text, 'Test2');
+
+rule: 'My Player Rule'
+Event.OngoingPlayer
+Team.All
+Player.All
+{
+  test.AddDescription(Description.New("aaaaa", COLOR_ERROR, true, 0));
+  test.SetPrimaryAction("bbbbb", () => Kill(HostPlayer()));
+  test.SetSecondaryAction("ccccc", () => Teleport(HostPlayer()));
+
+  test.MarkToRerender();
+}
+
+rule: 'My Player Rule'
+Event.OngoingPlayer
+Team.All
+Player.All
+{
+  Wait(5);
+  (test.actions[0])('t');
 }
