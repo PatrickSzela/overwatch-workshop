@@ -1,6 +1,7 @@
 import "./string.del";
 
 Number ONE_TICK: 0.016;
+Number NUMBER_MIN: -100000000;
 Number NUMBER_MAX: 100000000;
 
 Number Sign(Number value): value < 0 ? -1 : value > 0 ? 1 : 0;

@@ -2,7 +2,8 @@ globalvar Button[] buttonsSettings;
 
 rule: 'Set buttons'
 {
-  buttonsSettings = [BUTTON_PRIMARY,
+  buttonsSettings = [
+    BUTTON_PRIMARY,
     BUTTON_SECONDARY,
     BUTTON_TERTIARY,
     BUTTON_QUATERNARY,

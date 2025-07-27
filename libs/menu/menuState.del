@@ -1,5 +1,5 @@
 import './customButtons.del';
-import '../utils/dictionary.del';
+import '../utils/index.del';
 import '../utils/string.formatters.del';
 import '../utils/button.allButtons.del';
 import './menu.del';
@@ -9,12 +9,7 @@ import './components/text.del';
 
 // TODO: make `PuppetMenuState`?
 
-Color COLOR_NEUTRAL: Color.White;
-Color COLOR_INFO: Color.SkyBlue;
-Color COLOR_WARNING: Color.Orange;
-Color COLOR_ERROR: Color.Red;
 Color COLOR_SWITCH: Color.Green;
-Color COLOR_DISABLED: Color.Gray;
 
 single struct RenderedText {
   public Color color;

@@ -58,7 +58,7 @@ class NumberInput: ComponentWithValue
 
     AddDescription(Description.New(DESCRIPTION, COLOR_SWITCH, order: -20));
     AddDescription(Description.New('Use [↑] or [↓] to increase/decrease current number', visible: false, order: -19));
-    AddDescription(Description.New('Use [←] or [→] to change currenty edited number', visible: false, order: -18));
+    AddDescription(Description.New('Use [←] or [→] to change currently edited number', visible: false, order: -18));
   }
 
   public void CalculateLength() {
