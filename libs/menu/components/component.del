@@ -54,7 +54,7 @@ single struct InputSettings {
   };
 }
 
-class Component {
+struct Component {
   # Type of the component 
   public ComponentType type;
   # Displayed label
@@ -96,6 +96,7 @@ class Component {
   public Color color;
   # Whether component is disabled
   public Boolean disabled;
+  # Stores settings required for `NumberInput` and `TextInput`
   public InputSettings inputSettings;
   # Whether the component captures all navigation inputs from the menu
   # 
@@ -133,29 +134,29 @@ class Component {
   // public ((Vector) => void) onNavigate;
   public ((Any) => void)[] actions;
 
-  public constructor (
+  public static Component New(
     in ComponentType type,
     in String label,
     in Component child = <Component>null
-  ) {
-    this.type = type;
-    this.name = null;
-    this.value = null;
-    this.defaultValue = null;
-    this.valueFormatter = null;
-    this.options = [];
-    this.index = 0;
-    this.parts = [];
-    this.label = label;
-    this.descriptions = [];
-    this.color = COLOR_NEUTRAL;
-    this.disabled = false;
-    this.inputSettings = InputSettings.New();
-    this.captureNavigationInputs = false;
-    this.button = BUTTON_PRIMARY;
-    this.renderedText = '';
-    this.shouldRerender = true;
-    this._child = <Any>child;
+  ) : {
+    type: type,
+    name: null, 
+    value: null, 
+    defaultValue: null, 
+    valueFormatter: null, 
+    options: [],
+    index: 0,
+    parts: [],
+    label: label, 
+    descriptions: [], 
+    color: COLOR_NEUTRAL, 
+    disabled: false, 
+    inputSettings: InputSettings.New(), 
+    captureNavigationInputs: false, 
+    button: BUTTON_PRIMARY, 
+    renderedText: '', 
+    shouldRerender: true,
+    _child: <Any>child, 
 
     // id: null, 
     // menuState: null, 
@@ -166,8 +167,8 @@ class Component {
     // onButtonDown: null,
     // onButtonUp: null,
     // onNavigate: null,
-    this.actions = [];
-  }
+    actions: []
+  };
 
   
   public ref void AddDescription(in Description description) {
@@ -250,19 +251,25 @@ class Component {
   // }
 }
 
-playervar Component test = new Component(ComponentType.Text, 'Test');
-playervar Component test2 = new Component(ComponentType.Text, 'Test2');
+playervar Component[] test = [
+  Component.New(ComponentType.Text, 'Test'),
+  Component.New(ComponentType.Text, 'Test'),
+  Component.New(ComponentType.Text, 'Test'),
+  Component.New(ComponentType.Text, 'Test'),
+  Component.New(ComponentType.Text, 'Test'),
+  Component.New(ComponentType.Text, 'Test')
+];
 
 rule: 'My Player Rule'
 Event.OngoingPlayer
 Team.All
 Player.All
 {
-  test.AddDescription(Description.New("aaaaa", COLOR_ERROR, true, 0));
-  test.SetPrimaryAction("bbbbb", () => Kill(HostPlayer()));
-  test.SetSecondaryAction("ccccc", () => Teleport(HostPlayer()));
+  test[0].AddDescription(Description.New("aaaaa", COLOR_ERROR, true, 0));
+  test[0].SetPrimaryAction("bbbbb", () => Kill(HostPlayer()));
+  test[0].SetSecondaryAction("ccccc", () => Teleport(HostPlayer()));
 
-  test.MarkToRerender();
+  test[0].MarkToRerender();
 }
 
 rule: 'My Player Rule'
@@ -271,5 +278,5 @@ Team.All
 Player.All
 {
   Wait(5);
-  (test.actions[0])('t');
+  (test[0].actions[0])('t');
 }
