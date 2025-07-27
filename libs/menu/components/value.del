@@ -1,0 +1,12 @@
+import './component.del';
+
+class Value {
+  public static Component New(
+    in String label,
+    in (() => Any) defaultValue = null
+  ): {
+    defaultValue: defaultValue,
+    value: defaultValue(),
+    ..Component.New(ComponentType.Text, label)
+  };
+}

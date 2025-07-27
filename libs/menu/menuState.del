@@ -9,6 +9,8 @@ import './components/text.del';
 
 // TODO: make `PuppetMenuState`?
 
+playervar Component[] menuComponents;
+
 Color COLOR_SWITCH: Color.Green;
 
 single struct RenderedText {
@@ -63,15 +65,15 @@ class MenuState {
   # ID of root page.
   public String _rootPageId;
   # List of available items on current page.
-  public Component[] items;
+  // public Component[] items;
   # Index of currently hovered item in `items`.
   public Number hoveredItemIdx;
   # List of currently visible items.
-  public Component[] visibleItems: items.Slice(history.Last.outerScroll, MAX_ITEMS);
+  public Component[] visibleItems: menuComponents.Slice(history.Last.outerScroll, MAX_ITEMS);
   # List of components that aren't disabled (can be hovered).
-  public Component[] enabledItems: items.FilteredArray((i, idx) => !i.disabled);
+  public Component[] enabledItems: menuComponents.FilteredArray((i, idx) => !i.disabled);
   # Currently hovered item.
-  public Component hoveredItem: items[hoveredItemIdx];
+  public Component hoveredItem: menuComponents[hoveredItemIdx];
   # Stack of IDs of visited pages.
   public HistoryItem[] history;
   # ID of currently open page.
@@ -94,7 +96,7 @@ class MenuState {
     else 
       history = [];
     
-    items = [];
+    // items = [];
     isLocked = false;
     isFocused = false;
     isEnabled = enabled;
@@ -102,7 +104,7 @@ class MenuState {
     hoveredItemIdx = 0;
 
     renderedTexts = RenderedTexts.BASE;
-    emptyText = new Text("It's a bit empty in here...");
+    emptyText = Text.New("It's a bit empty in here...");
 
     // render closed title
     MarkToRerender();
@@ -122,7 +124,7 @@ class MenuState {
     // LogToInspector($'{EventPlayer()}: RerenderHoveredItem');
     // DisableInspectorRecording();
 
-    hoveredItem.MarkToRerender();
+    menuComponents[hoveredItemIdx].MarkToRerender();
     MarkToRerender();
   }
 
@@ -136,14 +138,14 @@ class MenuState {
     MarkToRerender();
   }
 
-  # Forcefully rerenders all visible items.
+  # Forcefully rerenders all items.
   public void RerenderAllItems() "[MenuState] Rerender All Items" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: RerenderAllItems');
     // DisableInspectorRecording();
 
-    foreach(Component item! in visibleItems)
-      item.MarkToRerender();
+    for(Number i = 0; i < menuComponents.Length; i++)
+      menuComponents[i].MarkToRerender();
     
     MarkToRerender();
   }
@@ -159,25 +161,26 @@ class MenuState {
     }
   }
 
+  // TODO: restore
   public void SetFocused() "[MenuState] Set Focused" {
     // EnableInspectorRecording();
     // LogToInspector($'{EventPlayer()}: SetFocused');
     // DisableInspectorRecording();
 
-    if(currentMenuState != this) {
-      currentMenuState.isFocused = false;
+    // if(currentMenuState != this) {
+    //   currentMenuState.isFocused = false;
 
-      if(currentMenuState.isOpen) {
-        currentMenuState.hoveredItem.OnLeave();
-      }
+    //   if(currentMenuState.isOpen) {
+    //     currentMenuState.hoveredItem.OnLeave();
+    //   }
       
-      currentMenuState = this;
-      isFocused = true;
+    //   currentMenuState = this;
+    //   isFocused = true;
 
-      if(isOpen) {
-        hoveredItem.OnEnter();
-      }
-    }
+    //   if(isOpen) {
+    //     hoveredItem.OnEnter();
+    //   }
+    // }
   }
 
   # NOTE: This won't rerender the menu

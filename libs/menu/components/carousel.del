@@ -1,50 +1,53 @@
-import './componentWithValue.del';
+import './value.del';
 
-class Carousel: ComponentWithValue
-{
-  public Any[] options;
-
-  public constructor(
-    in String text,
+class Carousel {
+  public static Component New(
+    in String label,
     in Any[] options,
-    in Any defaultValue = null
-  ) {
-    CarouselConstructor(text, options, defaultValue);
-  }
+    in (() => Any) defaultValue = null
+  ): {
+    options: options,
+    defaultValue: defaultValue,
+    value: options.Contains(defaultValue()) ? defaultValue() : options.First,
+    descriptions: [
+      Description.New('Use [←] or [→] to select an option', order: -19)
+    ],
+    ..Component.New(ComponentType.Carousel, label)
+  };
 
-  protected void CarouselConstructor(
-    String text!,
-    Any[] options!,
-    Any defaultValue! = null
-  ) "[Carousel] Constructor" {
-    this.options = options;
+  // protected void CarouselConstructor(
+  //   String text!,
+  //   Any[] options!,
+  //   Any defaultValue! = null
+  // ) "[Carousel] Constructor" {
+  //   this.options = options;
     
-    ComponentWithValueConstructor(text, !options.Contains(defaultValue) ? options.First : defaultValue, null);
+  //   ComponentWithValueConstructor(text, !options.Contains(defaultValue) ? options.First : defaultValue, null);
 
-    AddDescription(Description.New('Use [←] or [→] to select an option', order: -19));
-  }
+  //   AddDescription(Description.New('Use [←] or [→] to select an option', order: -19));
+  // }
 
-  public override void OnNavigate(Vector direction!) "[Carousel] OnNavigate" {
-    onNavigate(direction, this);
+  // public override void OnNavigate(Vector direction!) "[Carousel] OnNavigate" {
+  //   onNavigate(direction, this);
 
-    Number index! = options.IndexOf(value);
+  //   Number index! = options.IndexOf(value);
 
-    if(index == -1) {
-      index = 0;
-    } else {
-      if(direction == Right()) index--;
-      else if(direction == Left()) index++;
+  //   if(index == -1) {
+  //     index = 0;
+  //   } else {
+  //     if(direction == Right()) index--;
+  //     else if(direction == Left()) index++;
 
-      if(index < 0) index = options.Length - 1;
-      else if(index > options.Length - 1) index = 0;
-    }
+  //     if(index < 0) index = options.Length - 1;
+  //     else if(index > options.Length - 1) index = 0;
+  //   }
 
-    SetValue(options[index]);
-  }
+  //   SetValue(options[index]);
+  // }
 
-  public override void Render() "[Carousel] Render" {
-    onRender(this);
-    if(options.Length == 0) renderedText = $"{text}: Empty";
-    else renderedText = $"{text}: ← {valueFormatter(this)}​ →";
-  }
+  // public override void Render() "[Carousel] Render" {
+  //   onRender(this);
+  //   if(options.Length == 0) renderedText = $"{text}: Empty";
+  //   else renderedText = $"{text}: ← {valueFormatter(this)}​ →";
+  // }
 }

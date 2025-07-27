@@ -1,154 +1,145 @@
-import '../../utils/number.split.del';
-import '../../utils/number.join.del';
-import '../menuState.del';
-import './componentWithValue.del';
+import './value.del';
 
 // TODO: split main logic into shared Input
 // TODO: min, max?
 
 # NOTE: number passed in `defaultValue` will lose its precision because of Workshop limitations
-class NumberInput: ComponentWithValue
-{
+class NumberInput {
   public Button BUTTON_EDIT_MODE: BUTTON_QUATERNARY;
-  public String DESCRIPTION: $'Press {ButtonFormatterSingle_Underscores(BUTTON_EDIT_MODE)}​ to {editMode ? "disable" : "enable"}​ Edit Mode';
-  
-  public MenuState _menuState;
-  public Boolean editMode;
-  public Boolean negative;
-  public Number integralLength;
-  public Number fractionalLength;
-  public Number length;
-  public Number[] parts;
-  public String unit;
-  protected Number index;
+  // public String DESCRIPTION: $'Press {ButtonFormatterSingle_Underscores(BUTTON_EDIT_MODE)}​ to {editMode ? "disable" : "enable"}​ Edit Mode';
 
-  public constructor(
-    in MenuState menuState,
-    in String text, 
-    in Number defaultValue = 0,
+  public static Component New(
+    in String label, 
+    in (() => Number) defaultValue = null,
     in Boolean negative = false,
     in Number integralLength = 3,
     in Number fractionalLength = 0,
     in String unit = null
-  ) {
-    NumberInputConstructor(menuState, text, defaultValue, negative, integralLength, fractionalLength, unit);
-  }
+  ): {
+    inputSettings: InputSettings.New(
+      negative: negative,
+      integralLength: integralLength,
+      fractionalLength: fractionalLength,
+      unit: unit
+    ),
+    ..Value.New(label, defaultValue)
+  };
 
-  protected void NumberInputConstructor(
-    MenuState menuState!,
-    String text!, 
-    Number defaultValue! = 0,
-    Boolean negative! = false,
-    Number integralLength! = 3,
-    Number fractionalLength! = 0,
-    String unit! = null
-  ) "[NumberInput] Constructor" {
-    ComponentWithValueConstructor(text, defaultValue, null);
+  // protected void NumberInputConstructor(
+  //   MenuState menuState!,
+  //   String text!, 
+  //   Number defaultValue! = 0,
+  //   Boolean negative! = false,
+  //   Number integralLength! = 3,
+  //   Number fractionalLength! = 0,
+  //   String unit! = null
+  // ) "[NumberInput] Constructor" {
+  //   ComponentWithValueConstructor(text, defaultValue, null);
 
-    this._menuState = menuState;
-    this.editMode = false;
-    this.parts = SplitNumber(defaultValue, integralLength, fractionalLength);
-    this.index = negative ? 0 : 1;
-    this.negative = negative;
-    this.integralLength = integralLength;
-    this.fractionalLength = fractionalLength;
-    this.unit = unit;
+  //   this._menuState = menuState;
+  //   this.editMode = false;
+  //   this.parts = SplitNumber(defaultValue, integralLength, fractionalLength);
+  //   this.index = negative ? 0 : 1;
+  //   this.negative = negative;
+  //   this.integralLength = integralLength;
+  //   this.fractionalLength = fractionalLength;
+  //   this.unit = unit;
 
-    CalculateLength();
+  //   CalculateLength();
 
-    AddDescription(Description.New(DESCRIPTION, COLOR_SWITCH, order: -20));
-    AddDescription(Description.New('Use [↑] or [↓] to increase/decrease current number', visible: false, order: -19));
-    AddDescription(Description.New('Use [←] or [→] to change currently edited number', visible: false, order: -18));
-  }
+  //   AddDescription(Description.New(DESCRIPTION, COLOR_SWITCH, order: -20));
+  //   AddDescription(Description.New('Use [↑] or [↓] to increase/decrease current number', visible: false, order: -19));
+  //   AddDescription(Description.New('Use [←] or [→] to change currently edited number', visible: false, order: -18));
+  // }
 
-  public void CalculateLength() {
-    length = 1 + integralLength + (fractionalLength ? 1 + fractionalLength : 0);
-  }
+  // public void CalculateLength() {
+  //   length = 1 + integralLength + (fractionalLength ? 1 + fractionalLength : 0);
+  // }
 
-  public override void OnNavigate(Vector direction!) "[NumberInput] OnNavigate" {
-    onNavigate(direction, this);
+  // public override void OnNavigate(Vector direction!) "[NumberInput] OnNavigate" {
+  //   onNavigate(direction, this);
 
-    if(!editMode) return;
+  //   if(!editMode) return;
 
-    shouldRerender = true;
+  //   shouldRerender = true;
 
-    if(direction == Left() || direction == Right()) {      
-      Number offset! = direction == Right() ? -1 : 1;
-      index += offset;
+  //   if(direction == Left() || direction == Right()) {      
+  //     Number offset! = direction == Right() ? -1 : 1;
+  //     index += offset;
 
-      // selected dot
-      if(index > 0 && parts[index] == -2)
-        index += offset;
+  //     // selected dot
+  //     if(index > 0 && parts[index] == -2)
+  //       index += offset;
 
-      if(index < (negative ? 0 : 1)) index = length - 1;
-      else if(index > length - 1) index = (negative ? 0 : 1);
-    } else {
-      Any oldVal! = value;
+  //     if(index < (negative ? 0 : 1)) index = length - 1;
+  //     else if(index > length - 1) index = (negative ? 0 : 1);
+  //   } else {
+  //     Any oldVal! = value;
 
-      if(index == 0) {
-        parts[index] = parts[index] == 1 ? -1 : 1;
-      } else {
-        if(direction == Up()) parts[index]++;
-        else if(direction == Down()) parts[index]--;
+  //     if(index == 0) {
+  //       parts[index] = parts[index] == 1 ? -1 : 1;
+  //     } else {
+  //       if(direction == Up()) parts[index]++;
+  //       else if(direction == Down()) parts[index]--;
 
-        if(parts[index] > 9) parts[index] = 0;
-        else if(parts[index] < 0) parts[index] = 9;
-      }
+  //       if(parts[index] > 9) parts[index] = 0;
+  //       else if(parts[index] < 0) parts[index] = 9;
+  //     }
 
-      SetValue(JoinNumber(parts));
-    }
-  }
+  //     SetValue(JoinNumber(parts));
+  //   }
+  // }
 
-  public override void OnButtonDown(Button button!) "[NumberInput] OnButtonDown" {
-    onButtonDown(button, this);
+  // public override void OnButtonDown(Button button!) "[NumberInput] OnButtonDown" {
+  //   onButtonDown(button, this);
 
-    HandleActions();
+  //   HandleActions();
 
-    if(buttonsHeld == [BUTTON_EDIT_MODE]) {
-      editMode = !editMode;
+  //   if(buttonsHeld == [BUTTON_EDIT_MODE]) {
+  //     editMode = !editMode;
       
-      shouldRerender = true;
+  //     shouldRerender = true;
 
-      _menuState.isLocked = editMode;
-      this.descriptions[0].color = editMode ? COLOR_ERROR : COLOR_SWITCH;
-      this.descriptions[0].text = DESCRIPTION;
-      this.descriptions[1].visible = editMode;
-      this.descriptions[2].visible = editMode;
-    }
-  }
+  //     _menuState.isLocked = editMode;
+  //     this.descriptions[0].color = editMode ? COLOR_ERROR : COLOR_SWITCH;
+  //     this.descriptions[0].text = DESCRIPTION;
+  //     this.descriptions[1].visible = editMode;
+  //     this.descriptions[2].visible = editMode;
+  //   }
+  // }
 
-  public override void Render() "[NumberInput] Render" {
-    onRender(this);
+  // public override void Render() "[NumberInput] Render" {
+  //   onRender(this);
 
-    if(length <= 0) {
-      renderedText = $"{text}: Empty";
-    } else {
-      Any[] vals! = [];
+  //   if(length <= 0) {
+  //     renderedText = $"{text}: Empty";
+  //   } else {
+  //     Any[] vals! = [];
 
-      for(Number idx! = 0; idx < parts.Length; idx++) {
-        Any i! = parts[idx];
+  //     for(Number idx! = 0; idx < parts.Length; idx++) {
+  //       Any i! = parts[idx];
 
-        if(idx == 0) {
-          i = i == -1 ? '-' : '+';
-        } else if(!editMode && vals.Length == 1 && i == 0 && (idx != parts.Length - 1 && parts[idx + 1] != -2)) {
-          // trim leading zeros
-          continue;
-        } else if(i == -2) {
-          i = '.';
-        }
+  //       if(idx == 0) {
+  //         i = i == -1 ? '-' : '+';
+  //       } else if(!editMode && vals.Length == 1 && i == 0 && (idx != parts.Length - 1 && parts[idx + 1] != -2)) {
+  //         // trim leading zeros
+  //         continue;
+  //       } else if(i == -2) {
+  //         i = '.';
+  //       }
 
-        if(editMode && idx == index) {
-          i = $"[{i}]";
-        }
+  //       if(editMode && idx == index) {
+  //         i = $"[{i}]";
+  //       }
 
-        vals += i;
-      }
+  //       vals += i;
+  //     }
 
-      if(!negative && parts[0] != -1) 
-        vals = vals.Slice(1, vals.Length);
+  //     if(!negative && parts[0] != -1) 
+  //       vals = vals.Slice(1, vals.Length);
 
-      String final! = Join(vals, editMode ? " " : '');
-      renderedText = $"{text}: {final}{unit ? unit : ''}";
-    }
-  }
+  //     String final! = Join(vals, editMode ? " " : '');
+  //     renderedText = $"{text}: {final}{unit ? unit : ''}";
+  //   }
+  // }
 }

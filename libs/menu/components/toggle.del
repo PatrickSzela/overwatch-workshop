@@ -1,41 +1,45 @@
+import '../customButtons.del';
 import '../../utils/string.formatters.del';
-import './componentWithValue.del';
+import './value.del';
 
-class Toggle: ComponentWithValue 
-{
-  public Button BUTTON_TOGGLE: BUTTON_PRIMARY;
-  public Boolean checked: value;
+class Toggle {
+  public static Button BUTTON_TOGGLE: BUTTON_PRIMARY;
 
-  public constructor(
-    in String text,
-    in Boolean defaultChecked = null,
-    in Component child = null
-  ) {
-    ToggleConstructor(text, defaultChecked, child);
-  }
+  public static Component New(
+    in String label,
+    in (() => Boolean) defaultChecked = null,
+    in Component child = <Component>null
+  ): {
+    valueFormatter: BooleanFormatterOnOff,
+    descriptions: [
+      Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE))
+    ],
+    _child: <Any>child,
+    ..Value.New(label, defaultChecked)
+  };
 
-  protected void ToggleConstructor(
-    String text!,
-    Boolean defaultChecked! = null,
-    Component child! = null
-  ) "[Toggle] Constructor" {
-    ComponentWithValueConstructor(text, defaultChecked, child);
+  // protected void ToggleConstructor(
+  //   String text!,
+  //   Boolean defaultChecked! = null,
+  //   Component child! = null
+  // ) "[Toggle] Constructor" {
+  //   ComponentWithValueConstructor(text, defaultChecked, child);
 
-    this.valueFormatter = (it) => BooleanFormatterOnOff(it.value);
+  //   this.valueFormatter = (it) => BooleanFormatterOnOff(it.value);
 
-    AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE)));
-  }
+  //   AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE)));
+  // }
 
-  // events
-  public override void OnButtonDown(Button button!) "[Toggle] OnButtonDown" {
-    onButtonDown(button, this);
+  // // events
+  // public override void OnButtonDown(Button button!) "[Toggle] OnButtonDown" {
+  //   onButtonDown(button, this);
 
-    HandleActions();
+  //   HandleActions();
 
-    if(buttonsHeld == [BUTTON_TOGGLE])
-      SetValue(!checked);
+  //   if(buttonsHeld == [BUTTON_TOGGLE])
+  //     SetValue(!checked);
 
-    if(child)
-      child.OnButtonDown(button);
-  }
+  //   if(child)
+  //     child.OnButtonDown(button);
+  // }
 }

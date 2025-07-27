@@ -3,8 +3,6 @@ import '../../utils/string.formatters.del';
 import '../../utils/index.del';
 import '../customButtons.del';
 
-
-
 single struct Description {
   public String text;
   public Color color;
@@ -12,7 +10,7 @@ single struct Description {
   public Number order;
 
   public static Description New(in String description, in Color color = COLOR_NEUTRAL, in Boolean visible = true, in Number order = 0): 
-    {text: description, color: color, visible: visible, order: order};
+    { text: description, color: color, visible: visible, order: order };
 
   public static Description BASE: {
     text: '',
@@ -43,14 +41,14 @@ single struct InputSettings {
   public Number length;
   public String unit;
 
-  public static InputSettings New(): {
-    min: NUMBER_MIN,
-    max: NUMBER_MAX,
-    negative: false,
-    integralLength: 5,
-    fractionalLength: 3,
-    length: NUMBER_MAX,
-    unit: ''
+  public static InputSettings New(Number min = NUMBER_MIN, Number max = NUMBER_MAX, Boolean negative = false, Number integralLength = 3, Number fractionalLength = 0, Number length = 10, String unit = ''): {
+    min: min,
+    max: max,
+    negative: negative,
+    integralLength: integralLength,
+    fractionalLength: fractionalLength,
+    length: length,
+    unit: unit
   };
 }
 
@@ -116,6 +114,14 @@ struct Component {
   public String renderedText;
   # Child component
   public Component child: <Component>_child;
+  # Alias for `value`
+  public Boolean checked: value;
+  # Alias for `defaultValue`
+  public (() => Boolean) defaultChecked: defaultValue;
+  
+
+  private Any _child;
+  
 
   // public static ((Any) => String) VALUE_FORMATTER: (value) => value;
 
@@ -124,15 +130,20 @@ struct Component {
   // # Unique identifier of the component
   // public Number id;
   
-  private Any _child;
-  
   // public (() => void) onRender;
   // public (() => void) onEnter;
   // public (() => void) onLeave;
   // public ((Button) => void) onButtonDown;
   // public ((Button) => void) onButtonUp;
   // public ((Vector) => void) onNavigate;
-  public ((Any) => void)[] actions;
+  # List of callbacks that will be called when user presses a one of the buttons. Each index corresponds to a specified button:
+  # 1. Primary button
+  # 2. Secondary button
+  # 3. Tertiary button
+  # 4. Quaternary button
+  public ((Any) => void)[] onButtonPress;
+  # Callback called when `value` changes by using `SetValue` function
+  public ((Any) => void) onChange;
 
   public static Component New(
     in ComponentType type,
@@ -167,7 +178,8 @@ struct Component {
     // onButtonDown: null,
     // onButtonUp: null,
     // onNavigate: null,
-    actions: []
+    onButtonPress: [],
+    onChange: null
   };
 
   
@@ -180,23 +192,31 @@ struct Component {
   }
 
   public ref void SetPrimaryAction(in String description, in () => void action) {
-    actions[0] = action;
+    onButtonPress[0] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_PRIMARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_PRIMARY)));
   }
 
   public ref void SetSecondaryAction(in String description, in () => void action) {
-    actions[1] = action;
+    onButtonPress[1] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_SECONDARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_SECONDARY)));
   }
 
   public ref void SetTertiaryAction(in String description, in () => void action) {
-    actions[2] = action;
+    onButtonPress[2] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TERTIARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_TERTIARY)));
   }
 
   public ref void SetQuaternaryAction(in String description, in () => void action) {
-    actions[3] = action;
+    onButtonPress[3] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_QUATERNARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_QUATERNARY)));
+  }
+
+  public ref void SetValue(in Any newValue) {
+    if(value != newValue) {
+      value = newValue;
+      onChange(value);
+      MarkToRerender();
+    }
   }
 
   // public virtual void HandleActions() "[Component] Handle Action" {
@@ -251,32 +271,32 @@ struct Component {
   // }
 }
 
-playervar Component[] test = [
-  Component.New(ComponentType.Text, 'Test'),
-  Component.New(ComponentType.Text, 'Test'),
-  Component.New(ComponentType.Text, 'Test'),
-  Component.New(ComponentType.Text, 'Test'),
-  Component.New(ComponentType.Text, 'Test'),
-  Component.New(ComponentType.Text, 'Test')
-];
+// playervar Component[] test = [
+//   Component.New(ComponentType.Text, 'Test'),
+//   Component.New(ComponentType.Text, 'Test'),
+//   Component.New(ComponentType.Text, 'Test'),
+//   Component.New(ComponentType.Text, 'Test'),
+//   Component.New(ComponentType.Text, 'Test'),
+//   Component.New(ComponentType.Text, 'Test')
+// ];
 
-rule: 'My Player Rule'
-Event.OngoingPlayer
-Team.All
-Player.All
-{
-  test[0].AddDescription(Description.New("aaaaa", COLOR_ERROR, true, 0));
-  test[0].SetPrimaryAction("bbbbb", () => Kill(HostPlayer()));
-  test[0].SetSecondaryAction("ccccc", () => Teleport(HostPlayer()));
+// rule: 'My Player Rule'
+// Event.OngoingPlayer
+// Team.All
+// Player.All
+// {
+//   test[0].AddDescription(Description.New("aaaaa", COLOR_ERROR, true, 0));
+//   test[0].SetPrimaryAction("bbbbb", () => Kill(HostPlayer()));
+//   test[0].SetSecondaryAction("ccccc", () => Teleport(HostPlayer()));
 
-  test[0].MarkToRerender();
-}
+//   test[0].MarkToRerender();
+// }
 
-rule: 'My Player Rule'
-Event.OngoingPlayer
-Team.All
-Player.All
-{
-  Wait(5);
-  (test[0].actions[0])('t');
-}
+// rule: 'My Player Rule'
+// Event.OngoingPlayer
+// Team.All
+// Player.All
+// {
+//   Wait(5);
+//   (test[0].actions[0])('t');
+// }

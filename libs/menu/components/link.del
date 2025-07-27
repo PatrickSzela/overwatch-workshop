@@ -1,49 +1,32 @@
-import '../menuState.del';
 import './component.del';
 
-class Link: Component 
-{
-  public MenuState _menuState;
-  public Any submenuID;
-  public Button openButton;
-
-  public constructor(
-    in MenuState menuState,
-    in String text, 
+class Link {
+  public static Component New(
+    in String label,
     in String submenuID,
     in Button openButton = BUTTON_PRIMARY
-  ) {
-    LinkConstructor(menuState, text, submenuID, openButton);
-  }
+  ): {
+    value: submenuID,
+    button: openButton,
+    descriptions: [
+      Description.New($"Press {ButtonFormatterSingle_Underscores(openButton)}​ to open submenu", order: ButtonDescriptionOrder(openButton))
+    ],
+    ..Component.New(ComponentType.Link, label)
+  };
 
-  protected void LinkConstructor(
-    MenuState menuState!,
-    String text!, 
-    String submenuID!,
-    Button openButton! = BUTTON_PRIMARY
-  ) "[Link] Constructor" {
-    ComponentConstructor(text, null);
-    
-    this._menuState = menuState;
-    this.submenuID = submenuID;
-    this.openButton = openButton;
+  // public override void Render() "[Link] Render" {
+  //   onRender(this);
+  //   renderedText = $"{child.renderedText || text}​ ▶";
+  // }
 
-    AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(openButton)}​ to open submenu", order: ButtonDescriptionOrder(openButton)));
-  }
+  // public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {
+  //   onButtonDown(button, this);
 
-  public override void Render() "[Link] Render" {
-    onRender(this);
-    renderedText = $"{child.renderedText || text}​ ▶";
-  }
+  //   HandleActions();
 
-  public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {
-    onButtonDown(button, this);
-
-    HandleActions();
-
-    if(buttonsHeld == [openButton])
-      _menuState.GoTo(submenuID);
-    else if(child)
-      child.OnButtonDown(button);
-  }
+  //   if(buttonsHeld == [openButton])
+  //     _menuState.GoTo(submenuID);
+  //   else if(child)
+  //     child.OnButtonDown(button);
+  // }
 }

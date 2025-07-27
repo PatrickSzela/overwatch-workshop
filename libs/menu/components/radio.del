@@ -1,50 +1,36 @@
-import '../menuState.del';
 import './toggle.del';
 
 class Radio: Toggle
 {
-  public constructor(
-    in MenuState menuState,
-    in String text, 
+  public static Component New(
+    in String label, 
     in String name,
-    in Boolean defaultChecked = null,
-    in Component child = null
-  ) {
-    RadioConstructor(menuState, text, name, defaultChecked, child);
-  }
+    in (() => Boolean) defaultChecked = null,
+    in Component child = <Component>null
+  ): {
+    name: name,
+    ..Toggle.New(label, defaultChecked, child)
+  };
 
-  protected void RadioConstructor(
-    MenuState menuState!,
-    String text!, 
-    String name!,
-    Boolean defaultChecked! = null,
-    Component child! = null
-  ) "[Radio] Constructor" {
-    ToggleConstructor(text, defaultChecked, child);
+  // public override void SetValue(Any checked!) "[Radio] Set Checked" {
+  //   if(this.checked != checked && !this.checked) {
+  //     Component[] arr! = menuState.items.Map((i) => i.name == name ? i : i.child.name == name ? i : null).FilteredArray((i) => i);
 
-    this.name = name;
-    this.menuState = menuState;
-  }
+  //     foreach(Component sibling! in arr) {
+  //       if((<Toggle>sibling).checked) {
+  //         // don't trigger callbacks
+  //         (<Toggle>sibling).value = false;
+  //         (<Toggle>sibling).shouldRerender = true;
+  //       }
+  //     }
 
-  public override void SetValue(Any checked!) "[Radio] Set Checked" {
-    if(this.checked != checked && !this.checked) {
-      Component[] arr! = menuState.items.Map((i) => i.name == name ? i : i.child.name == name ? i : null).FilteredArray((i) => i);
+  //     value = checked;
+  //     OnChange();
+  //   }
+  // }
 
-      foreach(Component sibling! in arr) {
-        if((<Toggle>sibling).checked) {
-          // don't trigger callbacks
-          (<Toggle>sibling).value = false;
-          (<Toggle>sibling).shouldRerender = true;
-        }
-      }
-
-      value = checked;
-      OnChange();
-    }
-  }
-
-  public override void Render() "[Radio] Render" {
-    onRender(this);
-    renderedText = $"{checked ? "(✓)" : "(    )"}​ {child.renderedText || text}";
-  }
+  // public override void Render() "[Radio] Render" {
+  //   onRender(this);
+  //   renderedText = $"{checked ? "(✓)" : "(    )"}​ {child.renderedText || text}";
+  // }
 }

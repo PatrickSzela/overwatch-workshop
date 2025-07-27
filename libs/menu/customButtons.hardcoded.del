@@ -1,19 +1,14 @@
-globalvar Button[] buttonsSettings;
-
-rule: 'Set buttons'
-{
-  buttonsSettings = [
-    BUTTON_PRIMARY,
-    BUTTON_SECONDARY,
-    BUTTON_TERTIARY,
-    BUTTON_QUATERNARY,
-    BUTTON_BACK,
-    BUTTON_MODIFIER,
-    BUTTON_SWITCH,
-    BUTTON_INCREASE,
-    BUTTON_DECREASE
-  ];
-}
+globalvar Button[] buttonsSettings = [
+  BUTTON_PRIMARY,
+  BUTTON_SECONDARY,
+  BUTTON_TERTIARY,
+  BUTTON_QUATERNARY,
+  BUTTON_BACK,
+  BUTTON_MODIFIER,
+  BUTTON_SWITCH,
+  BUTTON_INCREASE,
+  BUTTON_DECREASE
+];
 
 Button BUTTON_PRIMARY: Button.Ability2;
 Button BUTTON_SECONDARY: Button.Reload;

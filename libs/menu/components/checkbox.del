@@ -1,17 +1,16 @@
 import './toggle.del';
 
-class Checkbox: Toggle
-{
-  public constructor(
-    in String text, 
-    in Boolean defaultChecked = null,
-    in Component child = null
-  ) {
-    ToggleConstructor(text, defaultChecked, child);
-  }
+class Checkbox {
+  public static Component New(
+    in String label, 
+    in (() => Boolean) defaultChecked = null,
+    in Component child = <Component>null
+  ): {
+    ..Toggle.New(label, defaultChecked, child)
+  };
 
-  public override void Render() "[Checkbox] Render" {
-    onRender(this);
-    renderedText = $"{checked ? "[✓]" : "[    ]"}​ {child.renderedText || text}";
-  }
+  // public override void Render() "[Checkbox] Render" {
+  //   onRender(this);
+  //   renderedText = $"{checked ? "[✓]" : "[    ]"}​ {child.renderedText || text}";
+  // }
 }
