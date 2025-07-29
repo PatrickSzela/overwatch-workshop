@@ -6,15 +6,15 @@ String PAGE_DEBUG_CHECKBOX_ID: 'checkbox';
 String PAGE_DEBUG_CHECKBOX_NAME: 'Checkbox';
 
 Component[] PageDebugCheckboxItems() {
-  Checkbox[] items = [];
+  Component[] items = [];
 
   for(Number i! = 1; i <= 10; i++) {
-    items += new Checkbox(
-      text: $"Item {i}", 
-      defaultChecked: i == 5
+    items += Checkbox.New(
+      label: $"Item {i}", 
+      defaultChecked: () => EvaluateOnce(i) == 5
     );
 
-    items.Last.onChange = (checked, it) => Log($'{it.text}: value changed to {checked}');
+    items.Last.onChange = (checked) => Log($'{items.Last}: value changed to {checked}');
   }
 
   return items;

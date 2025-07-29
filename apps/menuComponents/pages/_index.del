@@ -2,40 +2,40 @@ import '../../../libs/menu/components/link.del';
 import '../../../libs/menu/components/text.del';
 import '../_variables.del';
 import './component.del';
-import './toggle.del';
-import './carousel.del';
-import './numberInput.del';
-import './checkbox.del';
-import './radio.del';
-import './listLong.del';
-import './listDynamic.del';
+// import './toggle.del';
+// import './carousel.del';
+// import './numberInput.del';
+// import './checkbox.del';
+// import './radio.del';
+// import './listLong.del';
+// import './listDynamic.del';
 
 String PAGE_DEBUG_ID: 'root';
 String PAGE_DEBUG_NAME: 'Components List';
 
 Component[] PageDebugItems() {
   return <Component[]>[
-    new Text("Components:"),
-    new Link(menuState, PAGE_DEBUG_COMPONENT_NAME, PAGE_DEBUG_COMPONENT_ID),
-    new Link(menuState, PAGE_DEBUG_TOGGLE_NAME, PAGE_DEBUG_TOGGLE_ID),
-    new Link(menuState, PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
-    new Link(menuState, PAGE_DEBUG_NUMBER_INPUT_NAME, PAGE_DEBUG_NUMBER_INPUT_ID),
-    new Link(menuState, PAGE_DEBUG_CHECKBOX_NAME, PAGE_DEBUG_CHECKBOX_ID),
-    new Link(menuState, PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),
-    new Text(),
+    Text.New("Components:"),
+    Link.New(PAGE_DEBUG_COMPONENT_NAME, PAGE_DEBUG_COMPONENT_ID),
+    // Link.New(PAGE_DEBUG_TOGGLE_NAME, PAGE_DEBUG_TOGGLE_ID),
+    // Link.New(PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
+    // Link.New(PAGE_DEBUG_NUMBER_INPUT_NAME, PAGE_DEBUG_NUMBER_INPUT_ID),
+    // Link.New(PAGE_DEBUG_CHECKBOX_NAME, PAGE_DEBUG_CHECKBOX_ID),
+    // Link.New(PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),
+    Text.New(),
 
-    new Text("Lists:"),
-    new Link(menuState, PAGE_DEBUG_LIST_LONG_NAME, PAGE_DEBUG_LIST_LONG_ID),
-    new Link(menuState, PAGE_DEBUG_LIST_DYNAMIC_NAME, PAGE_DEBUG_LIST_DYNAMIC_ID)
+    Text.New("Lists:")
+    // Link.New(PAGE_DEBUG_LIST_LONG_NAME, PAGE_DEBUG_LIST_LONG_ID),
+    // Link.New(PAGE_DEBUG_LIST_DYNAMIC_NAME, PAGE_DEBUG_LIST_DYNAMIC_ID)
   ];
 }
 
-rule: 'Debug'
-Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_ID)
-{
-  menuState.CreatePage(
-    title: PAGE_DEBUG_NAME, 
-    items: PageDebugItems()
-  );
-}
+// rule: 'Debug'
+// Event.OngoingPlayer
+// if(menuState.pageId == PAGE_DEBUG_ID)
+// {
+//   menuState.CreatePage(
+//     title: PAGE_DEBUG_NAME, 
+//     items: PageDebugItems()
+//   );
+// }

@@ -6,10 +6,10 @@ class Radio: Toggle
     in String label, 
     in String name,
     in (() => Boolean) defaultChecked = null,
-    in Component child = <Component>null
+    in Number childIndex = null
   ): {
     name: name,
-    ..Toggle.New(label, defaultChecked, child)
+    ..Toggle.New(label, defaultChecked, childIndex)
   };
 
   // public override void SetValue(Any checked!) "[Radio] Set Checked" {

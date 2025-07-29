@@ -23,22 +23,24 @@ class Menu {
     GenerateHUDTexts(state, location);
   }
 
+  private String ReplaceInputBindings(in String string): string
+    .Replace($"_{Button.PrimaryFire}_", InputBindingString(Button.PrimaryFire))
+    .Replace($"_{Button.SecondaryFire}_", InputBindingString(Button.SecondaryFire))
+    .Replace($"_{Button.Ability1}_", InputBindingString(Button.Ability1))
+    .Replace($"_{Button.Ability2}_", InputBindingString(Button.Ability2))
+    .Replace($"_{Button.Ultimate}_", InputBindingString(Button.Ultimate))
+    .Replace($"_{Button.Reload}_", InputBindingString(Button.Reload))
+    .Replace($"_{Button.Melee}_", InputBindingString(Button.Melee))
+    .Replace($"_{Button.Jump}_", InputBindingString(Button.Jump))
+    .Replace($"_{Button.Crouch}_", InputBindingString(Button.Crouch))
+    .Replace($"_{Button.Interact}_", InputBindingString(Button.Interact));
+
   private Any CreateHudTextHelper(ref MenuState state, in Number i, Location location) { 
     Number num: EvaluateOnce(i);
 
     return CreateHudText(
       VisibleTo: state.renderedTexts.merged[num].text && state.isEnabled ? LocalPlayer() : null,
-      Subheader: state.renderedTexts.merged[num].text
-          .Replace($"_{Button.PrimaryFire}_", InputBindingString(Button.PrimaryFire))
-          .Replace($"_{Button.SecondaryFire}_", InputBindingString(Button.SecondaryFire))
-          .Replace($"_{Button.Ability1}_", InputBindingString(Button.Ability1))
-          .Replace($"_{Button.Ability2}_", InputBindingString(Button.Ability2))
-          .Replace($"_{Button.Ultimate}_", InputBindingString(Button.Ultimate))
-          .Replace($"_{Button.Reload}_", InputBindingString(Button.Reload))
-          .Replace($"_{Button.Melee}_", InputBindingString(Button.Melee))
-          .Replace($"_{Button.Jump}_", InputBindingString(Button.Jump))
-          .Replace($"_{Button.Crouch}_", InputBindingString(Button.Crouch))
-          .Replace($"_{Button.Interact}_", InputBindingString(Button.Interact)),
+      Subheader: ReplaceInputBindings(state.renderedTexts.merged[num].text),
       Location: location, 
       SortOrder: num - 100, 
       Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,

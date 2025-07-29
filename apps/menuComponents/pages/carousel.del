@@ -6,24 +6,24 @@ String PAGE_DEBUG_CAROUSEL_ID: 'carousel';
 String PAGE_DEBUG_CAROUSEL_NAME: 'Carousel';
 
 Component[] PageDebugCarouselItems() {
-  Carousel[] items = [
-    new Carousel("Empty", []),
-    new Carousel("One option", ["1"]),
-    new Carousel("Two options", ["1", "2"]),
-    new Carousel("Three options", ["1", "2", "3"]),
-    new Carousel(
-      text: "Three options with \"2\" as default value",
+  Component[] items = [
+    Carousel.New("Empty", []),
+    Carousel.New("One option", ["1"]),
+    Carousel.New("Two options", ["1", "2"]),
+    Carousel.New("Three options", ["1", "2", "3"]),
+    Carousel.New(
+      label: "Three options with \"2\" as default value",
       options: ["1", "2", "3"],
-      defaultValue: "2",
+      defaultValue: () => "2",
     ),
-    new Carousel(
-      text: "Custom formatter & events",
+    Carousel.New(
+      label: "Custom formatter & events",
       options: AllHeroes(), 
     )
   ];
 
-  items.Last.valueFormatter = (it) => HeroWithIconFormatter(it.value);
-  items.Last.onChange = (value, it) => Log($"{it.text}: value changed to \"{value}\"");
+  items.Last.valueFormatter = (value) => HeroWithIconFormatter(value);
+  items.Last.onChange = (value) => Log($"{items.Last}: value changed to \"{value}\"");
 
   return items;
 }

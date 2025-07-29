@@ -32,6 +32,43 @@ enum ComponentType {
   NumberInput
 }
 
+enum ComponentEvent {
+  Render,
+  Enter,
+  Leave,
+  ButtonDown,
+  ButtonUp,
+  Navigate,
+  PrimaryAction,
+  SecondaryAction,
+  TertiaryAction,
+  QuaternaryAction,
+  Change
+}
+
+single struct ComponentAction {
+  public String description;
+  public (() => void) action;
+
+  public static ComponentAction New(in String description, in (() => void) action): {
+    description: description,
+    action: action
+  };
+}
+
+Description[] GenerateDescriptions(ComponentAction[] componentActions) "t" {
+  Description[] desc! = [];
+  for(Number i! = 6; i < componentActions.Length; i++) {
+    if(!componentActions[i]) continue;
+
+    ComponentAction componentAction: componentActions[i];
+    Button button: buttonsSettings[i];
+
+    desc += Description.New($"Press {ButtonFormatterSingle_Underscores(button)}​ to {componentAction.description}", order: ButtonDescriptionOrder(button));
+  }
+  return desc;
+}
+
 single struct InputSettings {
   public Number min;
   public Number max;
@@ -70,6 +107,8 @@ struct Component {
   public Any value;
   # Function to retrieve default value
   public (() => Any) defaultValue;
+  # Formatter that generates nicely formatted String from a `value`
+  public ((Any) => String) valueFormatter;
   # Available options
   # 
   # Usable by:
@@ -86,8 +125,6 @@ struct Component {
   # Usable by:
   # - `TextInput`, `NumberInput` - user's provided value in edit mode
   public Number[] parts;
-  # Formatter that generates nicely formatted String from a `value`
-  public ((Any) => String) valueFormatter;
   # Descriptions assigned to the component
   public Description[] descriptions;
   # Color of the displayed text
@@ -112,16 +149,13 @@ struct Component {
   public Boolean shouldRerender;
   # Fully rendered text
   public String renderedText;
-  # Child component
-  public Component child: <Component>_child;
+  # Index of a child component
+  public Number childIndex;
   # Alias for `value`
   public Boolean checked: value;
   # Alias for `defaultValue`
   public (() => Boolean) defaultChecked: defaultValue;
-  
-
-  private Any _child;
-  
+    
 
   // public static ((Any) => String) VALUE_FORMATTER: (value) => value;
 
@@ -136,52 +170,97 @@ struct Component {
   // public ((Button) => void) onButtonDown;
   // public ((Button) => void) onButtonUp;
   // public ((Vector) => void) onNavigate;
-  # List of callbacks that will be called when user presses a one of the buttons. Each index corresponds to a specified button:
-  # 1. Primary button
-  # 2. Secondary button
-  # 3. Tertiary button
-  # 4. Quaternary button
-  public ((Any) => void)[] onButtonPress;
-  # Callback called when `value` changes by using `SetValue` function
-  public ((Any) => void) onChange;
+
+  
+  # List of callbacks that will be called when user interacts with the component. Each index corresponds to a specified event:
+  # - Render - component has been rendered
+  # - Enter - user has focused the component
+  # - Leave - user has unfocused the component
+  # - ButtonDown - user has pressed a button
+  # - ButtonUp - user has released a button
+  # - Navigate - user used navigation inputs
+  # - PrimaryAction - user has pressed primary button
+  # - SecondaryAction - user has pressed secondary button
+  # - TertiaryAction - user has pressed tertiary button
+  # - QuaternaryAction - user has pressed quaternary button
+  # - Change - component's value has been changed
+  public (() => void)[] callbacks;
 
   public static Component New(
     in ComponentType type,
     in String label,
-    in Component child = <Component>null
-  ) : {
-    type: type,
-    name: null, 
-    value: null, 
-    defaultValue: null, 
-    valueFormatter: null, 
-    options: [],
-    index: 0,
-    parts: [],
-    label: label, 
-    descriptions: [], 
-    color: COLOR_NEUTRAL, 
-    disabled: false, 
-    inputSettings: InputSettings.New(), 
-    captureNavigationInputs: false, 
-    button: BUTTON_PRIMARY, 
-    renderedText: '', 
-    shouldRerender: true,
-    _child: <Any>child, 
+    in String name = null,
+    in (() => Any) defaultValue = null,
+    in ((Any) => String) valueFormatter = null,
+    in Any[] options = [],
+    in Number index = 0,
+    in Number[] parts = [],
+    in Description[] descriptions = [],
+    in Color color = COLOR_NEUTRAL,
+    in Boolean disabled = false,
+    in InputSettings inputSettings = InputSettings.New(),
+    in Boolean captureNavigationInputs = false,
+    in Button button = BUTTON_PRIMARY,
+    in Number childIndex = null,
 
-    // id: null, 
-    // menuState: null, 
+    in (() => void) onRender = null,
+    in (() => void) onEnter = null,
+    in (() => void) onLeave = null,
+    in ((Button) => void) onButtonDown = null,
+    in ((Button) => void) onButtonUp = null,
+    in ((Vector) => void) onNavigate = null,
+    in ComponentAction onPrimaryAction = null,
+    in ComponentAction onSecondaryAction = null,
+    in ComponentAction onTertiaryAction = null,
+    in ComponentAction onQuaternaryAction = null,
+    in ((Any) => void) onChange = null
+  ) {
+    Description[] desc! = GenerateDescriptions([onPrimaryAction, onSecondaryAction, onTertiaryAction, onQuaternaryAction]);
+    
+    return {
+      type: type,
+      label: label, 
+      name: name,
+      value: defaultValue(), 
+      defaultValue: defaultValue,
+      valueFormatter: valueFormatter,
+      options: options,
+      index: index,
+      parts: parts,
+      descriptions: descriptions + desc,
+      color: color,
+      disabled: disabled,
+      inputSettings: inputSettings, 
+      captureNavigationInputs: captureNavigationInputs, 
+      button: button, 
+      shouldRerender: true,
+      renderedText: label, // TODO: set to empty string
+      childIndex: childIndex, 
 
-    // onRender: null,
-    // onEnter: null,
-    // onLeave: null,
-    // onButtonDown: null,
-    // onButtonUp: null,
-    // onNavigate: null,
-    onButtonPress: [],
-    onChange: null
-  };
+      // id: null, 
+      // menuState: null, 
 
+      // onRender: null,
+      // onEnter: null,
+      // onLeave: null,
+      // onButtonDown: null,
+      // onButtonUp: null,
+      // onNavigate: null,
+      callbacks: [
+        onRender,
+        onEnter,
+        onLeave,
+        onButtonDown,
+        onButtonUp,
+        onNavigate,
+        onPrimaryAction.action,
+        onSecondaryAction.action,
+        onTertiaryAction.action,
+        onQuaternaryAction.action,
+        onChange
+      ]
+    };
+  }
   
   public ref void AddDescription(in Description description) {
     descriptions += description;
@@ -191,30 +270,54 @@ struct Component {
     shouldRerender = true;
   }
 
-  public ref void SetPrimaryAction(in String description, in () => void action) {
-    onButtonPress[0] = action;
+  public ref void SetOnEnter(in () => void callback) {
+    callbacks[<Number>ComponentEvent.Enter] = callback;
+  }
+
+  public ref void SetOnLeave(in () => void callback) {
+    callbacks[<Number>ComponentEvent.Leave] = callback;
+  }
+
+  public ref void SetOnButtonDown(in (Button) => void callback) {
+    callbacks[<Number>ComponentEvent.ButtonDown] = callback;
+  }
+
+  public ref void SetOnButtonUp(in (Button) => void callback) {
+    callbacks[<Number>ComponentEvent.ButtonUp] = callback;
+  }
+
+  public ref void SetOnNavigate(in (Vector) => void callback) {
+    callbacks[<Number>ComponentEvent.Navigate] = callback;
+  }
+
+  public ref void SetOnPrimaryAction(in String description, in () => void action) {
+    callbacks[<Number>ComponentEvent.PrimaryAction] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_PRIMARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_PRIMARY)));
   }
 
-  public ref void SetSecondaryAction(in String description, in () => void action) {
-    onButtonPress[1] = action;
+  public ref void SetOnSecondaryAction(in String description, in () => void action) {
+    callbacks[<Number>ComponentEvent.SecondaryAction] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_SECONDARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_SECONDARY)));
   }
 
-  public ref void SetTertiaryAction(in String description, in () => void action) {
-    onButtonPress[2] = action;
+  public ref void SetOnTertiaryAction(in String description, in () => void action) {
+    callbacks[<Number>ComponentEvent.TertiaryAction] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TERTIARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_TERTIARY)));
   }
 
-  public ref void SetQuaternaryAction(in String description, in () => void action) {
-    onButtonPress[3] = action;
+  public ref void SetOnQuaternaryAction(in String description, in () => void action) {
+    callbacks[<Number>ComponentEvent.QuaternaryAction] = action;
     AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_QUATERNARY)}​ to {description}", order: ButtonDescriptionOrder(BUTTON_QUATERNARY)));
+  }
+
+  public ref void SetOnChange(in (Any) => void callback) {
+    callbacks[<Number>ComponentEvent.Change] = callback;
   }
 
   public ref void SetValue(in Any newValue) {
     if(value != newValue) {
       value = newValue;
-      onChange(value);
+      (<(Any) => void>callbacks[<Number>ComponentEvent.Change]).Invoke(value);
       MarkToRerender();
     }
   }

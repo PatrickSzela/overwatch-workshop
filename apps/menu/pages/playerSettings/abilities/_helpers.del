@@ -109,7 +109,7 @@ Toggle PageAbilitiesToggleGenerator(String text!, Number defaultChecked!, ((Bool
 Component[] PageAbilitiesMenuItemsGenerator(Button ability!) "PageAbilitiesMenuItemsGenerator" {
   Component[] list = [];
 
-  // TODO: restore
+  // TODO: STRUCT REWORK restore
   // enabled
   // since we can't disable Interact button...
   // if(ability != Button.Interact) {

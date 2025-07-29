@@ -1,6 +1,6 @@
 // TODO: mention importing all used components in proper order because of some weird OSTW bug
 import '../../libs/menu/components/component.del'; 
-import '../../libs/menu/components/componentWithValue.del'; 
+import '../../libs/menu/components/value.del'; 
 import '../../libs/menu/components/text.del'; 
 import '../../libs/menu/components/link.del'; 
 import '../../libs/menu/components/numberInput.del'; 
@@ -21,7 +21,8 @@ Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 rule: 'Generate Menu State'
 Event.OngoingPlayer
 {
-  menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
+  menuState = new MenuState('root', MENU_OPEN_CLOSE_BUTTONS, EventPlayer() == HostPlayer());
+  currentMenuState = menuState; // TODO: STRUCT REWORK delete
   menuState.SetFocused();
 }
 

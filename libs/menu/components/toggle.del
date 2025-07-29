@@ -8,13 +8,13 @@ class Toggle {
   public static Component New(
     in String label,
     in (() => Boolean) defaultChecked = null,
-    in Component child = <Component>null
+    in Number childIndex = null
   ): {
     valueFormatter: BooleanFormatterOnOff,
     descriptions: [
       Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE))
     ],
-    _child: <Any>child,
+    childIndex: childIndex,
     ..Value.New(label, defaultChecked)
   };
 

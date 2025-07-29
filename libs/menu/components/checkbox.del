@@ -4,9 +4,9 @@ class Checkbox {
   public static Component New(
     in String label, 
     in (() => Boolean) defaultChecked = null,
-    in Component child = <Component>null
+    in Number childIndex = null
   ): {
-    ..Toggle.New(label, defaultChecked, child)
+    ..Toggle.New(label, defaultChecked, childIndex)
   };
 
   // public override void Render() "[Checkbox] Render" {
