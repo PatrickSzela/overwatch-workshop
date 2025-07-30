@@ -21,21 +21,20 @@ Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 rule: 'Generate Menu State'
 Event.OngoingPlayer
 {
-  menuState = MenuState.New("root", MENU_OPEN_CLOSE_BUTTONS, EventPlayer() == HostPlayer());
-  // TODO: STRUCT REWORK restore currentMenuState somehow
-  // currentMenuState = menuState;
-  menuState.SetFocused();
+  menuWindows += MenuWindow.New("root", MENU_OPEN_CLOSE_BUTTONS);
+  currentMenuState = MenuState.New("root", EventPlayer() == HostPlayer());
+  menuWindows[0].SetFocused();
 }
 
 rule: 'Generate Menu'
 {
-  menu = new Menu(LocalPlayer().menuState);
+  menu = new Menu(LocalPlayer().currentMenuState, LocalPlayer().menuWindows[0]);
 }
 
 rule: 'Render menu' 10
 Event.OngoingPlayer
 {
-  menuState.RULE_Render();
+  currentMenuState.RULE_Render();
 }
 
 rule: 'Diagnostics'

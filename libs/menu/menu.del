@@ -19,8 +19,8 @@ class Menu {
 
   public Any[] hudTexts;
 
-  public constructor(ref MenuState state, in MenuLocation location = MenuLocation.Left) {
-    GenerateHUDTexts(state, location);
+  public constructor(ref MenuState state, ref MenuWindow window, in MenuLocation location = MenuLocation.Left) {
+    GenerateHUDTexts(state, window, location);
   }
 
   private String ReplaceInputBindings(in String string): string
@@ -35,27 +35,27 @@ class Menu {
     .Replace($"_{Button.Crouch}_", InputBindingString(Button.Crouch))
     .Replace($"_{Button.Interact}_", InputBindingString(Button.Interact));
 
-  private Any CreateHudTextHelper(ref MenuState state, in Number i, Location location) { 
+  private Any CreateHudTextHelper(ref MenuState state, ref MenuWindow window, in Number i, Location location) { 
     Number num: EvaluateOnce(i);
 
     return CreateHudText(
-      VisibleTo: state.renderedTexts.merged[num].text && state.enabled ? LocalPlayer() : null,
-      Subheader: ReplaceInputBindings(state.renderedTexts.merged[num].text),
+      VisibleTo: window.renderedTexts.merged[num].text && state.enabled ? LocalPlayer() : null,
+      Subheader: ReplaceInputBindings(window.renderedTexts.merged[num].text),
       Location: location, 
       SortOrder: num - 100, 
       Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,
-      SubheaderColor: state.renderedTexts.merged[num].color
+      SubheaderColor: window.renderedTexts.merged[num].color
     );
   }
 
-  public void GenerateHUDTexts(ref MenuState state, in MenuLocation location = MenuLocation.Left) {
+  public void GenerateHUDTexts(ref MenuState state, ref MenuWindow window, in MenuLocation location = MenuLocation.Left) {
     for(Number i! = 0; i < MAX_ITEMS + 10; i++) {
       if(location == MenuLocation.Left)
-        hudTexts[i] = CreateHudTextHelper(state, i, Location.Left);
+        hudTexts[i] = CreateHudTextHelper(state, window, i, Location.Left);
       else if(location == MenuLocation.Right)
-        hudTexts[i] = CreateHudTextHelper(state, i, Location.Right);
+        hudTexts[i] = CreateHudTextHelper(state, window, i, Location.Right);
       else
-        hudTexts[i] = CreateHudTextHelper(state, i, Location.Top);
+        hudTexts[i] = CreateHudTextHelper(state, window, i, Location.Top);
     }
   }
 }

@@ -10,6 +10,9 @@ import './components/link.del';
 
 // TODO: handle case when switching side after players array changes and focusedIndex is wrong
 
+playervar MenuState currentMenuState;
+playervar MenuWindow[] menuWindows = [];
+
 single struct RenderedText {
   public Color color;
   public String text;
@@ -39,30 +42,23 @@ struct RenderedTexts {
   };
 }
 
-playervar Number currentMenu = 0;
 
-single struct MenuState {
+struct MenuWindow {
   # Maximum number of visible items.
   public static Number MAX_ITEMS: Menu.MAX_ITEMS;
 
-  # Whether player has access to menu.
-  public Boolean enabled;
-  # Whether this menu is currently used menu.
+  # Whether window is currently focused.
   public Boolean focused;
-  # Whether menu is currently open.
+  # Whether window is currently open.
   public Boolean open;
-  # Whether player can navigate the menu. Items will still receive navigation events.
-  public Boolean navigationLocked;
-  # Whether menu should rerender.
-  protected Boolean shouldRerender;
+  # Whether window should rerender.
+  public Boolean shouldRerender;
   # Marked menu as updated.
   protected Boolean itemsUpdated;
   # Combination of buttons used to toggle menu on and off.
-  public Button[] toggleMenuKeybind;
-  # Whether opening and closing the menu is done programatically.
-  public Boolean isRemotelyControlled: !toggleMenuKeybind;
-  # Whether the text explaining how to toggle menu should be hidden when menu is closed.
-  public Boolean hideKeybindTextWhenClosed;
+  public Button[] toggleWindowKeybind;
+  # Whether opening and closing this window is done programmatically.
+  public Boolean isRemotelyControlled: !toggleWindowKeybind;
   # List of available items in `menuComponents` variable used on the current page.
   public Number[] indexes;
   # Index of currently focused item in `indexes`.
@@ -84,29 +80,26 @@ single struct MenuState {
   # List of additional descriptions that will be show on current page.
   public Description[] pageDescriptions;
   # List of additional descriptions that will be shown until manually removed.
-  public Description[] menuDescriptions;
+  public Description[] windowDescriptions;
   # List of rendered items.
   public RenderedTexts renderedTexts;
 
-  public static MenuState New(in String rootPageId, in Button[] toggleMenuKeybind, in Boolean enabled = true): { 
-    enabled: enabled,
+  public static MenuWindow New(in String rootPageId, in Button[] toggleWindowKeybind): { 
     focused: false,
     open: false,
-    navigationLocked: false,
     shouldRerender: true,
     itemsUpdated: false,
-    toggleMenuKeybind: toggleMenuKeybind,
-    hideKeybindTextWhenClosed: false,
+    toggleWindowKeybind: toggleWindowKeybind,
     indexes: [],
     focusedIndex: 0,
     history: [HistoryItem.New(rootPageId)],
     rootPageId: rootPageId,
     pageDescriptions: [],
-    menuDescriptions: [],
+    windowDescriptions: [],
     renderedTexts: RenderedTexts.New(),
   };
 
-  # Marks menu as updated.
+   # Marks menu as updated.
   public ref void MarkUpdatedItems() {
     itemsUpdated = true;
   }
@@ -163,7 +156,7 @@ single struct MenuState {
   public ref void Open() {
     Log($'[{EventPlayer()}] Open');
 
-    if(!open && enabled) {
+    if(!open) {
       open = true;
 
       if(focused) focusedComponent.onEnter();
@@ -271,7 +264,7 @@ single struct MenuState {
   
 
   // phase 1: handle events
-  public ref void Navigate(in Vector direction) {
+  public ref void Navigate(in Vector direction, in Boolean navigationLocked) {
     Log($'[{EventPlayer()}] Navigate');
 
     focusedComponent.onNavigate(direction);
@@ -310,35 +303,22 @@ single struct MenuState {
     MarkToRerender();
   }
 
-  public ref void ButtonDown(in Button button) {
+  public ref void ButtonDown(in Button button, in Boolean navigationLocked) {
     Log($'[{EventPlayer()}] ButtonDown');
 
-    if(!open) {
-      if(buttonsHeld == toggleMenuKeybind && !isRemotelyControlled) {
-        Open();
-      }
-    } else {
+    if(open) {
       focusedComponent.onButtonDown(button);
 
-      if(!navigationLocked) {
-        if(buttonsHeld == toggleMenuKeybind && !isRemotelyControlled) {
-          Close();
-        } else if(buttonsHeld == [BUTTON_BACK]) {
-          GoBack();
-        }
+      if(!navigationLocked && buttonsHeld == [BUTTON_BACK]) {
+        GoBack();
       }
-    }
 
-    if(open) {
       MarkToRerender();
     }
   }
 
-  public ref void ButtonUp(in Button button) {
+  public ref void ButtonUp(in Button button, in Boolean navigationLocked) {
     Log($'[{EventPlayer()}] ButtonUp');
-
-    // when changing page `buttonsHeld` is being cleared
-    if(!buttonsHeld.Contains(button)) return;
 
     if(open) {
       focusedComponent.onButtonUp(button);
@@ -347,13 +327,13 @@ single struct MenuState {
   }
 
   // phase 2: rendering
-  protected ref void RenderClosedItems() {
+  protected ref void RenderClosedItems(in Boolean hideKeybindTextWhenClosed) {
     renderedTexts.merged = 
       isRemotelyControlled || hideKeybindTextWhenClosed ? 
         [] : 
         [
           RenderedText.New(
-            text: $"Press {ButtonFormatter_Underscores(toggleMenuKeybind)}​ to toggle Menu", 
+            text: $"Press {ButtonFormatter_Underscores(toggleWindowKeybind)}​ to toggle Menu", 
             color: COLOR_NEUTRAL
           )
         ];
@@ -395,7 +375,7 @@ single struct MenuState {
     renderedTexts.descriptions = (
       focusedComponent.descriptions + 
       menuComponents[focusedComponent.childIndex].descriptions +
-      pageDescriptions + menuDescriptions
+      pageDescriptions + windowDescriptions
     ).FilteredArray((i) => i.visible)
       .SortedArray((i) => i.order)
       .Map((i) => RenderedText.New(text: i[0], color: i[1]));
@@ -469,7 +449,7 @@ single struct MenuState {
     renderedTexts.merged += renderedTexts.descriptions;
   }
 
-  public ref void Render() {
+  public ref void Render(in Boolean hideKeybindTextWhenClosed) {
     Log($'[{EventPlayer()}] Render');
 
     shouldRerender = false;
@@ -478,15 +458,11 @@ single struct MenuState {
       RenderVisibleItems();
       MergeTexts();
     } else {
-      RenderClosedItems();
+      RenderClosedItems(hideKeybindTextWhenClosed);
     }
   }
 
-  public ref void RULE_Render() {
-    WaitForeverUntil(shouldRerender);
-    Render();
-    Loop();
-  }
+
 
 
 
@@ -530,6 +506,77 @@ single struct MenuState {
     focusedIndex = history.Last.innerScroll + history.Last.outerScroll;
     Log($"new idx: {focusedIndex}");
     RenderSeparators();
+  }
+}
+
+single struct MenuState {
+  # Maximum number of visible items.
+  public static Number MAX_ITEMS: Menu.MAX_ITEMS;
+
+
+
+  # Whether player has access to menu.
+  public Boolean enabled;
+  # Whether menu is currently open.
+  public Boolean open: menuWindows.IsTrueForAny((i) => i.open);
+  # Whether player can navigate the menu. Items will still receive navigation events.
+  public Boolean navigationLocked;
+  # Index of the currently focused window in `windows`.
+  public Number focusedWindowIndex;
+  # Whether the text explaining how to toggle menu should be hidden when menu is closed.
+  public Boolean hideKeybindTextWhenClosed;
+
+  public String[] pageIds: menuWindows.Map((i) => i.pageId);
+
+
+ 
+
+
+  public static MenuState New(in String rootPageId, in Boolean enabled = true): { 
+    enabled: enabled,
+    navigationLocked: false,
+    focusedWindowIndex: 0,
+    hideKeybindTextWhenClosed: false
+  };
+
+  public ref void CreatePage(in String pageId, in String title, in Number[] indexes, in Description[] descriptions = []) {
+    menuWindows[focusedWindowIndex].CreatePage(title, indexes, descriptions);
+  }
+
+  public void ButtonDown(Button button!) "MenuState.ButtonDown" {
+    for(Number i! = 0; i < menuWindows.Length; i++) {
+      if(buttonsHeld && buttonsHeld == menuWindows[i].toggleWindowKeybind) {
+        if(menuWindows[i].open) {
+          menuWindows[i].Close();
+        } else {
+          menuWindows[i].Open();
+          currentMenuState.focusedWindowIndex = i;
+          menuWindows[i].SetFocused();
+        }
+      }
+    }
+
+    menuWindows[focusedWindowIndex].ButtonDown(button, navigationLocked);
+  }
+
+  public void ButtonUp(Button button!) "MenuState.ButtonUp" {
+    // when changing page `buttonsHeld` is being cleared
+    if(!buttonsHeld.Contains(button)) return;
+
+    menuWindows[focusedWindowIndex].ButtonUp(button, navigationLocked);
+  }
+
+  public ref void Navigate(in Vector direction) {
+    menuWindows[focusedWindowIndex].Navigate(direction, navigationLocked);
+  }
+
+  public ref void RULE_Render() {
+    WaitForeverUntil(menuWindows.IsTrueForAny((i) => i.shouldRerender));
+
+    for(Number i = 0; i < menuWindows.Length; i++)
+      menuWindows[i].Render(hideKeybindTextWhenClosed);
+
+    Loop();
   }
 }
 

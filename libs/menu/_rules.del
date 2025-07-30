@@ -9,15 +9,14 @@ playervar Button[] buttonsHeld = [];
 
 rule: '[MenuState] Freeze player'
 Event.OngoingPlayer
-if(menuState)
-if(menuState.open)
+if(currentMenuState.open)
 {
   EventPlayer().SetMoveSpeed(0);
 
   foreach (Button button! in allButtons)
     DisallowButton(EventPlayer(), button);
 
-  WaitForeverUntil(!menuState.open);
+  WaitForeverUntil(!currentMenuState.open);
 
   // TODO: store & restore previous speed in case it was modified - how?
   EventPlayer().SetMoveSpeed(100);
@@ -30,20 +29,19 @@ if(menuState.open)
 // navigation
 //
 void NavigationHelper(Vector direction!) "[MenuState]: Navigation Helper" {
-  menuState.Navigate(direction);
+  currentMenuState.Navigate(direction);
 
   Wait(0.5, WaitBehavior.AbortWhenFalse);
 
   while(true) {
     Wait(0.075, WaitBehavior.AbortWhenFalse);
-    menuState.Navigate(direction);
+    currentMenuState.Navigate(direction);
   }
 }
 
 rule: '[MenuState]: Interacted with menu - Up'
 Event.OngoingPlayer
-if(menuState)
-if(menuState.open)
+if(currentMenuState.open)
 if(ThrottleOf(EventPlayer()).Z > 0.5)
 {
   NavigationHelper(Up());
@@ -51,8 +49,7 @@ if(ThrottleOf(EventPlayer()).Z > 0.5)
 
 rule: '[MenuState]: Interacted with menu - Down'
 Event.OngoingPlayer
-if(menuState)
-if(menuState.open)
+if(currentMenuState.open)
 if(ThrottleOf(EventPlayer()).Z < -0.5)
 {
   NavigationHelper(Down());
@@ -60,8 +57,7 @@ if(ThrottleOf(EventPlayer()).Z < -0.5)
 
 rule: '[MenuState]: Interacted with menu - Left'
 Event.OngoingPlayer
-if(menuState)
-if(menuState.open)
+if(currentMenuState.open)
 if(ThrottleOf(EventPlayer()).X < -0.5)
 {
   NavigationHelper(Left());
@@ -69,8 +65,7 @@ if(ThrottleOf(EventPlayer()).X < -0.5)
 
 rule: '[MenuState]: Interacted with menu - Right'
 Event.OngoingPlayer
-if(menuState)
-if(menuState.open)
+if(currentMenuState.open)
 if(ThrottleOf(EventPlayer()).X > 0.5)
 {
   NavigationHelper(Right());
@@ -80,11 +75,11 @@ if(ThrottleOf(EventPlayer()).X > 0.5)
 // button interactions
 //
 
-void ButtonHelper(in Button button!) {
+void ButtonHelper(in Button button) {
   buttonsHeld += button;
-  if(menuState) menuState.ButtonDown(button);
+  currentMenuState.ButtonDown(button);
   WaitForeverUntil(!EventPlayer().IsButtonHeld(button));
-  if(menuState) menuState.ButtonUp(button);
+  currentMenuState.ButtonUp(button);
   buttonsHeld -= button;
 }
 
