@@ -52,6 +52,7 @@ single struct Description {
 }
 
 enum ComponentType {
+  Component,
   Text,
   Value,
   Link,
@@ -229,8 +230,8 @@ struct Component {
 
 
   public static Component New(
-    in ComponentType type,
     in String label,
+    in ComponentType type = ComponentType.Component,
     in String name = null,
     in Any value = null,
     in (() => Any) defaultValue = null,

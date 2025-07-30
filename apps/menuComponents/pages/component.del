@@ -13,7 +13,6 @@ Number[] PageDebugComponentItems() {
 
     String label: $"Interactive {i + 1}";
     interactive += AddComponent(Component.New(
-      type: ComponentType.Text, 
       label: label,
       onEnter: () => Log($"{label}: enter"),
       onLeave: () => Log($"{label}: left"),

@@ -468,6 +468,7 @@ struct MenuWindow {
     Component item: menuComponents[index];
 
     switch(item.type) {
+      case ComponentType.Component:
       case ComponentType.Text:
         return Text.Render(menuComponents[index]);
       case ComponentType.Value:

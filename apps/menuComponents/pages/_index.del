@@ -7,7 +7,7 @@ import './component.del';
 // import './numberInput.del';
 // import './checkbox.del';
 // import './radio.del';
-// import './listLong.del';
+import './listLong.del';
 // import './listDynamic.del';
 
 String PAGE_DEBUG_ID: 'root';
@@ -24,8 +24,8 @@ Number[] PageDebugItems() {
     // Link.New(PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),
     Text.New(),
 
-    Text.New("Lists:")
-    // Link.New(PAGE_DEBUG_LIST_LONG_NAME, PAGE_DEBUG_LIST_LONG_ID),
+    Text.New("Lists:"),
+    Link.New(PAGE_DEBUG_LIST_LONG_NAME, PAGE_DEBUG_LIST_LONG_ID)
     // Link.New(PAGE_DEBUG_LIST_DYNAMIC_NAME, PAGE_DEBUG_LIST_DYNAMIC_ID)
   ]);
 }
