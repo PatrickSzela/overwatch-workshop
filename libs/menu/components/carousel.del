@@ -1,19 +1,29 @@
-import './value.del';
+import './component.del';
 
 class Carousel {
-  public static Component New(
+  public static Number New(
     in String label,
     in Any[] options,
-    in (() => Any) defaultValue = null
-  ): {
-    options: options,
-    defaultValue: defaultValue,
+    in String name = null,
+    in (() => Any) defaultValue = null,
+    in ((Any) => String) valueFormatter = null,
+    in Description[] descriptions = [],
+    in Color color = COLOR_NEUTRAL
+  ): Component.New(
+    type: ComponentType.Carousel,
+    label: label,
+    name: name,
+    // TODO: handle that somewhere else?
     value: options.Contains(defaultValue()) ? defaultValue() : options.First,
+    defaultValue: defaultValue,
+    valueFormatter: valueFormatter,
+    options: options,
+    optionIndex: options.Contains(defaultValue()) ? options.IndexOf(defaultValue()) : 0,
     descriptions: [
       Description.New('Use [←] or [→] to select an option', order: -19)
-    ],
-    ..Component.New(ComponentType.Carousel, label)
-  };
+    ] + descriptions,
+    color: color
+  );
 
   // protected void CarouselConstructor(
   //   String text!,

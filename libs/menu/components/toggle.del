@@ -1,22 +1,33 @@
-import '../customButtons.del';
 import '../../utils/string.formatters.del';
-import './value.del';
+import '../customButtons.del';
+import './component.del';
 
 class Toggle {
   public static Button BUTTON_TOGGLE: BUTTON_PRIMARY;
 
-  public static Component New(
+  public static Number New(
     in String label,
+    in String name = null,
     in (() => Boolean) defaultChecked = null,
+    in Description[] descriptions = [],
+    in Color color = COLOR_NEUTRAL,
+    in Button button = BUTTON_TOGGLE,
     in Number childIndex = null
-  ): {
+  ): Component.New(
+    type: ComponentType.Toggle,
+    label: label,
+    name: name,
+    value: defaultChecked(),
+    defaultValue: defaultChecked,
+    childIndex: childIndex,
     valueFormatter: BooleanFormatterOnOff,
     descriptions: [
       Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE))
-    ],
-    childIndex: childIndex,
-    ..Value.New(label, defaultChecked)
-  };
+    ] + descriptions,
+    color: color,
+    button: button
+  );
+  
 
   // protected void ToggleConstructor(
   //   String text!,

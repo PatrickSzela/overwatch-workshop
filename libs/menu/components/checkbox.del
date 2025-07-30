@@ -1,13 +1,27 @@
 import './toggle.del';
 
 class Checkbox {
-  public static Component New(
+  public static Number New(
     in String label, 
+    in String name = null,
     in (() => Boolean) defaultChecked = null,
+    in Description[] descriptions = [],
+    in Color color = COLOR_NEUTRAL,
+    in Button button = Toggle.BUTTON_TOGGLE,
     in Number childIndex = null
-  ): {
-    ..Toggle.New(label, defaultChecked, childIndex)
-  };
+  ): Component.New(
+    type: ComponentType.Checkbox,
+    label: label, 
+    name: name,
+    defaultValue: defaultChecked,
+    value: defaultChecked(),
+    descriptions: [
+      Description.New($"Press {ButtonFormatterSingle_Underscores(button)}​ to toggle", order: ButtonDescriptionOrder(button))
+    ] + descriptions,
+    color: color,
+    button: button,
+    childIndex: childIndex
+  );
 
   // public override void Render() "[Checkbox] Render" {
   //   onRender(this);

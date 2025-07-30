@@ -2,9 +2,20 @@ import './component.del';
 
 class Text {
   public static Component New(
-    in String label = ' '
-  ): {
+    in String label = ' ',
+    in Color color = COLOR_NEUTRAL,
+
+    in (() => void) onRender = null
+  ): Component.New(
+    type: ComponentType.Text, 
+    label: label,
+    color: color,
     disabled: true,
-    ..Component.New(ComponentType.Text, label)
-  };
+
+    onRender: onRender
+  );
+
+  public static String Render(ref Component component) {
+    return menuComponents[component.childIndex].renderedText || component.label;
+  }
 }

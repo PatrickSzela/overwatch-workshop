@@ -6,16 +6,16 @@ import './menu.del';
 import './_rules.del';
 import './components/component.del';
 import './components/text.del';
+import './components/link.del';
 
-// TODO: make `PuppetMenuState`?
-
-playervar Component[] menuComponents;
-
-Color COLOR_SWITCH: Color.Green;
+// TODO: handle case when switching side after players array changes and focusedIndex is wrong
 
 single struct RenderedText {
   public Color color;
   public String text;
+
+  public static RenderedText New(in String text, in Color color = COLOR_NEUTRAL): 
+    { text: text, color: color };
 }
 
 single struct HistoryItem {
@@ -23,7 +23,7 @@ single struct HistoryItem {
   public Number outerScroll;
   public Number innerScroll;
 
-  public static HistoryItem BASE: { id: '', innerScroll: 0, outerScroll: 0 };
+  public static HistoryItem New(in String id): { id: id, innerScroll: 0, outerScroll: 0 };
 }
 
 struct RenderedTexts {
@@ -34,13 +34,511 @@ struct RenderedTexts {
 
   public RenderedText[] merged;
 
-  public static RenderedTexts BASE: {
+  public static RenderedTexts New(): {
     titles: [], separators: [], items: [], descriptions: [], merged: []
   };
 }
 
+playervar Number currentMenu = 0;
+
+single struct MenuState {
+  # Maximum number of visible items.
+  public static Number MAX_ITEMS: Menu.MAX_ITEMS;
+
+  # Whether player has access to menu.
+  public Boolean enabled;
+  # Whether this menu is currently used menu.
+  public Boolean focused;
+  # Whether menu is currently open.
+  public Boolean open;
+  # Whether player can navigate the menu. Items will still receive navigation events.
+  public Boolean navigationLocked;
+  # Whether menu should rerender.
+  protected Boolean shouldRerender;
+  # Marked menu as updated.
+  protected Boolean itemsUpdated;
+  # Combination of buttons used to toggle menu on and off.
+  public Button[] toggleMenuKeybind;
+  # Whether opening and closing the menu is done programatically.
+  public Boolean isRemotelyControlled: !toggleMenuKeybind;
+  # Whether the text explaining how to toggle menu should be hidden when menu is closed.
+  public Boolean hideKeybindTextWhenClosed;
+  # List of available items in `menuComponents` variable used on the current page.
+  public Number[] indexes;
+  # Index of currently focused item in `indexes`.
+  public Number focusedIndex;
+  # List of currently visible items.
+  public Number[] visibleIndexes: indexes.Slice(history.Last.outerScroll, MAX_ITEMS);
+  # List of components that can be focused.
+  public Number[] enabledIndexes: indexes.FilteredArray((i) => !menuComponents[i].disabled);
+  # Currently hovered item.
+  public Component focusedComponent: menuComponents[indexes[focusedIndex]];
+  # History of opened pages.
+  public HistoryItem[] history;
+  # ID of currently open page.
+  public String pageId: history.Last.id;
+  # ID of root page.
+  protected String rootPageId;
+  # Whether menu is currently in refresh stage.
+  public Boolean isRefreshing: pageId == '<REFRESH>';
+  # List of additional descriptions that will be show on current page.
+  public Description[] pageDescriptions;
+  # List of additional descriptions that will be shown until manually removed.
+  public Description[] menuDescriptions;
+  # List of rendered items.
+  public RenderedTexts renderedTexts;
+
+  public static MenuState New(in String rootPageId, in Button[] toggleMenuKeybind, in Boolean enabled = true): { 
+    enabled: enabled,
+    focused: false,
+    open: false,
+    navigationLocked: false,
+    shouldRerender: true,
+    itemsUpdated: false,
+    toggleMenuKeybind: toggleMenuKeybind,
+    hideKeybindTextWhenClosed: false,
+    indexes: [],
+    focusedIndex: 0,
+    history: [HistoryItem.New(rootPageId)],
+    rootPageId: rootPageId,
+    pageDescriptions: [],
+    menuDescriptions: [],
+    renderedTexts: RenderedTexts.New(),
+  };
+
+  # Marks menu as updated.
+  public ref void MarkUpdatedItems() {
+    itemsUpdated = true;
+  }
+
+  # Marks menu to rerender.
+  public ref void MarkToRerender() {
+    shouldRerender = true;
+  }
+
+  public ref void SetTitle(in String title) {
+    RenderTitle(title);
+  }
+
+  public ref void SetFocused() {
+    Log($'[{EventPlayer()}] SetFocused');
+
+    focused = true;
+
+    // TODO: STRUCT REWORK restore
+    // if(currentMenuState != this) {
+    //   currentMenuState.isFocused = false;
+
+    //   if(currentMenuState.isOpen) {
+    //     currentMenuState.hoveredItem.OnLeave();
+    //   }
+      
+    //   currentMenuState = this;
+    //   isFocused = true;
+
+    //   if(isOpen) {
+    //     hoveredItem.OnEnter();
+    //   }
+    // }
+  }
+
+  # Forcefully rerenders specified item (or currently hovered one if no `index` is specified). Call after manually adding description.
+  public ref void RerenderItem(in Number index! = -1) {
+    Log($'[{EventPlayer()}] RerenderItem');
+
+    menuComponents[index == -1 ? indexes[focusedIndex] : index].MarkToRerender();
+    MarkToRerender();
+  }
+
+  # Forcefully rerenders all items.
+  public ref void RerenderAllItems() {
+    Log($'[{EventPlayer()}] RerenderAllItems');
+
+    for(Number i = 0; i < menuComponents.Length; i++)
+      menuComponents[i].MarkToRerender();
+    
+    MarkToRerender();
+  }
+
+  public ref void Open() {
+    Log($'[{EventPlayer()}] Open');
+
+    if(!open && enabled) {
+      open = true;
+
+      if(focused) focusedComponent.onEnter();
+      MarkToRerender();
+    }
+  }
+
+  public ref void Close() {
+    Log($'[{EventPlayer()}] Close');
+
+    if(open) {
+      open = false;
+      
+      if(focused) focusedComponent.onLeave();
+      MarkToRerender();
+    }
+  }
+
+  public ref void GoBack() {
+    Log($'[{EventPlayer()}] GoBack');
+
+    if(history.Length == 1) {
+      if(!isRemotelyControlled) Close();
+      return;
+    }
+
+    DestroyPage();
+    history.ModRemoveByIndex(history.Length - 1);
+  }
+
+  # Add items to the menu.
+  public ref void AddItems(in Number[] componentIndexes, in Boolean updateScroll = true) {
+    Log($'[{EventPlayer()}] AddItems: Adding {componentIndexes.Length} items');
+    indexes += componentIndexes;
+
+    if(updateScroll) {
+      MarkUpdatedItems();
+    }
+  }
+
+  # Removes specified items from the menu. Will automatically clean up components in `menuComponents`.
+  public ref void RemoveItems(in Number[] componentIndexes, in Boolean updateScroll = true) {
+    Log($'[{EventPlayer()}] RemoveItems: Removing {componentIndexes.Length} items');
+    indexes -= componentIndexes;
+    
+    RemoveComponents(componentIndexes);
+
+    if(updateScroll) {
+      MarkUpdatedItems();
+    }
+  }
+
+  # Removes all items from the menu. Will automatically clean up components in `menuComponents`.
+  public ref void RemoveAllItems(in Boolean callOnItemsChanged = true) {
+    RemoveItems(indexes, callOnItemsChanged);
+  }
+
+  # Replaces all items in the menu. Will automatically clean up removed components in `menuComponents`.
+  public ref void ReplaceItems(in Number[] componentIndexes) {
+    Log($'[{EventPlayer()}] ReplaceItems');
+
+    RemoveAllItems(false);
+    AddItems(componentIndexes, false);
+
+    // TODO: STRUCT REWORK restore if perf is bad
+    // RemoveItems(this.indexes - items, false);
+    // AddItems(items - this.indexes, false);
+
+    // // keep the order of passed items
+    // this.indexes = items;
+
+    MarkUpdatedItems();
+  }
+
+  public ref void CreatePage(in String title, in Number[] indexes, in Description[] descriptions = []) {
+    Log($'[{EventPlayer()}] CreatePage');
+
+    SetTitle(title);
+    AddItems(indexes);
+
+    pageDescriptions += descriptions;
+    // foreach(Description desc! in descriptions)
+    //   pageDescriptions += desc;
+
+    if(open) {
+      focusedComponent.callbacks[ComponentEvent.Enter].Invoke();
+
+      // `AddItems` already adds items to render queue
+      MarkToRerender();
+    }
+  }
+
+  public ref void DestroyPage() {
+    Log($'[{EventPlayer()}] DestroyPage');
+
+    if(open) {
+      focusedComponent.onLeave();
+    }
+
+    RemoveAllItems(false);
+
+    buttonsHeld = [];
+    pageDescriptions = [];
+  }
+  
+
+  // phase 1: handle events
+  public ref void Navigate(in Vector direction) {
+    Log($'[{EventPlayer()}] Navigate');
+
+    focusedComponent.onNavigate(direction);
+
+    if(!navigationLocked && (direction == Down() || direction == Up())) {
+      // TODO: STRUCT REWORK move to a func
+      Number offset! = 0;
+      Number[] it! = enabledIndexes;
+
+      // Log($"current idx: {focusedIndex}");
+
+      if(direction == Down()) {
+        Number[] nextItemIdxs! = indexes.FilteredArray((i, idx) => !menuComponents[i].disabled && idx > focusedIndex);
+
+        offset = indexes.IndexOf(nextItemIdxs ? nextItemIdxs.First : it.First) - focusedIndex;
+
+        // Log($"next offset: {offset}");
+      } else if(direction == Up()) {
+        Number[] prevItemIdxs! = indexes.FilteredArray((i, idx) => !menuComponents[i].disabled && idx < focusedIndex);
+
+        offset = indexes.IndexOf(prevItemIdxs ? prevItemIdxs.Last : it.Last) - focusedIndex;
+
+        // Log($"prev offset: {offset}");
+      }
+
+      if(offset != 0) {
+        focusedComponent.onLeave();
+        
+        history[history.Length - 1].innerScroll += offset;
+        HandleScroll(); 
+
+        focusedComponent.onEnter();
+      }
+    }
+
+    MarkToRerender();
+  }
+
+  public ref void ButtonDown(in Button button) {
+    Log($'[{EventPlayer()}] ButtonDown');
+
+    if(!open) {
+      if(buttonsHeld == toggleMenuKeybind && !isRemotelyControlled) {
+        Open();
+      }
+    } else {
+      focusedComponent.onButtonDown(button);
+
+      if(!navigationLocked) {
+        if(buttonsHeld == toggleMenuKeybind && !isRemotelyControlled) {
+          Close();
+        } else if(buttonsHeld == [BUTTON_BACK]) {
+          GoBack();
+        }
+      }
+    }
+
+    if(open) {
+      MarkToRerender();
+    }
+  }
+
+  public ref void ButtonUp(in Button button) {
+    Log($'[{EventPlayer()}] ButtonUp');
+
+    // when changing page `buttonsHeld` is being cleared
+    if(!buttonsHeld.Contains(button)) return;
+
+    if(open) {
+      focusedComponent.onButtonUp(button);
+      MarkToRerender();
+    }
+  }
+
+  // phase 2: rendering
+  protected ref void RenderClosedItems() {
+    renderedTexts.merged = 
+      isRemotelyControlled || hideKeybindTextWhenClosed ? 
+        [] : 
+        [
+          RenderedText.New(
+            text: $"Press {ButtonFormatter_Underscores(toggleMenuKeybind)}​ to toggle Menu", 
+            color: COLOR_NEUTRAL
+          )
+        ];
+  }
+
+  protected ref void RenderTitle(in String title) {
+    renderedTexts.titles = [
+      RenderedText.New(title, COLOR_NEUTRAL)
+    ];
+  }
+
+  protected ref void RenderSeparators() {
+    renderedTexts.separators = [
+      RenderedText.New(
+        text: $"──────────────────────{indexes.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == 0 ? '△' : '▲'}──────────────────────", 
+        color: COLOR_NEUTRAL 
+      ),
+      RenderedText.New(
+        text: $"──────────────────────{indexes.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == indexes.Length - MAX_ITEMS ? '▽' : '▼'}──────────────────────",
+        color: COLOR_NEUTRAL
+      )
+    ];
+  }
+
+  protected ref void RenderDescriptions() {
+    // Description[] descriptions! = focusedComponent.descriptions;
+
+    // if(focusedComponent.childIndex) {
+    //   descriptions += menuComponents[focusedComponent.childIndex].descriptions;
+    // }
+
+    // descriptions += pageDescriptions + menuDescriptions;
+
+    // renderedTexts.descriptions = descriptions
+    //   .FilteredArray((i) => i.visible)
+    //   .SortedArray((i) => i.order)
+    //   .Map((i) => <RenderedText>{text: i[0], color: i[1]});
+
+    renderedTexts.descriptions = (
+      focusedComponent.descriptions + 
+      focusedComponent.childIndex ? 
+        menuComponents[focusedComponent.childIndex].descriptions : 
+        [] +
+      pageDescriptions + menuDescriptions
+    ).FilteredArray((i) => i.visible)
+      .SortedArray((i) => i.order)
+      .Map((i) => RenderedText.New(text: i[0], color: i[1]));
+  }
+
+  protected static String RenderComponent(Number index!) "MenuState.RenderComponent" {
+    Component item: menuComponents[index];
+
+    switch(item.type) {
+      case ComponentType.Text:
+        return Text.Render(menuComponents[index]);
+      case ComponentType.Value:
+        return '';
+      case ComponentType.Link:
+        return Link.Render(menuComponents[index]);
+      case ComponentType.Toggle:
+        return '';
+      case ComponentType.Checkbox:
+        return '';
+      case ComponentType.Radio:
+        return '';
+      case ComponentType.Carousel:
+        return '';
+      case ComponentType.TextInput:
+        return '';
+      case ComponentType.NumberInput:
+        return '';
+    }
+  }
+
+  protected ref void RenderVisibleItems() {
+    RenderDescriptions();
+
+    Number[] v! = visibleIndexes;
+
+    Log(indexes.Length);
+    Log(visibleIndexes.Length);
+
+    renderedTexts.items = [];
+
+    for(Number idx = 0; idx < v.Length; idx++) {
+      Number componentIdx: idx + history.Last.outerScroll;
+      Number index: v[idx];
+      Component item: menuComponents[index];
+      
+      if(item.shouldRerender || menuComponents[item.childIndex].shouldRerender) {
+        if(item.childIndex) {
+          RenderComponent(item.childIndex);
+          menuComponents[item.childIndex].shouldRerender = false;
+        }
+
+        RenderComponent(componentIdx);
+        menuComponents[index].shouldRerender = false;
+
+        // Log($'Rerendered: {item.renderedText}');
+      }
+
+      renderedTexts.items[idx] = RenderedText.New( 
+        text: $"{!item.disabled ? focused && focusedIndex == componentIdx ? '● ' : '○ ' : ''}{item.renderedText}",
+        color: item.color 
+      );
+    }
+  }
+
+  protected ref void MergeTexts() {
+    renderedTexts.merged = renderedTexts.titles + [renderedTexts.separators[0]] + renderedTexts.items;
+
+    if(indexes.Length > MAX_ITEMS || renderedTexts.descriptions.Length)
+      renderedTexts.merged += [renderedTexts.separators[1]];
+
+    renderedTexts.merged += renderedTexts.descriptions;
+  }
+
+  public ref void Render() {
+    Log($'[{EventPlayer()}] Render');
+
+    shouldRerender = false;
+
+    if(open) {
+      RenderVisibleItems();
+      MergeTexts();
+    } else {
+      RenderClosedItems();
+    }
+  }
+
+  public ref void RULE_Render() {
+    WaitForeverUntil(shouldRerender);
+    Render();
+    Loop();
+  }
+
+
+
+
+  public ref void HandleUpdateScroll() {
+    Log($'[{EventPlayer()}] HandleUpdateScroll');
+
+    // TODO: STRUCT REWORK restore
+    // if(!indexes) {
+    //   indexes = [emptyTextIndex];
+    // } else if(indexes.Length > 1 && indexes.Contains(emptyTextIndex)) {
+    //   indexes -= emptyTextIndex;
+    // }
+    
+    // `focusedIndex` is calculated later in `HandleScroll()`
+    Number scroll: history.Last.outerScroll + history.Last.innerScroll;
+    Number hover: indexes[scroll];
+
+    if(!hover || menuComponents[hover].disabled) {
+      Number[] enabled! = enabledIndexes;
+      history[history.Length - 1].innerScroll = Max(enabled.First, Min(enabled.Last, scroll));
+    }
+
+    HandleScroll();
+  }
+
+  public ref void HandleScroll() {
+    Log($'[{EventPlayer()}] HandleScroll');
+
+    Number idx! = history.Length - 1;
+    Number offset! = 0;
+
+    if(history.Last.innerScroll > MAX_ITEMS - 1) {
+      offset = history.Last.innerScroll - (MAX_ITEMS - 1);
+      history[idx] = {innerScroll: MAX_ITEMS - 1, outerScroll: history.Last.outerScroll + offset, ..history[idx]};
+    } else if(history.Last.innerScroll < 0) {
+      offset = history.Last.innerScroll;
+      history[idx] = {innerScroll: 0, outerScroll: Max(0, history.Last.outerScroll + offset), ..history[idx]};
+    }
+
+    focusedIndex = history.Last.innerScroll + history.Last.outerScroll;
+    Log($"new idx: {focusedIndex}");
+    RenderSeparators();
+  }
+}
+
+
+
 # Holds current state of `Menu` for a player and handles logic for displaying and controlling every `Component` and its derivatives.
-class MenuState {
+class MenuState3 {
   # Maximum number of visible items.
   public static Number MAX_ITEMS: Menu.MAX_ITEMS;
 
@@ -94,7 +592,7 @@ class MenuState {
     _rootPageId = rootPageId;
 
     if(rootPageId != null)
-      history = [{ id: rootPageId, ..HistoryItem.BASE }];
+      history = [HistoryItem.New(rootPageId)];
     else 
       history = [];
     
@@ -105,9 +603,10 @@ class MenuState {
     isPuppet = puppet;
     hoveredIndex = 0;
 
-    renderedTexts = RenderedTexts.BASE;
-    emptyTextIndex = menuComponents.Length;
-    menuComponents += Text.New("It's a bit empty in here...");
+    renderedTexts = RenderedTexts.New();
+    // TODO: STRUCT REWORK restore
+    // emptyTextIndex = menuComponents.Length;
+    // indexes += Text.New("It's a bit empty in here...");
 
     // render closed title
     MarkToRerender();
@@ -180,9 +679,10 @@ class MenuState {
   }
 
   public void AddItems(Number[] newItemsIndexes!, Boolean callOnItemsChanged! = true) "[MenuState] Add Items" {
-    Log($'{EventPlayer()}: AddItems');
-
+    // TODO: for some reason this doesn't work.... convert to struct first?
     indexes += newItemsIndexes;
+
+    Log($'{EventPlayer()}: AddItems - adding {newItemsIndexes.Length} items, {indexes.Length} in total');
     
     if(callOnItemsChanged) {
       OnItemsChanged();
@@ -272,19 +772,13 @@ class MenuState {
     }
   }
 
-  public void CreatePage(in String title, in Component[] items, in Description[] descriptions = []) {
-    Number[] indexes! = items.Map((i, idx) => menuComponents.Length + idx);
-    menuComponents += items;
-    _CreatePage(title, indexes, descriptions);
-  }
-
-  protected void _CreatePage(String title!, Number[] indexes!, Description[] descriptions! = []) "[MenuState] Create Page" {
+  public void CreatePage(String title!, Number[] items!, Description[] descriptions! = []) "[MenuState] Create Page" {
     Log($'{EventPlayer()}: CreatePage');
 
     SetTitle(title);
-    AddItems(indexes);
+    AddItems(items);
 
-    Log($"Create page: {title} with {indexes.Length} items");
+    Log($"Created page: {title} with {indexes.Length} items in total");
 
     foreach(Description desc! in descriptions)
       descriptionsPage += desc;
@@ -536,9 +1030,9 @@ class MenuState {
       DestroyPage();
 
       if(historyReplace)
-        history[history.Length - 1] = { id: pageId, ..HistoryItem.BASE };
+        history[history.Length - 1] = HistoryItem.New(pageId);
       else
-        history += { id: pageId, ..HistoryItem.BASE };
+        history += HistoryItem.New(pageId);
     }
   }
 

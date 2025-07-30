@@ -11,12 +11,12 @@ void DisableInspector() {
 }
 
 void Log(in Any text) {
-  EnableInspectorRecording();
+  // EnableInspectorRecording();
 
-  LogToInspector(text);
+  // LogToInspector(text);
 
-  if(!inspectorEnabled) 
-    DisableInspectorRecording();
+  // if(!inspectorEnabled) 
+  //   DisableInspectorRecording();
 }
 
 rule: '[LOG] Handle initial state' -99999

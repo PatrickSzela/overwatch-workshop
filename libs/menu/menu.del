@@ -39,7 +39,7 @@ class Menu {
     Number num: EvaluateOnce(i);
 
     return CreateHudText(
-      VisibleTo: state.renderedTexts.merged[num].text && state.isEnabled ? LocalPlayer() : null,
+      VisibleTo: state.renderedTexts.merged[num].text && state.enabled ? LocalPlayer() : null,
       Subheader: ReplaceInputBindings(state.renderedTexts.merged[num].text),
       Location: location, 
       SortOrder: num - 100, 

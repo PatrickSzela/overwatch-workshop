@@ -3,6 +3,7 @@ Color COLOR_INFO: Color.SkyBlue;
 Color COLOR_WARNING: Color.Orange;
 Color COLOR_ERROR: Color.Red;
 Color COLOR_DISABLED: Color.Gray;
+Color COLOR_SWITCH: Color.Green;
 
 Color FadeColor(in Vector start, in Vector end, in Number scalar, in Number alpha = 255):
   CustomColor(

@@ -3,6 +3,30 @@ import '../../utils/string.formatters.del';
 import '../../utils/index.del';
 import '../customButtons.del';
 
+playervar Component[] menuComponents = [];
+
+Number AddComponent(in Component component) {
+  menuComponents += component;
+  return menuComponents.Length - 1;
+}
+
+Number[] AddComponents(in Component[] components) {
+  Number[] indexes! = components.Map((i, idx) => menuComponents.Length + idx);
+  menuComponents += components;
+  return indexes;
+}
+
+void RemoveComponent(in Number index) {
+  menuComponents.ModRemoveByIndex(index);
+}
+
+void RemoveComponents(in Number[] indexes) {
+  menuComponents -= indexes.Map((i) => menuComponents[i]);
+  // foreach(Number i! in indexes) {
+  //   menuComponents.ModRemoveByIndex(i);
+  // }
+}
+
 single struct Description {
   public String text;
   public Color color;
@@ -119,7 +143,7 @@ struct Component {
   # Usable by:
   # - `Carousel`
   # - `TextInput`, `NumberInput`
-  protected Number index;
+  protected Number optionIndex;
   # Value split into parts
   # 
   # Usable by:
@@ -163,13 +187,7 @@ struct Component {
   // public MenuState menuState;
   // # Unique identifier of the component
   // public Number id;
-  
-  // public (() => void) onRender;
-  // public (() => void) onEnter;
-  // public (() => void) onLeave;
-  // public ((Button) => void) onButtonDown;
-  // public ((Button) => void) onButtonUp;
-  // public ((Vector) => void) onNavigate;
+
 
   
   # List of callbacks that will be called when user interacts with the component. Each index corresponds to a specified event:
@@ -186,14 +204,33 @@ struct Component {
   # - Change - component's value has been changed
   public (() => void)[] callbacks;
 
+    
+  public (() => void) onRender: 
+    callbacks[<Number>ComponentEvent.Render];
+  public (() => void) onEnter: 
+    callbacks[<Number>ComponentEvent.Enter];
+  public (() => void) onLeave: 
+    callbacks[<Number>ComponentEvent.Leave];
+  public ((Button) => void) onButtonDown: 
+    <((Button) => void)>callbacks[<Number>ComponentEvent.ButtonDown];
+  public ((Button) => void) onButtonUp: 
+    <((Button) => void)>callbacks[<Number>ComponentEvent.ButtonUp];
+  public ((Vector) => void) onNavigate: 
+    <((Vector) => void)>callbacks[<Number>ComponentEvent.Navigate];
+  public ((Vector) => void) onChange: 
+    <((Any) => void)>callbacks[<Number>ComponentEvent.Change];
+
+
+
   public static Component New(
     in ComponentType type,
     in String label,
     in String name = null,
+    in Any value = null,
     in (() => Any) defaultValue = null,
     in ((Any) => String) valueFormatter = null,
     in Any[] options = [],
-    in Number index = 0,
+    in Number optionIndex = 0,
     in Number[] parts = [],
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
@@ -214,53 +251,49 @@ struct Component {
     in ComponentAction onTertiaryAction = null,
     in ComponentAction onQuaternaryAction = null,
     in ((Any) => void) onChange = null
-  ) {
-    Description[] desc! = GenerateDescriptions([onPrimaryAction, onSecondaryAction, onTertiaryAction, onQuaternaryAction]);
-    
-    return {
-      type: type,
-      label: label, 
-      name: name,
-      value: defaultValue(), 
-      defaultValue: defaultValue,
-      valueFormatter: valueFormatter,
-      options: options,
-      index: index,
-      parts: parts,
-      descriptions: descriptions + desc,
-      color: color,
-      disabled: disabled,
-      inputSettings: inputSettings, 
-      captureNavigationInputs: captureNavigationInputs, 
-      button: button, 
-      shouldRerender: true,
-      renderedText: label, // TODO: set to empty string
-      childIndex: childIndex, 
+  ): {
+    type: type,
+    label: label, 
+    name: name,
+    value: value, 
+    defaultValue: defaultValue,
+    valueFormatter: valueFormatter,
+    options: options,
+    optionIndex: optionIndex,
+    parts: parts,
+    descriptions: descriptions + GenerateDescriptions([onPrimaryAction, onSecondaryAction, onTertiaryAction, onQuaternaryAction]),
+    color: color,
+    disabled: disabled,
+    inputSettings: inputSettings, 
+    captureNavigationInputs: captureNavigationInputs, 
+    button: button, 
+    shouldRerender: true,
+    renderedText: label, // TODO: set to empty string
+    childIndex: childIndex, 
 
-      // id: null, 
-      // menuState: null, 
+    // id: null, 
+    // menuState: null, 
 
-      // onRender: null,
-      // onEnter: null,
-      // onLeave: null,
-      // onButtonDown: null,
-      // onButtonUp: null,
-      // onNavigate: null,
-      callbacks: [
-        onRender,
-        onEnter,
-        onLeave,
-        onButtonDown,
-        onButtonUp,
-        onNavigate,
-        onPrimaryAction.action,
-        onSecondaryAction.action,
-        onTertiaryAction.action,
-        onQuaternaryAction.action,
-        onChange
-      ]
-    };
-  }
+    // onRender: null,
+    // onEnter: null,
+    // onLeave: null,
+    // onButtonDown: null,
+    // onButtonUp: null,
+    // onNavigate: null,
+    callbacks: [
+      onRender,
+      onEnter,
+      onLeave,
+      onButtonDown,
+      onButtonUp,
+      onNavigate,
+      onPrimaryAction.action,
+      onSecondaryAction.action,
+      onTertiaryAction.action,
+      onQuaternaryAction.action,
+      onChange
+    ]
+  };
   
   public ref void AddDescription(in Description description) {
     descriptions += description;
@@ -317,7 +350,7 @@ struct Component {
   public ref void SetValue(in Any newValue) {
     if(value != newValue) {
       value = newValue;
-      (<(Any) => void>callbacks[<Number>ComponentEvent.Change]).Invoke(value);
+      onChange(newValue);
       MarkToRerender();
     }
   }

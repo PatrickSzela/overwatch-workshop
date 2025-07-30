@@ -1,12 +1,45 @@
 import './component.del';
 
 class Value {
-  public static Component New(
+  public static Number New(
     in String label,
-    in (() => Any) defaultValue = null
-  ): {
-    defaultValue: defaultValue,
+    in (() => Any) defaultValue,
+    in String name = null,
+    in ((Any) => String) valueFormatter = null,
+    in Description[] descriptions = [],
+    in Color color = COLOR_NEUTRAL,
+
+    in (() => void) onRender = null,
+    in (() => void) onEnter = null,
+    in (() => void) onLeave = null,
+    in ((Button) => void) onButtonDown = null,
+    in ((Button) => void) onButtonUp = null,
+    in ((Vector) => void) onNavigate = null,
+    in ComponentAction onPrimaryAction = null,
+    in ComponentAction onSecondaryAction = null,
+    in ComponentAction onTertiaryAction = null,
+    in ComponentAction onQuaternaryAction = null,
+    in ((Any) => void) onChange = null
+  ): Component.New(
+    type: ComponentType.Text, 
+    label: label,
+    name: name,
     value: defaultValue(),
-    ..Component.New(ComponentType.Text, label)
-  };
+    defaultValue: defaultValue,
+    valueFormatter: valueFormatter,
+    descriptions: descriptions,
+    color: color,
+
+    onRender: onRender,
+    onEnter: onEnter,
+    onLeave: onLeave,
+    onButtonDown: onButtonDown,
+    onButtonUp: onButtonUp,
+    onNavigate: onNavigate,
+    onPrimaryAction: onPrimaryAction,
+    onSecondaryAction: onSecondaryAction,
+    onTertiaryAction: onTertiaryAction,
+    onQuaternaryAction: onQuaternaryAction,
+    onChange: onChange
+  );
 }

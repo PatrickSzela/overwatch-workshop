@@ -1,13 +1,13 @@
 // TODO: mention importing all used components in proper order because of some weird OSTW bug
-import '../../libs/menu/components/component.del'; 
-import '../../libs/menu/components/value.del'; 
-import '../../libs/menu/components/text.del'; 
-import '../../libs/menu/components/link.del'; 
-import '../../libs/menu/components/numberInput.del'; 
-import '../../libs/menu/components/toggle.del';
-import '../../libs/menu/components/checkbox.del'; 
-import '../../libs/menu/components/radio.del'; 
-import '../../libs/menu/components/carousel.del'; 
+// import '../../libs/menu/components/component.del'; 
+// import '../../libs/menu/components/value.del'; 
+// import '../../libs/menu/components/text.del'; 
+// import '../../libs/menu/components/link.del'; 
+// import '../../libs/menu/components/numberInput.del'; 
+// import '../../libs/menu/components/toggle.del';
+// import '../../libs/menu/components/checkbox.del'; 
+// import '../../libs/menu/components/radio.del'; 
+// import '../../libs/menu/components/carousel.del'; 
 
 import './_variables.del';
 import './pages/_index.del';
@@ -21,8 +21,9 @@ Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 rule: 'Generate Menu State'
 Event.OngoingPlayer
 {
-  menuState = new MenuState('root', MENU_OPEN_CLOSE_BUTTONS, EventPlayer() == HostPlayer());
-  currentMenuState = menuState; // TODO: STRUCT REWORK delete
+  menuState = MenuState.New("root", MENU_OPEN_CLOSE_BUTTONS, EventPlayer() == HostPlayer());
+  // TODO: STRUCT REWORK restore currentMenuState somehow
+  // currentMenuState = menuState;
   menuState.SetFocused();
 }
 

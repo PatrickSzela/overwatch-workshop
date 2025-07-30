@@ -2,15 +2,27 @@ import './toggle.del';
 
 class Radio: Toggle
 {
-  public static Component New(
+  public static Number New(
     in String label, 
     in String name,
     in (() => Boolean) defaultChecked = null,
+    in Description[] descriptions = [],
+    in Color color = COLOR_NEUTRAL,
+    in Button button = Toggle.BUTTON_TOGGLE,
     in Number childIndex = null
-  ): {
+  ): Component.New(
+    type: ComponentType.Radio,
+    label: label, 
     name: name,
-    ..Toggle.New(label, defaultChecked, childIndex)
-  };
+    defaultValue: defaultChecked,
+    value: defaultChecked(),
+    descriptions: [
+      Description.New($"Press {ButtonFormatterSingle_Underscores(button)}​ to toggle", order: ButtonDescriptionOrder(button))
+    ] + descriptions,
+    color: color,
+    button: button,
+    childIndex: childIndex
+  );
 
   // public override void SetValue(Any checked!) "[Radio] Set Checked" {
   //   if(this.checked != checked && !this.checked) {

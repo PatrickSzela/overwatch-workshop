@@ -4,68 +4,42 @@ import '../_variables.del';
 String PAGE_DEBUG_COMPONENT_ID: 'component';
 String PAGE_DEBUG_COMPONENT_NAME: 'Base Component';
 
-Component T(Number ii) "T" {
-  Number i: EvaluateOnce(ii);
-  String label: $"Interactive {i}";
+Number[] PageDebugComponentItems() {
+  Number[] nonInteractive! = [];
+  Number[] interactive! = [];
 
-  return Component.New(
-    type: ComponentType.Text, 
-    label: label,
-    onEnter: () => Log($"{label}: enter"),
-    onLeave: () => Log($"{label}: left"),
-    onButtonDown: (button) => Log($"{label}: {button}​ button down"),
-    onButtonUp: (button) => Log($"{label}: {button}​ button up"),
-    onNavigate: (direction) => Log($"{label}: navigated {direction}"),
-    onPrimaryAction: ComponentAction.New(
-      description: "Trigger Primary Action", 
-      action: () => Log($"{label}: primary action")
-    ),
-    onSecondaryAction: ComponentAction.New(
-      description: "Trigger Primary Action", 
-      action: () => Log($"{label}: primary action")
-    ),
-    onTertiaryAction: ComponentAction.New(
-      description: "Trigger Primary Action", 
-      action: () => Log($"{label}: primary action")
-    ),
-    onQuaternaryAction: ComponentAction.New(
-      description: "Trigger Primary Action", 
-      action: () => Log($"{label}: primary action")
-    ),
-  );
-}
+  for(Number i! = 0; i < 5; i++) {
+    nonInteractive += AddComponent(Text.New($"Non-interactive {i + 1}"));
 
-Component[] PageDebugComponentItemsHelper(){
-  return [
-    Text.New($"Non-interactive 1"),
-    Text.New($"Non-interactive 2"),
-    Text.New($"Non-interactive 3"),
-    Text.New($"Non-interactive 4"),
-    Text.New($"Non-interactive 5"),
-    Text.New(),
-    T(1),
-    T(2),
-    T(3),
-    T(4),
-    T(5)
-  ];
-}
+    String label: $"Interactive {i + 1}";
+    interactive += AddComponent(Component.New(
+      type: ComponentType.Text, 
+      label: label,
+      onEnter: () => Log($"{label}: enter"),
+      onLeave: () => Log($"{label}: left"),
+      onButtonDown: (button) => Log($"{label}: {button}​ button down"),
+      onButtonUp: (button) => Log($"{label}: {button}​ button up"),
+      onNavigate: (direction) => Log($"{label}: navigated {direction}"),
+      onPrimaryAction: ComponentAction.New(
+        description: "Trigger Primary Action", 
+        action: () => Log($"{label}: primary action")
+      ),
+      onSecondaryAction: ComponentAction.New(
+        description: "Trigger Primary Action", 
+        action: () => Log($"{label}: primary action")
+      ),
+      onTertiaryAction: ComponentAction.New(
+        description: "Trigger Primary Action", 
+        action: () => Log($"{label}: primary action")
+      ),
+      onQuaternaryAction: ComponentAction.New(
+        description: "Trigger Primary Action", 
+        action: () => Log($"{label}: primary action")
+      ),
+    ));
+  }
 
-Component[] PageDebugComponentItems() {
-
-
-
-    // interactive[i - 1].SetOnEnter(() => Log($"{interactive[i - 1].label}: enter"));
-    // interactive[i - 1].SetOnLeave(() => Log($"{interactive[i - 1].label}: left"));
-    // interactive[i - 1].SetOnButtonDown((button) => Log($"{interactive[i - 1].label}: {button}​ button down"));
-    // interactive[i - 1].SetOnButtonUp((button) => Log($"{interactive[i - 1].label}: {button}​ button up"));
-    // interactive[i - 1].SetOnNavigate((direction) => Log($"{interactive[i - 1].label}: navigated {direction}"));
-    // interactive[i - 1].SetOnPrimaryAction("Trigger Primary Action", () => Log($"{interactive[i - 1].label}: primary action"));
-    // interactive[i - 1].SetOnSecondaryAction("Trigger Secondary Action", () => Log($"{interactive[i - 1].label}: secondary action"));
-    // interactive[i - 1].SetOnTertiaryAction("Trigger Tertiary Action", () => Log($"{interactive[i - 1].label}: tertiary action"));
-    // interactive[i - 1].SetOnQuaternaryAction("Trigger Quaternary Action", () => Log($"{interactive[i - 1].label}: quaternary action"));
-
-  return PageDebugComponentItemsHelper() ;
+  return nonInteractive + [AddComponent(Text.New())] + interactive;
 }
 
 rule: 'Player Settings'
@@ -75,7 +49,7 @@ if(menuState.pageId == 'root')
 {
   menuState.CreatePage(
     title: PAGE_DEBUG_COMPONENT_NAME, 
-    items: PageDebugComponentItems(), 
+    indexes: PageDebugComponentItems(), 
     descriptions: [
       Description.New("Every possible interaction will be logged to the Workshop Inspector", COLOR_INFO)
     ]

@@ -4,15 +4,24 @@ class Link {
   public static Component New(
     in String label,
     in String submenuID,
-    in Button openButton = BUTTON_PRIMARY
-  ): {
+    in Description[] descriptions = [],
+    in Color color = COLOR_NEUTRAL,
+    in Button button = BUTTON_PRIMARY,
+    in Number childIndex = null
+  ): Component.New(
+    type: ComponentType.Link,
+    label: label,
     value: submenuID,
-    button: openButton,
     descriptions: [
-      Description.New($"Press {ButtonFormatterSingle_Underscores(openButton)}​ to open submenu", order: ButtonDescriptionOrder(openButton))
+      Description.New($"Press {ButtonFormatterSingle_Underscores(button)}​ to open submenu", order: ButtonDescriptionOrder(button))
     ],
-    ..Component.New(ComponentType.Link, label)
-  };
+    button: button,
+    childIndex: childIndex
+  );
+
+  public static String Render(ref Component component) {
+    return $"{menuComponents[component.childIndex].renderedText || component.label}​ ▶";
+  }
 
   // public override void Render() "[Link] Render" {
   //   onRender(this);

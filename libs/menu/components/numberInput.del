@@ -1,30 +1,47 @@
-import './value.del';
+import '../../utils/color.del';
+import './component.del';
 
 // TODO: split main logic into shared Input
 // TODO: min, max?
 
 # NOTE: number passed in `defaultValue` will lose its precision because of Workshop limitations
 class NumberInput {
-  public Button BUTTON_EDIT_MODE: BUTTON_QUATERNARY;
+  public static Button BUTTON_EDIT_MODE: BUTTON_QUATERNARY;
   // public String DESCRIPTION: $'Press {ButtonFormatterSingle_Underscores(BUTTON_EDIT_MODE)}​ to {editMode ? "disable" : "enable"}​ Edit Mode';
 
-  public static Component New(
+  public static Number New(
     in String label, 
+    in String name = null,
     in (() => Number) defaultValue = null,
+    in Description[] descriptions = [],
+    in Color color = COLOR_NEUTRAL,
     in Boolean negative = false,
     in Number integralLength = 3,
     in Number fractionalLength = 0,
-    in String unit = null
-  ): {
+    in String unit = null,
+    in Button button = BUTTON_EDIT_MODE
+  ): Component.New(
+    type: ComponentType.NumberInput,
+    label: label,
+    name: name,
+    value: defaultValue(),
+    defaultValue: defaultValue,
+    descriptions: [
+      Description.New($'Press {ButtonFormatterSingle_Underscores(BUTTON_EDIT_MODE)}​ to toggle Edit Mode', COLOR_SWITCH, order: -20),
+      Description.New('Use [↑] or [↓] to increase/decrease current number', visible: false, order: -19),
+      Description.New('Use [←] or [→] to change currently edited number', visible: false, order: -18)
+    ] + descriptions,
+    color: color,
     inputSettings: InputSettings.New(
       negative: negative,
       integralLength: integralLength,
       fractionalLength: fractionalLength,
       unit: unit
     ),
-    ..Value.New(label, defaultValue)
-  };
-
+    button: button
+  );
+}
+  
   // protected void NumberInputConstructor(
   //   MenuState menuState!,
   //   String text!, 
@@ -142,4 +159,3 @@ class NumberInput {
   //     renderedText = $"{text}: {final}{unit ? unit : ''}";
   //   }
   // }
-}
