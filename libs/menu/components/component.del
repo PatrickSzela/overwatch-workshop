@@ -13,6 +13,10 @@ Number AddComponent(in Component component) {
 Number[] AddComponents(in Component[] components) {
   Number[] indexes! = components.Map((i, idx) => menuComponents.Length + idx);
   menuComponents += components;
+
+  LogHelper($"added {components.Length} components, {menuComponents.Length} total");
+
+
   return indexes;
 }
 
@@ -23,8 +27,11 @@ void RemoveComponent(in Number index) {
 void RemoveComponents(in Number[] indexes) {
   menuComponents -= indexes.Map((i) => menuComponents[i]);
   // foreach(Number i! in indexes) {
+  //   Log($"removing component {i}");
   //   menuComponents.ModRemoveByIndex(i);
   // }
+
+  LogHelper($"removed {indexes.Length} components, {menuComponents.Length} total");
 }
 
 single struct Description {

@@ -3,3 +3,12 @@ import './number.del';
 void WaitForeverUntil(in Boolean continueCondition) {
   WaitUntil(continueCondition, NUMBER_MAX);
 }
+
+void WaitUntilConditionChanges(in Boolean condition, in Number time) {
+  WaitUntil(condition != EvaluateOnce(condition), time);
+}
+
+void WaitForeverUntilConditionChanges(in Boolean condition) {
+  WaitUntilConditionChanges(condition, NUMBER_MAX);
+}
+

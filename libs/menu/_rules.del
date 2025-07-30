@@ -154,21 +154,14 @@ if(EventPlayer().IsButtonHeld(Button.Ultimate))
 }
 
 
-rule: 'Render menu'
+rule: 'Render menu' 99999
 Event.OngoingPlayer
 {
-  menuState.RULE_FindClosestFocusableComponent();
-}
+  WaitForeverUntilConditionChanges(menuWindows.Map((i) => i.logicActions));
 
-rule: 'Render menu'
-Event.OngoingPlayer
-{
-  menuState.RULE_UpdateScroll();
-}
+  for(Number i! = 0; i < menuWindows.Length; i++) {
+    menuWindows[i].RULE_Logic(menuState.hideKeybindTextWhenClosed);
+  }
 
-rule: 'Render menu'
-Event.OngoingPlayer
-{
-  menuState.RULE_Render();
+  Loop();
 }
-
