@@ -16,7 +16,6 @@ class Text {
   );
 
   public static String Render(ref Component component) {
-    Log(component.label);
     return menuComponents[component.childIndex].renderedText || component.label;
   }
 }

@@ -135,6 +135,31 @@ struct MenuWindow {
     // }
   }
 
+  protected void OnComponentEnter(in Number index = focusedIndex) {
+    menuComponents[index].onEnter();
+    menuComponents[menuComponents[index].childIndex].onEnter();
+  }
+
+  protected void OnComponentLeave(in Number index = focusedIndex) {
+    menuComponents[menuComponents[index].childIndex].onLeave();
+    menuComponents[index].onLeave();
+  }
+
+  protected void OnComponentNavigate(in Vector direction, in Number index = focusedIndex) {
+    menuComponents[index].onNavigate(direction);
+    menuComponents[menuComponents[index].childIndex].onNavigate(direction);
+  }
+
+  protected void OnComponentButtonDown(in Button button, in Number index = focusedIndex) {
+    menuComponents[index].onButtonDown(button);
+    menuComponents[menuComponents[index].childIndex].onButtonDown(button);
+  }
+
+  protected void OnComponentButtonUp(in Button button, in Number index = focusedIndex) {
+    menuComponents[menuComponents[index].childIndex].onButtonUp(button);
+    menuComponents[index].onButtonUp(button);
+  }
+
   # Forcefully rerenders specified item (or currently hovered one if no `index` is specified). Call after manually adding description.
   public ref void RerenderItem(in Number index! = -1) {
     Log($'[{EventPlayer()}] RerenderItem');
@@ -159,7 +184,7 @@ struct MenuWindow {
     if(!open) {
       open = true;
 
-      if(focused) focusedComponent.onEnter();
+      if(focused) OnComponentEnter();
       MarkToRerender();
     }
   }
@@ -170,8 +195,21 @@ struct MenuWindow {
     if(open) {
       open = false;
       
-      if(focused) focusedComponent.onLeave();
+      if(focused) OnComponentLeave();
       MarkToRerender();
+    }
+  }
+
+  public ref void GoToPage(in String newPageId, in Boolean historyReplace = false) {
+    Log($'[{EventPlayer()}] GoToPage');
+
+    if(pageId != newPageId) {
+      DestroyPage();
+
+      if(historyReplace)
+        history[history.Length - 1] = HistoryItem.New(pageId);
+      else
+        history += HistoryItem.New(pageId);
     }
   }
 
@@ -242,7 +280,7 @@ struct MenuWindow {
     //   pageDescriptions += desc;
 
     if(open) {
-      focusedComponent.callbacks[ComponentEvent.Enter].Invoke();
+      OnComponentEnter();
 
       // `AddItems` already adds items to render queue
       MarkToRerender();
@@ -253,7 +291,7 @@ struct MenuWindow {
     Log($'[{EventPlayer()}] DestroyPage');
 
     if(open) {
-      focusedComponent.onLeave();
+      OnComponentLeave();
     }
 
     RemoveAllItems(false);
@@ -267,7 +305,7 @@ struct MenuWindow {
   public ref void Navigate(in Vector direction, in Boolean navigationLocked) {
     Log($'[{EventPlayer()}] Navigate');
 
-    focusedComponent.onNavigate(direction);
+    OnComponentNavigate(direction, focusedIndex);
 
     if(!navigationLocked && (direction == Down() || direction == Up())) {
       // TODO: STRUCT REWORK move to a func
@@ -291,12 +329,12 @@ struct MenuWindow {
       }
 
       if(offset != 0) {
-        focusedComponent.onLeave();
+        OnComponentLeave();
         
         history[history.Length - 1].innerScroll += offset;
         HandleScroll(); 
 
-        focusedComponent.onEnter();
+        OnComponentEnter();
       }
     }
 
@@ -307,7 +345,14 @@ struct MenuWindow {
     Log($'[{EventPlayer()}] ButtonDown');
 
     if(open) {
-      focusedComponent.onButtonDown(button);
+      OnComponentButtonDown(button, indexes[focusedIndex]);
+
+      switch(focusedComponent.type) {
+        case ComponentType.Link:
+          if(buttonsHeld == [focusedComponent.button])
+            GoToPage(focusedComponent.value);
+          break;
+      }
 
       if(!navigationLocked && buttonsHeld == [BUTTON_BACK]) {
         GoBack();
@@ -321,7 +366,7 @@ struct MenuWindow {
     Log($'[{EventPlayer()}] ButtonUp');
 
     if(open) {
-      focusedComponent.onButtonUp(button);
+      OnComponentButtonUp(button, indexes[focusedIndex]);
       MarkToRerender();
     }
   }

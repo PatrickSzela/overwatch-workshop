@@ -13,7 +13,10 @@ class Link {
     label: label,
     value: submenuID,
     descriptions: [
-      Description.New($"Press {ButtonFormatterSingle_Underscores(button)}​ to open submenu", order: ButtonDescriptionOrder(button))
+      Description.New(
+        description: $"Press {ButtonFormatterSingle_Underscores(button)}​ to open submenu", 
+        order: ButtonDescriptionOrder(button)
+      )
     ],
     button: button,
     childIndex: childIndex
