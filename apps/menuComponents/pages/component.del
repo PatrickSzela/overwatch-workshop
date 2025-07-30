@@ -25,15 +25,15 @@ Number[] PageDebugComponentItems() {
         action: () => Log($"{label}: primary action")
       ),
       onSecondaryAction: ComponentAction.New(
-        description: "Trigger Primary Action", 
+        description: "Trigger Secondary Action", 
         action: () => Log($"{label}: primary action")
       ),
       onTertiaryAction: ComponentAction.New(
-        description: "Trigger Primary Action", 
+        description: "Trigger Tertiary Action", 
         action: () => Log($"{label}: primary action")
       ),
       onQuaternaryAction: ComponentAction.New(
-        description: "Trigger Primary Action", 
+        description: "Trigger Quaternary Action", 
         action: () => Log($"{label}: primary action")
       ),
     ));

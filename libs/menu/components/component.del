@@ -78,19 +78,16 @@ single struct ComponentAction {
     description: description,
     action: action
   };
-}
 
-Description[] GenerateDescriptions(ComponentAction[] componentActions) "t" {
-  Description[] desc! = [];
-  for(Number i! = 6; i < componentActions.Length; i++) {
-    if(!componentActions[i]) continue;
-
-    ComponentAction componentAction: componentActions[i];
-    Button button: buttonsSettings[i];
-
-    desc += Description.New($"Press {ButtonFormatterSingle_Underscores(button)}​ to {componentAction.description}", order: ButtonDescriptionOrder(button));
-  }
-  return desc;
+  public static Description[] GenerateDescriptions(in ComponentAction[] componentActions):
+    componentActions
+      .FilteredArray((i) => i)
+      .Map((i, idx) => 
+        Description.New(
+          description: $"Press {ButtonFormatterSingle_Underscores(buttonsSettings[idx])} to {i.description}", 
+          order: ButtonDescriptionOrder(buttonsSettings[idx])
+        )
+      );
 }
 
 single struct InputSettings {
@@ -175,6 +172,8 @@ struct Component {
   public String renderedText;
   # Index of a child component
   public Number childIndex;
+  # Whether the component has a child assigned to it.
+  public Boolean hasChild: childIndex > -1;
   # Alias for `value`
   public Boolean checked: value;
   # Alias for `defaultValue`
@@ -238,7 +237,7 @@ struct Component {
     in InputSettings inputSettings = InputSettings.New(),
     in Boolean captureNavigationInputs = false,
     in Button button = BUTTON_PRIMARY,
-    in Number childIndex = null,
+    in Number childIndex = -1,
 
     in (() => void) onRender = null,
     in (() => void) onEnter = null,
@@ -261,14 +260,14 @@ struct Component {
     options: options,
     optionIndex: optionIndex,
     parts: parts,
-    descriptions: descriptions + GenerateDescriptions([onPrimaryAction, onSecondaryAction, onTertiaryAction, onQuaternaryAction]),
+    descriptions: descriptions + ComponentAction.GenerateDescriptions([onPrimaryAction, onSecondaryAction, onTertiaryAction, onQuaternaryAction]),
     color: color,
     disabled: disabled,
     inputSettings: inputSettings, 
     captureNavigationInputs: captureNavigationInputs, 
     button: button, 
     shouldRerender: true,
-    renderedText: label, // TODO: set to empty string
+    renderedText: '',
     childIndex: childIndex, 
 
     // id: null, 

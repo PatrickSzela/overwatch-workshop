@@ -381,7 +381,7 @@ single struct MenuState {
   protected ref void RenderDescriptions() {
     // Description[] descriptions! = focusedComponent.descriptions;
 
-    // if(focusedComponent.childIndex) {
+    // if(focusedComponent.hasChild) {
     //   descriptions += menuComponents[focusedComponent.childIndex].descriptions;
     // }
 
@@ -394,16 +394,14 @@ single struct MenuState {
 
     renderedTexts.descriptions = (
       focusedComponent.descriptions + 
-      focusedComponent.childIndex ? 
-        menuComponents[focusedComponent.childIndex].descriptions : 
-        [] +
+      menuComponents[focusedComponent.childIndex].descriptions +
       pageDescriptions + menuDescriptions
     ).FilteredArray((i) => i.visible)
       .SortedArray((i) => i.order)
       .Map((i) => RenderedText.New(text: i[0], color: i[1]));
   }
 
-  protected static String RenderComponent(Number index!) "MenuState.RenderComponent" {
+  protected static String RenderComponent(in Number index) {
     Component item: menuComponents[index];
 
     switch(item.type) {
@@ -433,8 +431,8 @@ single struct MenuState {
 
     Number[] v! = visibleIndexes;
 
-    Log(indexes.Length);
-    Log(visibleIndexes.Length);
+    // Log(indexes.Length);
+    // Log(visibleIndexes.Length);
 
     renderedTexts.items = [];
 
@@ -442,15 +440,15 @@ single struct MenuState {
       Number componentIdx: idx + history.Last.outerScroll;
       Number index: v[idx];
       Component item: menuComponents[index];
+      Component child: menuComponents[item.childIndex];
       
-      if(item.shouldRerender || menuComponents[item.childIndex].shouldRerender) {
-        if(item.childIndex) {
-          RenderComponent(item.childIndex);
-          menuComponents[item.childIndex].shouldRerender = false;
-        }
+      Number[] items! = (item.hasChild ? [item.childIndex] : []) + [index];
 
-        RenderComponent(componentIdx);
-        menuComponents[index].shouldRerender = false;
+      if(item.shouldRerender || child.shouldRerender) {
+        foreach(Number idx2! in items) {
+          menuComponents[idx2].renderedText = RenderComponent(idx2);
+          menuComponents[idx2].shouldRerender = false;
+        }
 
         // Log($'Rerendered: {item.renderedText}');
       }
