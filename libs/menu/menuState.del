@@ -10,7 +10,7 @@ import './components/link.del';
 
 // TODO: handle case when switching side after players array changes and focusedIndex is wrong
 
-playervar MenuState currentMenuState;
+playervar MenuState menuState;
 playervar MenuWindow[] menuWindows = [];
 
 single struct RenderedText {
@@ -26,7 +26,8 @@ single struct HistoryItem {
   public Number outerScroll;
   public Number innerScroll;
 
-  public static HistoryItem New(in String id): { id: id, innerScroll: 0, outerScroll: 0 };
+  public static HistoryItem New(in String id): 
+    { id: id, innerScroll: 0, outerScroll: 0 };
 }
 
 struct RenderedTexts {
@@ -54,7 +55,9 @@ struct MenuWindow {
   # Whether window should rerender.
   public Boolean shouldRerender;
   # Marked menu as updated.
-  protected Boolean itemsUpdated;
+  public Boolean findClosestFocusableComponent;
+  public Boolean updateScroll;
+  public Boolean finishNavigate;
   # Combination of buttons used to toggle menu on and off.
   public Button[] toggleWindowKeybind;
   # Whether opening and closing this window is done programmatically.
@@ -88,7 +91,9 @@ struct MenuWindow {
     focused: false,
     open: false,
     shouldRerender: true,
-    itemsUpdated: false,
+    findClosestFocusableComponent: false,
+    updateScroll: false,
+    finishNavigate: false,
     toggleWindowKeybind: toggleWindowKeybind,
     indexes: [],
     focusedIndex: 0,
@@ -99,9 +104,14 @@ struct MenuWindow {
     renderedTexts: RenderedTexts.New(),
   };
 
-   # Marks menu as updated.
-  public ref void MarkUpdatedItems() {
-    itemsUpdated = true;
+  # Marks menu as updated.
+  public ref void MarkFindClosestFocusableComponent() {
+    findClosestFocusableComponent = true;
+  }
+
+  public ref void MarkUpdateScroll() {
+    updateScroll = true;
+    // UpdateScroll();
   }
 
   # Marks menu to rerender.
@@ -119,14 +129,14 @@ struct MenuWindow {
     focused = true;
 
     // TODO: STRUCT REWORK restore
-    // if(currentMenuState != this) {
-    //   currentMenuState.isFocused = false;
+    // if(menuState != this) {
+    //   menuState.isFocused = false;
 
-    //   if(currentMenuState.isOpen) {
-    //     currentMenuState.hoveredItem.OnLeave();
+    //   if(menuState.isOpen) {
+    //     menuState.hoveredItem.OnLeave();
     //   }
       
-    //   currentMenuState = this;
+    //   menuState = this;
     //   isFocused = true;
 
     //   if(isOpen) {
@@ -135,27 +145,27 @@ struct MenuWindow {
     // }
   }
 
-  protected void OnComponentEnter(in Number index = focusedIndex) {
+  protected void OnComponentEnter(in Number index = indexes[focusedIndex]) {
     menuComponents[index].onEnter();
     menuComponents[menuComponents[index].childIndex].onEnter();
   }
 
-  protected void OnComponentLeave(in Number index = focusedIndex) {
+  protected void OnComponentLeave(in Number index = indexes[focusedIndex]) {
     menuComponents[menuComponents[index].childIndex].onLeave();
     menuComponents[index].onLeave();
   }
 
-  protected void OnComponentNavigate(in Vector direction, in Number index = focusedIndex) {
+  protected void OnComponentNavigate(in Vector direction, in Number index = indexes[focusedIndex]) {
     menuComponents[index].onNavigate(direction);
     menuComponents[menuComponents[index].childIndex].onNavigate(direction);
   }
 
-  protected void OnComponentButtonDown(in Button button, in Number index = focusedIndex) {
+  protected void OnComponentButtonDown(in Button button, in Number index = indexes[focusedIndex]) {
     menuComponents[index].onButtonDown(button);
     menuComponents[menuComponents[index].childIndex].onButtonDown(button);
   }
 
-  protected void OnComponentButtonUp(in Button button, in Number index = focusedIndex) {
+  protected void OnComponentButtonUp(in Button button, in Number index = indexes[focusedIndex]) {
     menuComponents[menuComponents[index].childIndex].onButtonUp(button);
     menuComponents[index].onButtonUp(button);
   }
@@ -200,16 +210,13 @@ struct MenuWindow {
     }
   }
 
-  public ref void GoToPage(in String newPageId, in Boolean historyReplace = false) {
-    Log($'[{EventPlayer()}] GoToPage');
+  // fore some reason `newPageId` must be stored, otherwise its value will be lost when passed on to HistoryItem.New
+  public ref void GoToPage(String newPageId!, in Boolean historyReplace = false) {
+    Log($'[{EventPlayer()}] GoToPage: going from {pageId} to {newPageId}');
 
     if(pageId != newPageId) {
       DestroyPage();
-
-      if(historyReplace)
-        history[history.Length - 1] = HistoryItem.New(pageId);
-      else
-        history += HistoryItem.New(pageId);
+      history[history.Length - (historyReplace ? 1 : 0)] = HistoryItem.New(newPageId);
     }
   }
 
@@ -231,7 +238,7 @@ struct MenuWindow {
     indexes += componentIndexes;
 
     if(updateScroll) {
-      MarkUpdatedItems();
+      MarkFindClosestFocusableComponent();
     }
   }
 
@@ -243,7 +250,7 @@ struct MenuWindow {
     RemoveComponents(componentIndexes);
 
     if(updateScroll) {
-      MarkUpdatedItems();
+      MarkFindClosestFocusableComponent();
     }
   }
 
@@ -266,7 +273,7 @@ struct MenuWindow {
     // // keep the order of passed items
     // this.indexes = items;
 
-    MarkUpdatedItems();
+    MarkFindClosestFocusableComponent();
   }
 
   public ref void CreatePage(in String title, in Number[] indexes, in Description[] descriptions = []) {
@@ -332,9 +339,8 @@ struct MenuWindow {
         OnComponentLeave();
         
         history[history.Length - 1].innerScroll += offset;
-        HandleScroll(); 
-
-        OnComponentEnter();
+        finishNavigate = true;
+        MarkUpdateScroll(); 
       }
     }
 
@@ -461,16 +467,18 @@ struct MenuWindow {
 
     renderedTexts.items = [];
 
-    for(Number idx = 0; idx < v.Length; idx++) {
+    for(Number idx! = 0; idx < v.Length; idx++) {
       Number componentIdx: idx + history.Last.outerScroll;
       Number index: v[idx];
       Component item: menuComponents[index];
       Component child: menuComponents[item.childIndex];
       
       Number[] items! = (item.hasChild ? [item.childIndex] : []) + [index];
+      // Log($"index {index} has {items.Length} items:");
 
       if(item.shouldRerender || child.shouldRerender) {
         foreach(Number idx2! in items) {
+          // Log($"item {idx2}: label - {menuComponents[idx2].label}, rendered text - {RenderComponent(idx2)}");
           menuComponents[idx2].renderedText = RenderComponent(idx2);
           menuComponents[idx2].shouldRerender = false;
         }
@@ -512,8 +520,10 @@ struct MenuWindow {
 
 
 
-  public ref void HandleUpdateScroll() {
-    Log($'[{EventPlayer()}] HandleUpdateScroll');
+  public ref void FindClosestFocusableComponent() {
+    Log($'[{EventPlayer()}] FindClosestFocusableComponent');
+
+    findClosestFocusableComponent = false;
 
     // TODO: STRUCT REWORK restore
     // if(!indexes) {
@@ -531,26 +541,40 @@ struct MenuWindow {
       history[history.Length - 1].innerScroll = Max(enabled.First, Min(enabled.Last, scroll));
     }
 
-    HandleScroll();
+    MarkUpdateScroll();
   }
 
-  public ref void HandleScroll() {
-    Log($'[{EventPlayer()}] HandleScroll');
+  public ref void UpdateScroll() {
+    Log($'[{EventPlayer()}] UpdateScroll');
+
+    updateScroll = false;
 
     Number idx! = history.Length - 1;
     Number offset! = 0;
 
     if(history.Last.innerScroll > MAX_ITEMS - 1) {
       offset = history.Last.innerScroll - (MAX_ITEMS - 1);
-      history[idx] = {innerScroll: MAX_ITEMS - 1, outerScroll: history.Last.outerScroll + offset, ..history[idx]};
+      history[idx] = {
+        innerScroll: MAX_ITEMS - 1, 
+        outerScroll: history.Last.outerScroll + offset, ..history[idx]
+      };
     } else if(history.Last.innerScroll < 0) {
       offset = history.Last.innerScroll;
-      history[idx] = {innerScroll: 0, outerScroll: Max(0, history.Last.outerScroll + offset), ..history[idx]};
+      history[idx] = {
+        innerScroll: 0, 
+        outerScroll: Max(0, history.Last.outerScroll + offset), ..history[idx]
+      };
     }
 
     focusedIndex = history.Last.innerScroll + history.Last.outerScroll;
     Log($"new idx: {focusedIndex}");
     RenderSeparators();
+
+    if(finishNavigate) {
+      finishNavigate = false;
+      OnComponentEnter();
+      MarkToRerender();
+    }
   }
 }
 
@@ -595,7 +619,7 @@ single struct MenuState {
           menuWindows[i].Close();
         } else {
           menuWindows[i].Open();
-          currentMenuState.focusedWindowIndex = i;
+          menuState.focusedWindowIndex = i;
           menuWindows[i].SetFocused();
         }
       }
@@ -613,6 +637,24 @@ single struct MenuState {
 
   public ref void Navigate(in Vector direction) {
     menuWindows[focusedWindowIndex].Navigate(direction, navigationLocked);
+  }
+
+  public ref void RULE_FindClosestFocusableComponent() {
+    WaitForeverUntil(menuWindows.IsTrueForAny((i) => i.findClosestFocusableComponent));
+
+    for(Number i = 0; i < menuWindows.Length; i++)
+      menuWindows[i].FindClosestFocusableComponent();
+
+    Loop();
+  }
+
+  public ref void RULE_UpdateScroll() {
+    WaitForeverUntil(menuWindows.IsTrueForAny((i) => i.updateScroll));
+
+    for(Number i = 0; i < menuWindows.Length; i++)
+      menuWindows[i].UpdateScroll();
+
+    Loop();
   }
 
   public ref void RULE_Render() {
@@ -743,14 +785,14 @@ class MenuState3 {
 
     isFocused = true;
 
-    // if(currentMenuState != this) {
-    //   currentMenuState.isFocused = false;
+    // if(menuState != this) {
+    //   menuState.isFocused = false;
 
-    //   if(currentMenuState.isOpen) {
-    //     currentMenuState.hoveredItem.OnLeave();
+    //   if(menuState.isOpen) {
+    //     menuState.hoveredItem.OnLeave();
     //   }
       
-    //   currentMenuState = this;
+    //   menuState = this;
     //   isFocused = true;
 
     //   if(isOpen) {

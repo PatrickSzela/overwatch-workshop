@@ -44,10 +44,9 @@ Number[] PageDebugComponentItems() {
 
 rule: 'Player Settings'
 Event.OngoingPlayer
-// if(currentMenuState.pageId == PAGE_DEBUG_COMPONENT_ID)
-if(currentMenuState.pageIds.Contains('root'))
+if(menuState.pageIds.Contains(PAGE_DEBUG_COMPONENT_ID))
 {
-  currentMenuState.CreatePage(
+  menuState.CreatePage(
     pageId: 'root',
     title: PAGE_DEBUG_COMPONENT_NAME, 
     indexes: PageDebugComponentItems(), 

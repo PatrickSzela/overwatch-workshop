@@ -12,7 +12,7 @@ class Toggle {
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
     in Button button = BUTTON_TOGGLE,
-    in Number childIndex = null
+    in Number childIndex = -1
   ): Component.New(
     type: ComponentType.Toggle,
     label: label,

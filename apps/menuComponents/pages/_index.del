@@ -13,8 +13,8 @@ import './component.del';
 String PAGE_DEBUG_ID: 'root';
 String PAGE_DEBUG_NAME: 'Components List';
 
-Component[] PageDebugItems() {
-  return <Component[]>[
+Number[] PageDebugItems() {
+  return AddComponents([
     Text.New("Components:"),
     Link.New(PAGE_DEBUG_COMPONENT_NAME, PAGE_DEBUG_COMPONENT_ID),
     // Link.New(PAGE_DEBUG_TOGGLE_NAME, PAGE_DEBUG_TOGGLE_ID),
@@ -27,15 +27,16 @@ Component[] PageDebugItems() {
     Text.New("Lists:")
     // Link.New(PAGE_DEBUG_LIST_LONG_NAME, PAGE_DEBUG_LIST_LONG_ID),
     // Link.New(PAGE_DEBUG_LIST_DYNAMIC_NAME, PAGE_DEBUG_LIST_DYNAMIC_ID)
-  ];
+  ]);
 }
 
-// rule: 'Debug'
-// Event.OngoingPlayer
-// if(menuState.pageId == PAGE_DEBUG_ID)
-// {
-//   menuState.CreatePage(
-//     title: PAGE_DEBUG_NAME, 
-//     items: PageDebugItems()
-//   );
-// }
+rule: 'Debug'
+Event.OngoingPlayer
+if(menuState.pageIds.Contains(PAGE_DEBUG_ID))
+{
+  menuState.CreatePage(
+    pageId: PAGE_DEBUG_ID,
+    title: PAGE_DEBUG_NAME, 
+    indexes: PageDebugItems()
+  );
+}

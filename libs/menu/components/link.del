@@ -3,15 +3,15 @@ import './component.del';
 class Link {
   public static Component New(
     in String label,
-    in String submenuID,
+    in String pageId,
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
     in Button button = BUTTON_PRIMARY,
-    in Number childIndex = null
+    in Number childIndex = -1
   ): Component.New(
     type: ComponentType.Link,
     label: label,
-    value: submenuID,
+    value: pageId,
     descriptions: [
       Description.New(
         description: $"Press {ButtonFormatterSingle_Underscores(button)}​ to open submenu", 

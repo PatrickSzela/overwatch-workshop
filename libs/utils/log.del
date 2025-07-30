@@ -13,7 +13,7 @@ void DisableInspector() {
 void Log(in Any text) {
   // EnableInspectorRecording();
 
-  // LogToInspector(text);
+  LogToInspector(text);
 
   // if(!inspectorEnabled) 
   //   DisableInspectorRecording();

@@ -22,19 +22,13 @@ rule: 'Generate Menu State'
 Event.OngoingPlayer
 {
   menuWindows += MenuWindow.New("root", MENU_OPEN_CLOSE_BUTTONS);
-  currentMenuState = MenuState.New("root", EventPlayer() == HostPlayer());
+  menuState = MenuState.New("root", EventPlayer() == HostPlayer());
   menuWindows[0].SetFocused();
 }
 
 rule: 'Generate Menu'
 {
-  menu = new Menu(LocalPlayer().currentMenuState, LocalPlayer().menuWindows[0]);
-}
-
-rule: 'Render menu' 10
-Event.OngoingPlayer
-{
-  currentMenuState.RULE_Render();
+  menu = new Menu(LocalPlayer().menuState, LocalPlayer().menuWindows[0]);
 }
 
 rule: 'Diagnostics'
