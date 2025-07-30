@@ -15,26 +15,26 @@ Number[] PageDebugComponentItems() {
     interactive += AddComponent(Component.New(
       type: ComponentType.Text, 
       label: label,
-      onEnter: () => LogToInspector($"{label}: enter"),
-      onLeave: () => LogToInspector($"{label}: left"),
-      onButtonDown: (button) => LogToInspector($"{label}: {button}​ button down"),
-      onButtonUp: (button) => LogToInspector($"{label}: {button}​ button up"),
-      onNavigate: (direction) => LogToInspector($"{label}: navigated {direction}"),
+      onEnter: () => Log($"{label}: enter"),
+      onLeave: () => Log($"{label}: left"),
+      onButtonDown: (button) => Log($"{label}: {button}​ button down"),
+      onButtonUp: (button) => Log($"{label}: {button}​ button up"),
+      onNavigate: (direction) => Log($"{label}: navigated {direction}"),
       onPrimaryAction: ComponentAction.New(
         description: "Trigger Primary Action", 
-        action: () => LogToInspector($"{label}: primary action")
+        action: () => Log($"{label}: primary action")
       ),
       onSecondaryAction: ComponentAction.New(
         description: "Trigger Secondary Action", 
-        action: () => LogToInspector($"{label}: primary action")
+        action: () => Log($"{label}: primary action")
       ),
       onTertiaryAction: ComponentAction.New(
         description: "Trigger Tertiary Action", 
-        action: () => LogToInspector($"{label}: primary action")
+        action: () => Log($"{label}: primary action")
       ),
       onQuaternaryAction: ComponentAction.New(
         description: "Trigger Quaternary Action", 
-        action: () => LogToInspector($"{label}: primary action")
+        action: () => Log($"{label}: primary action")
       ),
     ));
   }
