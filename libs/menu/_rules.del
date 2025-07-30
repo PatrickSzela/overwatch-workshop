@@ -159,7 +159,7 @@ Event.OngoingPlayer
 {
   WaitForeverUntilConditionChanges(menuWindows.Map((i) => i.logicActions));
 
-  for(Number i! = 0; i < menuWindows.Length; i++) {
+  for(Number i = 0; i < menuWindows.Length; i++) {
     menuWindows[i].RULE_Logic(menuState.hideKeybindTextWhenClosed);
   }
 

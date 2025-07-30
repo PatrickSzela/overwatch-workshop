@@ -42,12 +42,12 @@ Number[] PageDebugComponentItems() {
   return nonInteractive + [AddComponent(Text.New())] + interactive;
 }
 
-rule: 'Player Settings'
+rule: 'Debug/Base Components'
 Event.OngoingPlayer
 if(menuState.pageIds.Contains(PAGE_DEBUG_COMPONENT_ID))
 {
   menuState.CreatePage(
-    pageId: 'root',
+    pageId: PAGE_DEBUG_COMPONENT_ID,
     title: PAGE_DEBUG_COMPONENT_NAME, 
     indexes: PageDebugComponentItems(), 
     descriptions: [

@@ -464,7 +464,7 @@ struct MenuWindow {
       .Map((i) => RenderedText.New(text: i[0], color: i[1]));
   }
 
-  protected static String RenderComponent(in Number index) {
+  protected String RenderComponent(in Number index) {
     Component item: menuComponents[index];
 
     switch(item.type) {
@@ -680,7 +680,7 @@ single struct MenuState {
     menuWindows[focusedWindowIndex].ButtonUp(button, navigationLocked);
   }
 
-  public ref void Navigate(in Vector direction) {
+  public void Navigate(Vector direction!) "MenuState.Navigate" {
     menuWindows[focusedWindowIndex].Navigate(direction, navigationLocked);
   }
 
