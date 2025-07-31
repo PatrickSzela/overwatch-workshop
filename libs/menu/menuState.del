@@ -47,6 +47,31 @@ struct RenderedTexts {
   };
 }
 
+single struct WindowCreatePage {
+  public String title;
+  public Number[] indexes;
+  public Description[] descriptions;
+
+  public static WindowCreatePage New(in String title, in Number[] indexes, in Description[] descriptions = []): 
+    { title: title, indexes: indexes, descriptions: descriptions };
+}
+
+single struct WindowGoToPage {
+  public String pageId;
+  public Boolean replaceLastHistory;
+
+  public static WindowGoToPage New(in String pageId, in Boolean replaceLastHistory):
+    { pageId: pageId, replaceLastHistory: replaceLastHistory };
+}
+
+single struct WindowAddRemoveComponents {
+  public Number[] indexes;
+  public Boolean updateScroll;
+
+  public static WindowAddRemoveComponents New(in Number[] indexes, in Boolean updateScroll): 
+    { indexes: indexes, updateScroll: updateScroll };
+}
+
 single struct WindowLogicActions {
   public Boolean findClosestFocusableComponent;
   public Boolean updateScroll;
@@ -54,19 +79,37 @@ single struct WindowLogicActions {
   public Boolean componentLeave;
   # Whether window should rerender.
   public Boolean render;
+  public WindowAddRemoveComponents removeComponents;
+  public WindowAddRemoveComponents addComponents;
+  public Boolean destroyPage;
+  public WindowCreatePage createPage;
+  public WindowGoToPage goToPage;
+  public Boolean goBack;
 
   public static WindowLogicActions New(
     in Boolean findClosestFocusableComponent = false,
     in Boolean updateScroll = false,
     in Boolean componentEnter = false,
     in Boolean componentLeave = false,
-    in Boolean render = false
+    in Boolean render = false,
+    in WindowAddRemoveComponents removeComponents = null,
+    in WindowAddRemoveComponents addComponents = null,
+    in Boolean destroyPage = false,
+    in WindowCreatePage createPage = null,
+    in WindowGoToPage goToPage = null,
+    in Boolean goBack = false
   ): { 
-    findClosestFocusableComponent: false, 
-    updateScroll: false, 
-    componentEnter: false, 
-    componentLeave: false, 
-    render: false 
+    findClosestFocusableComponent: findClosestFocusableComponent, 
+    updateScroll: updateScroll, 
+    componentEnter: componentEnter, 
+    componentLeave: componentLeave, 
+    render: render,
+    removeComponents: removeComponents,
+    addComponents: addComponents,
+    destroyPage: destroyPage,
+    createPage: createPage,
+    goToPage: goToPage,
+    goBack: goBack
   };
 }
 
@@ -131,7 +174,6 @@ struct MenuWindow {
 
   public ref void MarkUpdateScroll() {
     logicActions.updateScroll = true;
-    // UpdateScroll();
   }
 
   # Marks menu to rerender.
@@ -152,7 +194,7 @@ struct MenuWindow {
   }
 
   public ref void SetFocused() {
-    LogHelper($'[{EventPlayer()}] SetFocused');
+    LogHelper($'Set Focused');
 
     focused = true;
 
@@ -201,16 +243,16 @@ struct MenuWindow {
   }
 
   # Forcefully rerenders specified item (or currently hovered one if no `index` is specified). Call after manually adding description.
-  public ref void RerenderItem(in Number index! = -1) {
-    LogHelper($'[{EventPlayer()}] RerenderItem');
+  public ref void RerenderComponent(in Number index = indexes[focusedIndex]) {
+    LogHelper($'Rerender Item: {index}');
 
-    menuComponents[index == -1 ? indexes[focusedIndex] : index].MarkToRerender();
+    menuComponents[index].MarkToRerender();
     MarkToRerender();
   }
 
   # Forcefully rerenders all items.
   public ref void RerenderAllItems() {
-    LogHelper($'[{EventPlayer()}] RerenderAllItems');
+    LogHelper($'Rerender All Items');
 
     for(Number i = 0; i < menuComponents.Length; i++)
       menuComponents[i].MarkToRerender();
@@ -219,7 +261,7 @@ struct MenuWindow {
   }
 
   public ref void Open() {
-    LogHelper($'[{EventPlayer()}] Open');
+    LogHelper($'Open');
 
     if(!open) {
       open = true;
@@ -230,7 +272,7 @@ struct MenuWindow {
   }
 
   public ref void Close() {
-    LogHelper($'[{EventPlayer()}] Close');
+    LogHelper($'Close');
 
     if(open) {
       open = false;
@@ -241,8 +283,13 @@ struct MenuWindow {
   }
 
   // WORKAROUND: for some reason `newPageId` must be stored, otherwise its value will be lost when passed on to HistoryItem.New
-  public ref void GoToPage(String newPageId!, in Boolean historyReplace = false) {
-    LogHelper($'[{EventPlayer()}] GoToPage: going from {pageId} to {newPageId}');
+  public ref void GoToPage(in String newPageId, in Boolean historyReplace = false) {
+    LogHelper('MARKED TO: Go To Page');
+    logicActions.goToPage = WindowGoToPage.New(newPageId, historyReplace);
+  }
+
+  protected ref void _GoToPage(in String newPageId, in Boolean historyReplace = false) {
+    LogHelper($'Go To Page: going from {pageId} to {newPageId}');
 
     if(pageId != newPageId) {
       DestroyPage();
@@ -251,7 +298,12 @@ struct MenuWindow {
   }
 
   public ref void GoBack() {
-    LogHelper($'[{EventPlayer()}] GoBack');
+    LogHelper($'MARKED TO: Go Back');
+    logicActions.goBack = true;
+  }
+
+  protected ref void _GoBack() {
+    LogHelper($'Go Back');
 
     if(history.Length == 1) {
       if(!isRemotelyControlled) Close();
@@ -263,39 +315,51 @@ struct MenuWindow {
   }
 
   # Add items to the menu.
-  public ref void AddItems(in Number[] componentIndexes, in Boolean updateScroll = true) {
-    LogHelper($'[{EventPlayer()}] AddItems: Adding {componentIndexes.Length} items');
+  public ref void AddComponents(in Number[] componentIndexes, in Boolean findClosestFocusableComponent = true) {
+    LogHelper($"MARKED TO: Add Components");
+    logicActions.addComponents = WindowAddRemoveComponents.New(componentIndexes, findClosestFocusableComponent);
+  }
+
+  protected ref void _AddComponents(in Number[] componentIndexes, in Boolean findClosestFocusableComponent = true) {
     indexes += componentIndexes;
 
-    if(updateScroll) {
+    LogHelper($'Add Components: Adding {componentIndexes.Length} items, {indexes.Length} total');
+
+    if(findClosestFocusableComponent) {
       MarkFindClosestFocusableComponent();
     }
   }
 
   // WORKAROUND: for some reason `componentIndexes` must be stored, otherwise its value will be lost when removing the items
   # Removes specified items from the menu. Will automatically clean up components in `menuComponents`.
-  public ref void RemoveItems(Number[] componentIndexes!, in Boolean updateScroll = true) {
-    LogHelper($'[{EventPlayer()}] RemoveItems: Removing {componentIndexes.Length} items');
-    indexes -= componentIndexes;
-    
-    RemoveComponents(componentIndexes);
+  public ref void RemoveComponents(in Number[] componentIndexes, in Boolean findClosestFocusableComponent = true) {
+    LogHelper($"MARKED TO: Remove Components");
+    logicActions.removeComponents = WindowAddRemoveComponents.New(indexes, findClosestFocusableComponent);
+  }
 
-    if(updateScroll) {
+  protected ref void _RemoveComponents(in Number[] componentIndexes, in Boolean findClosestFocusableComponent = true) {
+    indexes -= componentIndexes;
+    UnregisterComponents(componentIndexes);
+
+    LogHelper($'Remove Components: Removing {componentIndexes.Length} items, {indexes.Length} left');
+    
+    if(findClosestFocusableComponent) {
       MarkFindClosestFocusableComponent();
     }
   }
 
   # Removes all items from the menu. Will automatically clean up components in `menuComponents`.
   public ref void RemoveAllItems(in Boolean callOnItemsChanged = true) {
-    RemoveItems(indexes, callOnItemsChanged);
+    LogHelper($'Remove All Items');
+    RemoveComponents(indexes, callOnItemsChanged);
   }
 
   # Replaces all items in the menu. Will automatically clean up removed components in `menuComponents`.
   public ref void ReplaceItems(in Number[] componentIndexes) {
-    LogHelper($'[{EventPlayer()}] ReplaceItems');
+    LogHelper($'Replace Items');
 
     RemoveAllItems(false);
-    AddItems(componentIndexes, false);
+    AddComponents(componentIndexes, true);
 
     // TODO: STRUCT REWORK restore if perf is bad
     // RemoveItems(this.indexes - items, false);
@@ -304,14 +368,20 @@ struct MenuWindow {
     // // keep the order of passed items
     // this.indexes = items;
 
-    MarkFindClosestFocusableComponent();
+    // MarkFindClosestFocusableComponent();
   }
 
-  public ref void CreatePage(in String title, in Number[] indexes, in Description[] descriptions = []) {
-    LogHelper($'[{EventPlayer()}] CreatePage');
+  public ref void CreatePage(in String title, in Number[] componentIndexes, in Description[] descriptions = []) {
+    LogHelper($'MARKED TO: Create Page');
+
+    logicActions.createPage = WindowCreatePage.New(title, componentIndexes, descriptions);
+  }
+
+  protected ref void _CreatePage(in String title, in Number[] componentIndexes, in Description[] descriptions = []) {
+    LogHelper($'Create Page');
 
     SetTitle(title);
-    AddItems(indexes);
+    _AddComponents(componentIndexes);
 
     pageDescriptions += descriptions;
     // foreach(Description desc! in descriptions)
@@ -326,13 +396,19 @@ struct MenuWindow {
   }
 
   public ref void DestroyPage() {
-    LogHelper($'[{EventPlayer()}] DestroyPage');
+    LogHelper($'MARKED TO: Destroy Page');
+    logicActions.destroyPage = true;
+  }
+
+  protected ref void _DestroyPage() {
+    LogHelper($'Destroy Page');
 
     if(open) {
       MarkOnComponentLeave();
     }
 
-    RemoveAllItems(false);
+    RemoveComponents(indexes);
+    // RemoveAllItems(false);
 
     buttonsHeld = [];
     pageDescriptions = [];
@@ -341,9 +417,9 @@ struct MenuWindow {
 
   // phase 1: handle events
   public ref void Navigate(in Vector direction, in Boolean navigationLocked) {
-    LogHelper($'[{EventPlayer()}] Navigate');
+    LogHelper($'Navigate: {direction}');
 
-    OnComponentNavigate(direction, focusedIndex);
+    OnComponentNavigate(direction);
 
     if(!navigationLocked && (direction == Down() || direction == Up())) {
       // TODO: STRUCT REWORK move to a func
@@ -380,10 +456,10 @@ struct MenuWindow {
   }
 
   public ref void ButtonDown(in Button button, in Boolean navigationLocked) {
-    LogHelper($'[{EventPlayer()}] ButtonDown');
+    LogHelper($'Button Down: {button}');
 
     if(open) {
-      OnComponentButtonDown(button, indexes[focusedIndex]);
+      OnComponentButtonDown(button);
 
       switch(focusedComponent.type) {
         case ComponentType.Link:
@@ -401,10 +477,10 @@ struct MenuWindow {
   }
 
   public ref void ButtonUp(in Button button, in Boolean navigationLocked) {
-    LogHelper($'[{EventPlayer()}] ButtonUp');
+    LogHelper($'Button Up: {button}');
 
     if(open) {
-      OnComponentButtonUp(button, indexes[focusedIndex]);
+      OnComponentButtonUp(button,);
       MarkToRerender();
     }
   }
@@ -514,18 +590,18 @@ struct MenuWindow {
       Number index: v[idx];
       Component item: menuComponents[index];
       Component child: menuComponents[item.childIndex];
-      
-      Number[] items! = (item.hasChild ? [item.childIndex] : []) + [index];
-      // LogHelper($"index {index} has {items.Length} items:");
 
       if(item.shouldRerender || child.shouldRerender) {
+        Number[] items! = (item.hasChild ? [item.childIndex] : []) + [index];
+        // LogHelper($"index {index} has {items.Length} items:");
+
         foreach(Number idx2! in items) {
           // LogHelper($"item {idx2}: label - {menuComponents[idx2].label}, rendered text - {RenderComponent(idx2)}");
           menuComponents[idx2].renderedText = RenderComponent(idx2);
           menuComponents[idx2].shouldRerender = false;
         }
 
-        // LogHelper($'Rerendered: {item.renderedText}');
+        LogHelper($'Rerendered component {index}: {item.renderedText}');
       }
 
       renderedTexts.items[idx] = RenderedText.New( 
@@ -545,7 +621,7 @@ struct MenuWindow {
   }
 
   public ref void Render(in Boolean hideKeybindTextWhenClosed) {
-    LogHelper($'[{EventPlayer()}] Render');
+    LogHelper($'Render');
 
     if(open) {
       RenderVisibleItems();
@@ -561,7 +637,7 @@ struct MenuWindow {
 
 
   public ref void FindClosestFocusableComponent() {
-    LogHelper($'[{EventPlayer()}] FindClosestFocusableComponent');
+    LogHelper($'Find Closest Focusable Component');
 
     // TODO: STRUCT REWORK restore
     // if(!indexes) {
@@ -585,7 +661,7 @@ struct MenuWindow {
   }
 
   public ref void UpdateScroll() {
-    LogHelper($'[{EventPlayer()}] UpdateScroll');
+    LogHelper($'Update Scroll');
 
     Number idx! = history.Length - 1;
     Number offset! = 0;
@@ -611,11 +687,34 @@ struct MenuWindow {
 
 
   public ref void RULE_Logic(in Boolean hideKeybindTextWhenClosed) {
-    if((<Boolean[]>logicActions).IndexOf(true) == -1)
-      return;
+    // if((<Boolean[]>logicActions).IndexOf(true) == -1)
+    //   return;
+
+    LogHelper($"========= Executing MenuWindow logic");
+
+    if(logicActions.goBack)
+      _GoBack();
+
+    if(logicActions.goToPage)
+      _GoToPage(logicActions.goToPage.pageId, logicActions.goToPage.replaceLastHistory);
+
+    if(logicActions.destroyPage)
+      _DestroyPage();
 
     if(logicActions.componentLeave)
       OnComponentLeave();
+
+    if(logicActions.removeComponents.indexes.Length)
+      _RemoveComponents(logicActions.removeComponents.indexes, logicActions.removeComponents.updateScroll);
+
+    if(logicActions.destroyPage)
+      MinWait();
+
+    if(logicActions.createPage.indexes.Length)
+      _CreatePage(logicActions.createPage.title, logicActions.createPage.indexes, logicActions.createPage.descriptions);
+
+    if(logicActions.addComponents.indexes.Length)
+      _AddComponents(logicActions.addComponents.indexes, logicActions.addComponents.updateScroll);
 
     if(logicActions.findClosestFocusableComponent)
       FindClosestFocusableComponent();
@@ -630,6 +729,8 @@ struct MenuWindow {
       Render(hideKeybindTextWhenClosed);
 
     logicActions = WindowLogicActions.New();
+
+    LogHelper($"========= Finished Executing MenuWindow logic");    
   }
 }
 
@@ -664,7 +765,7 @@ single struct MenuState {
   };
 
   public ref void CreatePage(in String pageId, in String title, in Number[] indexes, in Description[] descriptions = []) {
-    menuWindows[focusedWindowIndex].CreatePage(title, indexes, descriptions);
+    menuWindows[pageIds.IndexOf(pageId)].CreatePage(title, indexes, descriptions);
   }
 
   public void ButtonDown(Button button!) "MenuState.ButtonDown" {
@@ -985,7 +1086,6 @@ class MenuState3 {
     Log($'{EventPlayer()}: DestroyPage');
 
     if(isOpen) {
-      // TODO: STRUCT REWORK restore
       // hoveredItem.OnLeave();
     }
 

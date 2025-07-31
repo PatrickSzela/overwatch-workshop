@@ -16,6 +16,7 @@ rule: 'Debug/Long List'
 Event.OngoingPlayer
 if(menuState.pageIds.Contains(PAGE_DEBUG_LIST_LONG_ID))
 {
+  // Log("------------- creating long list page");
   menuState.CreatePage(
     pageId: PAGE_DEBUG_LIST_LONG_ID,
     title: PAGE_DEBUG_LIST_LONG_NAME, 

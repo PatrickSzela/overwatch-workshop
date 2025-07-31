@@ -16,8 +16,8 @@ Number[] PageDebugComponentItems() {
       label: label,
       onEnter: () => Log($"{label}: enter"),
       onLeave: () => Log($"{label}: left"),
-      onButtonDown: (button) => Log($"{label}: {button}​ button down"),
-      onButtonUp: (button) => Log($"{label}: {button}​ button up"),
+      onButtonDown: (button) => Log($"{label}: {button} button down"),
+      onButtonUp: (button) => Log($"{label}: {button} button up"),
       onNavigate: (direction) => Log($"{label}: navigated {direction}"),
       onPrimaryAction: () => Log($"{label}: primary action"),
       onPrimaryActionDescription: "Trigger Primary Action", 
@@ -37,6 +37,7 @@ rule: 'Debug/Base Components'
 Event.OngoingPlayer
 if(menuState.pageIds.Contains(PAGE_DEBUG_COMPONENT_ID))
 {
+  // Log("------------- creating base components page");
   menuState.CreatePage(
     pageId: PAGE_DEBUG_COMPONENT_ID,
     title: PAGE_DEBUG_COMPONENT_NAME, 

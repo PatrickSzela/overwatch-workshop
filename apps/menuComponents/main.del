@@ -23,7 +23,6 @@ Event.OngoingPlayer
 {
   menuWindows += MenuWindow.New("root", MENU_OPEN_CLOSE_BUTTONS);
   menuState = MenuState.New("root", EventPlayer() == HostPlayer());
-  menuWindows[0].SetFocused();
 }
 
 rule: 'Generate Menu'

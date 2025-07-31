@@ -20,11 +20,11 @@ Number[] AddComponents(in Component[] components) {
   return indexes;
 }
 
-void RemoveComponent(in Number index) {
+void UnregisterComponent(in Number index) {
   menuComponents.ModRemoveByIndex(index);
 }
 
-void RemoveComponents(in Number[] indexes) {
+void UnregisterComponents(in Number[] indexes) {
   menuComponents -= indexes.Map((i) => menuComponents[i]);
   // foreach(Number i! in indexes) {
   //   Log($"removing component {i}");

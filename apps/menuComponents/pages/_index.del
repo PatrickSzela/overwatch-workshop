@@ -34,6 +34,7 @@ rule: 'Debug'
 Event.OngoingPlayer
 if(menuState.pageIds.Contains(PAGE_DEBUG_ID))
 {
+  // Log("------------- creating debug page");
   menuState.CreatePage(
     pageId: PAGE_DEBUG_ID,
     title: PAGE_DEBUG_NAME, 
