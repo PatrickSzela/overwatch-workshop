@@ -78,26 +78,6 @@ enum ComponentEvent {
   Change
 }
 
-single struct ComponentAction {
-  public String description;
-  public (() => void) action;
-
-  public static ComponentAction New(in String description, in (() => void) action): {
-    description: description,
-    action: action
-  };
-
-  public static Description[] GenerateDescriptions(in ComponentAction[] componentActions):
-    componentActions
-      .FilteredArray((i) => i)
-      .Map((i, idx) => 
-        Description.New(
-          description: $"Press {ButtonFormatterSingle_Underscores(buttonsSettings[idx])} to {i.description}", 
-          order: ButtonDescriptionOrder(buttonsSettings[idx])
-        )
-      );
-}
-
 single struct InputSettings {
   public Number min;
   public Number max;
@@ -156,6 +136,7 @@ struct Component {
   public Number[] parts;
   # Descriptions assigned to the component
   public Description[] descriptions;
+  public String[] actionDescriptions;
   # Color of the displayed text
   public Color color;
   # Whether component is disabled
@@ -253,10 +234,14 @@ struct Component {
     in ((Button) => void) onButtonDown = null,
     in ((Button) => void) onButtonUp = null,
     in ((Vector) => void) onNavigate = null,
-    in ComponentAction onPrimaryAction = null,
-    in ComponentAction onSecondaryAction = null,
-    in ComponentAction onTertiaryAction = null,
-    in ComponentAction onQuaternaryAction = null,
+    in (() => void) onPrimaryAction = null,
+    in String onPrimaryActionDescription = null,
+    in (() => void) onSecondaryAction = null,
+    in String onSecondaryActionDescription = null,
+    in (() => void) onTertiaryAction = null,
+    in String onTertiaryActionDescription = null,
+    in (() => void) onQuaternaryAction = null,
+    in String onQuaternaryActionDescription = null,
     in ((Any) => void) onChange = null
   ): {
     type: type,
@@ -268,7 +253,13 @@ struct Component {
     options: options,
     optionIndex: optionIndex,
     parts: parts,
-    descriptions: descriptions + ComponentAction.GenerateDescriptions([onPrimaryAction, onSecondaryAction, onTertiaryAction, onQuaternaryAction]),
+    descriptions: descriptions,
+    actionDescriptions: [
+      onPrimaryActionDescription, 
+      onSecondaryActionDescription, 
+      onTertiaryActionDescription, 
+      onQuaternaryActionDescription
+    ],
     color: color,
     disabled: disabled,
     inputSettings: inputSettings, 
@@ -294,13 +285,15 @@ struct Component {
       onButtonDown,
       onButtonUp,
       onNavigate,
-      onPrimaryAction.action,
-      onSecondaryAction.action,
-      onTertiaryAction.action,
-      onQuaternaryAction.action,
+      onPrimaryAction,
+      onSecondaryAction,
+      onTertiaryAction,
+      onQuaternaryAction,
       onChange
     ]
   };
+
+  
   
   public ref void AddDescription(in Description description) {
     descriptions += description;

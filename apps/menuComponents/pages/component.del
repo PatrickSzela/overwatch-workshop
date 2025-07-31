@@ -19,22 +19,14 @@ Number[] PageDebugComponentItems() {
       onButtonDown: (button) => Log($"{label}: {button}​ button down"),
       onButtonUp: (button) => Log($"{label}: {button}​ button up"),
       onNavigate: (direction) => Log($"{label}: navigated {direction}"),
-      onPrimaryAction: ComponentAction.New(
-        description: "Trigger Primary Action", 
-        action: () => Log($"{label}: primary action")
-      ),
-      onSecondaryAction: ComponentAction.New(
-        description: "Trigger Secondary Action", 
-        action: () => Log($"{label}: primary action")
-      ),
-      onTertiaryAction: ComponentAction.New(
-        description: "Trigger Tertiary Action", 
-        action: () => Log($"{label}: primary action")
-      ),
-      onQuaternaryAction: ComponentAction.New(
-        description: "Trigger Quaternary Action", 
-        action: () => Log($"{label}: primary action")
-      ),
+      onPrimaryAction: () => Log($"{label}: primary action"),
+      onPrimaryActionDescription: "Trigger Primary Action", 
+      onSecondaryAction: () => Log($"{label}: primary action"),
+      onSecondaryActionDescription: "Trigger Secondary Action", 
+      onTertiaryAction: () => Log($"{label}: primary action"),
+      onTertiaryActionDescription: "Trigger Tertiary Action", 
+      onQuaternaryAction: () => Log($"{label}: primary action"),
+      onQuaternaryActionDescription: "Trigger Quaternary Action", 
     ));
   }
 

@@ -455,7 +455,16 @@ struct MenuWindow {
     //   .SortedArray((i) => i.order)
     //   .Map((i) => <RenderedText>{text: i[0], color: i[1]});
 
+    Description[] actionDescriptions: (
+      focusedComponent.actionDescriptions + 
+      menuComponents[focusedComponent.childIndex].actionDescriptions
+    ).Map((i, idx) => i ? Description.New(
+      description: $"Press {ButtonFormatterSingle_Underscores(buttonsSettings[idx % 4])} to {i}", 
+      order: ButtonDescriptionOrder(buttonsSettings[idx % 4])
+    ) : null);
+
     renderedTexts.descriptions = (
+      actionDescriptions +
       focusedComponent.descriptions + 
       menuComponents[focusedComponent.childIndex].descriptions +
       pageDescriptions + windowDescriptions
