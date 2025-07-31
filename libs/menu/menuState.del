@@ -423,24 +423,29 @@ struct MenuWindow {
 
     if(!navigationLocked && (direction == Down() || direction == Up())) {
       // TODO: STRUCT REWORK move to a func
-      Number offset! = 0;
-      Number[] it! = enabledIndexes;
+      // Number offset! = 0;
+      // Number[] enabled! = enabledIndexes;
 
       // LogHelper($"current idx: {focusedIndex}");
 
-      if(direction == Down()) {
-        Number[] nextItemIdxs! = indexes.FilteredArray((i, idx) => !menuComponents[i].disabled && idx > focusedIndex);
+      // if(direction == Down()) {
+      //   Number[] nextItemIdxs! = indexes.FilteredArray((i, idx) => !menuComponents[i].disabled && idx > focusedIndex);
 
-        offset = indexes.IndexOf(nextItemIdxs ? nextItemIdxs.First : it.First) - focusedIndex;
+      //   offset = indexes.IndexOf(FirstOf(nextItemIdxs.Length ? nextItemIdxs : enabled)) - focusedIndex;
 
-        // LogHelper($"next offset: {offset}");
-      } else if(direction == Up()) {
-        Number[] prevItemIdxs! = indexes.FilteredArray((i, idx) => !menuComponents[i].disabled && idx < focusedIndex);
+      //   // LogHelper($"next offset: {offset}");
+      // } else if(direction == Up()) {
+      //   Number[] prevItemIdxs! = indexes.FilteredArray((i, idx) => !menuComponents[i].disabled && idx < focusedIndex);
 
-        offset = indexes.IndexOf(prevItemIdxs ? prevItemIdxs.Last : it.Last) - focusedIndex;
+      //   offset = indexes.IndexOf(LastOf(prevItemIdxs.Length ? prevItemIdxs : enabled)) - focusedIndex;
 
-        // LogHelper($"prev offset: {offset}");
-      }
+      //   // LogHelper($"prev offset: {offset}");
+      // }
+
+      Number[] componentIndexes! = indexes.FilteredArray((i, idx) => !menuComponents[i].disabled && (direction == Down() ? (idx > focusedIndex) : (idx < focusedIndex)));
+      componentIndexes = componentIndexes.Length ? componentIndexes : enabledIndexes;
+
+      Number offset! = indexes.IndexOf(direction == Down() ? componentIndexes.First : componentIndexes.Last) - focusedIndex;
 
       if(offset != 0) {
         MarkOnComponentLeave();
