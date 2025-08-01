@@ -8,7 +8,7 @@ class Toggle {
   public static Component New(
     in String label,
     in String name = null,
-    in (() => Boolean) defaultChecked = null,
+    in Boolean defaultChecked = false,
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
     in Button button = BUTTON_TOGGLE,
@@ -33,7 +33,7 @@ class Toggle {
     type: ComponentType.Toggle,
     label: label,
     name: name,
-    value: defaultChecked(),
+    value: defaultChecked,
     defaultValue: defaultChecked,
     childIndex: childIndex,
     valueFormatter: BooleanFormatterOnOff,

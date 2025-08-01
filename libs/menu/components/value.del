@@ -3,7 +3,7 @@ import './component.del';
 class Value {
   public static Component New(
     in String label,
-    in (() => Any) defaultValue,
+    in Any defaultValue,
     in String name = null,
     in ((Any) => String) valueFormatter = (value) => value,
     in Description[] descriptions = [],
@@ -28,7 +28,7 @@ class Value {
     type: ComponentType.Text, 
     label: label,
     name: name,
-    value: defaultValue(),
+    value: defaultValue,
     defaultValue: defaultValue,
     valueFormatter: valueFormatter,
     descriptions: descriptions,

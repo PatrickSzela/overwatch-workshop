@@ -7,6 +7,7 @@ import './components/link.del';
 import './components/toggle.del';
 import './components/value.del';
 import './components/carousel.del';
+import './components/numberInput.del';
 
 playervar MenuWindow[] menuWindows = [];
 
@@ -322,6 +323,10 @@ struct MenuWindow {
       case ComponentType.Carousel:
         Carousel.Navigate(menuComponents[focusedIndex], direction);
         break;
+
+      case ComponentType.NumberInput:
+        NumberInput.Navigate(menuComponents[focusedIndex], direction);
+        break;
     }
 
     if(!navigationLocked && (direction == Down() || direction == Up())) {
@@ -359,6 +364,10 @@ struct MenuWindow {
 
         case ComponentType.Toggle:
           Toggle.ButtonDown(menuComponents[focusedIndex], button);
+          break;
+
+        case ComponentType.NumberInput:
+          NumberInput.ButtonDown(menuComponents[focusedIndex], button);
           break;
       }
 
@@ -464,7 +473,7 @@ struct MenuWindow {
       case ComponentType.TextInput:
         return '';
       case ComponentType.NumberInput:
-        return '';
+        return NumberInput.Render(menuComponents[index]);
     }
   }
 

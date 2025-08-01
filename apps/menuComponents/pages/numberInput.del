@@ -4,45 +4,42 @@ import '../_variables.del';
 String PAGE_DEBUG_NUMBER_INPUT_ID: 'numberInput';
 String PAGE_DEBUG_NUMBER_INPUT_NAME: 'Number Input';
 
-Component[] PageDebugNumberInputItems() {
-  NumberInput[] list = [new NumberInput(menuState, "Integer")];
-  list.Last.onChange = (value, it) => Log($"{it.text}: value changed to {value}");
-
-  list += new NumberInput(
-    menuState: menuState, 
-    text: "Float",
-    fractionalLength: 2
-  );
-  list.Last.onChange = (value, it) => Log($"{it.text}: value changed to {value}");
-
-  list += new NumberInput(
-    menuState: menuState, 
-    text: "Integer with 5 length and default value",
-    integralLength: 5,
-    defaultValue: 12345
-  );
-  list.Last.onChange = (value, it) => Log($"{it.text}: value changed to {value}");
-
-  list += new NumberInput(
-    menuState: menuState, 
-    text: "Float with 4+3 length, default value and unit",
-    defaultValue: -1234.5678,
-    integralLength: 4,
-    fractionalLength: 3,
-    negative: true,
-    unit: '%'
-  );
-  list.Last.onChange = (value, it) => Log($"{it.text}: value changed to {value}");
-
-  return list;
+Number[] PageDebugNumberInputItems() {
+  return AddComponents([
+    NumberInput.New(
+      label: "Integer",
+      onChange: (value) => Log($"Integer: value changed to {value}")
+    ),
+    NumberInput.New(
+      label: "Float",
+      fractionalLength: 2,
+      onChange: (value) => Log($"Float: value changed to {value}")
+    ),
+    NumberInput.New(
+      label: "Integer with 5 length and default value",
+      integralLength: 5,
+      defaultValue: 12345,
+      onChange: (value) => Log($"Integer with 5 length and default value: value changed to {value}")
+    ),
+    NumberInput.New(
+      label: "Float with 4+3 length, default value and unit",
+      defaultValue: -1234.567,
+      integralLength: 4,
+      fractionalLength: 3,
+      negative: true,
+      unit: '%',
+      onChange: (value) => Log($"Float with 4+3 length, default value and unit: value changed to {value}")
+    )
+  ]);
 }
 
 rule: 'Debug/NumberInput'
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_NUMBER_INPUT_ID)
+if(menuState.CreatePageRequested(PAGE_DEBUG_NUMBER_INPUT_ID))
 {
   menuState.CreatePage(
+    pageId: PAGE_DEBUG_NUMBER_INPUT_ID, 
     title: PAGE_DEBUG_NUMBER_INPUT_NAME, 
-    items: PageDebugNumberInputItems()
+    indexes: PageDebugNumberInputItems()
   );
 }

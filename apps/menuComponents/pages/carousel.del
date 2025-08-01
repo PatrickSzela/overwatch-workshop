@@ -14,11 +14,12 @@ Number[] PageDebugCarouselItems() {
     Carousel.New(
       label: "Three options with \"2\" as default value",
       options: ["1", "2", "3"],
-      defaultValue: () => "2",
+      defaultValue: "2",
     ),
     Carousel.New(
       label: "Custom formatter & events",
       options: AllHeroes(), 
+      defaultValue: HeroOf(),
       valueFormatter: (value) => HeroWithIconFormatter(value),
       onChange: (value) => Log($"Custom formatter & events: value changed to \"{value}\"")
     )

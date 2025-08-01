@@ -77,8 +77,8 @@ struct Component {
   # - `Carousel` - stores currently selected option
   # - `TextInput`, `NumberInput` - stores merged `parts`
   public Any value;
-  # Function to retrieve default value
-  public (() => Any) defaultValue;
+  # Default value of the component
+  public Any defaultValue;
   # Formatter that generates nicely formatted String from a `value`
   public ((Any) => String) valueFormatter;
   # Available options
@@ -178,7 +178,7 @@ struct Component {
     in ComponentType type = ComponentType.Component,
     in String name = null,
     in Any value = null,
-    in (() => Any) defaultValue = null,
+    in Any defaultValue = null,
     in ((Any) => String) valueFormatter = null,
     in Any[] options = [],
     in Number optionIndex = 0,
