@@ -1,14 +1,30 @@
 import './component.del';
 
 class Carousel {
-  public static Number New(
+  public static Component New(
     in String label,
     in Any[] options,
     in String name = null,
     in (() => Any) defaultValue = null,
     in ((Any) => String) valueFormatter = null,
     in Description[] descriptions = [],
-    in Color color = COLOR_NEUTRAL
+    in Color color = COLOR_NEUTRAL,
+
+    in (() => void) onRender = null,
+    in (() => void) onEnter = null,
+    in (() => void) onLeave = null,
+    in ((Button) => void) onButtonDown = null,
+    in ((Button) => void) onButtonUp = null,
+    in ((Vector) => void) onNavigate = null,
+    in (() => void) onPrimaryAction = null,
+    in String onPrimaryActionDescription = null,
+    in (() => void) onSecondaryAction = null,
+    in String onSecondaryActionDescription = null,
+    in (() => void) onTertiaryAction = null,
+    in String onTertiaryActionDescription = null,
+    in (() => void) onQuaternaryAction = null,
+    in String onQuaternaryActionDescription = null,
+    in ((Any) => void) onChange = null
   ): Component.New(
     type: ComponentType.Carousel,
     label: label,
@@ -22,7 +38,23 @@ class Carousel {
     descriptions: [
       Description.New('Use [←] or [→] to select an option', order: -19)
     ] + descriptions,
-    color: color
+    color: color,
+
+    onRender: onRender,
+    onEnter: onEnter,
+    onLeave: onLeave,
+    onButtonDown: onButtonDown,
+    onButtonUp: onButtonUp,
+    onNavigate: onNavigate,
+    onPrimaryAction: onPrimaryAction,
+    onPrimaryActionDescription: onPrimaryActionDescription,
+    onSecondaryAction: onSecondaryAction,
+    onSecondaryActionDescription: onSecondaryActionDescription,
+    onTertiaryAction: onTertiaryAction,
+    onTertiaryActionDescription: onTertiaryActionDescription,
+    onQuaternaryAction: onQuaternaryAction,
+    onQuaternaryActionDescription: onQuaternaryActionDescription,
+    onChange: onChange,
   );
 
   // protected void CarouselConstructor(

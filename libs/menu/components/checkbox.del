@@ -1,14 +1,30 @@
 import './toggle.del';
 
 class Checkbox {
-  public static Number New(
+  public static Component New(
     in String label, 
     in String name = null,
     in (() => Boolean) defaultChecked = null,
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
     in Button button = Toggle.BUTTON_TOGGLE,
-    in Number childIndex = -1
+    in Number childIndex = -1,
+
+    in (() => void) onRender = null,
+    in (() => void) onEnter = null,
+    in (() => void) onLeave = null,
+    in ((Button) => void) onButtonDown = null,
+    in ((Button) => void) onButtonUp = null,
+    in ((Vector) => void) onNavigate = null,
+    in (() => void) onPrimaryAction = null,
+    in String onPrimaryActionDescription = null,
+    in (() => void) onSecondaryAction = null,
+    in String onSecondaryActionDescription = null,
+    in (() => void) onTertiaryAction = null,
+    in String onTertiaryActionDescription = null,
+    in (() => void) onQuaternaryAction = null,
+    in String onQuaternaryActionDescription = null,
+    in ((Any) => void) onChange = null
   ): Component.New(
     type: ComponentType.Checkbox,
     label: label, 
@@ -20,7 +36,23 @@ class Checkbox {
     ] + descriptions,
     color: color,
     button: button,
-    childIndex: childIndex
+    childIndex: childIndex,
+
+    onRender: onRender,
+    onEnter: onEnter,
+    onLeave: onLeave,
+    onButtonDown: onButtonDown,
+    onButtonUp: onButtonUp,
+    onNavigate: onNavigate,
+    onPrimaryAction: onPrimaryAction,
+    onPrimaryActionDescription: onPrimaryActionDescription,
+    onSecondaryAction: onSecondaryAction,
+    onSecondaryActionDescription: onSecondaryActionDescription,
+    onTertiaryAction: onTertiaryAction,
+    onTertiaryActionDescription: onTertiaryActionDescription,
+    onQuaternaryAction: onQuaternaryAction,
+    onQuaternaryActionDescription: onQuaternaryActionDescription,
+    onChange: onChange,
   );
 
   // public override void Render() "[Checkbox] Render" {

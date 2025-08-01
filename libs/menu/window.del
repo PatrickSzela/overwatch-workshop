@@ -4,6 +4,7 @@ import './helpers.del';
 import './components/component.del';
 import './components/text.del';
 import './components/link.del';
+import './components/toggle.del';
 
 playervar MenuWindow[] menuWindows = [];
 
@@ -347,6 +348,10 @@ struct MenuWindow {
           if(buttonsHeld == [focusedComponent.button])
             GoToPage(focusedComponent.value);
           break;
+
+        case ComponentType.Toggle:
+          Toggle.ButtonDown(menuComponents[focusedIndex], button);
+          break;
       }
 
       if(!navigationLocked && buttonsHeld == [BUTTON_BACK]) {
@@ -442,7 +447,7 @@ struct MenuWindow {
       case ComponentType.Link:
         return Link.Render(menuComponents[index]);
       case ComponentType.Toggle:
-        return '';
+        return Toggle.Render(menuComponents[index]);
       case ComponentType.Checkbox:
         return '';
       case ComponentType.Radio:

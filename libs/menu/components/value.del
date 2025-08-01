@@ -1,7 +1,7 @@
 import './component.del';
 
 class Value {
-  public static Number New(
+  public static Component New(
     in String label,
     in (() => Any) defaultValue,
     in String name = null,
@@ -15,10 +15,14 @@ class Value {
     in ((Button) => void) onButtonDown = null,
     in ((Button) => void) onButtonUp = null,
     in ((Vector) => void) onNavigate = null,
-    in ComponentAction onPrimaryAction = null,
-    in ComponentAction onSecondaryAction = null,
-    in ComponentAction onTertiaryAction = null,
-    in ComponentAction onQuaternaryAction = null,
+    in (() => void) onPrimaryAction = null,
+    in String onPrimaryActionDescription = null,
+    in (() => void) onSecondaryAction = null,
+    in String onSecondaryActionDescription = null,
+    in (() => void) onTertiaryAction = null,
+    in String onTertiaryActionDescription = null,
+    in (() => void) onQuaternaryAction = null,
+    in String onQuaternaryActionDescription = null,
     in ((Any) => void) onChange = null
   ): Component.New(
     type: ComponentType.Text, 
@@ -37,9 +41,13 @@ class Value {
     onButtonUp: onButtonUp,
     onNavigate: onNavigate,
     onPrimaryAction: onPrimaryAction,
+    onPrimaryActionDescription: onPrimaryActionDescription,
     onSecondaryAction: onSecondaryAction,
+    onSecondaryActionDescription: onSecondaryActionDescription,
     onTertiaryAction: onTertiaryAction,
+    onTertiaryActionDescription: onTertiaryActionDescription,
     onQuaternaryAction: onQuaternaryAction,
-    onChange: onChange
+    onQuaternaryActionDescription: onQuaternaryActionDescription,
+    onChange: onChange,
   );
 }

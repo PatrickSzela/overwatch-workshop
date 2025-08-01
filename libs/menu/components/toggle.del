@@ -5,14 +5,30 @@ import './component.del';
 class Toggle {
   public static Button BUTTON_TOGGLE: BUTTON_PRIMARY;
 
-  public static Number New(
+  public static Component New(
     in String label,
     in String name = null,
     in (() => Boolean) defaultChecked = null,
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
     in Button button = BUTTON_TOGGLE,
-    in Number childIndex = -1
+    in Number childIndex = -1,
+
+    in (() => void) onRender = null,
+    in (() => void) onEnter = null,
+    in (() => void) onLeave = null,
+    in ((Button) => void) onButtonDown = null,
+    in ((Button) => void) onButtonUp = null,
+    in ((Vector) => void) onNavigate = null,
+    in (() => void) onPrimaryAction = null,
+    in String onPrimaryActionDescription = null,
+    in (() => void) onSecondaryAction = null,
+    in String onSecondaryActionDescription = null,
+    in (() => void) onTertiaryAction = null,
+    in String onTertiaryActionDescription = null,
+    in (() => void) onQuaternaryAction = null,
+    in String onQuaternaryActionDescription = null,
+    in ((Any) => void) onChange = null
   ): Component.New(
     type: ComponentType.Toggle,
     label: label,
@@ -22,11 +38,36 @@ class Toggle {
     childIndex: childIndex,
     valueFormatter: BooleanFormatterOnOff,
     descriptions: [
-      Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE))
+      Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)} to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE))
     ] + descriptions,
     color: color,
-    button: button
+    button: button,
+
+    onRender: onRender,
+    onEnter: onEnter,
+    onLeave: onLeave,
+    onButtonDown: onButtonDown,
+    onButtonUp: onButtonUp,
+    onNavigate: onNavigate,
+    onPrimaryAction: onPrimaryAction,
+    onPrimaryActionDescription: onPrimaryActionDescription,
+    onSecondaryAction: onSecondaryAction,
+    onSecondaryActionDescription: onSecondaryActionDescription,
+    onTertiaryAction: onTertiaryAction,
+    onTertiaryActionDescription: onTertiaryActionDescription,
+    onQuaternaryAction: onQuaternaryAction,
+    onQuaternaryActionDescription: onQuaternaryActionDescription,
+    onChange: onChange,
   );
+
+  public static String Render(ref Component component) {
+    return $"{component.label}: {BooleanFormatterOnOff(component.value)}";
+  }
+
+  public static void ButtonDown(ref Component component, in Button button) {
+    if(buttonsHeld == [component.button])
+      component.SetValue(!component.value);
+  }
   
 
   // protected void ToggleConstructor(

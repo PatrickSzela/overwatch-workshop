@@ -5,16 +5,16 @@ import '../_variables.del';
 String PAGE_DEBUG_TOGGLE_ID: 'toggle';
 String PAGE_DEBUG_TOGGLE_NAME: 'Toggle';
 
-Component[] PageDebugToggleItems() {
-  Toggle[] list = [];
+Number[] PageDebugToggleItems() {
+  Number[] list = [];
 
   for(Number i! = 0; i <= 1; i++) {
-    list += new Toggle(
-      text: $"Item {i + 1}", 
-      defaultChecked: i == 1
-    );
-
-    list.Last.onChange = (checked, it) => Log($'{it.text}: value changed to {checked}');
+    String label: $"Interactive {i + 1}";
+    list += AddComponent(Toggle.New(
+      label: label, 
+      defaultChecked: () => i == 1,
+      onChange: (checked) => Log($'{label}: value changed to {checked}')
+    ));
   }
 
   return list;
@@ -22,10 +22,11 @@ Component[] PageDebugToggleItems() {
 
 rule: 'Debug/Toggle'
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_TOGGLE_ID)
+if(menuState.CreatePageRequested(PAGE_DEBUG_TOGGLE_ID))
 {
   menuState.CreatePage(
+    pageId: PAGE_DEBUG_TOGGLE_ID,
     title: PAGE_DEBUG_TOGGLE_NAME, 
-    items: PageDebugToggleItems()
+    indexes: PageDebugToggleItems()
   );
 }

@@ -1,3 +1,4 @@
+import '../window.del';
 import './component.del';
 
 class Link {
@@ -7,7 +8,22 @@ class Link {
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
     in Button button = BUTTON_PRIMARY,
-    in Number childIndex = -1
+    in Number childIndex = -1,
+
+    in (() => void) onRender = null,
+    in (() => void) onEnter = null,
+    in (() => void) onLeave = null,
+    in ((Button) => void) onButtonDown = null,
+    in ((Button) => void) onButtonUp = null,
+    in ((Vector) => void) onNavigate = null,
+    in (() => void) onPrimaryAction = null,
+    in String onPrimaryActionDescription = null,
+    in (() => void) onSecondaryAction = null,
+    in String onSecondaryActionDescription = null,
+    in (() => void) onTertiaryAction = null,
+    in String onTertiaryActionDescription = null,
+    in (() => void) onQuaternaryAction = null,
+    in String onQuaternaryActionDescription = null
   ): Component.New(
     type: ComponentType.Link,
     label: label,
@@ -19,17 +35,27 @@ class Link {
       )
     ],
     button: button,
-    childIndex: childIndex
+    childIndex: childIndex,
+
+    onRender: onRender,
+    onEnter: onEnter,
+    onLeave: onLeave,
+    onButtonDown: onButtonDown,
+    onButtonUp: onButtonUp,
+    onNavigate: onNavigate,
+    onPrimaryAction: onPrimaryAction,
+    onPrimaryActionDescription: onPrimaryActionDescription,
+    onSecondaryAction: onSecondaryAction,
+    onSecondaryActionDescription: onSecondaryActionDescription,
+    onTertiaryAction: onTertiaryAction,
+    onTertiaryActionDescription: onTertiaryActionDescription,
+    onQuaternaryAction: onQuaternaryAction,
+    onQuaternaryActionDescription: onQuaternaryActionDescription,
   );
 
   public static String Render(ref Component component) {
     return $"{menuComponents[component.childIndex].renderedText || component.label}​ ▶";
   }
-
-  // public override void Render() "[Link] Render" {
-  //   onRender(this);
-  //   renderedText = $"{child.renderedText || text}​ ▶";
-  // }
 
   // public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {
   //   onButtonDown(button, this);
