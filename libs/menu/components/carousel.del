@@ -6,7 +6,7 @@ class Carousel {
     in Any[] options,
     in String name = null,
     in (() => Any) defaultValue = null,
-    in ((Any) => String) valueFormatter = null,
+    in ((Any) => String) valueFormatter = (value) => value,
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
 
@@ -56,6 +56,29 @@ class Carousel {
     onQuaternaryActionDescription: onQuaternaryActionDescription,
     onChange: onChange,
   );
+
+  public static String Render(ref Component component) {
+    if(component.options.Length == 0) return $"{component.label}: Empty";
+    else return $"{component.label}: ← {component.valueFormatter(component.value)} →";
+  }
+
+  public static void Navigate(ref Component component, in Vector direction) {
+    Number index! = component.optionIndex;
+    Any[] options! = component.options;
+    
+    if(index == -1) {
+      index = 0;
+    } else {
+      if(direction == Right()) index--;
+      else if(direction == Left()) index++;
+
+      if(index < 0) index = options.Length - 1;
+      else if(index > options.Length - 1) index = 0;
+    }
+
+    component.optionIndex = index;
+    component.SetValue(options[index]);
+  }
 
   // protected void CarouselConstructor(
   //   String text!,

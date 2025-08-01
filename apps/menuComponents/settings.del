@@ -36,7 +36,7 @@ Created by: PatPatPatriq"
   }
   workshop
   {
-    Enable Inspector: On
+    Enable Inspector: Off
     Show Diagnostics: On
   }
 }

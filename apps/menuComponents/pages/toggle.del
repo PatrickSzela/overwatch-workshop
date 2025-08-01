@@ -9,7 +9,7 @@ Number[] PageDebugToggleItems() {
   Number[] list = [];
 
   for(Number i! = 0; i <= 1; i++) {
-    String label: $"Interactive {i + 1}";
+    String label: $"Toggle {i + 1}";
     list += AddComponent(Toggle.New(
       label: label, 
       defaultChecked: () => i == 1,

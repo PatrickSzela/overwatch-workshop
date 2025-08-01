@@ -3,7 +3,7 @@ import '../../../libs/menu/components/text.del';
 import '../_variables.del';
 import './component.del';
 import './toggle.del';
-// import './carousel.del';
+import './carousel.del';
 // import './numberInput.del';
 // import './checkbox.del';
 // import './radio.del';
@@ -18,7 +18,7 @@ Number[] PageDebugItems() {
     Text.New("Components:"),
     Link.New(PAGE_DEBUG_COMPONENT_NAME, PAGE_DEBUG_COMPONENT_ID),
     Link.New(PAGE_DEBUG_TOGGLE_NAME, PAGE_DEBUG_TOGGLE_ID),
-    // Link.New(PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
+    Link.New(PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
     // Link.New(PAGE_DEBUG_NUMBER_INPUT_NAME, PAGE_DEBUG_NUMBER_INPUT_ID),
     // Link.New(PAGE_DEBUG_CHECKBOX_NAME, PAGE_DEBUG_CHECKBOX_ID),
     // Link.New(PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),

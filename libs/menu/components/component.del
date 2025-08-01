@@ -91,7 +91,7 @@ struct Component {
   # Usable by:
   # - `Carousel`
   # - `TextInput`, `NumberInput`
-  protected Number optionIndex;
+  public Number optionIndex;
   # Value split into parts
   # 
   # Usable by:

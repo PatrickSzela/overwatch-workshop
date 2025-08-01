@@ -5,8 +5,8 @@ import '../_variables.del';
 String PAGE_DEBUG_CAROUSEL_ID: 'carousel';
 String PAGE_DEBUG_CAROUSEL_NAME: 'Carousel';
 
-Component[] PageDebugCarouselItems() {
-  Component[] items = [
+Number[] PageDebugCarouselItems() {
+  Number[] items = AddComponents([
     Carousel.New("Empty", []),
     Carousel.New("One option", ["1"]),
     Carousel.New("Two options", ["1", "2"]),
@@ -19,21 +19,21 @@ Component[] PageDebugCarouselItems() {
     Carousel.New(
       label: "Custom formatter & events",
       options: AllHeroes(), 
+      valueFormatter: (value) => HeroWithIconFormatter(value),
+      onChange: (value) => Log($"Custom formatter & events: value changed to \"{value}\"")
     )
-  ];
-
-  items.Last.valueFormatter = (value) => HeroWithIconFormatter(value);
-  items.Last.onChange = (value) => Log($"{items.Last}: value changed to \"{value}\"");
+  ]);
 
   return items;
 }
 
 rule: 'Debug/Carousel'
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_CAROUSEL_ID)
+if(menuState.CreatePageRequested(PAGE_DEBUG_CAROUSEL_ID))
 {
   menuState.CreatePage(
+    pageId: PAGE_DEBUG_CAROUSEL_ID,
     title: PAGE_DEBUG_CAROUSEL_NAME, 
-    items: PageDebugCarouselItems()
+    indexes: PageDebugCarouselItems()
   );
 }
