@@ -32,7 +32,7 @@ class Checkbox {
     defaultValue: defaultChecked,
     value: defaultChecked,
     descriptions: [
-      Description.New($"Press {ButtonFormatterSingle_Underscores(button)}​ to toggle", order: ButtonDescriptionOrder(button))
+      Description.New($"Press {ButtonFormatterSingle_Underscores(button)} to toggle", order: ButtonDescriptionOrder(button))
     ] + descriptions,
     color: color,
     button: button,
@@ -55,8 +55,7 @@ class Checkbox {
     onChange: onChange,
   );
 
-  // public override void Render() "[Checkbox] Render" {
-  //   onRender(this);
-  //   renderedText = $"{checked ? "[✓]" : "[    ]"}​ {child.renderedText || text}";
-  // }
+  public static String Render(ref Component component) {
+    return $"{component.value ? "[✓]" : "[    ]"} {menuComponents[component.childIndex].renderedText || component.label}";
+  }
 }

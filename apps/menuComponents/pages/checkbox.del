@@ -5,16 +5,15 @@ import '../_variables.del';
 String PAGE_DEBUG_CHECKBOX_ID: 'checkbox';
 String PAGE_DEBUG_CHECKBOX_NAME: 'Checkbox';
 
-Component[] PageDebugCheckboxItems() {
-  Component[] items = [];
+Number[] PageDebugCheckboxItems() {
+  Number[] items = [];
 
   for(Number i! = 1; i <= 10; i++) {
-    items += Checkbox.New(
+    items += AddComponent(Checkbox.New(
       label: $"Item {i}", 
-      defaultChecked: () => EvaluateOnce(i) == 5
-    );
-
-    items.Last.onChange = (checked) => Log($'{items.Last}: value changed to {checked}');
+      defaultChecked: i == 5,
+      onChange: (checked) => Log($'Item {i}: value changed to {checked}')
+    ));
   }
 
   return items;
@@ -22,10 +21,11 @@ Component[] PageDebugCheckboxItems() {
 
 rule: 'Debug/Checkbox'
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_CHECKBOX_ID)
+if(menuState.CreatePageRequested(PAGE_DEBUG_CHECKBOX_ID))
 {
   menuState.CreatePage(
+    pageId: PAGE_DEBUG_CHECKBOX_ID,
     title: PAGE_DEBUG_CHECKBOX_NAME, 
-    items: PageDebugCheckboxItems()
+    indexes: PageDebugCheckboxItems()
   );
 }

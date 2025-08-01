@@ -310,7 +310,7 @@ struct Component {
     callbacks[<Number>ComponentEvent.Change] = callback;
   }
 
-  public ref void SetValue(in Any newValue) {
+  public ref void SetValue(Any newValue!) {
     if(value != newValue) {
       value = newValue;
       onChange(newValue);

@@ -363,6 +363,8 @@ struct MenuWindow {
           break;
 
         case ComponentType.Toggle:
+        case ComponentType.Checkbox:
+        case ComponentType.Radio:
           Toggle.ButtonDown(menuComponents[focusedIndex], button);
           break;
 
@@ -465,7 +467,7 @@ struct MenuWindow {
       case ComponentType.Link:
         return Link.Render(menuComponents[index]);
       case ComponentType.Checkbox:
-        return '';
+        return Checkbox.Render(menuComponents[index]);
       case ComponentType.Radio:
         return '';
       case ComponentType.Carousel:

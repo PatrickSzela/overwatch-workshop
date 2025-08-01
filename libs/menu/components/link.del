@@ -54,7 +54,7 @@ class Link {
   );
 
   public static String Render(ref Component component) {
-    return $"{menuComponents[component.childIndex].renderedText || component.label}​ ▶";
+    return $"{menuComponents[component.childIndex].renderedText || component.label} ▶";
   }
 
   // public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {
