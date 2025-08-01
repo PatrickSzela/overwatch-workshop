@@ -7,6 +7,11 @@ import './component.del';
 // TODO: split main logic into shared Input
 // TODO: min, max?
 
+globalvar Description[] NUMBER_INPUT_DESCRIPTIONS! = [
+  Description.New('Use [↑] or [↓] to increase/decrease current number', visible: false, order: -19),
+  Description.New('Use [←] or [→] to change currently edited number', visible: false, order: -18)
+];
+
 # NOTE: number passed in `defaultValue` will lose its precision because of Workshop limitations
 class NumberInput {
   public static Button BUTTON_EDIT_MODE: BUTTON_QUATERNARY;
@@ -47,10 +52,8 @@ class NumberInput {
     defaultValue: defaultValue,
     optionIndex: negative ? 0 : 1,
     descriptions: [
-      Description.New($'Press {ButtonFormatterSingle_Underscores(BUTTON_EDIT_MODE)}​ to toggle Edit Mode', COLOR_SWITCH, order: -20),
-      Description.New('Use [↑] or [↓] to increase/decrease current number', visible: false, order: -19),
-      Description.New('Use [←] or [→] to change currently edited number', visible: false, order: -18)
-    ] + descriptions,
+      Description.New($'Press {ButtonFormatterSingle_Underscores(button)}​ to toggle Edit Mode', COLOR_SWITCH, order: -20)
+    ] + NUMBER_INPUT_DESCRIPTIONS + descriptions,
     color: color,
     inputSettings: InputSettings.New(
       negative: negative,
