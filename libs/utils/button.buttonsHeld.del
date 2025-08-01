@@ -1,0 +1,80 @@
+import './helpers.del';
+
+# List of currently pressed buttons by a player.
+playervar Button[] buttonsHeld = [];
+
+void ButtonHelper(in Button button) {
+  buttonsHeld += button;
+  WaitForeverUntil(!EventPlayer().IsButtonHeld(button));
+  buttonsHeld -= button;
+}
+
+rule: '[MenuState]: Interacted with menu - Ability 1'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Ability1))
+{
+  ButtonHelper(Button.Ability1);
+}
+
+rule: '[MenuState]: Interacted with menu - Ability 2'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Ability2))
+{
+  ButtonHelper(Button.Ability2);
+}
+
+rule: '[MenuState]: Interacted with menu - Crouch'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Crouch))
+{
+  ButtonHelper(Button.Crouch);
+}
+
+rule: '[MenuState]: Interacted with menu - Interact'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Interact))
+{
+  ButtonHelper(Button.Interact);
+}
+
+rule: '[MenuState]: Interacted with menu - Jump'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Jump))
+{
+  ButtonHelper(Button.Jump);
+}
+
+rule: '[MenuState]: Interacted with menu - Melee'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Melee))
+{
+  ButtonHelper(Button.Melee);
+}
+
+rule: '[MenuState]: Interacted with menu - Primary Fire'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
+{
+  ButtonHelper(Button.PrimaryFire);
+}
+
+rule: '[MenuState]: Interacted with menu - Reload'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Reload))
+{
+  ButtonHelper(Button.Reload);
+}
+
+rule: '[MenuState]: Interacted with menu - Secondary Fire'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.SecondaryFire))
+{
+  ButtonHelper(Button.SecondaryFire);
+}
+
+rule: '[MenuState]: Interacted with menu - Ultimate'
+Event.OngoingPlayer
+if(EventPlayer().IsButtonHeld(Button.Ultimate))
+{
+  ButtonHelper(Button.Ultimate);
+}
