@@ -30,11 +30,11 @@ class Carousel {
     label: label,
     name: name,
     // TODO: handle that somewhere else?
-    value: options.Contains(defaultValue()) ? defaultValue() : options.First,
+    value: defaultValue != null ? defaultValue() : options.First,
     defaultValue: defaultValue,
     valueFormatter: valueFormatter,
     options: options,
-    optionIndex: options.Contains(defaultValue()) ? options.IndexOf(defaultValue()) : 0,
+    optionIndex: defaultValue != null ? options.IndexOf(defaultValue()) : 0,
     descriptions: [
       Description.New('Use [←] or [→] to select an option', order: -19)
     ] + descriptions,
