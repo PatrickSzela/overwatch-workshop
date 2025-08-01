@@ -1,5 +1,6 @@
-import '../utils/array.del';
-import './menuState.del';
+import '../utils/index.del';
+import './state.del';
+import './window.del';
 
 // TODO: mention support for up to 1 children in Component
 // TODO: mention about lambda size limit and why its better to use rules for longer code (but there might be some race conditions happening, so better call subroutine in callback)

@@ -1,0 +1,138 @@
+import '../utils/index.del';
+
+void LogHelper(in Any text) {
+  // LogToInspector(text);
+}
+
+single struct Description {
+  public String text;
+  public Color color;
+  public Boolean visible;
+  public Number order;
+
+  public static Description New(in String description, in Color color = COLOR_NEUTRAL, in Boolean visible = true, in Number order = 0): 
+    { text: description, color: color, visible: visible, order: order };
+
+  public static Description BASE: {
+    text: '',
+    color: COLOR_NEUTRAL,
+    visible: true,
+    order: 0
+  };
+}
+
+single struct InputSettings {
+  public Number min;
+  public Number max;
+  public Boolean negative;
+  public Number integralLength;
+  public Number fractionalLength;
+  public Number length;
+  public String unit;
+
+  public static InputSettings New(Number min = NUMBER_MIN, Number max = NUMBER_MAX, Boolean negative = false, Number integralLength = 3, Number fractionalLength = 0, Number length = 10, String unit = ''): {
+    min: min,
+    max: max,
+    negative: negative,
+    integralLength: integralLength,
+    fractionalLength: fractionalLength,
+    length: length,
+    unit: unit
+  };
+}
+
+single struct RenderedText {
+  public Color color;
+  public String text;
+
+  public static RenderedText New(in String text, in Color color = COLOR_NEUTRAL): 
+    { text: text, color: color };
+}
+
+single struct HistoryItem {
+  public String id;
+  public Number outerScroll;
+  public Number innerScroll;
+
+  public static HistoryItem New(in String id): 
+    { id: id, innerScroll: 0, outerScroll: 0 };
+}
+
+struct RenderedTexts {
+  public RenderedText[] titles;
+  public RenderedText[] separators;
+  public RenderedText[] items;
+  public RenderedText[] descriptions;
+
+  public RenderedText[] merged;
+
+  public static RenderedTexts New(): {
+    titles: [], separators: [], items: [], descriptions: [], merged: []
+  };
+}
+
+single struct WindowCreatePage {
+  public String title;
+  public Number[] indexes;
+  public Description[] descriptions;
+
+  public static WindowCreatePage New(in String title, in Number[] indexes, in Description[] descriptions = []): 
+    { title: title, indexes: indexes, descriptions: descriptions };
+}
+
+single struct WindowGoToPage {
+  public String pageId;
+  public Boolean replaceLastHistory;
+
+  public static WindowGoToPage New(in String pageId, in Boolean replaceLastHistory):
+    { pageId: pageId, replaceLastHistory: replaceLastHistory };
+}
+
+single struct WindowAddRemoveComponents {
+  public Number[] indexes;
+  public Boolean updateScroll;
+
+  public static WindowAddRemoveComponents New(in Number[] indexes, in Boolean updateScroll): 
+    { indexes: indexes, updateScroll: updateScroll };
+}
+
+single struct WindowLogicActions {
+  public Boolean findClosestFocusableComponent;
+  public Boolean updateScroll;
+  public Boolean componentEnter;
+  public Boolean componentLeave;
+  # Whether window should rerender.
+  public Boolean render;
+  public WindowAddRemoveComponents removeComponents;
+  public WindowAddRemoveComponents addComponents;
+  public Boolean destroyPage;
+  public WindowCreatePage createPage;
+  public WindowGoToPage goToPage;
+  public Boolean goBack;
+
+  public static WindowLogicActions New(
+    in Boolean findClosestFocusableComponent = false,
+    in Boolean updateScroll = false,
+    in Boolean componentEnter = false,
+    in Boolean componentLeave = false,
+    in Boolean render = false,
+    in WindowAddRemoveComponents removeComponents = null,
+    in WindowAddRemoveComponents addComponents = null,
+    in Boolean destroyPage = false,
+    in WindowCreatePage createPage = null,
+    in WindowGoToPage goToPage = null,
+    in Boolean goBack = false
+  ): { 
+    findClosestFocusableComponent: findClosestFocusableComponent, 
+    updateScroll: updateScroll, 
+    componentEnter: componentEnter, 
+    componentLeave: componentLeave, 
+    render: render,
+    removeComponents: removeComponents,
+    addComponents: addComponents,
+    destroyPage: destroyPage,
+    createPage: createPage,
+    goToPage: goToPage,
+    goBack: goBack
+  };
+}

@@ -1,6 +1,6 @@
-// import '../menuState.del';
 import '../../utils/string.formatters.del';
 import '../../utils/index.del';
+import '../helpers.del';
 import '../customButtons.del';
 
 playervar Component[] menuComponents = [];
@@ -15,7 +15,6 @@ Number[] AddComponents(in Component[] components) {
   menuComponents += components;
 
   LogHelper($"added {components.Length} components, {menuComponents.Length} total");
-
 
   return indexes;
 }
@@ -32,23 +31,6 @@ void UnregisterComponents(in Number[] indexes) {
   // }
 
   LogHelper($"removed {indexes.Length} components, {menuComponents.Length} total");
-}
-
-single struct Description {
-  public String text;
-  public Color color;
-  public Boolean visible;
-  public Number order;
-
-  public static Description New(in String description, in Color color = COLOR_NEUTRAL, in Boolean visible = true, in Number order = 0): 
-    { text: description, color: color, visible: visible, order: order };
-
-  public static Description BASE: {
-    text: '',
-    color: COLOR_NEUTRAL,
-    visible: true,
-    order: 0
-  };
 }
 
 enum ComponentType {
@@ -76,26 +58,6 @@ enum ComponentEvent {
   TertiaryAction,
   QuaternaryAction,
   Change
-}
-
-single struct InputSettings {
-  public Number min;
-  public Number max;
-  public Boolean negative;
-  public Number integralLength;
-  public Number fractionalLength;
-  public Number length;
-  public String unit;
-
-  public static InputSettings New(Number min = NUMBER_MIN, Number max = NUMBER_MAX, Boolean negative = false, Number integralLength = 3, Number fractionalLength = 0, Number length = 10, String unit = ''): {
-    min: min,
-    max: max,
-    negative: negative,
-    integralLength: integralLength,
-    fractionalLength: fractionalLength,
-    length: length,
-    unit: unit
-  };
 }
 
 struct Component {

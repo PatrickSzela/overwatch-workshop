@@ -1,4 +1,4 @@
-import '../../libs/menu/_index.del';
+import '../../libs/menu/index.del';
 
 globalvar Menu menu;
 // playervar MenuState menuState;

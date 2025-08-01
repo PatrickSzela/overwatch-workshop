@@ -1,0 +1,79 @@
+import '../utils/index.del';
+import '../utils/string.formatters.del';
+import '../utils/button.allButtons.del';
+import './customButtons.del';
+import './window.del';
+import './rules.del';
+
+// TODO: handle case when switching side after players array changes and focusedIndex is wrong
+// TODO: handle case where the window is scrollable, but last items are disabled and will never be shown
+// TODO: move not changed data to single structs to preserve variables
+// TODO: info that when creating the same page in multiple windows, use LoopIfConditionIsTrue in the rule that creates the page
+
+playervar MenuState menuState;
+
+# Holds current state of `Menu` for a player and handles logic for displaying and controlling every `Component` and its derivatives.
+single struct MenuState {
+  # Whether player has access to menu.
+  public Boolean enabled;
+  # Whether menu is currently open.
+  public Boolean open: menuWindows.IsTrueForAny((i) => i.open);
+  # Whether player can navigate the menu. Components will still receive navigation events.
+  public Boolean navigationLocked;
+  # Index of the currently focused window in `menuWindows`.
+  public Number focusedWindowIndex;
+  # Whether the text explaining how to toggle menu should be hidden when menu is closed.
+  public Boolean hideKeybindTextWhenClosed;
+
+  public String[] pageIds: menuWindows.Map((i) => i.pageId);
+
+  public static MenuState New(in String rootPageId, in Boolean enabled = true): { 
+    enabled: enabled,
+    navigationLocked: false,
+    focusedWindowIndex: 0,
+    hideKeybindTextWhenClosed: false
+  };
+
+  public ref Boolean CreatePageRequested(in String pageId) {
+    return pageIds.Contains(pageId);
+  }
+
+  public ref void CreatePage(in String pageId, in String title, in Number[] indexes, in Description[] descriptions = []) {
+    menuWindows[pageIds.IndexOf(pageId)].CreatePage(title, indexes, descriptions);
+  }
+
+  public void ButtonDown(Button button!) "MenuState.ButtonDown" {
+    for(Number i! = 0; i < menuWindows.Length; i++) {
+      if(buttonsHeld && buttonsHeld == menuWindows[i].toggleWindowKeybind) {
+        if(menuWindows[i].open) {
+          menuWindows[i].Close();
+        } else {
+          menuWindows[i].Open();
+          menuState.focusedWindowIndex = i;
+          menuWindows[i].SetFocused();
+        }
+      }
+    }
+
+    menuWindows[focusedWindowIndex].ButtonDown(button, navigationLocked);
+  }
+
+  public void ButtonUp(Button button!) "MenuState.ButtonUp" {
+    // when changing page `buttonsHeld` is being cleared
+    // if(!buttonsHeld.Contains(button)) return;
+
+    menuWindows[focusedWindowIndex].ButtonUp(button, navigationLocked);
+  }
+
+  public void Navigate(Vector direction!) "MenuState.Navigate" {
+    menuWindows[focusedWindowIndex].Navigate(direction, navigationLocked);
+  }
+
+  public ref void RULE_Logic() {
+    for(Number i = 0; i < menuWindows.Length; i++)
+      menuWindows[i].RULE_Logic(hideKeybindTextWhenClosed);
+
+    WaitForeverUntilConditionChanges(menuWindows.Map((i) => i.logicActions));
+    Loop();
+  }
+}

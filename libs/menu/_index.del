@@ -1,3 +1,0 @@
-import './_rules.del';
-import './menu.del';
-import './menuState.del';

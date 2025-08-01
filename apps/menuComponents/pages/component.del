@@ -35,7 +35,7 @@ Number[] PageDebugComponentItems() {
 
 rule: 'Debug/Base Components'
 Event.OngoingPlayer
-if(menuState.pageIds.Contains(PAGE_DEBUG_COMPONENT_ID))
+if(menuState.CreatePageRequested(PAGE_DEBUG_COMPONENT_ID))
 {
   // Log("------------- creating base components page");
   menuState.CreatePage(

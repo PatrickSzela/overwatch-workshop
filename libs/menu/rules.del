@@ -1,28 +1,22 @@
-import './menuState.del';
-import '../utils/helpers.del';
+import '../utils/index.del';
+import '../utils/button.allowAll.del';
+import '../utils/button.disallowAll.del';
+import './state.del';
 
-// playervar MenuState menuState;
 # List of currently pressed buttons by a player.
 playervar Button[] buttonsHeld = [];
-
-// TODO: move logic to struct
 
 rule: '[MenuState] Freeze player'
 Event.OngoingPlayer
 if(menuState.open)
 {
-  EventPlayer().SetMoveSpeed(0);
-
-  foreach (Button button! in allButtons)
-    DisallowButton(EventPlayer(), button);
+  SetMoveSpeed(EventPlayer(), 0);
+  DisallowAllButtons();
 
   WaitForeverUntil(!menuState.open);
 
-  // TODO: store & restore previous speed in case it was modified - how?
-  EventPlayer().SetMoveSpeed(100);
-
-  foreach (Button button! in allButtons)
-    AllowButton(EventPlayer(), button);
+  SetMoveSpeed(EventPlayer(), 100);
+  AllowAllButtons();
 }
 
 //

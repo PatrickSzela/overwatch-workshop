@@ -32,7 +32,7 @@ Number[] PageDebugItems() {
 
 rule: 'Debug'
 Event.OngoingPlayer
-if(menuState.pageIds.Contains(PAGE_DEBUG_ID))
+if(menuState.CreatePageRequested(PAGE_DEBUG_ID))
 {
   // Log("------------- creating debug page");
   menuState.CreatePage(
