@@ -532,7 +532,7 @@ struct MenuWindow {
 
     if(!indexes.Contains(scroll) || menuComponents[indexes[scroll]].disabled) {
       Number[] enabled! = enabledIndexes;
-      history[history.Length - 1].innerScroll = indexes.IndexOf(Max(enabled.First, Min(enabled.Last, scroll)));
+      history[history.Length - 1].innerScroll = indexes.IndexOf(Clamp(scroll, enabled.First, enabled.Last));
     }
 
     MarkUpdateScroll();
