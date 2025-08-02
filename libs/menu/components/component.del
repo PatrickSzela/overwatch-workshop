@@ -26,11 +26,11 @@ void UnregisterComponent(in Number index) {
 }
 
 void UnregisterComponents(in Number[] indexes) {
-  // menuComponents -= indexes.Map((i) => menuComponents[i]);
-  foreach(Number i! in indexes) {
-    // Log($"removing component {i}");
-    menuComponents.ModRemoveByIndex(i);
-  }
+  menuComponents -= indexes.Map((i) => menuComponents[i]);
+  // foreach(Number i! in indexes) {
+  //   // Log($"removing component {i}");
+  //   menuComponents.ModRemoveByIndex(i);
+  // }
 
   LogHelper($"removed {indexes.Length} components, {menuComponents.Length} total");
 }
