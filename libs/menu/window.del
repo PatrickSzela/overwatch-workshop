@@ -8,6 +8,7 @@ import './components/toggle.del';
 import './components/value.del';
 import './components/carousel.del';
 import './components/numberInput.del';
+import './components/checkbox.del';
 
 playervar MenuWindow[] menuWindows = [];
 
