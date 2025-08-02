@@ -311,7 +311,8 @@ struct MenuWindow {
     RemoveComponents(ids);
     // RemoveAllItems(false);
 
-    // buttonsHeld = [];
+    // let's not carry over pressed button to the next page so we don't trigger button up on it
+    buttonsHeld = [];
     pageDescriptions = [];
   }
   
