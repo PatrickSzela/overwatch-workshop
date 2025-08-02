@@ -3,8 +3,9 @@ import './toggle.del';
 class Checkbox {
   public static Component New(
     in String label, 
-    in String name = null,
     in Boolean defaultChecked = false,
+    in String name = null,
+    in String value = null,
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
     in Button button = Toggle.BUTTON_TOGGLE,
@@ -29,8 +30,9 @@ class Checkbox {
     type: ComponentType.Checkbox,
     label: label, 
     name: name,
+    value: value,
     defaultValue: defaultChecked,
-    value: defaultChecked,
+    optionIndex: defaultChecked,
     descriptions: [
       Description.New($"Press {ButtonFormatterSingle_Underscores(button)} to toggle", order: ButtonDescriptionOrder(button))
     ] + descriptions,
@@ -56,6 +58,6 @@ class Checkbox {
   );
 
   public static String Render(ref Component component) {
-    return $"{component.value ? "[✓]" : "[    ]"} {menuComponents[component.childIndex].renderedText || component.label}";
+    return $"{component.optionIndex ? "[✓]" : "[    ]"} {menuComponents[component.childIndex].renderedText || component.label}";
   }
 }

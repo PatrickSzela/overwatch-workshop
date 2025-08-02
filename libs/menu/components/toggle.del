@@ -8,6 +8,7 @@ class Toggle {
   public static Component New(
     in String label,
     in String name = null,
+    in String value = null,
     in Boolean defaultChecked = false,
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
@@ -33,8 +34,9 @@ class Toggle {
     type: ComponentType.Toggle,
     label: label,
     name: name,
-    value: defaultChecked,
+    value: value,
     defaultValue: defaultChecked,
+    optionIndex: defaultChecked,
     childIndex: childIndex,
     valueFormatter: BooleanFormatterOnOff,
     descriptions: [
@@ -62,9 +64,12 @@ class Toggle {
 
   public static void ButtonDown(ref Component component, in Button button) {
     if(buttonsHeld == [component.button])
-      component.SetValue(!component.value);
+      component.SetChecked(!component.optionIndex);
   }
-  
+
+  public static String Render(ref Component component) {
+    return $"{component.label}: {component.valueFormatter(component.optionIndex)}";
+  }
 
   // protected void ToggleConstructor(
   //   String text!,

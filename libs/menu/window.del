@@ -9,6 +9,7 @@ import './components/value.del';
 import './components/carousel.del';
 import './components/numberInput.del';
 import './components/checkbox.del';
+import './components/radio.del';
 
 playervar MenuWindow[] menuWindows = [];
 
@@ -366,6 +367,17 @@ struct MenuWindow {
         case ComponentType.Toggle:
         case ComponentType.Checkbox:
         case ComponentType.Radio:
+          // TODO: move this to main loop so triggering SetChecked programmatically also works
+          // TODO: set all components that share the same name with the same value in the main loop?
+          if(focusedComponent.type == ComponentType.Radio) {
+            for(Number i = 0; i < indexes.Length; i++) {
+              Number index! = indexes[i];
+              if(menuComponents[index].name == focusedComponent.name && index != focusedIndex) {
+                menuComponents[index].SetChecked(false);
+              }
+            }
+          }
+
           Toggle.ButtonDown(menuComponents[focusedIndex], button);
           break;
 
@@ -463,14 +475,15 @@ struct MenuWindow {
       case ComponentType.Text:
         return Text.Render(menuComponents[index]);
       case ComponentType.Value:
-      case ComponentType.Toggle:
         return Value.Render(menuComponents[index]);
+      case ComponentType.Toggle:
+        return Toggle.Render(menuComponents[index]);
       case ComponentType.Link:
         return Link.Render(menuComponents[index]);
       case ComponentType.Checkbox:
         return Checkbox.Render(menuComponents[index]);
       case ComponentType.Radio:
-        return '';
+        return Radio.Render(menuComponents[index]);
       case ComponentType.Carousel:
         return Carousel.Render(menuComponents[index]);
       case ComponentType.TextInput:

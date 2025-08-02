@@ -74,7 +74,7 @@ struct Component {
   # Usable by:
   # - `Value` - stores displayed value
   # - `Link` - stores Page ID that should be opened when interacted
-  # - `Toggle`, `Radio`, `Checkbox` - stores Component's current state
+  # - `Toggle`, `Radio`, `Checkbox` - stores Component's assigned value
   # - `Carousel` - stores currently selected option
   # - `TextInput`, `NumberInput` - stores merged `parts`
   public Any value;
@@ -91,6 +91,7 @@ struct Component {
   # 
   # Usable by:
   # - `Carousel`
+  # - `Toggle`, `Radio`, `Checkbox` - stores Component's state
   # - `TextInput`, `NumberInput`
   public Number optionIndex;
   # Value split into parts
@@ -314,6 +315,14 @@ struct Component {
   public ref void SetValue(Any newValue!) {
     if(value != newValue) {
       value = newValue;
+      onChange(newValue);
+      MarkToRerender();
+    }
+  }
+
+  public ref void SetChecked(Boolean newValue!) {
+    if(optionIndex != newValue) {
+      optionIndex = newValue;
       onChange(newValue);
       MarkToRerender();
     }

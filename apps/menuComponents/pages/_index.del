@@ -6,7 +6,7 @@ import './toggle.del';
 import './carousel.del';
 import './numberInput.del';
 import './checkbox.del';
-// import './radio.del';
+import './radio.del';
 import './listLong.del';
 // import './listDynamic.del';
 
@@ -21,7 +21,7 @@ Number[] PageDebugItems() {
     Link.New(PAGE_DEBUG_CAROUSEL_NAME, PAGE_DEBUG_CAROUSEL_ID),
     Link.New(PAGE_DEBUG_NUMBER_INPUT_NAME, PAGE_DEBUG_NUMBER_INPUT_ID),
     Link.New(PAGE_DEBUG_CHECKBOX_NAME, PAGE_DEBUG_CHECKBOX_ID),
-    // Link.New(PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),
+    Link.New(PAGE_DEBUG_RADIO_NAME, PAGE_DEBUG_RADIO_ID),
     Text.New(),
 
     Text.New("Lists:"),
