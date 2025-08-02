@@ -5,34 +5,46 @@ import '../helpers.del';
 import '../customButtons.del';
 
 playervar Component[] menuComponents = [];
+playervar Number menuIdCounter! = 0;
+
+Number GetComponentIndexById(in Number id):
+  menuComponents.Map((i) => i.id).IndexOf(id);
 
 Number AddComponent(in Component component) {
-  menuComponents += component;
-  return menuComponents.Length - 1;
+  menuIdCounter++;
+  menuComponents += { id: menuIdCounter, ..component };
+  return menuIdCounter;
 }
 
 Number[] AddComponents(in Component[] components) {
   // this can't be a macro
-  Number[] indexes! = components.Map((i, idx) => menuComponents.Length + idx);
-  menuComponents += components;
+  Number[] ids = components.Map((i, idx) => menuIdCounter + idx);
+  menuComponents += components.Map((i, idx) => { id: ids[idx], ..i });
+  menuIdCounter += components.Length;
+
+  // Number[] ids! = [];
+  // for(Number i = 0; i < components.Length; i++) {
+  //   ids += AddComponent(components[i]);
+  // }
 
   LogHelper($"added {components.Length} components, {menuComponents.Length} total");
 
-  return indexes;
+  return ids;
 }
 
-void UnregisterComponent(in Number index) {
-  menuComponents.ModRemoveByIndex(index);
+void UnregisterComponent(in Number id) {
+  menuComponents.ModRemoveByIndex(GetComponentIndexById(id));
 }
 
-void UnregisterComponents(in Number[] indexes) {
+void UnregisterComponents(in Number[] ids) {
+  Number[] indexes! = ids.Map((i) => GetComponentIndexById(i));
   menuComponents -= indexes.Map((i) => menuComponents[i]);
   // foreach(Number i! in indexes) {
   //   // Log($"removing component {i}");
   //   menuComponents.ModRemoveByIndex(i);
   // }
 
-  LogHelper($"removed {indexes.Length} components, {menuComponents.Length} total");
+  LogHelper($"removed {ids.Length} components, {menuComponents.Length} total");
 }
 
 enum ComponentType {
@@ -65,6 +77,7 @@ enum ComponentEvent {
 struct Component {
   # Type of the component 
   public ComponentType type;
+  public Number id;
   # Displayed label
   public String label;
   # Name under which the value of the component is stored
@@ -125,9 +138,9 @@ struct Component {
   # Fully rendered text
   public String renderedText;
   # Index of a child component
-  public Number childIndex;
+  public Number childId;
   # Whether the component has a child assigned to it.
-  public Boolean hasChild: childIndex > -1;
+  public Boolean hasChild: childId > -1;
   # Alias for `value`
   public Boolean checked: value;
   # Alias for `defaultValue`
@@ -191,7 +204,7 @@ struct Component {
     in InputSettings inputSettings = InputSettings.New(),
     in Boolean captureNavigationInputs = false,
     in Button button = BUTTON_PRIMARY,
-    in Number childIndex = -1,
+    in Number childId = -1,
 
     in (() => void) onRender = null,
     in (() => void) onEnter = null,
@@ -210,6 +223,7 @@ struct Component {
     in ((Any) => void) onChange = null
   ): {
     type: type,
+    id: 0,
     label: label, 
     name: name,
     value: value, 
@@ -232,7 +246,7 @@ struct Component {
     button: button, 
     shouldRerender: true,
     renderedText: '',
-    childIndex: childIndex, 
+    childId: childId, 
 
     // id: null, 
     // menuState: null, 

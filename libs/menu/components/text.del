@@ -15,7 +15,7 @@ class Text {
     onRender: onRender
   );
 
-  public static String Render(ref Component component) {
-    return menuComponents[component.childIndex].renderedText || component.label;
+  public static String Render(ref Component component, ref Component child) {
+    return child.renderedText || component.label;
   }
 }

@@ -13,7 +13,7 @@ class Toggle {
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
     in Button button = BUTTON_TOGGLE,
-    in Number childIndex = -1,
+    in Number childId = -1,
 
     in (() => void) onRender = null,
     in (() => void) onEnter = null,
@@ -37,7 +37,7 @@ class Toggle {
     value: value,
     defaultValue: defaultChecked,
     optionIndex: defaultChecked,
-    childIndex: childIndex,
+    childId: childId,
     valueFormatter: BooleanFormatterOnOff,
     descriptions: [
       Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)} to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE))

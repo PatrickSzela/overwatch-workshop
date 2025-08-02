@@ -24,20 +24,22 @@ struct MenuWindow {
 
   public WindowLogicActions logicActions;
 
+  public Number index(in Number id): GetComponentIndexById(id);
+
   # Combination of buttons used to toggle menu on and off.
   public Button[] toggleWindowKeybind;
   # Whether opening and closing this window is done programmatically.
   public Boolean isRemotelyControlled: !toggleWindowKeybind;
   # List of available component in `menuComponents` variable used on the current page.
-  public Number[] indexes;
+  public Number[] ids;
   # Index of currently focused component in `menuComponents`.
-  public Number focusedIndex;
+  public Number focusedId;
   # List of currently visible items.
-  public Number[] visibleIndexes: indexes.Slice(history.Last.outerScroll, MAX_ITEMS);
+  public Number[] visibleIds: ids.Slice(history.Last.outerScroll, MAX_ITEMS);
   # List of components that can be focused.
-  public Number[] enabledIndexes: indexes.FilteredArray((i) => !menuComponents[i].disabled);
+  public Number[] enabledIds: ids.FilteredArray((i) => !menuComponents[index(i)].disabled);
   # Currently hovered item.
-  public Component focusedComponent: menuComponents[focusedIndex];
+  public Component focusedComponent: menuComponents[index(focusedId)];
   # History of opened pages.
   public HistoryItem[] history;
   # ID of currently open page.
@@ -58,8 +60,8 @@ struct MenuWindow {
     open: false,
     logicActions: WindowLogicActions.New(render: true),
     toggleWindowKeybind: toggleWindowKeybind,
-    indexes: [],
-    focusedIndex: 0,
+    ids: [],
+    focusedId: 0,
     history: [HistoryItem.New(rootPageId)],
     rootPageId: rootPageId,
     pageDescriptions: [],
@@ -115,38 +117,38 @@ struct MenuWindow {
     // }
   }
 
-  protected ref void OnComponentEnter(in Number index = focusedIndex) {
+  protected ref void OnComponentEnter(ref Component component) {
     logicActions.componentEnter = false;
-    menuComponents[index].onEnter();
-    menuComponents[menuComponents[index].childIndex].onEnter();
+    component.onEnter();
+    // menuComponents[menuComponents[index].childIndex].onEnter();
   }
 
-  protected ref void OnComponentLeave(in Number index = focusedIndex) {
+  protected ref void OnComponentLeave(ref Component component) {
     logicActions.componentLeave = false;
-    menuComponents[menuComponents[index].childIndex].onLeave();
-    menuComponents[index].onLeave();
+    // menuComponents[menuComponents[index].childIndex].onLeave();
+    component.onLeave();
   }
 
-  protected ref void OnComponentNavigate(in Vector direction, in Number index = focusedIndex) {
-    menuComponents[index].onNavigate(direction);
-    menuComponents[menuComponents[index].childIndex].onNavigate(direction);
+  protected ref void OnComponentNavigate(ref Component component, in Vector direction) {
+    component.onNavigate(direction);
+    // menuComponents[menuComponents[index].childIndex].onNavigate(direction);
   }
 
-  protected ref void OnComponentButtonDown(in Button button, in Number index = focusedIndex) {
-    menuComponents[index].onButtonDown(button);
-    menuComponents[menuComponents[index].childIndex].onButtonDown(button);
+  protected ref void OnComponentButtonDown(ref Component component, in Button button) {
+    component.onButtonDown(button);
+    // menuComponents[menuComponents[index].childIndex].onButtonDown(button);
   }
 
-  protected ref void OnComponentButtonUp(in Button button, in Number index = focusedIndex) {
-    menuComponents[menuComponents[index].childIndex].onButtonUp(button);
-    menuComponents[index].onButtonUp(button);
+  protected ref void OnComponentButtonUp(ref Component component, in Button button) {
+    // menuComponents[menuComponents[index].childIndex].onButtonUp(button);
+    component.onButtonUp(button);
   }
 
   # Forcefully rerenders specified item (or currently hovered one if no `index` is specified). Call after manually adding description.
-  public ref void RerenderComponent(in Number index = focusedIndex) {
-    LogHelper($'Rerender Item: {index}');
+  public ref void RerenderComponent(ref Component component) {
+    LogHelper($'Rerender Item');
 
-    menuComponents[index].MarkToRerender();
+    component.MarkToRerender();
     MarkToRerender();
   }
 
@@ -215,33 +217,32 @@ struct MenuWindow {
   }
 
   # Add items to the menu.
-  public ref void AddComponents(in Number[] componentIndexes, in Boolean findClosestFocusableComponent = true) {
+  public ref void AddComponents(in Number[] componentsIds, in Boolean findClosestFocusableComponent = true) {
     LogHelper($"MARKED TO: Add Components");
-    logicActions.addComponents = WindowAddRemoveComponents.New(componentIndexes, findClosestFocusableComponent);
+    logicActions.addComponents = WindowAddRemoveComponents.New(componentsIds, findClosestFocusableComponent);
   }
 
-  protected ref void _AddComponents(in Number[] componentIndexes, in Boolean findClosestFocusableComponent = true) {
-    indexes += componentIndexes;
+  protected ref void _AddComponents(in Number[] componentsIds, in Boolean findClosestFocusableComponent = true) {
+    ids += componentsIds;
 
-    LogHelper($'Add Components: Adding {componentIndexes.Length} items, {indexes.Length} total');
+    LogHelper($'Add Components: Adding {componentsIds.Length} items, {ids.Length} total');
 
     if(findClosestFocusableComponent) {
       MarkFindClosestFocusableComponent();
     }
   }
 
-  // WORKAROUND: for some reason `componentIndexes` must be stored, otherwise its value will be lost when removing the items
   # Removes specified items from the menu. Will automatically clean up components in `menuComponents`.
-  public ref void RemoveComponents(in Number[] componentIndexes, in Boolean findClosestFocusableComponent = true) {
+  public ref void RemoveComponents(in Number[] componentsIds, in Boolean findClosestFocusableComponent = true) {
     LogHelper($"MARKED TO: Remove Components");
-    logicActions.removeComponents = WindowAddRemoveComponents.New(indexes, findClosestFocusableComponent);
+    logicActions.removeComponents = WindowAddRemoveComponents.New(componentsIds, findClosestFocusableComponent);
   }
 
-  protected ref void _RemoveComponents(in Number[] componentIndexes, in Boolean findClosestFocusableComponent = true) {
-    indexes -= componentIndexes;
-    UnregisterComponents(componentIndexes);
+  protected ref void _RemoveComponents(in Number[] componentsIds, in Boolean findClosestFocusableComponent = true) {
+    ids -= componentsIds;
+    UnregisterComponents(componentsIds);
 
-    LogHelper($'Remove Components: Removing {componentIndexes.Length} items, {indexes.Length} left');
+    LogHelper($'Remove Components: Removing {componentsIds.Length} items, {ids.Length} left');
     
     if(findClosestFocusableComponent) {
       MarkFindClosestFocusableComponent();
@@ -251,15 +252,15 @@ struct MenuWindow {
   # Removes all items from the menu. Will automatically clean up components in `menuComponents`.
   public ref void RemoveAllItems(in Boolean callOnItemsChanged = true) {
     LogHelper($'Remove All Items');
-    RemoveComponents(indexes, callOnItemsChanged);
+    RemoveComponents(ids, callOnItemsChanged);
   }
 
   # Replaces all items in the menu. Will automatically clean up removed components in `menuComponents`.
-  public ref void ReplaceItems(in Number[] componentIndexes) {
+  public ref void ReplaceItems(in Number[] componentsIds) {
     LogHelper($'Replace Items');
 
     RemoveAllItems(false);
-    AddComponents(componentIndexes, true);
+    AddComponents(componentsIds, true);
 
     // TODO: STRUCT REWORK restore if perf is bad
     // RemoveItems(this.indexes - items, false);
@@ -271,17 +272,17 @@ struct MenuWindow {
     // MarkFindClosestFocusableComponent();
   }
 
-  public ref void CreatePage(in String title, in Number[] componentIndexes, in Description[] descriptions = []) {
-    LogHelper($'MARKED TO: Create Page');
+  public ref void CreatePage(in String title, in Number[] componentsIds, in Description[] descriptions = []) {
+    LogHelper($'MARKED TO: Create Page with {componentsIds.Length} items');
 
-    logicActions.createPage = WindowCreatePage.New(title, componentIndexes, descriptions);
+    logicActions.createPage = WindowCreatePage.New(title, componentsIds, descriptions);
   }
 
-  protected ref void _CreatePage(in String title, in Number[] componentIndexes, in Description[] descriptions = []) {
-    LogHelper($'Create Page');
+  protected ref void _CreatePage(in String title, in Number[] componentsIds, in Description[] descriptions = []) {
+    LogHelper($'Create Page with {componentsIds.Length} items');
 
     SetTitle(title);
-    _AddComponents(componentIndexes);
+    _AddComponents(componentsIds);
 
     pageDescriptions += descriptions;
     // foreach(Description desc! in descriptions)
@@ -307,7 +308,7 @@ struct MenuWindow {
       MarkOnComponentLeave();
     }
 
-    RemoveComponents(indexes);
+    RemoveComponents(ids);
     // RemoveAllItems(false);
 
     // buttonsHeld = [];
@@ -318,26 +319,27 @@ struct MenuWindow {
   // phase 1: handle events
   public ref void Navigate(in Vector direction, in Boolean navigationLocked) {
     LogHelper($'Navigate: {direction}');
+    Number index! = index(focusedId);
 
-    OnComponentNavigate(direction);
+    OnComponentNavigate(menuComponents[index], direction);
 
     switch(focusedComponent.type) {
       case ComponentType.Carousel:
-        Carousel.Navigate(menuComponents[focusedIndex], direction);
+        Carousel.Navigate(menuComponents[index], direction);
         break;
 
       case ComponentType.NumberInput:
-        NumberInput.Navigate(menuComponents[focusedIndex], direction);
+        NumberInput.Navigate(menuComponents[index], direction);
         break;
     }
 
     if(!navigationLocked && (direction == Down() || direction == Up())) {
-      Number[] enabled! = enabledIndexes;
+      Number[] enabled! = enabledIds;
       if(direction == Up()) enabled = Reverse(enabled);
       
-      Number enabledIndex! = enabled.Contains(focusedIndex) ? enabled.IndexOf(focusedIndex) : 0;
-      Number firstEnabled: enabledIndex < enabled.Length - 1 ? enabled.Slice(enabledIndex + 1, MAX_ITEMS).First : enabled.First;
-      Number offset! = indexes.IndexOf(firstEnabled) - indexes.IndexOf(focusedIndex);
+      Number enabledIndex! = enabled.Contains(focusedId) ? enabled.IndexOf(focusedId) : 0;
+      Number firstEnabled: FirstOf(enabledIndex < enabled.Length - 1 ? enabled.Slice(enabledIndex + 1, MAX_ITEMS) : enabled);
+      Number offset! = ids.IndexOf(firstEnabled) - ids.IndexOf(focusedId);
 
       if(offset != 0) {
         MarkOnComponentLeave();
@@ -356,7 +358,8 @@ struct MenuWindow {
     LogHelper($'Button Down: {button}');
 
     if(open) {
-      OnComponentButtonDown(button);
+      Number index! = index(focusedId);
+      OnComponentButtonDown(menuComponents[index], button);
 
       switch(focusedComponent.type) {
         case ComponentType.Link:
@@ -370,19 +373,20 @@ struct MenuWindow {
           // TODO: move this to main loop so triggering SetChecked programmatically also works
           // TODO: set all components that share the same name with the same value in the main loop?
           if(focusedComponent.type == ComponentType.Radio) {
-            for(Number i = 0; i < indexes.Length; i++) {
-              Number index! = indexes[i];
-              if(menuComponents[index].name == focusedComponent.name && index != focusedIndex) {
-                menuComponents[index].SetChecked(false);
+            for(Number i = 0; i < ids.Length; i++) {
+              Number id: ids[i];
+              Number index2! = index(id);
+              if(menuComponents[index2].name == focusedComponent.name && id != focusedId) {
+                menuComponents[index2].SetChecked(false);
               }
             }
           }
 
-          Toggle.ButtonDown(menuComponents[focusedIndex], button);
+          Toggle.ButtonDown(menuComponents[index], button);
           break;
 
         case ComponentType.NumberInput:
-          NumberInput.ButtonDown(menuComponents[focusedIndex], button);
+          NumberInput.ButtonDown(menuComponents[index], button);
           break;
       }
 
@@ -398,7 +402,7 @@ struct MenuWindow {
     LogHelper($'Button Up: {button}');
 
     if(open) {
-      OnComponentButtonUp(button);
+      OnComponentButtonUp(menuComponents[index(focusedId)], button);
       MarkToRerender();
     }
   }
@@ -425,11 +429,11 @@ struct MenuWindow {
   protected ref void RenderSeparators() {
     renderedTexts.separators = [
       RenderedText.New(
-        text: $"──────────────────────{indexes.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == 0 ? '△' : '▲'}──────────────────────", 
+        text: $"──────────────────────{ids.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == 0 ? '△' : '▲'}──────────────────────", 
         color: COLOR_NEUTRAL 
       ),
       RenderedText.New(
-        text: $"──────────────────────{indexes.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == indexes.Length - MAX_ITEMS ? '▽' : '▼'}──────────────────────",
+        text: $"──────────────────────{ids.Length < MAX_ITEMS ? '─' : history.Last.outerScroll == ids.Length - MAX_ITEMS ? '▽' : '▼'}──────────────────────",
         color: COLOR_NEUTRAL
       )
     ];
@@ -451,7 +455,7 @@ struct MenuWindow {
 
     Description[] actionDescriptions: (
       focusedComponent.actionDescriptions + 
-      menuComponents[focusedComponent.childIndex].actionDescriptions
+      menuComponents[focusedComponent.childId].actionDescriptions
     ).Map((i, idx) => i ? Description.New(
       description: $"Press {ButtonFormatterSingle_Underscores(buttonsSettings[idx % 4])} to {i}", 
       order: ButtonDescriptionOrder(buttonsSettings[idx % 4])
@@ -460,30 +464,30 @@ struct MenuWindow {
     renderedTexts.descriptions = (
       actionDescriptions +
       focusedComponent.descriptions + 
-      menuComponents[focusedComponent.childIndex].descriptions +
+      menuComponents[focusedComponent.childId].descriptions +
       pageDescriptions + windowDescriptions
     ).FilteredArray((i) => i.visible)
       .SortedArray((i) => i.order)
       .Map((i) => RenderedText.New(text: i[0], color: i[1]));
   }
 
-  protected String RenderComponent(in Number index) {
+  protected String RenderComponent(in Number index, in Number childIndex) {
     Component item: menuComponents[index];
 
     switch(item.type) {
       case ComponentType.Component:
       case ComponentType.Text:
-        return Text.Render(menuComponents[index]);
+        return Text.Render(menuComponents[index], menuComponents[childIndex]);
       case ComponentType.Value:
         return Value.Render(menuComponents[index]);
       case ComponentType.Toggle:
         return Toggle.Render(menuComponents[index]);
       case ComponentType.Link:
-        return Link.Render(menuComponents[index]);
+        return Link.Render(menuComponents[index], menuComponents[childIndex]);
       case ComponentType.Checkbox:
-        return Checkbox.Render(menuComponents[index]);
+        return Checkbox.Render(menuComponents[index], menuComponents[childIndex]);
       case ComponentType.Radio:
-        return Radio.Render(menuComponents[index]);
+        return Radio.Render(menuComponents[index], menuComponents[childIndex]);
       case ComponentType.Carousel:
         return Carousel.Render(menuComponents[index]);
       case ComponentType.TextInput:
@@ -496,7 +500,7 @@ struct MenuWindow {
   protected ref void RenderVisibleItems() {
     RenderDescriptions();
 
-    Number[] v! = visibleIndexes;
+    Number[] v! = visibleIds;
 
     // LogHelper(indexes.Length);
     // LogHelper(visibleIndexes.Length);
@@ -504,27 +508,32 @@ struct MenuWindow {
     renderedTexts.items = [];
 
     for(Number idx! = 0; idx < v.Length; idx++) {
-      Number componentIdx: idx + history.Last.outerScroll;
-      Number index: v[idx];
-      Component item: menuComponents[index];
-      Component child: menuComponents[item.childIndex];
+      // Number idIndex: idx + history.Last.outerScroll;
+      Number id: v[idx];
+      Number index! = index(id);
+      Number childIndex! = index(menuComponents[index].childId);
+      Component component: menuComponents[index];
+      Component child: menuComponents[childIndex];
 
-      if(item.shouldRerender || child.shouldRerender) {
-        Number[] items! = (item.hasChild ? [item.childIndex] : []) + [index];
+      if(component.shouldRerender || child.shouldRerender) {
+        // Number[] items! = (component.hasChild ? [childIndex] : []) + [index];
         // LogHelper($"index {index} has {items.Length} items:");
 
-        foreach(Number idx2! in items) {
-          // LogHelper($"item {idx2}: label - {menuComponents[idx2].label}, rendered text - {RenderComponent(idx2)}");
-          menuComponents[idx2].renderedText = RenderComponent(idx2);
-          menuComponents[idx2].shouldRerender = false;
-        }
+        // foreach(Number idx2! in items) {
+        //   // LogHelper($"item {idx2}: label - {menuComponents[idx2].label}, rendered text - {RenderComponent(idx2)}");
+        //   menuComponents[idx2].renderedText = RenderComponent(idx2);
+        //   menuComponents[idx2].shouldRerender = false;
+        // }
 
-        LogHelper($'Rerendered component {index}: {item.renderedText}');
+        menuComponents[index].renderedText = RenderComponent(index, childIndex);
+        menuComponents[index].shouldRerender = false;
+
+        LogHelper($'Rerendered component {id} ad index {index}: {menuComponents[index].renderedText}');
       }
 
       renderedTexts.items[idx] = RenderedText.New( 
-        text: $"{!item.disabled ? focused && focusedIndex == index ? '● ' : '○ ' : ''}{item.renderedText}",
-        color: item.color 
+        text: $"{!component.disabled ? focused && focusedId == id ? '● ' : '○ ' : ''}{component.renderedText}",
+        color: component.color 
       );
     }
   }
@@ -532,7 +541,7 @@ struct MenuWindow {
   protected ref void MergeTexts() {
     renderedTexts.merged = renderedTexts.titles + [renderedTexts.separators[0]] + renderedTexts.items;
 
-    if(indexes.Length > MAX_ITEMS || renderedTexts.descriptions.Length)
+    if(ids.Length > MAX_ITEMS || renderedTexts.descriptions.Length)
       renderedTexts.merged += [renderedTexts.separators[1]];
 
     renderedTexts.merged += renderedTexts.descriptions;
@@ -565,11 +574,12 @@ struct MenuWindow {
     // }
     
     // `focusedIndex` is calculated later in `HandleScroll()`
-    Number scroll! = history.Last.outerScroll + history.Last.innerScroll;
+    Number index! = history.Last.outerScroll + history.Last.innerScroll;
+    Number id: ids[index];
 
-    if(!indexes.Contains(scroll) || menuComponents[indexes[scroll]].disabled) {
-      Number[] enabled! = enabledIndexes;
-      history[history.Length - 1].innerScroll = indexes.IndexOf(Clamp(scroll, enabled.First, enabled.Last));
+    if(!ids.Contains(id) || menuComponents[index].disabled) {
+      Number[] enabled! = enabledIds;
+      history[history.Length - 1].innerScroll = ids.IndexOf(enabledIds.First);
     }
 
     MarkUpdateScroll();
@@ -595,7 +605,7 @@ struct MenuWindow {
       };
     }
 
-    focusedIndex = indexes[history.Last.innerScroll + history.Last.outerScroll];
+    focusedId = ids[history.Last.innerScroll + history.Last.outerScroll];
     // LogHelper($"new idx: {focusedIndex}");
     RenderSeparators();
   }
@@ -616,8 +626,10 @@ struct MenuWindow {
     if(logicActions.destroyPage)
       _DestroyPage();
 
+    Number index! = index(focusedId);
+
     if(logicActions.componentLeave)
-      OnComponentLeave();
+      OnComponentLeave(menuComponents[index]);
 
     if(logicActions.removeComponents.indexes.Length)
       _RemoveComponents(logicActions.removeComponents.indexes, logicActions.removeComponents.updateScroll);
@@ -636,9 +648,11 @@ struct MenuWindow {
 
     if(logicActions.updateScroll)
       UpdateScroll();
-    
+
+    index = index(focusedId);
+
     if(logicActions.componentEnter)
-      OnComponentEnter();
+      OnComponentEnter(menuComponents[index]);
 
     if(logicActions.render)
       Render(hideKeybindTextWhenClosed);

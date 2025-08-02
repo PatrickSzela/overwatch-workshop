@@ -9,7 +9,7 @@ class Checkbox {
     in Description[] descriptions = [],
     in Color color = COLOR_NEUTRAL,
     in Button button = Toggle.BUTTON_TOGGLE,
-    in Number childIndex = -1,
+    in Number childId = -1,
 
     in (() => void) onRender = null,
     in (() => void) onEnter = null,
@@ -38,7 +38,7 @@ class Checkbox {
     ] + descriptions,
     color: color,
     button: button,
-    childIndex: childIndex,
+    childId: childId,
 
     onRender: onRender,
     onEnter: onEnter,
@@ -57,7 +57,7 @@ class Checkbox {
     onChange: onChange,
   );
 
-  public static String Render(ref Component component) {
-    return $"{component.optionIndex ? "[✓]" : "[    ]"} {menuComponents[component.childIndex].renderedText || component.label}";
+  public static String Render(ref Component component, ref Component child) {
+    return $"{component.optionIndex ? "[✓]" : "[    ]"} {child.renderedText || component.label}";
   }
 }
