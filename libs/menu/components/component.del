@@ -18,8 +18,8 @@ Number AddComponent(in Component component) {
 
 Number[] AddComponents(in Component[] components) {
   // this can't be a macro
-  Number[] ids = components.Map((i, idx) => menuIdCounter + idx);
-  menuComponents += components.Map((i, idx) => { id: ids[idx], ..i });
+  Number[] ids! = components.Map((i, idx) => menuIdCounter + idx);
+  menuComponents += components.Map((i, idx) => { id: menuIdCounter + idx, ..i });
   menuIdCounter += components.Length;
 
   // Number[] ids! = [];

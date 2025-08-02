@@ -6,7 +6,7 @@ String PAGE_DEBUG_CAROUSEL_ID: 'carousel';
 String PAGE_DEBUG_CAROUSEL_NAME: 'Carousel';
 
 Number[] PageDebugCarouselItems() {
-  Number[] items = AddComponents([
+  return AddComponents([
     Carousel.New("Empty", []),
     Carousel.New("One option", ["1"]),
     Carousel.New("Two options", ["1", "2"]),
@@ -24,8 +24,6 @@ Number[] PageDebugCarouselItems() {
       onChange: (value) => Log($"Custom formatter & events: value changed to \"{value}\"")
     )
   ]);
-
-  return items;
 }
 
 rule: 'Debug/Carousel'

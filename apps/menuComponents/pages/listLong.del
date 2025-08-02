@@ -4,7 +4,7 @@ String PAGE_DEBUG_LIST_LONG_ID: 'listLong';
 String PAGE_DEBUG_LIST_LONG_NAME: 'Long List';
 
 Number[] PageDebugListLongItems() {
-  Number[] list = [];
+  Number[] list! = [];
 
   for(Number i! = 1; i <= 50; i++)
     list += AddComponent(Component.New($"Item {i}"));

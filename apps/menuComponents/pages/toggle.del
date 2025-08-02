@@ -6,7 +6,7 @@ String PAGE_DEBUG_TOGGLE_ID: 'toggle';
 String PAGE_DEBUG_TOGGLE_NAME: 'Toggle';
 
 Number[] PageDebugToggleItems() {
-  Number[] list = [];
+  Number[] list! = [];
 
   for(Number i! = 0; i <= 1; i++) {
     String label: $"Toggle {i + 1}";
