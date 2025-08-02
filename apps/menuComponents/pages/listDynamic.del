@@ -3,11 +3,11 @@ import '../_variables.del';
 String PAGE_DEBUG_LIST_DYNAMIC_ID: 'listDynamic';
 String PAGE_DEBUG_LIST_DYNAMIC_NAME: 'Dynamic List';
 
-Component[] PageDebugListDynamicItems() {
-  Component[] list = [];
+Number[] PageDebugListDynamicItems() {
+  Number[] list = [];
 
   foreach(Player p in AllPlayers()) {
-    list += new Component($"{HeroIconString(HeroOf(p))}​ {p}");
+    list += AddComponent(Component.New(PlayerWithHeroIconFormatter(p)));
   }
 
   return list;
@@ -15,10 +15,11 @@ Component[] PageDebugListDynamicItems() {
 
 rule: 'Debug/Dynamic List'
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_LIST_DYNAMIC_ID)
+if(menuState.CreatePageRequested(PAGE_DEBUG_LIST_DYNAMIC_ID))
 {
   menuState.CreatePage(
+    pageId: PAGE_DEBUG_LIST_DYNAMIC_ID,
     title: PAGE_DEBUG_LIST_DYNAMIC_NAME, 
-    items: PageDebugListDynamicItems()
+    indexes: PageDebugListDynamicItems()
   );
 }
