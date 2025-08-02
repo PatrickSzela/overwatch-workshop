@@ -9,6 +9,7 @@ import './rules.del';
 // TODO: handle case where the window is scrollable, but last items are disabled and will never be shown
 // TODO: move not changed data to single structs to preserve variables
 // TODO: info that when creating the same page in multiple windows, use LoopIfConditionIsTrue in the rule that creates the page
+// FIXME: indexes will get out of sync when items are removed
 
 playervar MenuState menuState;
 
