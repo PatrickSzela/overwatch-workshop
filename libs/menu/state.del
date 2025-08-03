@@ -9,18 +9,11 @@ import './rules.del';
 // TODO: handle case where the window is scrollable, but last items are disabled and will never be shown
 // TODO: move not changed data to single structs to preserve variables
 // TODO: info that when creating the same page in multiple windows, use LoopIfConditionIsTrue in the rule that creates the page
-
-
-
-
-
-// FIXME: indexes will get out of sync when items are removed
-
-
-
-
-
-
+// TODO: create & destroy windows dynamically with a helper function in MenuState
+// TODO: switching windows
+// TODO: pass events to component's child
+// TODO: if multiple components have the same name, update their values if value is changed in one of them
+// TODO: use dictionary for storing values?
 
 playervar MenuState menuState;
 
