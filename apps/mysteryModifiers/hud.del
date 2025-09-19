@@ -39,7 +39,7 @@ rule: 'Create UI'
 
   CreateHudText(
     VisibleTo: LocalPlayer(), 
-    Header: " ????? ", 
+    Header: " 7HBSA ", 
     Subheader: "Mystery Modifiers", 
     Text: "By Patriq", 
     Location: Location.Right, 
