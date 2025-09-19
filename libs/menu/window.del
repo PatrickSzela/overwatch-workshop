@@ -373,7 +373,7 @@ struct MenuWindow {
         case ComponentType.Radio:
           // TODO: move this to main loop so triggering SetChecked programmatically also works
           // TODO: set all components that share the same name with the same value in the main loop?
-          if(focusedComponent.type == ComponentType.Radio) {
+          if(focusedComponent.type == ComponentType.Radio && buttonsHeld == [focusedComponent.button]) {
             for(Number i = 0; i < ids.Length; i++) {
               Number id: ids[i];
               Number index2! = index(id);
