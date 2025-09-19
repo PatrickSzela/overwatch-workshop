@@ -7,8 +7,21 @@ settings
   modes
   {
     Clash
+    {
+      Competitive Rules: On
+    }
     Control
+    {
+      Competitive Rules: On
+    }
+    Payload Race
+    {
+      Competitive Rules: On
+    }
     Push
+    {
+      Competitive Rules: On
+    }
   }
   main
   {
