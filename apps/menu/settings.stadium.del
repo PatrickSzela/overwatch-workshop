@@ -13,8 +13,21 @@ settings
       Game Mode Start: Immediately
     }
     Clash
+    {
+      Competitive Rules: On
+    }
     Control
+    {
+      Competitive Rules: On
+    }
+    Payload Race
+    {
+      Competitive Rules: On
+    }
     Push
+    {
+      Competitive Rules: On
+    }
   }
   main
   {
