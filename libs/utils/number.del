@@ -8,6 +8,12 @@ Number Sign(Number value): value < 0 ? -1 : value > 0 ? 1 : 0;
 
 Number Clamp(Number value, Number min, Number max): Max(min, Min(max, value));
 
+Number ClampFlip(Number value, Number min, Number max) {
+  if(value < min) return max;
+  if(value > max) return min;
+  return value;
+}
+
 Number FromBinary(in Boolean[] array) {
   Number sum = 0;
   for(Number i = 0; i < array.Length; i++) {
