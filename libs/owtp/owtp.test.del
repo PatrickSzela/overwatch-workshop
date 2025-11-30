@@ -11,20 +11,22 @@ if(diagnosticsEnabled)
   CreateDiagnosticText($"Entity count: {EntityCount()}/256", EntityCount() > 192, EntityCount() > 224);
 }
 
+globalvar define TEST_DATA_TYPES = [
+  ["zero", Type.NUMBER],
+  ["positiveNumber", Type.NUMBER],
+  ["negativeNumber", Type.NUMBER],
+  ["string", Type.STRING],
+  ["emptyString", Type.STRING],
+  ["true", Type.BOOLEAN],
+  ["false", Type.BOOLEAN]
+];
+
 rule: 'Setup'
 {
   OWTP.WaitForSpectator();
 
   connection.DebugHud();
-  connection.RegisterMessageType([1,1,1], "TEST", [
-    ["zero", Type.NUMBER],
-    ["positiveNumber", Type.NUMBER],
-    ["negativeNumber", Type.NUMBER],
-    ["string", Type.STRING],
-    ["emptyString", Type.STRING],
-    ["true", Type.BOOLEAN],
-    ["false", Type.BOOLEAN]
-  ]);
+  connection.RegisterMessageType([1,1,1], "TEST", TEST_DATA_TYPES);
   connection.Connect();
   // connection.SendMessage("connection created");
   // Wait(3);
@@ -35,10 +37,10 @@ rule: 'Setup'
 rule: 'My Rule'
 if(connection.message)
 {
-  define d = connection.message.data;
+  define d: connection.message.data;
   Log($"{connection.message.name}:");
-  foreach(define a in d) {
-    Log($"\"{a}\"");
+  for(Number i = 0; i < d.Length; i++) {
+    Log($"{TEST_DATA_TYPES[i]}: \"{d[i]}\"");
   }
   // connection.MarkMessageAsHandled();
 }

@@ -2,6 +2,15 @@ import './rules.normal.del';
 // import './rules.workaround.del';
 
 globalvar OWTP connection = OWTP.New();
+globalvar Number owtpEntityIdCounter = 0;
+playervar Number owtpEntityId;
+
+rule: 'OWTP: Assign Entity ID to players'
+Event.OngoingPlayer
+{
+  owtpEntityId = owtpEntityIdCounter;
+  owtpEntityIdCounter++;
+}
 
 rule: 'OWTP: Handle Send Message Queue'
 if(connection.HandleSendMessageQueue_Condition())
@@ -21,3 +30,8 @@ if(connection.HandlePacketsTimeout_Condition())
   connection.HandlePacketsTimeout_Rule();
 }
 
+rule: 'OWTP: Handle Finish Transmission Message'
+if(connection.HandleTransmissionFinishedMessage_Condition())
+{
+  connection.HandleTransmissionFinishedMessage_Rule();
+}

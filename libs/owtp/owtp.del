@@ -9,9 +9,10 @@ enum OWTP_MessageName {
   CONNECT = "OWTP_CONNECT",
   DISCONNECT = "OWTP_DISCONNECT",
   ERROR = "OWTP_ERROR",
-  PACKETS_CONFIRMED = "OWTP_PACKETS_CONFIRMED",
-  CONFIRMATION_RECEIVED = "OWTP_CONFIRMATION_RECEIVED",
-  REGISTER_MESSAGE_STRUCTURE = "OWTP_REGISTER_MESSAGE_STRUCTURE"
+  CONFIRM = "OWTP_CONFIRM",
+  REGISTER_MESSAGE_STRUCTURE = "OWTP_REGISTER_MESSAGE_STRUCTURE",
+  TRANSMISSION_READY = "OWTP_TRANSMISSION_READY",
+  TRANSMISSION_NOT_READY = "OWTP_TRANSMISSION_NOT_READY"
 }
 
 enum OWTP_MessageData {
@@ -51,13 +52,14 @@ single struct MessageStructure {
   public String[] dataNames;
   public Type[] dataTypes;
 
-  public static MessageStructure New(String name, String[] dataNames = [], Type[] dataTypes = []): 
+  public static MessageStructure New(String name, String[] dataNames = [], Type[] dataTypes = [], in Boolean interactive = false): 
     { name: name, dataNames: dataNames, dataTypes: dataTypes };
 }
 
 single struct OWTP {
   Boolean _enabled;
   Boolean _connected;
+  Boolean _interactive;
   Button[] buttonsBuffer;
   Number[] packetsBuffer;
   Any[] sendMessageQueue;
@@ -71,16 +73,19 @@ single struct OWTP {
   public static OWTP New(): { 
     _enabled: false, 
     _connected: false, 
+    _interactive: false,
     packetsBuffer: [], 
     buttonsBuffer: [], 
     sendMessageQueue: [],
     message: null, 
     registeredMessageIds: [
-      [OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT]
+      [OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT],
+      [OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT - 1]
     ],
     registeredMessageStructures: [
-      MessageStructure.New("CONNECT")
-    ] 
+      MessageStructure.New("CONNECT"),
+      MessageStructure.New("TRANSMISSION FINISHED")
+    ],
   };
 
   public ref void MarkMessageAsHandled() {
@@ -88,11 +93,14 @@ single struct OWTP {
   }
 
   # Will pause the execution of the current rule until connection has been established
-  public ref void Connect() {
+  public ref void Connect(in Boolean interactive = false) {
     if(_connected) return;
 
+    _interactive = interactive;
     _enabled = true;
-    SendMessage(OWTP_MessageName.CONNECT);
+    SendMessage(OWTP_MessageName.CONNECT, [
+      ["interactive", interactive]
+    ]);
 
     WaitForeverUntil(message.name[0] == "CONNECT" || !_enabled);
 
@@ -137,15 +145,22 @@ single struct OWTP {
     ]);
   }
 
+  ref String GenerateChecksum(in Number[] packets) {
+    Number sum = 0;
+    for(Number i = 0; i < packets.Length; i++)
+      sum += packets[i] + i + 1;
+    return ToString(sum);
+  }
+
   ref Message DecodeMessage(in Number[] packets) {
     // remove start, confirmation & end packets and split it by comma
     Number[][] parts = Split(packets.Remove(<Number>OWTP_ReservedPackets.START_END_CONFIRM), <Number>OWTP_ReservedPackets.COMMA);
-    Number[] id: parts[0];
-    Number[] encodedData: parts[1];
+    Number[] checksumData: parts[0];
+    Number[] id: parts[1];
+    Number[] encodedData: parts[2] || [];
 
     // WORKAROUND: apparently you can't get index of array item in an array, thanks Workshop for making my life difficult...
     // Number idx = registeredMessageIds.IndexOf(parts[0]);
-
     MessageStructure structure;
     for(Number i = 0; i < registeredMessageIds.Length; i++) {
       if(registeredMessageIds[i] == id) {
@@ -154,13 +169,25 @@ single struct OWTP {
       }
     }
 
-    if(!structure) 
+    String calculatedChecksum: GenerateChecksum(id + encodedData);
+    String receivedChecksum: DecodeAsciiString(checksumData);
+
+    if(!structure || calculatedChecksum != receivedChecksum) 
       return null;
+
+    // encoded data doesn't contain "[" and "]" to reduce amount of packets
+    Any[] data = FromJSON($"[{DecodeAsciiString(encodedData)}]");
+
+    for(Number i = 0; i < data.Length; i++) {
+      Type type: structure.dataTypes[i];
+      if(type == Type.VECTOR) {
+        data[i] = Vector(data[i][0], data[i][1], data[i][2]);
+      }
+    }
 
     return Message.New(
       structure.name, 
-      // encoded data doesn't contain "[" and "]" to reduce amount of packets
-      FromJSON($"[{DecodeAsciiString(encodedData)}]")
+      data
     );
   }
 
@@ -222,27 +249,22 @@ single struct OWTP {
       // buffer not started with MESSAGE_START_END_CONFIRM, possibly player pressed a button by accident
       packetsBuffer = [];
     } else if(count == 2) {
-      if(segment == OWTP_ReservedPackets.START_END_CONFIRM) {
-        // packet's end, send confirmation
-        SendMessage(OWTP_MessageName.PACKETS_CONFIRMED, [
-          [OWTP_MessageData.PACKETS, packetsBuffer]
-        ]);
-        // clean up any unhandled messages, so if the same message is sent the rules will retrigger
-        message = null;
+      if(segment == OWTP_ReservedPackets.START_END_CONFIRM) {        
+        message = DecodeMessage(packetsBuffer);
+
+        if(message) {
+          SendMessage(OWTP_MessageName.CONFIRM);
+          packetsBuffer = [];
+        } else {
+          SendError(OWTP_ErrorCode.INVALID_MESSAGE);
+        }
       } else {
         // packet declined
         SendError(OWTP_ErrorCode.INVALID_MESSAGE);
       }
-    } else if(count == 4 && segment == OWTP_ReservedPackets.START_END_CONFIRM) {
-      // packet confirmed
-      message = DecodeMessage(packetsBuffer);
-      packetsBuffer = [];
-
-      if(message) {
-        SendMessage(OWTP_MessageName.CONFIRMATION_RECEIVED);
-      } else {
-        SendError(OWTP_ErrorCode.INVALID_MESSAGE);
-      }
+    } else {
+      // clean up any unhandled messages, so if the same message is sent the rules will retrigger
+      message = null;
     }
 
     buttonsBuffer = [];
@@ -250,6 +272,18 @@ single struct OWTP {
 
   // Handle Packets Timeout
   public ref Boolean HandlePacketsTimeout_Condition(): enabled && packetsBuffer;
+
+  public ref Boolean HandleTransmissionFinishedMessage_Condition(): 
+    message.name == "TRANSMISSION FINISHED";
+
+  public ref void HandleTransmissionFinishedMessage_Rule() {
+    _enabled = false;
+  }
+
+  public ref void ToggleReadyToReceive() {
+    _enabled = !_enabled;
+    SendMessage(_enabled ? OWTP_MessageName.TRANSMISSION_READY : OWTP_MessageName.TRANSMISSION_NOT_READY);
+  }
 
   public ref void HandlePacketsTimeout_Rule() {
     Number[] copy = packetsBuffer;
@@ -267,7 +301,8 @@ single struct OWTP {
   public void DebugHud() {
     // TODO: connection status HUD
 
-    DebugHudHelper($"Is connected: {BooleanFormatterYesNo(_connected)}\n");
+    DebugHudHelper($"Is connected: {BooleanFormatterYesNo(_connected)}");
+    DebugHudHelper($"Transmission enabled: {BooleanFormatterYesNo(_enabled)}\n");
     DebugHudHelper(
       $"Client-side buttons:\n{InlineJoin10(spectatorButtons.Filter((button, idx) => HostPlayer().IsButtonHeld(button)))}"
     );
