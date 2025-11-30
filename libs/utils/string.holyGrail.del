@@ -1,0 +1,18 @@
+import "./string.del";
+
+// source: https://workshop.codes/wiki/articles/tx-fg-textures-and-colors-in-strings
+
+globalvar String holyGrail;
+
+rule: "Setup tx/fg Code" -9999
+{
+    # Script Created By Zezombye.\nMore Info: https://workshop.codes/wiki/articles/tx-reference-sheet
+    CreateDummyBot(Hero.Ana, NumberOfSlots(Team.Team1) ? Team.Team1 : NumberOfSlots(Team.Team2) ? Team.Team2 : true, false, null, null);
+    StartForcingDummyBotName(LastCreatedEntity(), "­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­〼");
+    holyGrail = StringSplit(ToString(LastCreatedEntity()), "");
+    StartForcingDummyBotName(LastCreatedEntity(), "­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­ࡀ");
+    holyGrail = StringSlice(StringReplace("­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­­〼", holyGrail, FirstOf(LastCreatedEntity())), 63, true);
+    DestroyAllDummyBots();
+}
+
+String HolyGrailString(String code): $"{holyGrail}{code}>";

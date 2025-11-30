@@ -114,6 +114,25 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
+      <div class="modifier__title">CAPTCHA</div>  
+      <div class="modifier__duration">10 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>A foolproof Anti-Clanker solution provided by Vishkar Corporation</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>Forces players to solve a simple CAPTCHA</li>
+        <li>Use <code>[↑][↓][←][→]</code> to navigate</li>
+        <li>Use <code>Primary Fire</code> to toggle selection</li>
+        <li>Players get 3 chances to solve it</li>
+        <li>Failing to solve the CAPTCHA ends with player's death</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
       <div class="modifier__title">Drunk</div>  
       <div class="modifier__duration">15 secs</div>
     </div>

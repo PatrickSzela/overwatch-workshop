@@ -1,0 +1,319 @@
+import '../modifier.del';
+import '../utils/effects.del';
+import '../../../libs/utils/player.freeze.del';
+import '../../../libs/utils/string.holyGrail.del';
+import '../../../libs/utils/string.formatters.del';
+
+String CAPTCHA_NAME: 'CAPTCHA';
+Number CAPTCHA_DURATION: 10;
+
+struct Captcha {
+  static Number SCALE: 2.5;
+  static Number DISTANCE_BETWEEN: 0.3;
+  static Vector OFFSET: Vector(0, 0.25);
+
+  public Boolean enabled;
+  public String title;
+  public String[][] hud;
+  public Any[][] values;
+  public Boolean[][] solution;
+  public Boolean[][] choice;
+  public Number retries;
+  public Vector cursorPos;
+
+  public static Captcha New(in String title, in String[][] hud, in Any[][] values, in Boolean[][] solution): {
+    enabled: false,
+    title: title,
+    hud: hud,
+    values: values,
+    solution: solution,
+    choice: [[false, false, false], [false, false, false], [false, false, false]],
+    cursorPos: Vector.Zero,
+    retries: 3,
+  };
+
+  public static Any[] GenerateHUD() {
+    Any[] huds = [];
+
+    huds += CreateInWorldText(
+      VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
+      Header: $"{LocalPlayer().captchaData.title}",
+      Position: UpdateEveryFrame(ScreenPositionToWorldVector(Vector(0, 1.75) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
+      Scale: Captcha.SCALE * 0.75,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+      TextColor: rainbow,
+      Spectators: Spectators.VisibleNever
+    );
+
+    for(Number y = -1; y <= 1; y++) {
+      for(Number x = -1; x <= 1; x++) {
+        huds += CreateInWorldText(
+          VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
+          Header: LocalPlayer().captchaData.hud[EvaluateOnce(y) + 1][EvaluateOnce(x) + 1],
+          Position: UpdateEveryFrame(ScreenPositionToWorldVector(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Captcha.OFFSET)),
+          Scale: Captcha.SCALE,
+          Clipping: Clipping.DoNotClip,
+          Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+          TextColor: Color.White,
+          Spectators: Spectators.VisibleNever
+        );
+
+        huds += CreateInWorldText(
+          VisibleTo: LocalPlayer().captchaData.enabled && LocalPlayer().captchaData.choice[EvaluateOnce(y) + 1][EvaluateOnce(x) + 1] ? LocalPlayer() : null,
+          Header: "✓",
+          Position: UpdateEveryFrame(ScreenPositionToWorldVector(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Vector(-0.075, 0.075) + Captcha.OFFSET)),
+          Scale: 1.75,
+          Clipping: Clipping.DoNotClip,
+          Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+          TextColor: Color.Green,
+          Spectators: Spectators.VisibleNever
+        );
+      }
+
+      MinWait();
+    }
+
+    huds += CreateInWorldText(
+      VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
+      Header: HolyGrailString("tx0C0000000002DD21"),
+      Position: UpdateEveryFrame(ScreenPositionToWorldVector(LocalPlayer().captchaData.cursorPos * Captcha.DISTANCE_BETWEEN + Vector(0.125, -0.1) + Captcha.OFFSET)),
+      Scale: Captcha.SCALE * 0.75,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+      TextColor: Color.White,
+      Spectators: Spectators.VisibleNever
+    );
+
+    huds += CreateInWorldText(
+      VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
+      Header: $"Retries left: {LocalPlayer().captchaData.retries}\nUse [↑][↓][←][→] to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
+      Position: UpdateEveryFrame(ScreenPositionToWorldVector(Vector(4, 0) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
+      Scale: Captcha.SCALE * 0.5,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+      TextColor: Color.White,
+      Spectators: Spectators.VisibleNever
+    );
+
+    huds += CreateInWorldText(
+      VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
+      Header: "Verify",
+      Position: UpdateEveryFrame(ScreenPositionToWorldVector(Vector(0, -2) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
+      Scale: Captcha.SCALE * 0.75,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+      TextColor: rainbow,
+      Spectators: Spectators.VisibleNever
+    );
+
+    return huds;
+  }
+
+  public ref void Enable() {
+    // FreezePlayer();
+    // DisableHeroHud();
+    enabled = true;
+  }
+
+  public ref void Disable() {
+    UnfreezePlayer();
+    EnableHeroHud();
+    DestroyPlayerEffects();
+    enabled = false;
+  }
+
+  public ref void Navigate(in Vector direction) {
+    Vector newPos! = cursorPos + direction;
+
+    if(newPos.X >= -1 && newPos.X <= 1 && newPos.Y >= (newPos.X == 0 ? -2 : -1) && newPos.Y <= 1) {
+      cursorPos = RoundVector(newPos);
+    }
+  }
+  
+  public ref void CaptchaFailed() {
+    BigMessage(EventPlayer(), "CAPTCHA Failed");
+    PlayEffect(AllPlayers(), PlayEffect.ExplosionSound, Color.Red, EventPlayer(), 100);
+    PlayEffect(AllPlayers(), PlayEffect.BadExplosion, Color.Red, EventPlayer(), 1.5);
+    KillIfKillableElseDamage();
+  }
+
+  public ref void ToggleChoice() {
+    if(cursorPos.Y == -2) {
+      if(solution == choice) {
+        BigMessage(EventPlayer(), "CAPTCHA Passed");
+        PlayEffect(EventPlayer(), PlayEffect.BuffExplosionSound, Color.Red, EventPlayer(), 100);
+        Disable();
+      } else {
+        retries--;
+
+        if(retries <= 0) {
+          CaptchaFailed();
+        } else {
+          PlayEffect(EventPlayer(), PlayEffect.ExplosionSound, Color.Red, EventPlayer(), 100);
+        }
+      }
+
+      return;
+    }
+
+    choice[cursorPos.Y + 1][cursorPos.X + 1] = !choice[cursorPos.Y + 1][cursorPos.X + 1];
+  }
+}
+
+playervar Captcha captchaData;
+globalvar Any[] captchaHuds;
+
+
+Modifier captcha: Modifier.New(
+  name: CAPTCHA_NAME, 
+  duration: CAPTCHA_DURATION,
+  description: ["A foolproof Anti-Clanker solution provided by Vishkar Corporation"]
+);
+
+rule: '[Captcha] Is Preloading'
+if(ModifierIsPreloading(CAPTCHA_NAME))
+{
+  captchaHuds = Captcha.GenerateHUD();
+}
+
+rule: '[Captcha] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(CAPTCHA_NAME))
+{
+  WaitBeforePreloading(1);
+  CreatePlayerEffect(EventPlayer(), Effect.AnaSleepingEffect, 1);
+
+  WaitBeforePreloading(2);
+  Number choice! = RandomInteger(0, 5);
+  String title!;
+  Number validCount!;
+  Any[] validValues!;
+  Any[] invalidValues!;
+  Any[] values!;
+  String[] huds!;
+
+  switch(choice) {
+    case 0:
+      title = "Select all Tank heroes";
+      validCount = RandomInteger(3, 7);
+      validValues = AllTankHeroes();
+      invalidValues = AllDamageHeroes() + AllSupportHeroes();
+      break;
+    case 1:
+      title = "Select all Damage heroes";
+      validCount = RandomInteger(3, 7);
+      validValues = AllDamageHeroes();
+      invalidValues = AllTankHeroes() + AllSupportHeroes();
+      break;
+    case 2:
+      title = "Select all Support heroes";
+      validCount = RandomInteger(3, 7);
+      validValues = AllSupportHeroes();
+      invalidValues = AllTankHeroes() + AllDamageHeroes();
+      break;
+    case 3:
+      title = "Select all vowels";
+      validCount = RandomInteger(3, 5);
+      validValues = ["A", "E", "I", "O", "U"];
+      invalidValues = alphabet - validValues;
+      break;
+    case 4:
+      Number div! = [2, 5].Random();
+      title = $"Select all numbers divisible by {div}";
+      values = [RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50)];
+      validValues = values.Filter((i) => i % div == 0);
+      break;
+    case 5:
+      title = $"Select all numbers divisible by 3";
+      values = [RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30)];
+      validValues = values.Filter((i) => i % 3 == 0);
+      break;
+  }
+
+  if(choice <= 3) {
+    values = (validValues.Randomize().Slice(0, validCount) + 
+      invalidValues.Randomize().Slice(0, 9 - validCount)).Randomize();
+  }
+
+  huds = values.Map((i) => choice <= 2 ? HeroIconString(i) : i);
+  Any[] solution = values.Map((i) => validValues.Contains(i));
+
+  captchaData = Captcha.New(
+    title: title, 
+    hud: [huds.Slice(0, 3), huds.Slice(3, 3), huds.Slice(6, 3)],
+    values: [values.Slice(0, 3), values.Slice(3, 3), values.Slice(6, 3)],
+    solution: [solution.Slice(0, 3), solution.Slice(3, 3), solution.Slice(6, 3)],
+  );
+}
+
+rule: '[Captcha] Has Started'
+if(ModifierHasStarted(CAPTCHA_NAME))
+{
+  FreezePlayer(AllPlayers());
+  DisableHeroHud(AllPlayers());
+
+  WaitUntilModifierIsOver();
+  
+  foreach(Any d in captchaHuds)
+    DestroyInWorldText(d);
+}
+
+rule: '[Captcha] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(CAPTCHA_NAME))
+{
+  WaitUntilAlive();
+
+  captchaData.Enable();
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+  if(captchaData.enabled && !IsDead()) captchaData.CaptchaFailed();
+  captchaData.Disable();
+  DestroyPlayerEffects();
+}
+
+void NavigationHelper(Vector direction!) "[Captcha]: Navigation Helper" {
+  captchaData.Navigate(direction);
+}
+
+rule: '[Captcha]: Interacted with menu - Up'
+Event.OngoingPlayer
+if(captchaData.enabled)
+if(ThrottleOf(EventPlayer()).Z > 0.5)
+{
+  NavigationHelper(Up());
+}
+
+rule: '[Captcha]: Interacted with menu - Down'
+Event.OngoingPlayer
+if(captchaData.enabled)
+if(ThrottleOf(EventPlayer()).Z < -0.5)
+{
+  NavigationHelper(Down());
+}
+
+rule: '[Captcha]: Interacted with menu - Left'
+Event.OngoingPlayer
+if(captchaData.enabled)
+if(ThrottleOf(EventPlayer()).X < -0.5)
+{
+  NavigationHelper(Left());
+}
+
+rule: '[Captcha]: Interacted with menu - Right'
+Event.OngoingPlayer
+if(captchaData.enabled)
+if(ThrottleOf(EventPlayer()).X > 0.5)
+{
+  NavigationHelper(Right());
+}
+
+rule: '[Captcha]: Interacted with menu'
+Event.OngoingPlayer
+if(captchaData.enabled)
+if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
+{
+  captchaData.ToggleChoice();
+}

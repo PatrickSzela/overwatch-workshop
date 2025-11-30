@@ -44,7 +44,7 @@ void KillIfKillable(in Player player = EventPlayer(), in Player killer) {
   }
 }
 
-void KillIfKillableElseDamage(in Player player = EventPlayer(), in Player killer) {
+void KillIfKillableElseDamage(in Player player = EventPlayer(), in Player killer = null) {
   if(IsKillable(player)) {
     Kill(player, killer);
   } else {

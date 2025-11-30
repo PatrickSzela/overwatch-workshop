@@ -1,0 +1,16 @@
+import './button.allButtons.del';
+
+void FreezePlayer(in Player[] players = [EventPlayer()]) {
+  players.SetMoveSpeed(0);
+
+  foreach (Button button! in allButtons)
+    DisallowButton(players, button);
+}
+
+void UnfreezePlayer(in Player[] players = [EventPlayer()]) {
+  // TODO: store & restore previous speed in case it was modified - how?
+  players.SetMoveSpeed(100);
+
+  foreach (Button button! in allButtons)
+    AllowButton(players, button);
+}
