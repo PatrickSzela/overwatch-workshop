@@ -21,12 +21,12 @@ import './iceRink.del';
 import './invertControls.del';
 import './invisibility.del';
 import './jetPack.del';
-import './lagging.del';
 import './laserEyes.del';
 import './lowVisibility.del';
 import './mothWar.del';
 import './nanoBoost.del';
 import './noHud.del';
+import './packetLoss.del';
 import './playerSizeBig.del';
 import './playerSizeSmall.del';
 import './primalRage.del';
@@ -70,12 +70,12 @@ globalvar Modifier[] allModifiers = [
   invertControls,
   invisibility,
   jetPack,
-  lagging,
   laserEyes,
   lowVisibility,
   mothWar,
   nanoBoost,
   noHud,
+  packetLoss,
   playerSizeBig,
   playerSizeSmall,
   primalRage,

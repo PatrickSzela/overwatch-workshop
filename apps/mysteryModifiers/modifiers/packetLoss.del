@@ -1,18 +1,18 @@
 import '../modifier.del';
 import '../utils/effects.del';
 
-String LAGGING_NAME: 'Lagging';
-Number LAGGING_DURATION: 10;
+String PACKET_LOSS_NAME: 'Packet Loss';
+Number PACKET_LOSS_DURATION: 10;
 
-Modifier lagging: Modifier.New(
-  name: LAGGING_NAME, 
-  duration: LAGGING_DURATION,
+Modifier packetLoss: Modifier.New(
+  name: PACKET_LOSS_NAME, 
+  duration: PACKET_LOSS_DURATION,
   description: ["Randomly teleport back in time to your previous location"]
 );
 
-rule: '[Lagging] Has Started'
+rule: '[Packet Loss] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(LAGGING_NAME))
+if(ModifierHasStarted(PACKET_LOSS_NAME))
 {
   Wait(RandomReal(1, 2), WaitBehavior.AbortWhenFalse);
 

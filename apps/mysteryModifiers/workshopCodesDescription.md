@@ -405,21 +405,6 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
-      <div class="modifier__title">Lagging</div>  
-      <div class="modifier__duration">10 secs</div>
-    </div>
-    <div class="modifier__content">
-      <div class="modifier__description">
-        <p>Randomly teleport back in time to your previous location</p>
-      </div>
-      <ul class="update-notes__changes">
-        <li>Players get randomly teleported back in time to their previous location</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="modifier">
-    <div class="modifier__header">
       <div class="modifier__title">Laser Eyes</div>  
       <div class="modifier__duration">10 secs</div>
     </div>
@@ -500,6 +485,21 @@ Once the meter is fully charged, the same randomly selected modifier will be app
       <ul class="update-notes__changes">
         <li>Hides most of the UI elements</li>
         <li>Disables other players outlines</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
+      <div class="modifier__title">Packet Loss</div>  
+      <div class="modifier__duration">10 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>Randomly teleport back in time to your previous location</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>Players get randomly teleported back in time to their previous location</li>
       </ul>
     </div>
   </div>
