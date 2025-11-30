@@ -1,5 +1,6 @@
 import '../../libs/utils/player.del';
 import '../../libs/utils/player.sendToHeroSelect.del';
+import '../../libs/utils/team.allTeams.del';
 
 globalvar Boolean skipAssemblySetup = WorkshopSettingToggle("Debug", "Skip Assembling Heroes and Setup", false);
 globalvar Boolean spawnDummyBots = WorkshopSettingToggle("Debug", "Spawn dummy bots on Workshop maps for testing purposes", false);
@@ -33,7 +34,7 @@ if(ToString(CurrentMap()).Contains("Workshop"))
 {
   WaitForeverUntil(HasSpawned(HostPlayer()));
 
-  foreach(Team team! in [Team.Team1, Team.Team2, Team.All]) {
+  foreach(Team team! in allTeams) {
     if(TeamOf(HostPlayer()) == team || TeamOf(HostPlayer()) == OppositeTeamOf(team)) {
       Number idx: team == Team.Team1 ? 0 : 1;
 
