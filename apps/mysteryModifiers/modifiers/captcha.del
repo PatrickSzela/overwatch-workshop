@@ -111,8 +111,8 @@ struct Captcha {
   }
 
   public ref void Enable() {
-    // FreezePlayer();
-    // DisableHeroHud();
+    FreezePlayer();
+    DisableHeroHud();
     enabled = true;
   }
 
@@ -250,9 +250,6 @@ if(ModifierIsPreloading(CAPTCHA_NAME))
 rule: '[Captcha] Has Started'
 if(ModifierHasStarted(CAPTCHA_NAME))
 {
-  FreezePlayer(AllPlayers());
-  DisableHeroHud(AllPlayers());
-
   WaitUntilModifierIsOver();
   
   foreach(Any d in captchaHuds)
