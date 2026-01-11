@@ -1,5 +1,9 @@
 import './number.del';
 
+Player EP: EventPlayer();
+Player HP: HostPlayer();
+Player LP: LocalPlayer();
+
 Boolean IsScopedIn(Player player = EventPlayer()): 
   [Hero.Ana, Hero.Ashe, Hero.Widowmaker].Contains(player.Hero()) && player.IsFiringSecondary();
 
