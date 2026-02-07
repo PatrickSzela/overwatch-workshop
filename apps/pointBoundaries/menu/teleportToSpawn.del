@@ -1,0 +1,15 @@
+import '../_variables.del';
+import '../../../libs/utils/map.del';
+
+String PAGE_TELEPORT_TO_SPAWN_ID: 'teleportToSpawn';
+String PAGE_TELEPORT_TO_SPAWN_NAME: 'Teleport to spawn';
+
+Component PageTeleportToSpawnMenuItem() {
+  Component teleportToSpawn = new Component(PAGE_TELEPORT_TO_SPAWN_NAME);
+
+  teleportToSpawn.SetPrimaryAction("Apply", (it) => {
+    Teleport(EventPlayer(), CurrentSpawnPosition());
+  });
+
+  return teleportToSpawn;
+}

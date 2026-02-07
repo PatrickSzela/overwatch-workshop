@@ -1,6 +1,8 @@
 import './bigArray.del';
 import './number.del';
 
+Vector ArrayToVector(in Number[] array): Vector(array[0], array[1], array[2]);
+
 Vector RoundVector(in Vector vector, in Number precision = 1):
   Vector(
     RoundToInteger(vector.X * precision), 

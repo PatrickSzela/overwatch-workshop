@@ -1,0 +1,793 @@
+globalvar String importDate = "2026-01-18";
+
+rule: "Temple of Anubis - e7472f83-fef2-430a-b4ba-1806641c5bd0"
+if("Temple of Anubis" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-6.87417800, 6.92519240, 111.39737000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.02575481, 0.00000000, 0.99966830], [0.00000000, 0.02575481, 0.00000000, 0.99966830], [0.00000000, 0.02575481, 0.00000000, 0.99966830]];
+  translations = [Vector(-6.87417800, 6.92519240, 111.39737000), Vector(-5.36011300, 13.23131500, 111.21688000), Vector(-14.44841600, 13.52232400, 114.16676000)];
+  extents = [Vector(9.93071300, 3.17017130, 5.80831100), Vector(8.40936200, 3.49638080, 5.91060100), Vector(2.22392080, 3.29697660, 3.43261170)];
+  maxBoxCount = 3;
+}
+
+rule: "Temple of Anubis - d83045a1-68ef-479b-b25b-1137c2f0a853"
+if("Temple of Anubis" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-45.35216000, 5.86276630, 43.23094000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.37875003, 0.00000000, 0.92549926], [0.00000000, -0.41892928, 0.00000000, 0.90801900], [0.00000000, -0.33784363, 0.00000000, 0.94120250]];
+  translations = [Vector(-45.35216000, 5.86276630, 43.23094000), Vector(-41.86658000, 5.91599660, 46.60295000), Vector(-48.55481700, 5.80712900, 39.94889500)];
+  extents = [Vector(5.33343400, 4.93325230, 7.39923330), Vector(1.09170810, 4.88002500, 7.38365170), Vector(0.99108404, 4.98890260, 7.23351860)];
+  maxBoxCount = 3;
+}
+
+rule: "Hanamura - 33d21673-b719-428a-927e-abaccec633d9"
+if("Hanamura" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-3.93351500, 6.22035400, 0.99601960), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(-3.93351500, 6.22035400, 0.99601960), Vector(1.28056000, 6.22035400, 9.92648700), Vector(-9.32207100, 6.22035400, 9.92648700)];
+  extents = [Vector(7.75968650, 6.12943650, 9.82324200), Vector(2.52826360, 6.12943650, 0.80855405), Vector(2.46560140, 6.12943650, 0.80855405)];
+  maxBoxCount = 3;
+}
+
+rule: "Hanamura - b2c4e11c-f438-4c68-acca-70c66369dc2e"
+if("Hanamura" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-10.60828400, 5.08304100, -84.46554000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.38410544, 0.00000000, 0.92328924], [0.00000000, 0.38112578, 0.00000000, 0.92452320], [0.00000000, 0.38112578, 0.00000000, 0.92452320]];
+  translations = [Vector(-10.60828400, 5.08304100, -84.46554000), Vector(-16.26030700, 1.92876890, -90.16894000), Vector(-18.25154500, -0.55779110, -92.17364500)];
+  extents = [Vector(7.88189100, 6.88189940, 5.59729400), Vector(7.67735100, 3.72762780, 3.13364800), Vector(7.67735100, 1.24106780, 0.90389776)];
+  maxBoxCount = 3;
+}
+
+rule: "Volskaya Industries - 99dd6a95-8ceb-496d-ab57-e4cbda783b2e"
+if("Volskaya Industries" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-13.70234000, 3.20675600, 90.27573000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.71005154, 0.00000000, 0.70414970]];
+  translations = [Vector(-13.70234000, 3.20675600, 90.27573000)];
+  extents = [Vector(6.39986500, 9.07637800, 7.01543300)];
+  maxBoxCount = 2;
+}
+
+rule: "Volskaya Industries - 2799fb84-a82d-49b7-af5f-86b0cb1b4a98"
+if("Volskaya Industries" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-94.18635000, -1.00555370, 49.41560000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.87032664, 0.00000000, 0.49247490], [0.00000000, -0.87032664, 0.00000000, 0.49247490]];
+  translations = [Vector(-94.18635000, -1.00555370, 49.41560000), Vector(-95.23517000, 3.97460170, 48.67011300)];
+  extents = [Vector(7.75026000, 2.02341800, 7.60133460), Vector(7.65128470, 3.23950740, 6.31838130)];
+  maxBoxCount = 2;
+}
+
+rule: "Hanamura (Winter) - 33d21673-b719-428a-927e-abaccec633d9"
+if("Hanamura (Winter)" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-3.93351500, 6.22035400, 0.99601960), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(-3.93351500, 6.22035400, 0.99601960), Vector(1.28056000, 6.22035400, 9.92648700), Vector(-9.32207100, 6.22035400, 9.92648700)];
+  extents = [Vector(7.75968650, 6.12943650, 9.82324200), Vector(2.52826360, 6.12943650, 0.80855405), Vector(2.46560140, 6.12943650, 0.80855405)];
+  maxBoxCount = 3;
+}
+
+rule: "Hanamura (Winter) - b2c4e11c-f438-4c68-acca-70c66369dc2e"
+if("Hanamura (Winter)" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-10.60828400, 5.08304100, -84.46554000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.38410544, 0.00000000, 0.92328924], [0.00000000, 0.38112578, 0.00000000, 0.92452320], [0.00000000, 0.38112578, 0.00000000, 0.92452320]];
+  translations = [Vector(-10.60828400, 5.08304100, -84.46554000), Vector(-16.26030700, 1.92876890, -90.16894000), Vector(-18.25154500, -0.55779110, -92.17364500)];
+  extents = [Vector(7.88189100, 6.88189940, 5.59729400), Vector(7.67735100, 3.72762780, 3.13364800), Vector(7.67735100, 1.24106780, 0.90389776)];
+  maxBoxCount = 3;
+}
+
+rule: "Horizon Lunar Colony - 466e934c-acb6-4bab-a057-32c1cf160307"
+if("Horizon Lunar Colony" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-25.02185800, 7.52908130, -122.00679000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.85503477, 0.00000000, 0.51857070], [-0.00000001, -0.51857070, 0.00000001, 0.85503495]];
+  translations = [Vector(-25.02185800, 7.52908130, -122.00679000), Vector(-22.31371700, 7.58643670, -116.83436000)];
+  extents = [Vector(5.86500360, 5.52908230, 6.78575500), Vector(1.00000000, 5.43324850, 5.46684170)];
+  maxBoxCount = 3;
+}
+
+rule: "Horizon Lunar Colony - b0789194-e368-4d82-abce-7c82097b94f1"
+if("Horizon Lunar Colony" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(54.05146800, 11.04527800, -88.46667500), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.72220010, 0.00000000, 0.69168420], [0.00000000, 0.72220010, 0.00000000, -0.69168420], [0.00000000, 0.02157789, 0.00000000, -0.99976720]];
+  translations = [Vector(54.05146800, 11.04527800, -88.46667500), Vector(59.15859600, 11.63854400, -86.29181000), Vector(48.35502600, 11.98623400, -90.30200000)];
+  extents = [Vector(8.00094100, 4.21522140, 6.42734530), Vector(3.01411440, 3.63603070, 1.48894880), Vector(1.00000000, 3.68540950, 2.49477390)];
+  maxBoxCount = 3;
+}
+
+rule: "Paris - bdcad127-9024-4588-bceb-01e5cae068d3"
+if("Paris" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-94.96053000, 15.34096100, -82.05952000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.22688413, 0.00000000, -0.97392180]];
+  translations = [Vector(-94.96053000, 15.34096100, -82.05952000)];
+  extents = [Vector(8.80243300, 3.71138290, 8.30984000)];
+  maxBoxCount = 1;
+}
+
+rule: "Paris - 96b10c1c-9c57-479a-ae3b-e53fc5c3e152"
+if("Paris" == ToString(CurrentMap()))
+if("Assault" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-54.39760600, 14.67549300, 13.95970000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.38015628, 0.00000000, -0.92492230]];
+  translations = [Vector(-54.39760600, 14.67549300, 13.95970000)];
+  extents = [Vector(6.20369600, 3.65093900, 7.26458740)];
+  maxBoxCount = 1;
+}
+
+rule: "King's Row - 4e50fd27-ef54-410c-92f1-db81a48f70e9"
+if("King's Row" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-19.03159100, 4.76014040, -34.03014000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.08729292, 0.00000000, 0.99618274]];
+  translations = [Vector(-19.03159100, 4.76014040, -34.03014000)];
+  extents = [Vector(6.06268300, 5.51619150, 5.75558760)];
+  maxBoxCount = 1;
+}
+
+rule: "Numbani - ae96aeca-815c-4a7c-9dcf-2697d72cecd0"
+if("Numbani" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(87.33963000, 5.03551000, -1.55068620), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.38268343, 0.00000000, 0.92387956]];
+  translations = [Vector(87.33963000, 5.03551000, -1.55068620)];
+  extents = [Vector(9.47485200, 5.67947000, 6.66663740)];
+  maxBoxCount = 1;
+}
+
+rule: "Hollywood - b6554c3e-08dc-4dba-b31e-14f5356e20a3"
+if("Hollywood" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-24.52196000, 6.42948770, -1.41806320), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.26516765, 0.00000000, 0.96420240]];
+  translations = [Vector(-24.52196000, 6.42948770, -1.41806320)];
+  extents = [Vector(7.78205800, 5.67947000, 5.57597800)];
+  maxBoxCount = 1;
+}
+
+rule: "Eichenwalde - 6476a523-ca4e-477e-82fd-795a66930cbb"
+if("Eichenwalde" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(11.34882800, 8.14279700, -72.16461000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.98078550, 0.00000000, 0.19509026]];
+  translations = [Vector(11.34882800, 8.14279700, -72.16461000)];
+  extents = [Vector(5.73116400, 3.10879420, 6.85113800)];
+  maxBoxCount = 1;
+}
+
+rule: "Hollywood (Halloween) - b6554c3e-08dc-4dba-b31e-14f5356e20a3"
+if("Hollywood (Halloween)" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-24.52196000, 6.42948770, -1.41806320), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.26516765, 0.00000000, 0.96420240]];
+  translations = [Vector(-24.52196000, 6.42948770, -1.41806320)];
+  extents = [Vector(7.78205800, 5.67947000, 5.57597800)];
+  maxBoxCount = 1;
+}
+
+rule: "King's Row (Winter) - 4e50fd27-ef54-410c-92f1-db81a48f70e9"
+if("King's Row (Winter)" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-19.03159100, 4.76014040, -34.03014000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.08729292, 0.00000000, 0.99618274]];
+  translations = [Vector(-19.03159100, 4.76014040, -34.03014000)];
+  extents = [Vector(6.06268300, 5.51619150, 5.75558760)];
+  maxBoxCount = 1;
+}
+
+rule: "Blizzard World - 5f76328f-3481-4cd9-8264-742ca0527e89"
+if("Blizzard World" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(3.13917040, 3.40961900, 72.73813000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.99999290, 0.00000000, -0.00377145], [0.00000000, 0.00670555, -0.00000000, 0.99997760], [0.00000000, 0.38268358, -0.00000000, 0.92387956], [0.00000000, -0.37337163, 0.00000000, 0.92768200], [0.00000000, 0.99999290, 0.00000000, -0.00377145]];
+  translations = [Vector(3.13917040, 3.40961900, 72.73813000), Vector(3.50008500, 3.38441940, 66.64167000), Vector(0.06670690, 3.07239170, 66.50253000), Vector(7.39749900, 3.02129000, 65.58793000), Vector(3.04074980, 6.85574700, 73.71912000)];
+  extents = [Vector(7.15884830, 2.40962000, 7.80342700), Vector(4.76669260, 2.38441900, 3.79131100), Vector(1.60033800, 2.07239170, 3.85051900), Vector(1.53993760, 2.02129000, 2.21372300), Vector(6.11753200, 1.54844670, 4.42668600)];
+  maxBoxCount = 5;
+}
+
+rule: "Eichenwalde (Halloween) - 6476a523-ca4e-477e-82fd-795a66930cbb"
+if("Eichenwalde (Halloween)" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(11.34882800, 8.14279700, -72.16461000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.98078550, 0.00000000, 0.19509026]];
+  translations = [Vector(11.34882800, 8.14279700, -72.16461000)];
+  extents = [Vector(5.73116400, 3.10879420, 6.85113800)];
+  maxBoxCount = 1;
+}
+
+rule: "Paraíso - bde98da8-fda9-41f7-a1a0-33d0cc20cefe"
+if("Paraíso" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-8.65996900, 3.84505600, -15.51732400), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[-0.00000035, 0.86762000, 0.00000062, 0.49722824]];
+  translations = [Vector(-8.65996900, 3.84505600, -15.51732400)];
+  extents = [Vector(5.98372550, 3.84496600, 8.20774000)];
+  maxBoxCount = 1;
+}
+
+rule: "Blizzard World (Winter) - 5f76328f-3481-4cd9-8264-742ca0527e89"
+if("Blizzard World (Winter)" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(3.13917040, 3.40961900, 72.73813000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.99999297, 0.00000000, -0.00377148], [0.00000000, 0.00670555, -0.00000000, 0.99997760], [0.00000000, 0.38268358, -0.00000000, 0.92387956], [0.00000000, -0.37337163, 0.00000000, 0.92768200], [0.00000000, 0.99999300, 0.00000000, -0.00377145]];
+  translations = [Vector(3.13917040, 3.40961900, 72.73813000), Vector(3.50008500, 3.38441940, 66.64167000), Vector(0.06670690, 3.07239170, 66.50253000), Vector(7.39749900, 3.02129000, 65.58793000), Vector(3.04074880, 6.85574700, 73.71912000)];
+  extents = [Vector(7.15884830, 2.40962000, 7.80342700), Vector(4.76669260, 2.38441900, 3.79131100), Vector(1.60033800, 2.07239170, 3.85051900), Vector(1.53993760, 2.02129000, 2.21372300), Vector(6.11753200, 1.54844670, 4.42668600)];
+  maxBoxCount = 5;
+}
+
+rule: "Midtown - f7cd064a-4382-424c-a1ca-4fe56247d3f0"
+if("Midtown" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(9.34285200, 8.29472350, 30.20498700), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.77382420, 0.00000000, 0.63340056], [0.00000000, -0.77382420, 0.00000000, 0.63340056], [0.00000000, -0.45114186, 0.00000000, 0.89245230], [0.00000000, -0.97178200, 0.00000000, 0.23588088], [0.00000000, -0.77382420, 0.00000000, 0.63340056], [0.00000000, -0.46339568, 0.00000000, 0.88615150], [0.00000000, 0.29564455, 0.00000000, 0.95529807], [0.00000000, -0.95529810, 0.00000000, 0.29564440], [0.00000000, -0.88615143, 0.00000000, -0.46339577], [0.00000000, -0.63340044, 0.00000000, -0.77382420]];
+  translations = [Vector(9.34285200, 8.29472350, 30.20498700), Vector(10.18519500, 8.29472350, 25.36969800), Vector(7.26112030, 8.29472350, 24.96001400), Vector(13.17481400, 8.29472350, 26.20897000), Vector(1.96289730, 8.29472350, 28.72342000), Vector(2.95835690, 8.29472350, 24.66543600), Vector(1.25975130, 8.29472350, 32.86845800), Vector(17.40688100, 8.29472350, 27.53594000), Vector(15.69254500, 8.29472350, 35.74973000), Vector(16.68800700, 8.29472350, 31.69174400)];
+  extents = [Vector(4.72120900, 3.84003800, 7.13942000), Vector(0.56427693, 3.84003800, 2.75494300), Vector(0.33444408, 3.84003800, 0.74626150), Vector(0.33444408, 3.84003800, 0.74626150), Vector(3.93678430, 3.84003800, 0.39626540), Vector(0.33444408, 3.84003800, 0.52048105), Vector(0.33444408, 3.84003800, 0.52048105), Vector(0.33444408, 3.84003800, 0.52048105), Vector(0.33444408, 3.84003800, 0.52048105), Vector(3.93678430, 3.84003800, 0.39626540)];
+  maxBoxCount = 10;
+}
+
+rule: "Nepal - 0e13e20f-92d0-496e-9f15-66086e83802b"
+if("Nepal" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-50.18139000, 16.24625000, -0.01119137), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, -1.00000000, 0.00000000, -0.00000004], [0.00000000, -1.00000000, 0.00000000, -0.00000004], [0.00000000, -1.00000000, 0.00000000, -0.00000004], [0.00000000, -1.00000000, 0.00000000, -0.00000004], [0.00000000, -0.92387950, 0.00000000, 0.38268343], [0.00000000, -0.92387960, 0.00000000, 0.38268350]];
+  translations = [Vector(-50.18139000, 16.24625000, -0.01119137), Vector(-56.58228300, 21.41938400, -0.10627400), Vector(-43.32939500, 21.44728000, -0.02319702), Vector(-50.07890700, 21.43138900, 6.61138100), Vector(-50.00899000, 21.44450200, -6.36198850), Vector(-50.05396000, 21.14098000, -0.00282652), Vector(-49.97247000, 21.25000400, -0.00449362)];
+  extents = [Vector(8.30535100, 3.99054240, 8.38424000), Vector(2.43198590, 1.20984270, 5.14723800), Vector(1.93824770, 1.18868640, 5.38656760), Vector(5.48336800, 1.18934630, 2.16695260), Vector(5.24073800, 1.19472500, 2.26801350), Vector(3.03750230, 1.49526690, 9.46916200), Vector(9.44449200, 1.37707140, 2.20504400)];
+  maxBoxCount = 7;
+}
+
+rule: "Nepal - 29ca1c1b-e642-4bcb-99e0-432c6a1953bd"
+if("Nepal" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-194.94203000, -91.68792000, 0.00000000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(-194.94203000, -91.68792000, 0.00000000)];
+  extents = [Vector(6.05586000, 2.70265720, 6.28170300)];
+  maxBoxCount = 7;
+}
+
+rule: "Nepal - 23f4aae0-889f-4caf-861f-a56a6177080d"
+if("Nepal" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(85.21068000, 133.03926000, -0.01201180), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(85.21068000, 133.03926000, -0.01201180), Vector(78.58845500, 132.61868000, -0.04167730)];
+  extents = [Vector(5.18675570, 5.16831540, 7.78729500), Vector(1.56428550, 5.61868950, 4.93541430)];
+  maxBoxCount = 7;
+}
+
+rule: "Lijiang Tower - ac243113-6d65-4367-90bb-060d8644b313"
+if("Lijiang Tower" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(1.02186350, 6.01092340, -61.01473600), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, -0.00000015]];
+  translations = [Vector(1.02186350, 6.01092340, -61.01473600)];
+  extents = [Vector(7.98375460, 7.68317300, 7.89156060)];
+  maxBoxCount = 8;
+}
+
+rule: "Lijiang Tower - 58c16b3f-f61e-4915-baa9-be0c584b9bc6"
+if("Lijiang Tower" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(0.12610507, 98.17940000, 149.96200000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.38268346, 0.00000000, 0.92387950], [0.00000000, 0.38268346, 0.00000000, 0.92387950], [0.00000000, 0.38268346, 0.00000000, 0.92387950], [0.00000000, 0.38268346, 0.00000000, 0.92387950], [0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(0.12610507, 98.17940000, 149.96200000), Vector(-0.05450225, 98.17940000, 144.04744000), Vector(-3.95454900, 98.17940000, 146.05164000), Vector(3.73341870, 98.17940000, 146.09738000), Vector(-3.49514300, 98.17940000, 153.80188000), Vector(3.60268800, 98.17940000, 153.63841000), Vector(-0.05450225, 98.17940000, 155.41971000)];
+  extents = [Vector(9.17656700, 5.17939760, 3.70451350), Vector(3.75894760, 5.17939760, 3.70870970), Vector(3.64810440, 5.17939760, 4.06108400), Vector(4.27952000, 5.17939760, 3.70451350), Vector(4.02953900, 5.17939760, 3.70451350), Vector(3.75894760, 5.17939760, 4.11186200), Vector(3.75894760, 5.17939760, 4.24053200)];
+  maxBoxCount = 8;
+}
+
+rule: "Lijiang Tower - 6182911f-d738-4afc-8767-3f67675b25fa"
+if("Lijiang Tower" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(0.00000000, 272.61975000, 280.00000000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, -0.00000012], [0.00000000, 0.98078525, 0.00000000, -0.19509046], [0.00000000, 0.92387944, 0.00000000, -0.38268358], [0.00000000, 0.83146954, 0.00000000, -0.55557040], [0.00000000, 0.70710665, 0.00000000, -0.70710700], [0.00000000, 0.55557000, 0.00000000, -0.83146980], [0.00000000, 0.38268313, 0.00000000, -0.92387960], [0.00000000, 0.19509000, 0.00000000, -0.98078540]];
+  translations = [Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000)];
+  extents = [Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880)];
+  maxBoxCount = 8;
+}
+
+rule: "Ilios - 559ece5c-393f-423f-bc16-8b7779e6ab99"
+if("Ilios" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(357.98758000, -22.64549000, -51.56907300), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.19509038, 0.00000000, 0.98078537], [0.01713717, 0.83129050, 0.01145596, 0.55545620], [0.00262047, 0.19508347, -0.00052092, 0.98078316]];
+  translations = [Vector(357.98758000, -22.64549000, -51.56907300), Vector(358.59875000, -22.90475000, -44.44885600), Vector(353.42090000, -22.66491300, -56.71021700)];
+  extents = [Vector(6.18918850, 3.48185280, 7.08613500), Vector(1.96991600, 3.58554890, 4.06763650), Vector(3.94111010, 3.90583660, 1.68279360)];
+  maxBoxCount = 3;
+}
+
+rule: "Ilios - 58d2192c-a7fe-49f1-b19d-02978aefd305"
+if("Ilios" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-208.13530000, 3.04323300, -16.51643400), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.92387974, 0.00000000, 0.38268350]];
+  translations = [Vector(-208.13530000, 3.04323300, -16.51643400)];
+  extents = [Vector(12.68759250, 3.68333890, 8.64916200)];
+  maxBoxCount = 3;
+}
+
+rule: "Ilios - 7c658ef5-f506-4c6e-874b-40722f65aaed"
+if("Ilios" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(28.55874400, 60.43012200, -157.47826000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(28.55874400, 60.43012200, -157.47826000)];
+  extents = [Vector(8.81265200, 7.00636300, 7.18218230)];
+  maxBoxCount = 3;
+}
+
+rule: "Oasis - 9a634ce4-187c-481b-8929-d1fbd44876df"
+if("Oasis" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(143.49435000, 5.00275500, 247.49438000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.38268346, 0.00000000, 0.92387950], [0.00000000, -0.19509035, 0.00000000, 0.98078537], [0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.19509020, 0.00000000, 0.98078530], [0.00000000, 0.38268328, 0.00000000, 0.92387960], [0.00000000, 0.55557010, 0.00000000, 0.83146970], [0.00000000, 0.70710677, 0.00000000, 0.70710680], [0.00000000, 0.83146960, 0.00000000, 0.55557024]];
+  translations = [Vector(143.49435000, 5.00275500, 247.49438000), Vector(143.49435000, 5.00275500, 247.49438000), Vector(143.49435000, 5.00275500, 247.49438000), Vector(143.49435000, 5.00275500, 247.49438000), Vector(143.49435000, 5.00275500, 247.49438000), Vector(143.49435000, 5.00275500, 247.49438000), Vector(143.49435000, 5.00275500, 247.49438000), Vector(143.49435000, 5.00275500, 247.49438000)];
+  extents = [Vector(11.77500000, 3.90000000, 2.35000000), Vector(11.77500000, 3.90000000, 2.35000000), Vector(11.77500000, 3.90000000, 2.35000000), Vector(11.77500000, 3.90000000, 2.35000000), Vector(11.77500000, 3.90000000, 2.35000000), Vector(11.77500000, 3.90000000, 2.35000000), Vector(11.77500000, 3.90000000, 2.35000000), Vector(11.77500000, 3.90000000, 2.35000000)];
+  maxBoxCount = 8;
+}
+
+rule: "Oasis - f4d25185-4cff-4ac7-81ff-2f55d7f6bdab"
+if("Oasis" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(121.05253000, 8.13221550, -227.42566000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.92387970, 0.00000000, -0.38268360]];
+  translations = [Vector(121.05253000, 8.13221550, -227.42566000)];
+  extents = [Vector(11.79648400, 3.00046440, 10.28122900)];
+  maxBoxCount = 8;
+}
+
+rule: "Oasis - 18c9bd0f-874b-4bcc-af28-e211d8c81876"
+if("Oasis" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-188.41438000, 19.77714700, -0.02390587), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -1.00000000, 0.00000000, -0.00000009]];
+  translations = [Vector(-188.41438000, 19.77714700, -0.02390587)];
+  extents = [Vector(7.93971730, 4.83435960, 9.05433750)];
+  maxBoxCount = 8;
+}
+
+rule: "Lijiang Tower (Lunar New Year) - ac243113-6d65-4367-90bb-060d8644b313"
+if("Lijiang Tower (Lunar New Year)" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(1.02186350, 6.01092340, -61.01473600), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, -0.00000015]];
+  translations = [Vector(1.02186350, 6.01092340, -61.01473600)];
+  extents = [Vector(7.98375460, 7.68317300, 7.89156060)];
+  maxBoxCount = 8;
+}
+
+rule: "Lijiang Tower (Lunar New Year) - 58c16b3f-f61e-4915-baa9-be0c584b9bc6"
+if("Lijiang Tower (Lunar New Year)" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(0.12610507, 98.17940000, 149.96200000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.38268346, 0.00000000, 0.92387950], [0.00000000, 0.38268346, 0.00000000, 0.92387950], [0.00000000, 0.38268346, 0.00000000, 0.92387950], [0.00000000, 0.38268346, 0.00000000, 0.92387950], [0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(0.12610507, 98.17940000, 149.96200000), Vector(-0.05450225, 98.17940000, 144.04744000), Vector(-3.95454900, 98.17940000, 146.05164000), Vector(3.73341870, 98.17940000, 146.09738000), Vector(-3.49514300, 98.17940000, 153.80188000), Vector(3.60268800, 98.17940000, 153.63841000), Vector(-0.05450225, 98.17940000, 155.41971000)];
+  extents = [Vector(9.17656700, 5.17939760, 3.70451350), Vector(3.75894760, 5.17939760, 3.70870970), Vector(3.64810440, 5.17939760, 4.06108400), Vector(4.27952000, 5.17939760, 3.70451350), Vector(4.02953900, 5.17939760, 3.70451350), Vector(3.75894760, 5.17939760, 4.11186200), Vector(3.75894760, 5.17939760, 4.24053200)];
+  maxBoxCount = 8;
+}
+
+rule: "Lijiang Tower (Lunar New Year) - 6182911f-d738-4afc-8767-3f67675b25fa"
+if("Lijiang Tower (Lunar New Year)" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(0.00000000, 272.61975000, 280.00000000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, -0.00000012], [0.00000000, 0.98078525, 0.00000000, -0.19509046], [0.00000000, 0.92387944, 0.00000000, -0.38268358], [0.00000000, 0.83146954, 0.00000000, -0.55557040], [0.00000000, 0.70710665, 0.00000000, -0.70710700], [0.00000000, 0.55557000, 0.00000000, -0.83146980], [0.00000000, 0.38268313, 0.00000000, -0.92387960], [0.00000000, 0.19509000, 0.00000000, -0.98078540]];
+  translations = [Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000), Vector(0.00000000, 272.61975000, 280.00000000)];
+  extents = [Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880), Vector(8.26011850, 5.75764470, 1.64702880)];
+  maxBoxCount = 8;
+}
+
+rule: "Busan - fc76e3fe-8749-409a-bb56-ac011f9055a6"
+if("Busan" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(51.96663700, 8.02324300, -92.95854000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(51.96663700, 8.02324300, -92.95854000)];
+  extents = [Vector(9.09734250, 2.31931500, 6.39214500)];
+  maxBoxCount = 1;
+}
+
+rule: "Busan - 09edf379-e346-45e6-bde1-e005cb396189"
+if("Busan" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-328.39978000, 12.51106800, 140.57346000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(-328.39978000, 12.51106800, 140.57346000)];
+  extents = [Vector(7.04333500, 4.73578260, 6.65835480)];
+  maxBoxCount = 1;
+}
+
+rule: "Busan - d81b6594-90c8-4912-8ed2-edfc9ea2815e"
+if("Busan" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(222.34221000, 10.52770000, 241.27184000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.20205265, 0.00000000, 0.97937477]];
+  translations = [Vector(222.34221000, 10.52770000, 241.27184000)];
+  extents = [Vector(7.97728730, 4.59228130, 7.50314330)];
+  maxBoxCount = 1;
+}
+
+rule: "Antarctic Peninsula - aec8c31b-40b5-40c9-84ac-c8229f52e0be"
+if("Antarctic Peninsula" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(270.00000000, 41.19289400, 159.99994000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, -0.00000009]];
+  translations = [Vector(270.00000000, 41.19289400, 159.99994000)];
+  extents = [Vector(8.91249900, 2.25000000, 7.01250030)];
+  maxBoxCount = 6;
+}
+
+rule: "Antarctic Peninsula - b4e79d43-b87b-4486-9ca9-2804261449fb"
+if("Antarctic Peninsula" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(284.00000000, -10.25000100, -223.00000000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, -0.38268346, 0.00000000, 0.92387950], [0.00000000, -0.92387960, 0.00000000, 0.38268340], [0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.38268355, 0.00000000, 0.92387956], [0.00000000, 0.38268346, 0.00000000, -0.92387950]];
+  translations = [Vector(284.00000000, -10.25000100, -223.00000000), Vector(286.42456000, -10.00000200, -228.29294000), Vector(281.39856000, -10.75000300, -228.11612000), Vector(284.00000000, -10.25000100, -216.25000000), Vector(288.63390000, -10.25000100, -218.19452000), Vector(279.29288000, -11.00000400, -218.12129000)];
+  extents = [Vector(7.40625000, 3.26250000, 4.95000000), Vector(3.71875000, 3.00000000, 3.30000000), Vector(3.50000000, 3.75000000, 3.30000000), Vector(3.25000000, 3.26250000, 2.18750000), Vector(1.87500000, 3.26250000, 2.12500000), Vector(1.87500000, 3.98750020, 2.00000000)];
+  maxBoxCount = 6;
+}
+
+rule: "Antarctic Peninsula - c5baf680-ee4b-4d24-b422-6345883560ba"
+if("Antarctic Peninsula" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-74.45827500, -158.30055000, 60.06049000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.70710677, 0.00000000, -0.70710700]];
+  translations = [Vector(-74.45827500, -158.30055000, 60.06049000)];
+  extents = [Vector(8.91249900, 3.01431300, 7.55948200)];
+  maxBoxCount = 6;
+}
+
+rule: "Samoa - cc23ed07-e29e-4162-aa71-6aaf3dae4675"
+if("Samoa" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(27.61905300, 341.70398000, 359.59674000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, -0.00000004]];
+  translations = [Vector(27.61905300, 341.70398000, 359.59674000)];
+  extents = [Vector(9.00193400, 1.96004870, 8.94907300)];
+  maxBoxCount = 12;
+}
+
+rule: "Samoa - a79d6ae7-3bf1-4356-b0df-f2dfd63fcf39"
+if("Samoa" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(234.00000000, 7.99995370, -256.00000000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -1.00000000, 0.00000000, -0.00000019], [0.00000000, -0.99144490, 0.00000000, -0.13052638], [0.00000000, -0.96592575, 0.00000000, -0.25881922], [0.00000000, -0.92387944, 0.00000000, -0.38268360], [0.00000000, -0.86602530, 0.00000000, -0.50000020], [0.00000000, -0.79335320, 0.00000000, -0.60876155], [0.00000000, -0.70710665, 0.00000000, -0.70710695], [0.00000000, -0.60876125, 0.00000000, -0.79335350], [0.00000000, -0.49999982, 0.00000000, -0.86602557], [0.00000000, -0.38268325, 0.00000000, -0.92387970], [0.00000000, -0.25881884, 0.00000000, -0.96592590], [0.00000000, -0.13052598, 0.00000000, -0.99144495]];
+  translations = [Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000), Vector(234.00000000, 7.99995370, -256.00000000)];
+  extents = [Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000), Vector(12.00000000, 3.00000000, 1.60000000)];
+  maxBoxCount = 12;
+}
+
+rule: "Samoa - eb357374-76bc-4a63-9613-f10ce0137ea6"
+if("Samoa" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-329.98328000, 4.97200600, -98.78177000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(-329.98328000, 4.97200600, -98.78177000), Vector(-329.96466000, 4.58675200, -110.66205000), Vector(-329.95047000, 5.47186850, -106.91690000)];
+  extents = [Vector(5.95788800, 2.68660640, 6.91263250), Vector(5.97650400, 2.30135250, 5.31240560), Vector(5.45141840, 3.18646880, 9.05756400)];
+  maxBoxCount = 12;
+}
+
+rule: "Suravasa - af80c0e4-36cd-4f2c-82ef-a76b652a71de"
+if("Suravasa" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-82.75339000, -1.19351340, 41.99805500), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.70710660, 0.00000000, -0.70710695], [0.00000000, -0.70710660, 0.00000000, -0.70710695], [0.00000000, -0.70710660, 0.00000000, -0.70710695]];
+  translations = [Vector(-82.75339000, -1.19351340, 41.99805500), Vector(-74.14649000, -1.19351340, 47.27173000), Vector(-74.13528000, -1.19351340, 36.69848000)];
+  extents = [Vector(7.76086600, 5.79142400, 5.89131830), Vector(2.53189180, 5.79142400, 3.22094150), Vector(2.55595680, 5.79142400, 3.21987320)];
+  maxBoxCount = 3;
+}
+
+rule: "Suravasa - d414d51a-5e42-4d3d-a11b-e5fec610424c"
+if("Suravasa" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-75.91827400, 8.38072300, -41.00000000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.70710680, 0.00000000, 0.70710670]];
+  translations = [Vector(-75.91827400, 8.38072300, -41.00000000)];
+  extents = [Vector(7.96781900, 5.79142400, 6.84457870)];
+  maxBoxCount = 3;
+}
+
+rule: "Suravasa - 4c415609-0ccc-4bf1-bf6e-5ec9d1e0e6d9"
+if("Suravasa" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(61.91755700, 8.73819300, 42.02229700), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.70710680, 0.00000000, 0.70710670]];
+  translations = [Vector(61.91755700, 8.73819300, 42.02229700)];
+  extents = [Vector(6.99062000, 5.28586100, 8.27380500)];
+  maxBoxCount = 3;
+}
+
+rule: "Suravasa - d4affbd1-26f9-4690-8908-d475307620f8"
+if("Suravasa" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-2.33492830, 7.05598200, -0.05963254), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(-2.33492830, 7.05598200, -0.05963254)];
+  extents = [Vector(6.97316270, 3.43260220, 6.67559100)];
+  maxBoxCount = 3;
+}
+
+rule: "Suravasa - a92f7579-fb09-4b04-9b71-f2cf4383fcaa"
+if("Suravasa" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(70.39765000, 7.30913350, -41.98617000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.70710707, 0.00000000, 0.70710670]];
+  translations = [Vector(70.39765000, 7.30913350, -41.98617000)];
+  extents = [Vector(6.26898300, 5.28586100, 7.29329600)];
+  maxBoxCount = 3;
+}
+
+rule: "New Junk City - 2069d10f-afad-4958-9f42-7a54fd13bbcc"
+if("New Junk City" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(72.00870000, -0.50000000, -42.99502600), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(72.00870000, -0.50000000, -42.99502600)];
+  extents = [Vector(8.01214600, 3.25000000, 6.81812860)];
+  maxBoxCount = 9;
+}
+
+rule: "New Junk City - e5c1e826-ced8-48f0-acbf-cb29f66db599"
+if("New Junk City" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(70.89383000, 6.73843530, 43.02707700), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, -0.00000036], [0.00000000, 1.00000000, 0.00000000, -0.00000036], [0.00000000, 0.92387944, 0.00000000, -0.38268378], [0.00000000, 0.38268325, 0.00000000, -0.92387974]];
+  translations = [Vector(70.89383000, 6.73843530, 43.02707700), Vector(70.97412000, 6.73843530, 43.01105500), Vector(70.95356000, 6.73843530, 43.01326800), Vector(70.90894000, 6.73843530, 42.97723800)];
+  extents = [Vector(8.59427500, 4.17304850, 3.91805960), Vector(3.94012200, 4.17304850, 8.61693400), Vector(3.28724310, 4.17304850, 8.82392700), Vector(3.33486060, 4.17304850, 8.84300100)];
+  maxBoxCount = 9;
+}
+
+rule: "New Junk City - bd48bc66-bcd4-44f9-80d0-bcb7456c1b0b"
+if("New Junk City" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(0.17841214, 4.43541960, -0.02932614), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.70710680, 0.00000000, 0.70710670], [0.00000000, -0.55557024, 0.00000000, 0.83146966], [0.00000000, -0.38268346, 0.00000000, 0.92387950], [0.00000000, -0.19509023, 0.00000000, 0.98078530], [0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.19509041, 0.00000000, 0.98078530], [0.00000000, 0.55557024, 0.00000000, 0.83146954], [0.00000000, 0.38268350, 0.00000000, 0.92387950], [0.00000000, -0.70710680, 0.00000000, 0.70710670]];
+  translations = [Vector(0.17841214, 4.43541960, -0.02932614), Vector(0.14463735, 4.43541960, -0.12595063), Vector(-0.07700521, 4.43541960, -0.04095602), Vector(-0.09488618, 4.43541960, -0.01423418), Vector(-0.08863509, 4.43541960, -0.02140153), Vector(-0.08735141, 4.43541960, -0.02622688), Vector(0.16958827, 4.43541960, 0.07763463), Vector(-0.02623820, 4.43541960, 0.03307110), Vector(-6.88161400, 0.25988883, -0.00889575)];
+  extents = [Vector(1.59250160, 5.88000630, 7.57782940), Vector(1.59250160, 5.88000630, 7.59552800), Vector(1.59250160, 5.88000630, 7.83299970), Vector(1.59250160, 5.88000630, 7.76473600), Vector(1.59250160, 5.88000630, 7.71581030), Vector(1.59250160, 5.88000630, 7.81497140), Vector(1.59250160, 5.88000630, 7.56433250), Vector(1.59250160, 5.88000630, 7.73331550), Vector(4.78780300, 1.53947100, 1.67212780)];
+  maxBoxCount = 9;
+}
+
+rule: "New Junk City - 71c7b126-ae9b-4a4c-aadd-b5ea97ce07cb"
+if("New Junk City" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-75.85025000, 7.49420200, 39.99884400), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -1.00000000, 0.00000000, -0.00000048]];
+  translations = [Vector(-75.85025000, 7.49420200, 39.99884400)];
+  extents = [Vector(8.90290700, 4.28549670, 9.11278500)];
+  maxBoxCount = 9;
+}
+
+rule: "New Junk City - b7041e67-691d-4b4f-b48a-f18211f3fd96"
+if("New Junk City" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-75.63057000, 2.38082100, -39.99812700), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -1.00000000, 0.00000000, 0.00000016], [0.00000000, -1.00000000, 0.00000000, 0.00000016], [0.00000000, -1.00000000, 0.00000000, 0.00000016], [0.00000000, -1.00000000, 0.00000000, 0.00000016], [0.00000000, -0.92387960, 0.00000000, -0.38268330], [0.00000000, -0.38268352, 0.00000000, -0.92387944]];
+  translations = [Vector(-75.63057000, 2.38082100, -39.99812700), Vector(-83.54991000, -0.22029924, -40.01976000), Vector(-82.77892000, 2.38082100, -45.87941700), Vector(-82.57702000, 2.38082100, -34.10776000), Vector(-82.57912400, 2.38082100, -44.05704500), Vector(-82.35585000, 2.38082100, -36.01684600)];
+  extents = [Vector(6.59838500, 5.79142400, 6.75418760), Vector(1.41791190, 3.19030330, 6.75200400), Vector(2.18889700, 5.79142400, 0.89784790), Vector(2.39079710, 5.79142400, 0.88080120), Vector(2.34668680, 5.79142400, 1.05043150), Vector(2.56962680, 5.79142400, 1.10075550)];
+  maxBoxCount = 9;
+}
+
+rule: "Aatlis - cd3d9bac-4272-4eb0-833b-7ef716dd7bc4"
+if("Aatlis" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(4.98439500, 9.80398200, 0.00927854), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.70710680, 0.00000000, 0.70710670], [0.00000000, -0.70710680, 0.00000000, 0.70710670], [0.00000000, -0.38268358, 0.00000000, 0.92387950], [0.00000000, -0.92387960, 0.00000000, 0.38268313], [0.00000000, -0.92387950, 0.00000000, -0.38268346], [0.00000000, -0.38268330, 0.00000000, -0.92387956], [0.00000000, -0.70710680, 0.00000000, 0.70710670], [0.00000000, -0.70710680, 0.00000000, 0.70710670], [0.00000000, -0.70710680, 0.00000000, 0.70710670]];
+  translations = [Vector(4.98439500, 9.80398200, 0.00927854), Vector(5.01882650, 9.80398200, -0.03599894), Vector(-2.13366900, 10.65727300, 4.43249370), Vector(-2.22385740, 10.68642900, -4.33912320), Vector(13.09103600, 10.62827700, -5.02421100), Vector(12.91425700, 10.62671850, 4.79900550), Vector(6.10473200, 10.64627800, 0.00927913), Vector(-2.34342810, 10.68095000, -4.00614740), Vector(-2.34343000, 10.68095000, 4.12793350)];
+  extents = [Vector(7.00790400, 2.35200260, 8.01377200), Vector(4.99443670, 2.35200260, 9.97933900), Vector(1.26283230, 3.20529440, 2.74581070), Vector(1.42688570, 3.23444960, 2.56745700), Vector(1.42688570, 3.17629740, 1.81344600), Vector(1.42688570, 3.17473980, 1.81344600), Vector(7.00790400, 3.19429950, 6.89343400), Vector(1.02428720, 3.22897030, 2.53455850), Vector(0.94208485, 3.22897030, 2.53455850)];
+  maxBoxCount = 9;
+}
+
+rule: "Aatlis - ffc57abf-78b1-4baf-ae5e-d9a680fab8f5"
+if("Aatlis" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-81.76484000, 11.00000000, 32.49511700), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -1.00000000, 0.00000000, -0.00000048], [0.00000000, -1.00000000, 0.00000000, -0.00000048], [0.00000000, -1.00000000, 0.00000000, -0.00000048], [0.00000000, -0.92387974, 0.00000000, 0.38268300], [0.00000000, -0.92387944, 0.00000000, -0.38268393]];
+  translations = [Vector(-81.76484000, 11.00000000, 32.49511700), Vector(-77.22568000, 11.00000000, 39.99345000), Vector(-81.72674600, 11.00000000, 47.40246200), Vector(-77.40583000, 11.00000000, 33.96955000), Vector(-77.37620000, 10.99999900, 45.96992500)];
+  extents = [Vector(3.49641800, 4.00000000, 4.40535450), Vector(5.77432250, 4.00000000, 5.18086800), Vector(3.52622990, 4.00000000, 4.40246600), Vector(3.58548670, 4.00000000, 4.75046600), Vector(3.58841320, 4.00000000, 4.67851920)];
+  maxBoxCount = 9;
+}
+
+rule: "Aatlis - 2e8e4696-52f6-4d70-a5f3-4acd243c720a"
+if("Aatlis" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(69.45889000, 12.85619500, -40.01929500), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(69.45889000, 12.85619500, -40.01929500), Vector(78.28296000, 12.85589600, -40.07679700)];
+  extents = [Vector(4.25252060, 3.71812730, 7.88622600), Vector(4.58912500, 3.71782780, 3.83511700)];
+  maxBoxCount = 9;
+}
+
+rule: "Aatlis - 42033a04-acbe-463e-969f-4d560b1b4b3e"
+if("Aatlis" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-78.34511600, 15.46845400, -39.97726400), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -1.00000000, 0.00000000, 0.00000016], [0.00000000, -1.00000000, 0.00000000, 0.00000016], [0.00000000, -0.92387950, 0.00000000, 0.38268360], [0.00000000, -0.92387960, 0.00000000, -0.38268325]];
+  translations = [Vector(-78.34511600, 15.46845400, -39.97726400), Vector(-71.50603000, 15.46845400, -40.80330000), Vector(-72.59409000, 15.46845400, -44.71523300), Vector(-72.41731000, 15.46845400, -35.16929200)];
+  extents = [Vector(7.58343500, 6.72704500, 8.03714750), Vector(2.49434730, 6.72704500, 5.45780400), Vector(2.26054600, 6.72704500, 3.09625430), Vector(2.26054600, 6.72704500, 3.09625430)];
+  maxBoxCount = 9;
+}
+
+rule: "Aatlis - 8169e871-48e1-42de-bd01-336e0a156941"
+if("Aatlis" == ToString(CurrentMap()))
+if("Flashpoint" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(75.47954000, 9.36387400, 39.98177300), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, -0.00000036]];
+  translations = [Vector(75.47954000, 9.36387400, 39.98177300)];
+  extents = [Vector(8.26670900, 2.54848800, 8.86985500)];
+  maxBoxCount = 9;
+}
+
+rule: "Hanaoka - 6c51269a-6317-4110-8178-54868ffc5ce5"
+if("Hanaoka" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-4.98946500, 40.14737700, -47.12466400), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, 0.00000000]];
+  translations = [Vector(-4.98946500, 40.14737700, -47.12466400)];
+  extents = [Vector(7.50644830, 2.62350600, 7.62065460)];
+  maxBoxCount = 7;
+}
+
+rule: "Hanaoka - 77957d6f-d2d0-435d-ada4-7d64d7fdf16e"
+if("Hanaoka" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(6.56604670, 43.62971500, -100.79517000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.92387944, 0.00000000, 0.38268355], [0.00000000, -1.00000000, 0.00000000, -0.00000003], [0.00000000, -0.00000009, 0.00000000, -1.00000000], [0.00000000, -0.00000009, 0.00000000, -1.00000000], [0.00000000, 0.38268337, 0.00000000, -0.92387956], [0.00000000, -0.38268355, 0.00000000, -0.92387944], [0.00000000, -0.92387956, 0.00000000, -0.38268350]];
+  translations = [Vector(6.56604670, 43.62971500, -100.79517000), Vector(7.08468150, 43.62971500, -96.95215000), Vector(-4.42556670, 43.62971500, -96.96326000), Vector(-15.91533800, 43.62971500, -97.14534000), Vector(-15.39670100, 43.62971500, -100.59545000), Vector(-15.39670600, 43.62971500, -92.84545000), Vector(6.56604400, 43.62971500, -93.04517000)];
+  extents = [Vector(0.97365797, 3.84725740, 1.38227500), Vector(1.07611760, 3.84725740, 3.63105700), Vector(10.57761300, 3.84725740, 5.55776930), Vector(1.07611760, 3.84725740, 3.65686300), Vector(0.97365797, 3.84725740, 1.38227500), Vector(0.97365797, 3.84725740, 1.38227500), Vector(0.97365797, 3.84725740, 1.38227500)];
+  maxBoxCount = 7;
+}
+
+rule: "Hanaoka - 6271358c-97d2-47c3-aa8c-75e93964b61c"
+if("Hanaoka" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-4.98950000, 40.14737700, 61.10307300), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, 0.00000000]];
+  translations = [Vector(-4.98950000, 40.14737700, 61.10307300)];
+  extents = [Vector(7.50644700, 2.62350600, 7.62065550)];
+  maxBoxCount = 7;
+}
+
+rule: "Hanaoka - 1a0dc0cf-35fe-4b14-84b7-560e01ceab5d"
+if("Hanaoka" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(2.47401290, 41.74063000, 6.92062850), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 1.00000000, 0.00000000, 0.00000021], [0.00000000, 1.00000000, 0.00000000, 0.00000021], [0.00000000, 1.00000000, 0.00000000, 0.00000021], [0.00000000, 1.00000000, 0.00000000, 0.00000021], [0.00000000, 1.00000000, 0.00000000, 0.00000021], [0.00000000, 1.00000000, 0.00000000, 0.00000021]];
+  translations = [Vector(2.47401290, 41.74063000, 6.92062850), Vector(-2.06236170, 40.89806400, 7.01091050), Vector(-1.81867240, 41.74063000, 14.15895000), Vector(-1.69836310, 41.74063000, -0.14668989), Vector(8.18748900, 41.74063000, -1.99724960), Vector(8.18748300, 41.74063000, 15.92317000)];
+  extents = [Vector(4.98951960, 2.61250000, 10.86683500), Vector(0.43723303, 1.76993080, 9.99001500), Vector(0.70000580, 2.61250000, 2.77901650), Vector(0.82970250, 2.61250000, 2.76569250), Vector(1.20798310, 2.61250000, 1.94895430), Vector(1.20798310, 2.61250000, 1.92628280)];
+  maxBoxCount = 7;
+}
+
+rule: "Hanaoka - e64be5de-3718-4df9-81ab-f9471f9c6183"
+if("Hanaoka" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(6.37242600, 43.62971500, 107.26118500), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.92387956, 0.00000000, 0.38268360], [0.00000000, -1.00000000, 0.00000000, -0.00000003], [0.00000000, -0.00000009, 0.00000000, -1.00000000], [0.00000000, -0.00000009, 0.00000000, -1.00000000], [0.00000000, 0.38268337, 0.00000000, -0.92387956], [0.00000000, -0.38268360, 0.00000000, -0.92387956], [0.00000000, -0.92387956, 0.00000000, -0.38268350]];
+  translations = [Vector(6.37242600, 43.62971500, 107.26118500), Vector(7.08470060, 43.62971500, 111.12330000), Vector(-4.46211240, 43.62971500, 111.06319000), Vector(-15.91531850, 43.62971500, 111.00386000), Vector(-15.39668200, 43.62971500, 107.15455000), Vector(-15.39668700, 43.62971500, 114.65455000), Vector(6.56606300, 43.62971500, 114.95483000)];
+  extents = [Vector(0.97365797, 3.84725740, 1.65612350), Vector(1.07611760, 3.84725740, 3.45667170), Vector(10.78296700, 3.84725740, 5.46786100), Vector(1.07611760, 3.84725740, 3.47445960), Vector(0.97365797, 3.84725740, 1.38227500), Vector(0.97365797, 3.84725740, 1.38227500), Vector(0.97365797, 3.84725740, 1.38227500)];
+  maxBoxCount = 7;
+}
+
+rule: "Throne of Anubis - 64447ccb-0f04-4278-af0a-fe2cd16fc4c7"
+if("Throne of Anubis" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-0.50431377, 9.02819900, 91.76647000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.08715577, 0.00000000, 0.99619470], [0.00000000, 0.08715577, 0.00000000, 0.99619470], [0.00000000, 0.08715577, 0.00000000, 0.99619470], [0.00000000, 0.46174866, 0.00000000, 0.88701090], [0.00000000, -0.30070580, 0.00000000, 0.95371705], [0.00000000, 0.08715577, 0.00000000, 0.99619470], [0.00000000, -0.30070580, 0.00000000, 0.95371705], [0.00000000, 0.46174866, 0.00000000, 0.88701080]];
+  translations = [Vector(-0.50431377, 9.02819900, 91.76647000), Vector(-1.51330840, 9.18036900, 86.10809000), Vector(-2.21730690, 9.18715300, 82.15725000), Vector(-7.72690600, 9.18375800, 84.34115000), Vector(3.82598070, 9.18562300, 82.32451000), Vector(0.26732686, 9.02819900, 96.12466400), Vector(-6.29703600, 9.02819900, 96.64339000), Vector(6.41656060, 9.02819900, 94.25489000)];
+  extents = [Vector(8.49492400, 3.84670800, 3.20205070), Vector(8.51037700, 3.69453800, 2.51251700), Vector(5.67890360, 3.68775420, 1.50293710), Vector(2.09327900, 3.69114920, 1.72899190), Vector(2.08572300, 3.68928430, 1.72899190), Vector(6.00838760, 3.84670800, 1.33857850), Vector(1.80172820, 3.84670800, 0.99497235), Vector(1.80172820, 3.84670800, 1.23060080)];
+  maxBoxCount = 8;
+}
+
+rule: "Throne of Anubis - 2529b0bb-c4e2-4464-bd2b-aeb4e3bf1810"
+if("Throne of Anubis" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-21.49398600, 5.37500000, 51.60401000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, 0.08715579, 0.00000000, 0.99619470], [0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(-21.49398600, 5.37500000, 51.60401000), Vector(-20.67353000, 5.31240270, 58.75110600), Vector(-27.99398600, 5.37500000, 59.88523000)];
+  extents = [Vector(7.53198500, 3.50000000, 7.15972570), Vector(6.64242700, 3.50000000, 1.18772720), Vector(1.00000000, 3.50000000, 1.12500000)];
+  maxBoxCount = 8;
+}
+
+rule: "Throne of Anubis - dfcf5cea-5874-4bf3-9c77-7b8397d1316b"
+if("Throne of Anubis" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-0.38281262, 8.91434400, -92.51234400), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, -0.08715575, 0.00000000, 0.99619470], [0.00000000, -0.08715575, 0.00000000, 0.99619470], [0.00000000, -0.08715575, 0.00000000, 0.99619470], [0.00000000, 0.30070580, 0.00000000, 0.95371710], [0.00000000, -0.46174866, 0.00000000, 0.88701090], [0.00000000, 0.95371710, 0.00000000, -0.30070580], [0.00000000, 0.88701090, 0.00000000, 0.46174866], [0.00000000, 0.99619470, 0.00000000, 0.08715571]];
+  translations = [Vector(-0.38281262, 8.91434400, -92.51234400), Vector(-1.37929300, 9.16406300, -86.77801000), Vector(-2.18350150, 9.18511700, -82.17349000), Vector(4.11217550, 9.17686800, -82.06523000), Vector(-8.22825900, 9.18309500, -84.17543000), Vector(-6.00252000, 9.17686800, -96.25358000), Vector(6.21914340, 9.18309500, -94.06339000), Vector(0.24554163, 9.18511700, -95.96116000)];
+  extents = [Vector(8.52860000, 3.96065700, 2.50210050), Vector(8.58505800, 3.71093700, 3.31777520), Vector(5.83336970, 3.68988370, 1.49198340), Vector(2.08105400, 3.69813320, 1.49198340), Vector(2.10683160, 3.69190650, 1.49198340), Vector(1.78919040, 3.69813320, 1.49198340), Vector(1.76307960, 3.69190650, 1.49198340), Vector(6.00325600, 3.68988370, 1.49198340)];
+  maxBoxCount = 8;
+}
+
+rule: "Throne of Anubis - a787e922-c1de-4c60-be1b-21b2f2c77779"
+if("Throne of Anubis" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-1.75000000, 3.37500000, 0.00045204), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(-1.75000000, 3.37500000, 0.00045204)];
+  extents = [Vector(7.25000000, 3.50000000, 7.85778470)];
+  maxBoxCount = 8;
+}
+
+rule: "Throne of Anubis - 2f336b2d-a9cf-4f83-83b0-8d960f70feee"
+if("Throne of Anubis" == ToString(CurrentMap()))
+if("Clash" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-21.49465600, 5.37500000, -51.49095000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000], [0.00000000, -0.64278764, 0.00000000, -0.76604444], [0.00000000, 0.70710660, 0.00000000, 0.70710707]];
+  translations = [Vector(-21.49465600, 5.37500000, -51.49095000), Vector(-20.94008000, 5.37490270, -57.76004800), Vector(-27.99521400, 5.37500000, -58.78409000)];
+  extents = [Vector(7.49610420, 3.50000000, 7.01156700), Vector(2.17758600, 3.50000000, 6.64149000), Vector(2.21167610, 3.50000000, 1.00118670)];
+  maxBoxCount = 8;
+}

@@ -1,0 +1,41 @@
+import "./helpers.del";
+import "./hud.del";
+import "./map.del";
+import "./player.del";
+
+# Safely teleports a `player` to a `position`.
+# If, after teleporting, the `player` ends up not being on the ground, their hero will temporarily be switched to Pharah until they're safely on the ground.
+void SafeTeleport(Player player = EP, Vector position) "Teleport to Objective" {
+  // `NearestWalkablePosition()` can be buggy
+  // Vector nearest = NearestWalkablePosition(position);
+  // player.Teleport(nearest ? nearest : position);
+  SetGravity(player, 0);
+  player.Teleport(position);
+
+  MinWait();
+
+  Boolean notOnGround: RayCastHitPosition(player.Position() + Up() * 0.1, player.Position() + Down() * 2).DistanceTo(player.Position() + Down() * 2) < 0.01;
+
+  if(!player.IsOnGround() && notOnGround) {
+    Hero ogHero! = player.Hero();
+
+    ForcePlayerHero(player, Hero.Pharah);
+    DisableMovementCollisionWithEnvironment(player);
+
+    Wait(1);
+
+    SmallMessageFixed(player, "Fly to a safe spot");
+
+    WaitForeverUntil(IsMoving());
+
+    SetGravity(player, 100);
+
+    WaitForeverUntil(player.IsOnGround());
+
+    ForcePlayerHero(player, ogHero);
+    StopForcingHero(player);
+    EnableMovementCollisionWithEnvironment(player);
+  }
+
+  SetGravity(player, 100);
+}

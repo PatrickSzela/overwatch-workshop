@@ -1,0 +1,195 @@
+import '../../libs/menu/components/component.del'; 
+import '../../libs/menu/components/componentWithValue.del'; 
+import '../../libs/menu/components/text.del'; 
+import '../../libs/menu/components/link.del'; 
+import '../../libs/menu/components/numberInput.del'; 
+import '../../libs/menu/components/toggle.del';
+import '../../libs/menu/components/checkbox.del'; 
+import '../../libs/menu/components/radio.del'; 
+import '../../libs/menu/components/carousel.del'; 
+import "../../libs/utils/helpers.del";
+import "../../libs/utils/vector.del";
+import "../../libs/utils/player.del";
+import "../../libs/utils/helpers.del";
+import "../../libs/utils/team.availableTeams.del";
+import "../../libs/utils/rules/skipToMatch.del";
+import "../../libs/utils/rules/pauseMatchTime.del";
+import "./_rules.del";
+import "./_variables.del";
+import "./menu/_index.del";
+import "./data.del";
+import "./box.del";
+import './settings.del';
+
+// TODO: share code with Point Mapper
+// TODO: no gravity, fly around
+
+globalvar Quaternion[] orientations = [];
+globalvar Vector[] translations = [];
+globalvar Vector[] extents = [];
+globalvar Number maxBoxCount = 0;
+
+globalvar Vector[] bottomFacesOg = [];
+globalvar Vector[] bottomFaces = [];
+globalvar Vector[] topFaces = [];
+globalvar Number diagonalIdx = -1;
+globalvar Vector[] diagonal = [];
+globalvar Number bottomFaceYOffset = 0;
+globalvar Boolean playerPosIndicators = true;
+
+rule: 'Generate Menu State'
+Event.OngoingPlayer
+if(!IsDummyBot())
+{
+  menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
+  menuState.SetFocused();
+}
+
+rule: 'Generate Menu'
+{
+  menu = new Menu(LocalPlayer().menuState);
+}
+
+rule: 'Render left menu' 100
+Event.OngoingPlayer
+{
+  menuState.RULE_Render();
+}
+
+void SpawnContestingBots() {
+  // contesting dummies
+  foreach (Team team in availableTeams) {
+    dummiesContesting += AddDummies(1, team);
+    SetInvisible(LastCreatedEntity(), InvisibleTo.All);
+  }
+}
+
+void GeneratePoints() {
+  boxes = [];
+  bottomFaces = [];
+  topFaces = [];
+  diagonal = [];
+  diagonalIdx = -1;
+
+  for(Number i = 0; i < translations.Length; i++) {
+    boxes += Box.New(orientations[i], translations[i], extents[i]);
+    boxes[boxes.Length - 1].CalculateCorners();
+    Box.Draw(i);
+  }
+
+  bottomFacesOg = bottomFaces;
+  ApplyBottomFacesYOffset();
+}
+
+void GenerateBoxesLines() {
+  for(Number i = 0; i < 5 * maxBoxCount; i++) {
+    if(i % 5 == 4) continue;
+
+    Number _i: EvaluateOnce(i);
+    Number _iEnd: EvaluateOnce(i + 1);
+    Number boxIdx: EvaluateOnce(RoundToInteger(i / 5, Rounding.Down));
+
+    CreateBeamEffect(
+      VisibleTo: boxes[boxIdx].visible ? LP : null, 
+      BeamType: BeamType.GrappleBeam, 
+      StartPosition: bottomFaces[_i], 
+      EndPosition: bottomFaces[_iEnd],
+    );
+
+    MinWait();
+
+    CreateBeamEffect(
+      VisibleTo: boxes[boxIdx].visible ? LP : null, 
+      BeamType: BeamType.GrappleBeam, 
+      StartPosition: topFaces[_i], 
+      EndPosition: topFaces[_iEnd]
+    );
+    
+    MinWait();
+
+    CreateBeamEffect(
+      VisibleTo: boxes[boxIdx].visible ? LP : null, 
+      BeamType: BeamType.GrappleBeam, 
+      StartPosition: bottomFacesOg[_i], 
+      EndPosition: topFaces[_i]
+    );
+    
+    MinWait();
+  }
+}
+
+void GenerateBoxesDiagonalLines() {
+  for(Number i = 0; i < 24; i = i + 2) {
+    Number _i: EvaluateOnce(i);
+    Number _iEnd: EvaluateOnce(i + 1);
+
+    CreateBeamEffect(
+      VisibleTo: LP, 
+      BeamType: BeamType.GrappleBeam, 
+      StartPosition: diagonal[_i], 
+      EndPosition: diagonal[_iEnd],
+    );
+
+    MinWait();
+  }
+}
+
+void GeneratePlayerPosIndicatorLines() {
+  Vector[] posIndicators = [];
+
+  for(Number i = 0; i < 4; i++) {
+    Number _i: EvaluateOnce(i);
+    posIndicators += RotateAroundY(Forward() * 100, i * 45);
+
+    CreateBeamEffect(
+      VisibleTo: playerPosIndicators ? LP : null, 
+      BeamType: BeamType.GrappleBeam, 
+      StartPosition: UpdateEveryFrame(LP.Position() + posIndicators[_i]), 
+      EndPosition: UpdateEveryFrame(LP.Position() + posIndicators[_i] * -1)
+    );
+  }
+}
+
+rule: 'Main loop'
+if(translations)
+{
+  // arbitrary wait time to not choke the server
+  Wait(5);
+
+  SpawnContestingBots();
+
+  MinWait();
+
+  forceContesting = true;
+  
+  // the detection is most likely based on a "hard point" in hero's chest, and we can't really detect that
+  // GeneratePlayerPosIndicatorLines();
+
+  MinWait();
+
+  while(true) {
+    GeneratePoints();
+    WaitForeverUntilValueChanges(translations);
+  }
+}
+
+rule: 'Generate lines'
+if(translations)
+{
+  WaitForeverUntil(HasSpawned(HP));
+
+  // let's delay generation of lines until host player spawns to not choke the server
+  GenerateBoxesLines();
+  GenerateBoxesDiagonalLines();
+}
+
+// TODO: move to libs
+rule: 'Pause Match Time' 999
+if(IsGameInProgress())
+{
+  // pausing match time breaks Clash
+  // PauseMatchTime();
+  // for some reason SetMatchTime breaks Pause/UnpauseMatchTime
+  MinWait();
+  SetMatchTime(NUMBER_MAX);
+}

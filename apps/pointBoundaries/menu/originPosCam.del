@@ -1,0 +1,29 @@
+import '../_variables.del';
+
+String PAGE_ORIGIN_POS_CAM_ID: 'originPosCam';
+String PAGE_ORIGIN_POS_CAM_NAME: 'Origin Position Camera';
+
+playervar Boolean originPosCamEnabled = false;
+
+Component PageOriginPosCamMenuItem() {
+  Toggle originPosCam = new Toggle(
+    text: PAGE_ORIGIN_POS_CAM_NAME,
+    defaultChecked: originPosCamEnabled
+  );
+
+  originPosCam.onChange = (value, it) => {
+    originPosCamEnabled = value;
+  };
+
+  return originPosCam;
+}
+
+rule: 'Handle Origin Position Camera'
+Event.OngoingPlayer
+if(originPosCamEnabled)
+{
+  // StartScalingPlayer(EP, 10);
+  StartCamera(EP, PositionOf() + Up(), PositionOf() + FacingDirectionOf() + Up(), NUMBER_MAX);
+  WaitForeverUntil(!originPosCamEnabled);
+  StopCamera(EP);
+}

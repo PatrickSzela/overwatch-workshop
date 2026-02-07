@@ -1,0 +1,36 @@
+import '../_variables.del';
+
+String PAGE_DIAGONAL_ID: 'diagonal';
+String PAGE_DIAGONAL_NAME: 'Draw diagonal lines';
+
+Component[] PageDiagonalMenuItems() {
+  Component[] components = [];  
+
+  for(Number i = -1; i < boxes.Length; i++) {
+    Radio c = new Radio(
+      menuState: menuState, 
+      text: i == -1 ? "Disabled\n" : $"Box {i + 1}", 
+      name: PAGE_DIAGONAL_ID,
+      defaultChecked: diagonalIdx == i
+    );
+
+    c.onChange = (value, it) => {
+      diagonalIdx = i;
+      Box.DrawDiagonal(i);
+    };
+
+    components += c;
+  }
+
+  return components;
+}
+
+rule: 'Diagonal' 50
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_DIAGONAL_ID)
+{
+  menuState.CreatePage(
+    title: PAGE_DIAGONAL_NAME, 
+    items: PageDiagonalMenuItems()
+  );
+}

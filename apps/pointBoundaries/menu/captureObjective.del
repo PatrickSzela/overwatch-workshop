@@ -1,0 +1,68 @@
+import '../_variables.del';
+import '../../../libs/utils/hud.del';
+import '../../../libs/utils/player.safeTeleport.del';
+
+String PAGE_CAPTURE_OBJECTIVE_ID: 'captureObjective';
+String PAGE_CAPTURE_OBJECTIVE_NAME: 'Capture Objective By';
+
+void PageCaptureObjectiveCaptureObjective(Team team) "Capture Objective" {
+  forceContesting = false;
+  Player[] dummiesSlice: dummiesContesting.Filter((i) => i.Team() == team);
+
+  MinWait();
+  Teleport(dummiesSlice, CurrentObjectivePosition());
+  EnableCompletion();
+  // pausing match time breaks Clash
+  // for some weird ass reason control point progress doesn't go up when match is paused :)
+  // UnpauseMatchTime();
+
+  SmallMessageFixed(AllPlayers(), "Waiting until Objective is captured...");
+
+  Resurrect(AP);
+  MinWait();
+
+  foreach(Player player in AllPlayers()) {
+    if(player.IsDummy()) continue;
+
+    player.Teleport(SpawnPoints(player.Team())[ObjectiveIndex()]);
+    player.menuState.Close();
+    // SetStatus(player, player, Status.Asleep, NUMBER_MAX);
+  }
+
+  WaitForeverUntilValueChanges(ObjectiveIndex());
+  WaitForeverUntil(IsGameInProgress());
+  // Wait(2);
+
+  DisableCompletion();
+  forceContesting = true;
+
+  foreach(Player player in AllPlayers()) {
+    if(player.IsDummy()) continue;
+
+    // ClearStatus(player, Status.Asleep);
+    SafeTeleport(player, CurrentObjectivePosition());
+  }
+
+  foreach(Player dummy in dummiesSlice) {
+    Teleport(dummy, SpawnPoints(dummy.Team())[0]);
+  }
+
+  // pausing match time breaks Clash
+  // PauseMatchTime();
+}
+
+Component PageCaptureObjectiveMenuItem() {
+  Carousel captureObjective = new Carousel(
+    text: PAGE_CAPTURE_OBJECTIVE_NAME,
+    options: availableTeams,
+    defaultValue: availableTeams[1]
+  );
+
+  captureObjective.SetPrimaryAction("Apply", (it) => {
+    PageCaptureObjectiveCaptureObjective((<Carousel>it).value);
+  });
+
+  captureObjective.AddDescription(Description.New("If possible, it's preferable to set current Control Point from Lobby Settings", Color.SkyBlue, true, 1));
+
+  return captureObjective;
+}

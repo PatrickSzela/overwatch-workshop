@@ -1,0 +1,88 @@
+import "../../libs/utils/diagnostics.del";
+import "../../libs/utils/string.formatters.del";
+import "../../libs/utils/hud.del";
+import "../../libs/utils/map.del";
+import "../../libs/utils/dummyBot.del";
+import '../../libs/utils/player.safeTeleport.del';
+import "../../libs/utils/rules/infiniteUltCharge.del";
+import "./_variables.del";
+import "../pointMapper/_helpers.del";
+
+
+rule: 'Status'
+{
+  Number dummiesAmount: AllDummyBots().Length;
+  CreateDiagnosticText($"Import date: {importDate}", visible: true);
+  CreateDiagnosticText($"Current boxes count: {boxes.Length}", visible: true);
+  CreateDiagnosticText($"──────────────────────");
+  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
+  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
+  CreateDiagnosticText($"──────────────────────");
+  CreateDiagnosticText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed() > 800, ClassMemoryUsed() > 900);
+  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
+  CreateDiagnosticText($"Entity count: {EntityCount()}/256", EntityCount() > 192, EntityCount() > 224);
+  CreateDiagnosticText($"Dummies spawned: {dummiesAmount}/11", dummiesAmount > 7, dummiesAmount > 9);
+  CreateDiagnosticText($"──────────────────────");
+  CreateDiagnosticText($"Position: {LocalPlayer().Position()}");
+  CreateDiagnosticText($"Facing: {LocalPlayer().FacingDirection()}");
+  CreateDiagnosticText($"Force contesting: {BooleanFormatterOnOff(forceContesting)}");
+  CreateDiagnosticText($"Is on objective: {BooleanFormatterYesNo(LocalPlayer().isOnObjective)}");
+
+  CreateHudText(
+    VisibleTo: LocalPlayer(), 
+    Text: $"\n\nIs on objective: {BooleanFormatterYesNo(LocalPlayer().isOnObjective)}",
+    Location: Location.Top, 
+    SortOrder: 100, 
+    TextColor: LocalPlayer().isOnObjective ? Color.Green : Color.Red, 
+    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
+  );
+}
+
+rule: 'Slower movement speed when crouched'
+Event.OngoingPlayer
+if(IsCrouching())
+if(!menuState.isOpen)
+{
+  SetMoveSpeed(EP, 20);
+  WaitForeverUntil(!IsCrouching() && !menuState.isOpen);
+  SetMoveSpeed(EP, 100);
+}
+
+rule: 'Server check if player is on objective'
+Event.OngoingPlayer
+if(!IsDummyBot(EventPlayer()))
+if(EventPlayer().IsOnObjective())
+{
+  isOnObjective = true;
+  WaitForeverUntil(!IsOnObjective());
+  isOnObjective = false;
+  LoopIfConditionIsTrue();
+}
+
+rule: 'Start contesting when enabled'
+Event.OngoingGlobal
+if(forceContesting)
+{
+  foreach(Player dummy in dummiesContesting) {
+    // turns out arrays aren't supported in `StartForcingPlayerPosition`
+    StartForcingPlayerPosition(dummy, CurrentObjectivePosition(), false);
+  }
+}
+
+rule: 'Stop contesting when disabled'
+Event.OngoingGlobal
+if(!forceContesting)
+{
+  foreach(Player dummy in dummiesContesting) {
+    StopForcingPlayerPosition(dummy);
+    dummy.Teleport(SpawnPoints(dummy.Team())[0]);
+  }
+}
+
+rule: 'Teleport players to objective on spawn'
+Event.OngoingPlayer
+if(HasSpawned(EP))
+if(!IsDummyBot())
+{
+  SafeTeleport(EP, CurrentObjectivePosition());
+}

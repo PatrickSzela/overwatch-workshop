@@ -1,0 +1,15 @@
+import '../../libs/utils/array.del';
+import '../../libs/utils/dictionary.del';
+import './box.del';
+
+globalvar Menu menu;
+playervar MenuState menuState;
+
+playervar Boolean isOnObjective = false;
+globalvar Boolean forceContesting = false;
+
+globalvar Player[] dummiesContesting = [];
+playervar Boolean wasOnObjectiveAtLeastOnce = false;
+playervar Boolean bottomFaceFollowsPlayerY = false;
+
+globalvar Box[] boxes = [];

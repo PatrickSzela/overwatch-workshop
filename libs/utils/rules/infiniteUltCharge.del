@@ -1,0 +1,12 @@
+import '../helpers.del';
+import '../player.del';
+
+rule: 'Infinite Ultimate Charge'
+Event.OngoingPlayer
+if(HasSpawned())
+{
+  WaitForeverUntil(UltimateChargePercent() < 100);
+  SetUltimateCharge(EP, 100);
+  Wait(0.1);
+  Loop();
+}

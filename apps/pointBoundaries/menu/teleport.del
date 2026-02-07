@@ -1,0 +1,16 @@
+import '../_variables.del';
+
+String PAGE_TELEPORT_ID: 'teleport';
+String PAGE_TELEPORT_NAME: 'Teleport to Objective';
+
+Component PageTeleportMenuItem() {
+  Component teleport = new Component(PAGE_TELEPORT_NAME);
+
+  teleport.SetPrimaryAction("Apply", (it) => {
+    menuState.Close();
+    SafeTeleport(EP, CurrentObjectivePosition());
+    menuState.Open();
+  });
+
+  return teleport;
+}

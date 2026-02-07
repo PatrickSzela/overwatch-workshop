@@ -1,0 +1,43 @@
+import '../_variables.del';
+import './boxes.del';
+import './diagonal.del';
+import './teleport.del';
+// import './originPosCam.del';
+import './captureObjective.del';
+import './teleportToSpawn.del';
+import './sendToHeroSelect.del';
+import './bottomFacesYOffset.del';
+import './mapCollision.del';
+
+String PAGE_ROOT_ID: 'root';
+String PAGE_ROOT_NAME: 'Main Menu';
+
+Component[] PageRootItems() {
+  return <Component[]>[
+    new Text("Boxes:"),
+    new Link(menuState, PAGE_BOXES_NAME, PAGE_BOXES_ID),
+    new Link(menuState, PAGE_DIAGONAL_NAME, PAGE_DIAGONAL_ID)
+  ] + PageBottomFacesYOffsetMenuItems() + [
+    new Text(),
+    new Text("Objective:"),
+    PageTeleportMenuItem(),
+    PageCaptureObjectiveMenuItem(),
+    new Text(" "),
+    new Text("Player settings:"),
+    PageTeleportToSpawnMenuItem(),
+    PageSendSelfToHeroSelectMenuItem(),
+    PageMapCollisionMenuItem()
+    // the detection is most likely based on a "hard point" in hero's chest, and we can't really detect that
+    // PageOriginPosCamMenuItem()
+  ];
+}
+
+rule: 'Root'
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_ROOT_ID)
+{
+  menuState.CreatePage(
+    title: PAGE_ROOT_NAME,
+    items: PageRootItems()
+  );
+}

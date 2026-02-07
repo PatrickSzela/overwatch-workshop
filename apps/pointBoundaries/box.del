@@ -1,0 +1,73 @@
+import '../../libs/utils/quaternion.del';
+
+globalvar Number[] diagonalsIdxs = [
+  0, 2, 1, 3, // Bottom
+  4, 6, 5, 7, // Top
+  0, 5, 1, 4, // Front
+  2, 7, 3, 6, // Back
+  0, 7, 3, 4, // Left
+  1, 6, 2, 5  // Right
+];
+
+struct Box {
+  public Quaternion orientation;
+  public Vector translation;
+  public Vector extents;
+  public Boolean visible;
+  Vector[] corners;
+
+  public static Box New(in Quaternion orientation, in Vector translation, in Vector extents) {
+    return { orientation: orientation, translation: translation, extents: extents, corners: [], visible: true };
+  }
+
+  static Number RotateCornerPart(in Vector[] rotMatrix, in Vector localCorner, in Number idx) {
+    return rotMatrix[idx].X * localCorner.X + 
+           rotMatrix[idx].Y * localCorner.Y + 
+           rotMatrix[idx].Z * localCorner.Z;
+  }
+
+  public ref void CalculateCorners() {
+    Vector[] rotMatrix = QuaternionToRotationMatrix(orientation);
+
+    // Define multipliers in an order that forms two faces (bottom and top)
+    // This makes drawing lines between them easier (0-1-2-3-0, 4-5-6-7-4, 0-4, 1-5, 2-6, 3-7)
+    Vector[] multipliers = [
+      Vector(-1, -1, -1), Vector(1, -1, -1), Vector(1, -1, 1), Vector(-1, -1, 1), // bottom
+      Vector(-1, 1, -1), Vector(1, 1, -1), Vector(1, 1, 1), Vector(-1, 1, 1) // top
+    ];
+
+    foreach(Vector v in multipliers) {
+      Vector corner = extents * v;
+      corners += Vector(
+        RotateCornerPart(rotMatrix, corner, 0),
+        RotateCornerPart(rotMatrix, corner, 1),
+        RotateCornerPart(rotMatrix, corner, 2),
+      ) + translation;
+    }
+  }
+
+  public static void Draw(in Number idx) {
+    define _corners: boxes[idx].corners;
+
+    // bottom face
+    for(Number i = 0; i < 5; i++) {
+      bottomFaces += _corners[i == 4 ? 0 : i];
+    }
+
+    // top face
+    for(Number i = 4; i < 9; i++) {
+      topFaces += _corners[i == 8 ? 4 : i];
+    }
+  }
+
+  public static void DrawDiagonal(in Number idx) {
+    define _corners: boxes[idx].corners;
+    diagonal = [];
+
+    for(Number i = 0; i < diagonalsIdxs.Length; i = i + 2) {
+      Number start: diagonalsIdxs[i];
+      Number end: diagonalsIdxs[i + 1];
+      diagonal += [_corners[start], _corners[end]];
+    }
+  }
+}

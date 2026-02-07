@@ -1,0 +1,30 @@
+import '../_variables.del';
+
+String PAGE_BOXES_ID: 'boxes';
+String PAGE_BOXES_NAME: 'Draw lines';
+
+Component[] PageBoxesMenuItems() {
+  Component[] components = [];
+
+  for(Number i = 0; i < boxes.Length; i++) {
+    Checkbox c = new Checkbox($"Box {i + 1}", boxes[i].visible);
+
+    c.onChange = (value, it) => {
+      boxes[i].visible = value;
+    };
+
+    components += c;
+  }
+
+  return components;
+}
+
+rule: 'Boxes' 50
+Event.OngoingPlayer
+if(menuState.pageId == PAGE_BOXES_ID)
+{
+  menuState.CreatePage(
+    title: PAGE_BOXES_NAME, 
+    items: PageBoxesMenuItems()
+  );
+}

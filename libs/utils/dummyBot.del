@@ -1,6 +1,8 @@
 import './number.del';
 import './hud.del';
 
+Player[] AllDummyBots(in Team team = Team.All): AllPlayers(team).FilteredArray((i) => i.IsDummy());
+
 Player CreateDummyBotWithMessage(in Hero hero, in Team team = Team.Team1, in Number slot = -1, in Vector position = null) {
   CreateDummyBot(hero, team, slot, position);
 
@@ -10,6 +12,7 @@ Player CreateDummyBotWithMessage(in Hero hero, in Team team = Team.Team1, in Num
   return LastCreatedEntity();
 }
 
+// TODO: remove, OSTW has a built-in wrapper
 void DestroyDummyBotInVariable(in Player player) {
   DestroyDummyBot(TeamOf(player), SlotOf(player));
 }

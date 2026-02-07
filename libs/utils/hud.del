@@ -1,7 +1,23 @@
-void SmallMessageFixed(in Player | Player[] visibleTo = EventPlayer(), in Any header = "") {
+import './player.del';
+
+void SmallMessageFixed(in Player | Player[] visibleTo = EP, in Any header = "") {
   SmallMessage(visibleTo, $"   {header}");
 }
 
-void SmallMessageWithIcon(in Player | Player[] visibleTo = EventPlayer(), in Any header = "", in String icon = IconString(Icon.ExclamationMark)) {
+void SmallMessageWithIcon(in Player | Player[] visibleTo = EP, in Any header = "", in String icon = IconString(Icon.ExclamationMark)) {
   SmallMessage(visibleTo, $"   {icon}  {header}");
+}
+
+void CreateImportCodeHudText(in String code = "", in String title = "", in String subtitle = "", in Color color = Color.White, in Number order = 0) {
+  CreateHudText(
+    VisibleTo: LP, 
+    Header: $" {code} ",
+    Subheader: title, 
+    Text: subtitle,
+    Location: Location.Right, 
+    SortOrder: order, 
+    TextColor: color, 
+    Reevaluation: HudTextRev.None,
+    Spectators: Spectators.VisibleAlways
+  );
 }

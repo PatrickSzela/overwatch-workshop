@@ -1,0 +1,59 @@
+import '../_variables.del';
+
+String PAGE_BOTTOM_FACES_Y_OFFSET_ID: 'bottomFacesYOffset';
+String PAGE_BOTTOM_FACES_Y_OFFSET_VALUE_ID: 'bottomFacesYOffset';
+String PAGE_BOTTOM_FACES_Y_OFFSET_NAME: 'Bottom face offset on Y axis';
+String PAGE_BOTTOM_FACES_Y_OFFSET_VALUE_NAME: 'Custom offset';
+
+globalvar PageBottomFacesYOffsetChoice pageBottomFacesYOffsetChoice = PageBottomFacesYOffsetChoice.SAFE;
+globalvar Number pageBottomFacesYOffsetValue = 0;
+
+enum PageBottomFacesYOffsetChoice {
+  NONE = "None",
+  SAFE = "Safe",
+  CUSTOM = "Custom"
+}
+
+Component[] PageBottomFacesYOffsetMenuItems() {
+  Carousel bottomFacesYOffset = new Carousel(
+    text: PAGE_BOTTOM_FACES_Y_OFFSET_NAME,
+    options: [PageBottomFacesYOffsetChoice.NONE, PageBottomFacesYOffsetChoice.SAFE, PageBottomFacesYOffsetChoice.CUSTOM],
+    defaultValue: pageBottomFacesYOffsetChoice
+  );
+
+  bottomFacesYOffset.onChange = (value, it) => {
+    pageBottomFacesYOffsetChoice = value;
+    ApplyBottomFacesYOffset();
+  };
+
+  NumberInput bottomFacesYOffsetValue = new NumberInput(
+    menuState: menuState, 
+    text: PAGE_BOTTOM_FACES_Y_OFFSET_VALUE_NAME,
+    defaultValue: pageBottomFacesYOffsetValue,
+    negative: true,
+    integralLength: 2,
+    fractionalLength: 3,
+    unit: 'm'
+  );
+
+  bottomFacesYOffsetValue.onChange = (value, it) => {
+    bottomFacesYOffset.SetValue(PageBottomFacesYOffsetChoice.CUSTOM);
+    pageBottomFacesYOffsetValue = value;
+    ApplyBottomFacesYOffset();
+  };
+
+  return [bottomFacesYOffset, bottomFacesYOffsetValue];
+}
+
+Vector[] PageBottomFacesYOffsetValueHelper(in Number value): 
+  bottomFacesOg.Map((i, idx) => Vector(i.X, value > i.Y && value < topFaces[idx].Y ? value : i.Y, i.Z));
+
+void ApplyBottomFacesYOffset() "Apply Bottom Faces Y Offset" {
+  if(pageBottomFacesYOffsetChoice == PageBottomFacesYOffsetChoice.NONE) {
+    bottomFaces = bottomFacesOg;
+    return;
+  }
+
+  Number v = CurrentObjectivePosition().Y + (pageBottomFacesYOffsetChoice == PageBottomFacesYOffsetChoice.SAFE ? 0.25 : pageBottomFacesYOffsetValue);
+  bottomFaces = PageBottomFacesYOffsetValueHelper(v);
+}

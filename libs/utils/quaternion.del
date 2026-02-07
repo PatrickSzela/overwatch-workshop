@@ -1,0 +1,22 @@
+single struct Quaternion {
+  public Number x;
+  public Number y;
+  public Number z;
+  public Number w;
+
+  public static Quaternion New(Number x, Number y, Number z, Number w): 
+    { x: x, y: y, z: z, w: w };
+}
+
+Vector[] QuaternionToRotationMatrix(in Quaternion quaternion) {
+  Number x: quaternion.x;
+  Number y: quaternion.y;
+  Number z: quaternion.z;
+  Number w: quaternion.w;
+
+  return [
+    Vector(1 - 2*y*y - 2*z*z, 2*x*y - 2*z*w,     2*x*z + 2*y*w),
+    Vector(2*x*y + 2*z*w,     1 - 2*x*x - 2*z*z, 2*y*z - 2*x*w),
+    Vector(2*x*z - 2*y*w,     2*y*z + 2*x*w,     1 - 2*x*x - 2*y*y)
+  ];
+}
