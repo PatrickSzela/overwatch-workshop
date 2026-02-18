@@ -5,7 +5,7 @@ import '../../../libs/utils/string.holyGrail.del';
 import '../../../libs/utils/string.formatters.del';
 
 String CAPTCHA_NAME: 'CAPTCHA';
-Number CAPTCHA_DURATION: 10;
+Number CAPTCHA_DURATION: 15;
 
 struct Captcha {
   static Number SCALE: 2.5;
