@@ -15,6 +15,8 @@ String BooleanFormatterYesNo(Boolean bool): bool ? 'Yes' : 'No';
 
 String InputBindingFormatterSingle(Button button): $"[{InputBindingString(button)}]";
 String InputBindingFormatter(Button[] buttons): $"[{InputBindingString(buttons[0])}{buttons[1] != null ? $' + {InputBindingString(buttons[1])}' : ''}{buttons[2] ? $' + {InputBindingString(buttons[2])}' : ''}]";
+String InputStringFormatterSingle(String button): $"[{button}]";
+String InputStringFormatter(String[] buttons): $"[{buttons[0]}{buttons[1] != null ? $' + {buttons[1]}' : ''}{buttons[2] ? $' + {buttons[2]}' : ''}]";
 
 String ButtonFormatterSingle_Underscores(Button button): $"[_{button}_]";
 String ButtonFormatter_Underscores(Button[] buttons): $"[_{buttons[0]}_{buttons[1] != null ? $' + _{buttons[1]}_' : ''}{buttons[2] ? $' + _{buttons[2]}_' : ''}]";

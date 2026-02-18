@@ -59,15 +59,13 @@ struct Captcha {
           Spectators: Spectators.VisibleNever
         );
 
-        huds += CreateInWorldText(
+        huds += CreateIcon(
           VisibleTo: LocalPlayer().captchaData.enabled && LocalPlayer().captchaData.choice[EvaluateOnce(y) + 1][EvaluateOnce(x) + 1] ? LocalPlayer() : null,
-          Header: "✓",
-          Position: UpdateEveryFrame(ScreenPositionToWorldVector(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Vector(-0.075, 0.075) + Captcha.OFFSET)),
-          Scale: 1.75,
-          Clipping: Clipping.DoNotClip,
-          Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-          TextColor: Color.Green,
-          Spectators: Spectators.VisibleNever
+          Position: UpdateEveryFrame(ScreenPositionToWorldVector(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Vector(-0.065, -0.05) + Captcha.OFFSET)),
+          Icon: Icon.Checkmark,
+          Reevaluation: IconRev.VisibleToPositionAndColor,
+          IconColor: Color.Green,
+          ShowWhenOffscreen: true
         );
       }
 
@@ -87,9 +85,9 @@ struct Captcha {
 
     huds += CreateInWorldText(
       VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
-      Header: $"Retries left: {LocalPlayer().captchaData.retries}\nUse [↑][↓][←][→] to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
-      Position: UpdateEveryFrame(ScreenPositionToWorldVector(Vector(4, 0) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
-      Scale: Captcha.SCALE * 0.5,
+      Header: $"Retries left: {LocalPlayer().captchaData.retries}\nUse {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
+      Position: UpdateEveryFrame(ScreenPositionToWorldVector(Vector(4.5, 0) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
+      Scale: Captcha.SCALE * 0.6,
       Clipping: Clipping.DoNotClip,
       Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
       TextColor: Color.White,
@@ -252,8 +250,10 @@ if(ModifierHasStarted(CAPTCHA_NAME))
 {
   WaitUntilModifierIsOver();
   
-  foreach(Any d in captchaHuds)
+  foreach(Any d in captchaHuds) {
     DestroyInWorldText(d);
+    DestroyIcon(d);
+  }
 }
 
 rule: '[Captcha] Has Started'

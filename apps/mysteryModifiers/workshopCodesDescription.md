@@ -123,7 +123,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
       </div>
       <ul class="update-notes__changes">
         <li>Forces players to solve a simple CAPTCHA</li>
-        <li>Use <code>[↑][↓][←][→]</code> to navigate</li>
+        <li>Use <code>Movement Inputs</code> to navigate</li>
         <li>Use <code>Primary Fire</code> to toggle selection</li>
         <li>Players get 3 chances to solve it</li>
         <li>Failing to solve the CAPTCHA ends with player's death</li>
