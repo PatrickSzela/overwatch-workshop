@@ -22,20 +22,34 @@ rule: 'Create UI'
 
   StartBreatheMultiplier(progressBarBreathingScalar, 850);
 
-  CreateNiceProgressBar(
-    value: state == State.MODIFIER_STARTED ? MODIFIER_PERCENTAGE : CHARGE_PERCENTAGE, 
-    displayValue: state == State.MODIFIER_STARTED ? $"{MODIFIER_DURATION.Ceil()}" : $"{CHARGE_PERCENTAGE.Floor()}%",
-    text: state == State.MODIFIER_STARTED ? currentModifier.name : "Modifier charge",
-    progressBarColor: state == State.MODIFIER_STARTED ? COLOR_OVERWATCH : COLOR_ORANGE_TO_WHITE,
-    textColor: Color.White,
-    position: Vector(0, -0.9),
-    scale: 0.75,
-    fallbackText: state == State.MODIFIER_STARTED ?
+  CreateProgressBarHudText(
+    VisibleTo: !hideModifierChargeMeter || state == State.MODIFIER_STARTED ? LocalPlayer() : null,
+    Value: state == State.MODIFIER_STARTED ? MODIFIER_PERCENTAGE : CHARGE_PERCENTAGE, 
+    Text: state == State.MODIFIER_STARTED ?
       $"{currentModifier.name}​ ends in: {MODIFIER_DURATION.Ceil()}​ sec" :
       $"Modifier charge at: {CHARGE_PERCENTAGE.Floor()}%",
-    visibilityCondition: !hideModifierChargeMeter || state == State.MODIFIER_STARTED,
-    preferFallback: LocalPlayer().preferFallbackHud || LocalPlayer().preferFallbackHudOverride,
+    Location: Location.Left,
+    SortOrder: 100, 
+    ProgressBarColor: state == State.MODIFIER_STARTED ? COLOR_OVERWATCH : COLOR_ORANGE_TO_WHITE, 
+    TextColor: Color.White,
+    Reevaluation: ProgressBarHudEvaluation.VisibleToValuesAndColor,
+    NonteamSpectators: Spectators.VisibleAlways
   );
+
+  // CreateNiceProgressBar(
+  //   value: state == State.MODIFIER_STARTED ? MODIFIER_PERCENTAGE : CHARGE_PERCENTAGE, 
+  //   displayValue: state == State.MODIFIER_STARTED ? $"{MODIFIER_DURATION.Ceil()}" : $"{CHARGE_PERCENTAGE.Floor()}%",
+  //   text: state == State.MODIFIER_STARTED ? currentModifier.name : "Modifier charge",
+  //   progressBarColor: state == State.MODIFIER_STARTED ? COLOR_OVERWATCH : COLOR_ORANGE_TO_WHITE,
+  //   textColor: Color.White,
+  //   position: Vector(0, -0.9),
+  //   scale: 0.75,
+  //   fallbackText: state == State.MODIFIER_STARTED ?
+  //     $"{currentModifier.name}​ ends in: {MODIFIER_DURATION.Ceil()}​ sec" :
+  //     $"Modifier charge at: {CHARGE_PERCENTAGE.Floor()}%",
+  //   visibilityCondition: !hideModifierChargeMeter || state == State.MODIFIER_STARTED,
+  //   preferFallback: LocalPlayer().preferFallbackHud || LocalPlayer().preferFallbackHudOverride,
+  // );
 
   CreateHudText(
     VisibleTo: LocalPlayer(), 
@@ -69,15 +83,15 @@ rule: 'Create UI'
       Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
     );
 
-  CreateHudText(
-    VisibleTo: LocalPlayer().tooltipChangeProgressBarPosition ? LocalPlayer() : null, 
-    Subheader: $"If you're a console player or your Field of View isn't set to 103,\nhold {InputBindingFormatterSingle(Button.Interact)} for 3 seconds", 
-    SubheaderColor: rainbow,
-    Location: Location.Left,
-    SortOrder: -10, 
-    Spectators: Spectators.VisibleAlways,
-    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
-  );
+  // CreateHudText(
+  //   VisibleTo: LocalPlayer().tooltipChangeProgressBarPosition ? LocalPlayer() : null, 
+  //   Subheader: $"If you're a console player or your Field of View isn't set to 103,\nhold {InputBindingFormatterSingle(Button.Interact)} for 3 seconds", 
+  //   SubheaderColor: rainbow,
+  //   Location: Location.Left,
+  //   SortOrder: -10, 
+  //   Spectators: Spectators.VisibleAlways,
+  //   Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
+  // );
 }
 
 rule: 'Change meter position when holding Interact for 3s'
@@ -90,17 +104,17 @@ if(EventPlayer().IsButtonHeld(Button.Interact))
   SmallMessageWithIcon(EventPlayer(), $"Moved custom HUD to {preferFallbackHud ? "top left" : "center of the screen"}", IconString(Icon.Eye));
 }
 
-rule: 'Show tooltip about ability to change position of the meter'
-Event.OngoingPlayer
-if(HasSpawned())
-{
-  tooltipChangeProgressBarPosition = true;
-  Wait(10);
+// rule: 'Show tooltip about ability to change position of the meter'
+// Event.OngoingPlayer
+// if(HasSpawned())
+// {
+//   tooltipChangeProgressBarPosition = true;
+//   Wait(10);
 
-  WaitForeverUntil(!IsInSpawnRoom());
+//   WaitForeverUntil(!IsInSpawnRoom());
 
-  tooltipChangeProgressBarPosition = false;
+//   tooltipChangeProgressBarPosition = false;
 
-  // WaitForeverUntil(IsBetweenRounds());
-  // Loop();
-}
+//   // WaitForeverUntil(IsBetweenRounds());
+//   // Loop();
+// }
