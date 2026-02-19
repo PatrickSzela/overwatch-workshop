@@ -5,8 +5,9 @@ Player HP: HostPlayer();
 Player LP: LocalPlayer();
 Player[] AP: AllPlayers();
 
+// TODO: new heroes
 Boolean IsScopedIn(Player player = EventPlayer()): 
-  [Hero.Ana, Hero.Ashe, Hero.Widowmaker].Contains(player.Hero()) && player.IsFiringSecondary();
+  [Hero.Ana, Hero.Ashe, Hero.Widowmaker, Hero.Freja, Hero.Emre].Contains(player.Hero()) && player.IsFiringSecondary();
 
 Boolean IsHoldingShield(Player player = EventPlayer()):
   [Hero.Reinhardt, Hero.Brigitte].Contains(player.Hero()) && player.IsFiringSecondary();

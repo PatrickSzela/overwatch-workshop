@@ -6,7 +6,7 @@ rule: 'Handle Base Speed'
 Event.OngoingPlayer
 if(HasSpawned(EventPlayer()))
 {
-  if([Hero.Tracer, Hero.Genji].Contains(HeroOf())) {
+  if([Hero.Tracer, Hero.Genji, Hero.Anran].Contains(HeroOf())) {
     baseSpeed = 6;
   }
 
