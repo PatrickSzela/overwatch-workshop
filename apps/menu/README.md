@@ -33,7 +33,7 @@ More information about the Workshop mode available on the [Workshop.codes](https
 
 Source code written in [OSTW](https://github.com/ItsDeltin/Overwatch-Script-To-Workshop)
 
-#### Custom Game Settings
+#### Settings to apply after pasting compiled code
 
 Because, as of the day of writing this, the Custom Game menus are pretty broken, and precompiled settings cannot even be imported, after compiling and importing the code, you must change these settings manually, in the specified order:
 

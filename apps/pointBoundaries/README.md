@@ -14,7 +14,7 @@ Source code written in [OSTW](https://github.com/ItsDeltin/Overwatch-Script-To-W
 2. Execute script `generate-data.py <PATH>`, where `<PATH>` points to the extracted `Areas.json` file from 1st point
 3. Compile `main.del` file
 
-#### Custom Game Settings
+#### Settings to apply after pasting compiled code
 
 Because, as of the day of writing this, the Custom Game menus are pretty broken, and precompiled settings cannot even be imported, after compiling and importing the code, you must change these settings manually, in the specified order:
 
