@@ -1,0 +1,83 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String CAT_WARS_NAME: 'Cat Wars';
+Number CAT_WARS_DURATION: 15;
+
+Modifier catWars: Modifier.New(
+  name: CAT_WARS_NAME, 
+  duration: CAT_WARS_DURATION,
+  description: ["Space Warfare... just not in space... and as flying cats..."]
+);
+
+playervar Boolean catWarsShields;
+
+rule: '[Cat Wars] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(CAT_WARS_NAME))
+{
+  PreloadDuplicate(EP, Hero.JetpackCat, true, true);
+
+  Boolean condition: catWarsShields;
+
+  WaitBeforePreloading(2);
+
+  CreatePlayerEffect(EventPlayer(), Effect.WreckingBallAdaptiveShieldTargetEffect, 1, visibleCondition: condition);
+  MinWait();
+  CreatePlayerEffect(EventPlayer(), Effect.WreckingBallAdaptiveShieldTargetSound, 100, visibleCondition: condition);
+}
+
+rule: '[Cat Wars] Has Started'
+Event.OngoingPlayer
+if(ModifierHasStarted(CAT_WARS_NAME))
+{
+  WaitUntilAlive();
+
+  StartDuplicate();
+
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+
+  SetAbility1Enabled(EP, false);
+  SetUltimateAbilityEnabled(EP, false);
+  SetMaxHealth(EP, 200 / MaxHealth(EP) * 100);
+  AddHealthPoolToPlayer(EP, HealthType.Shields, 300, true, false);
+  StartScalingPlayer(EP, 2);
+  StartModifyingHeroVoiceLines(EP, 0.5);
+  speedUpAbility.Cooldown(Button.Ability2, 7.5);
+
+  // end
+  WaitUntilModifierIsOver();
+  DestroyPlayerEffects();
+
+  SetAbility1Enabled(EP, true);
+  SetUltimateAbilityEnabled(EP, true);
+  SetMaxHealth(EP, 100);
+  RemoveAllHealthPoolsFromPlayer();
+  StopScalingPlayer(EP);
+  StopModifyingHeroVoiceLines(EP);
+  speedUpAbility.StopCooldown(Button.Ability2);
+
+  StopDuplicate(EP, IsAlive());
+}
+
+// client side gets randomly broken :)
+rule: '[Cat Wars] Display shields'
+Event.OngoingPlayer
+if(ModifierHasStarted(CAT_WARS_NAME))
+if(HealthOfType(<Player>EvaluateOnce(EventPlayer()), HealthType.Shields) > 0)
+{
+  catWarsShields = true;
+  WaitUntilModifierIsOverOrCondition(HealthOfType(<Player>EvaluateOnce(EventPlayer()), HealthType.Shields) <= 0);
+  catWarsShields = false;
+}
+
+rule: 'My Player Rule'
+Event.OngoingPlayer
+if(ModifierHasStarted(CAT_WARS_NAME))
+if(IsUsingAbility2())
+{
+  Wait(0.5);
+  SetAbility2Enabled(EP, false);
+  MinWait();
+  SetAbility2Enabled(EP, true);
+}

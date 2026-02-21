@@ -133,6 +133,27 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
+      <div class="modifier__title">Cat Wars</div>  
+      <div class="modifier__duration">15 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>Space Warfare... just not in space... and as flying cats...</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>Switches player's hero to Jetpack Cat</li>
+        <li>Increases player's size to 200%</li>
+        <li>Sets player's health to 500 HP (200 base health + 300 shields)</li>
+        <li>Speeds up Purr cooldown to 500%</li>
+        <li>Limits pulses emitted by Purr to 1</li>
+        <li>Disables usage of Lifeline</li>
+        <li>Disables usage of Catnapper</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
       <div class="modifier__title">Drunk</div>  
       <div class="modifier__duration">15 secs</div>
     </div>

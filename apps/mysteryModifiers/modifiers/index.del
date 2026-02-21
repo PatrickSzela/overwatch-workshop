@@ -6,6 +6,7 @@ import './babyDva.del';
 import './blinded.del';
 import './bodyOdor.del';
 import './captcha.del';
+import './catWars.del';
 import './drunk.del';
 import './duplicateRandomHero.del';
 import './emote.del';
@@ -56,6 +57,7 @@ globalvar Modifier[] allModifiers = [
   blinded,
   bodyOdor,
   captcha,
+  catWars,
   drunk,
   duplicateRandomHero,
   emote,
