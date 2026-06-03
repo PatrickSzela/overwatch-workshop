@@ -1,0 +1,19 @@
+import '../timeline/action.del';
+import '../utils/typeOf.del';
+import './store.del';
+
+single struct MenuActionRef {
+  public MenuActionId actionId;
+  public Any[] arguments;
+  public String buttonDescription;
+
+  public static MenuActionRef New(MenuActionId | Number actionId, Any[] arguments, String buttonDescription): { 
+    actionId: actionId,
+    arguments: arguments,
+    buttonDescription: buttonDescription
+  };
+
+  public ref void Execute() {
+    actions[actionId].Execute(arguments.Map((i) => menuStore.Contains(i) ? menuStore.Get(i) : i));
+  }
+}

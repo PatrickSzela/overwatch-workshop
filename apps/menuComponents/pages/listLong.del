@@ -1,23 +1,43 @@
-import '../_variables.del';
+import '../../../libs/menu/components/text.del';
+import '../../../libs/menu/simple.del';
 
-String PAGE_DEBUG_LIST_LONG_ID: 'listLong';
-String PAGE_DEBUG_LIST_LONG_NAME: 'Long List';
+class PageListLong {
+  public static String ID: 'listLong';
+  public static String TITLE: 'Long List';
 
-Component[] PageDebugListLongItems() {
-  Component[] list = [];
+  public static String[] Components(in Number offset = 0) {
+    return PageListLongGenerateComponents(offset);
+  }
 
-  for(Number i! = 1; i <= 50; i++)
-    list += new Component($"Item {i}");
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
 
-  return list;
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
 }
 
-rule: 'Debug/Long List'
+String[] PageListLongGenerateComponents(Number offset!) "[apps/menuComponents/pages/listLong.del] Generate components" {
+  return MenuComponent.Add(ArrayOfLength<Any>(24).Map((_, i) => 
+    MenuButton.New($"Item {i + offset + 1}")
+  ));
+}
+
+rule: '[apps/menuComponents/pages/listLong.del] Create page' 100
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_LIST_LONG_ID)
+if(PageListLong.IsOpen())
 {
-  menuState.CreatePage(
-    title: PAGE_DEBUG_LIST_LONG_NAME, 
-    items: PageDebugListLongItems()
-  );
+  PageListLong.Create();
+
+  // Wait(0.064);
+  WaitForeverUntil(!menuState.IsLoading());
+
+  AbortIfConditionIsFalse();
+
+  menuWindows[menuState.FocusedWindowLocation()].AttachComponents(PageListLong.Components(25));
 }

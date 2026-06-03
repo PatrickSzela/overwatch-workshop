@@ -1,0 +1,154 @@
+import '../../pickPosition/pickPosition.del';
+import '../../utils/player/input/navigation.del';
+import '../../utils/number/rampUp.del';
+import './value.del';
+
+// TODO: add example to menuComponents
+
+class MenuPositionPicker {
+  public static Number TYPE: 9;
+  public static Button BUTTON_EDIT_MODE: BUTTON_QUATERNARY;
+
+  public static MenuComponentProps New(
+    in String label,
+    in String name,
+    in String id = null,
+    in Description[] descriptions = [],
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: label,
+    id: id,
+    name: name,
+    descriptions: descriptions,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    quaternaryAction: quaternaryAction,
+    color: color,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(
+      type: TYPE, 
+      descriptions: [
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_EDIT_MODE), 'enable manual controls'), 
+          color: COLOR_SUCCESS,
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationEnabled,
+          order: -20
+        ),
+        Description.New(
+          description: UseToFormatter($"{WithUnderscores(BUTTON_INCREASE)}/{WithUnderscores(BUTTON_DECREASE)}", 'increase/decrease raycast distance'), 
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationEnabled,
+          order: -19
+        ),
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_EDIT_MODE), 'disable manual controls'), 
+          color: COLOR_ERROR,
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+          order: -20
+        ),
+        Description.New(
+          description: UseToFormatter(LEFT_RIGHT, 'move on X axis'), 
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+          order: -19
+        ),
+        Description.New(
+          description: UseToFormatter($"{WithUnderscores(BUTTON_INCREASE)}/{WithUnderscores(BUTTON_DECREASE)}", 'move on Y axis'), 
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+          order: -18
+        ),
+        Description.New(
+          description: UseToFormatter(FORWARD_BACK, 'move on Z axis'), 
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+          order: -17
+        ),
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_PRIMARY), 'set position'), 
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationEnabled,
+          order: ButtonDescriptionOrder(BUTTON_PRIMARY)
+        )
+      ],
+      renderer: MenuValue.RENDERER
+    );
+  }
+
+  public static void CreateMarker(in String label, in String name) {
+    pickPosition.CreateAdditionalSphere(
+      position: menuStore.Get(EvaluateOnce(name)),
+      text: $"{label}: {menuStore.Get(EvaluateOnce(name))}"
+    );
+  }
+}
+
+rule: '[libs/menu/components/positionPicker.del] Enable/disable vector picker'
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.IsNavigationEnabled())
+if(menuState.FocusedComponent().type == MenuPositionPicker.TYPE)
+{
+  pickPosition.Enable();
+
+  WaitForeverUntil(
+    menuState.IsOpen() == false || 
+    !menuState.IsNavigationEnabled() || 
+    menuState.FocusedComponent().type != MenuPositionPicker.TYPE
+  );
+
+  pickPosition.Disable();
+}
+
+rule: '[libs/menu/components/positionPicker.del] Toggle edit mode on button press' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.FocusedComponent().type == MenuPositionPicker.TYPE)
+if(menuState.IsActionButtonHeld(MenuPositionPicker.BUTTON_EDIT_MODE))
+{
+  Boolean editMode: menuState.IsNavigationEnabled();
+
+  menuState.SetNavigationEnabled(!editMode);
+  menuState.RenderFocusedComponent();
+}
+
+rule: '[libs/menu/components/positionPicker.del] Handle navigation' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.IsNavigationEnabled() == false)
+if(menuState.FocusedComponent().type == MenuPositionPicker.TYPE)
+if(IsNavigating() || menuState.IsActionButtonHeld(PickPosition.DISTANCE_INCREASE) || menuState.IsActionButtonHeld(PickPosition.DISTANCE_DECREASE))
+{
+  StartRampingUp();
+
+  String name! = menuState.FocusedComponent().name;
+  Vector value! = menuStore.Get(name);
+
+  Vector offset: (
+    ThrottleOf() + 
+    (
+      menuState.IsActionButtonHeld(PickPosition.DISTANCE_INCREASE) ? Up() : 
+      menuState.IsActionButtonHeld(PickPosition.DISTANCE_DECREASE) ? Down() : Vector.Zero
+    )
+  ) * RoundToInteger(RampUpValue() * 10) / 100;
+
+  menuStore.SetWithoutRendering(name, value + offset);
+  MinWait();
+  LoopIfConditionIsTrue();
+
+  menuState.RenderFocusedComponent();
+  StopRampingUp();
+}
+
+rule: '[libs/menu/components/positionPicker.del] Set value from vector picker' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.IsNavigationEnabled())
+if(menuState.FocusedComponent().type == MenuPositionPicker.TYPE)
+if(menuState.IsActionButtonHeld(BUTTON_PRIMARY))
+{
+  menuStore.Set(menuState.FocusedComponent().name, pickPosition.Position());
+}

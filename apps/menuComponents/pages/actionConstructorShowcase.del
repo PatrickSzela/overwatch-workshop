@@ -1,0 +1,43 @@
+import '../../../libs/menu/components/button.del';
+import '../../../libs/menu/pages/actionConstructor.del';
+import '../../../libs/menu/simple.del';
+
+class PageActionConstructorShowcase {
+  public static String ID: 'actionConstructorShowcase';
+  public static String TITLE: 'Action Editor Showcase';
+
+  public static Action SET_HEALTH: Action.New(
+    name: 'Set health',
+    argumentIds: [
+      MenuActionArgumentId.PLAYERS,
+      MenuActionArgumentId.HEALTH
+    ],
+    function: (args) => {
+      SetPlayerHealth(args[0], args[1]);
+    }
+  );
+
+  public static MenuSimple[] Components() {
+    return [
+      MenuSimple.Action('Teleport', MenuActionId.TELEPORT),
+      MenuSimple.Action('Change hero', MenuActionId.CHANGE_HERO),
+      MenuSimple.Action('Spawn bot', MenuActionId.SPAWN_BOT),
+      MenuSimple.Action('Set health', MenuActionId.SET_HEALTH)
+    ];
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    MenuSimple.Create(ID, TITLE, Components());
+  }
+}
+
+rule: '[apps/menuComponents/pages/actionConstructorShowcase.del] Create page' 100
+Event.OngoingPlayer
+if(PageActionConstructorShowcase.IsOpen())
+{
+  PageActionConstructorShowcase.Create();
+}

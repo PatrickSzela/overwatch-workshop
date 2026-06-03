@@ -1,0 +1,66 @@
+import '../../../libs/menu/index.del';
+import '../../../libs/menu/components/link.del';
+import '../../../libs/menu/components/text.del';
+import '../../../libs/menu/simple.del';
+import './text.del';
+import './value.del';
+import './button.del';
+import './toggle.del';
+import './carousel.del';
+import './numberInput.del';
+import './checkbox.del';
+import './radio.del';
+import './listLong.del';
+import './listDynamic.del';
+import './window.del';
+import './actionConstructorShowcase.del';
+import './playerSelectShowcase.del';
+import './timelineShowcase.del';
+
+class PageIndex {
+  public static String ID: 'index';
+  public static String TITLE: 'Menu Showcase';
+
+  public static MenuSimple[] Components() {
+    return [
+      MenuSimple.TextLink("Components:"),
+      PageText.SimpleLink(),
+      PageValue.SimpleLink(),
+      PageButton.SimpleLink(),
+      PageToggle.SimpleLink(),
+      PageCarousel.SimpleLink(),
+      PageNumberInput.SimpleLink(),
+      PageCheckbox.SimpleLink(),
+      PageRadio.SimpleLink(),
+      MenuSimple.TextLink(),
+
+      MenuSimple.TextLink("Lists:"),
+      PageListLong.SimpleLink(),
+      PageListDynamic.SimpleLink(),
+      MenuSimple.TextLink(),
+
+      MenuSimple.TextLink("Reusable pages:"),
+      PageActionConstructorShowcase.SimpleLink(),
+      PagePlayerSelectShowcase.SimpleLink(),
+      PageTimelineShowcase.SimpleLink(),
+      MenuSimple.TextLink(),
+
+      PageWindow.SimpleLink()
+    ];
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    MenuSimple.Create(ID, TITLE, Components());
+  }
+}
+
+rule: '[apps/menuComponents/pages/index.del] Create page' 100
+Event.OngoingPlayer
+if(PageIndex.IsOpen())
+{
+  PageIndex.Create();
+}

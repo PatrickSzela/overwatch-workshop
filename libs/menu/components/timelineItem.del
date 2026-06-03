@@ -1,0 +1,124 @@
+import '../pages/timeline.del';
+import './component.del';
+
+class MenuTimelineItem {
+  public static Number TYPE: 10;
+  public static Button BUTTON_EXECUTE: BUTTON_PRIMARY;
+  public static Button BUTTON_DISABLE_REMOVE: BUTTON_SECONDARY;
+  public static Button BUTTON_EDIT: BUTTON_TERTIARY;
+  public static Button BUTTON_MOVE: BUTTON_QUATERNARY;
+
+  public static ((Number, String, Any) => String) RENDERER: (idx, label, value) => {
+    menuComponents[idx].SetColor(
+      [COLOR_NEUTRAL, COLOR_DISABLED, COLOR_ERROR, COLOR_SUCCESS][
+        timeline.actionRefs[timeline.playingIndex].id == (<TimelineActionRef>value).id ? 3 : (<TimelineActionRef>value).mark
+      ]
+    );
+    return (<TimelineActionRef>value).label;
+  };
+
+  public static MenuComponentProps New(
+    in String actionId,
+    in Description[] descriptions = [],
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: null,
+    id: actionId,
+    descriptions: descriptions,
+    color: color,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(
+      type: TYPE, 
+      descriptions: [
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_MOVE), 'start moving'), 
+          color: COLOR_SUCCESS,
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationEnabled,
+          order: -20
+        ),
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_MOVE), 'stop moving'), 
+          color: COLOR_ERROR,
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+          order: -20
+        ),
+        Description.New(
+          description: UseToFormatter(FORWARD_BACK, 'move up/down'), 
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+          order: -19
+        ),
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_EXECUTE), 'execute'),
+          renderMode: DescriptionRenderMode.WindowFocused,
+          order: ButtonDescriptionOrder(BUTTON_EXECUTE)
+        ),
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_DISABLE_REMOVE), 'switch between disable/remove/clear'),
+          renderMode: DescriptionRenderMode.WindowFocused,
+          order: ButtonDescriptionOrder(BUTTON_DISABLE_REMOVE)
+        )
+        // Description.New(
+        //   description: PressToFormatter(WithUnderscores(BUTTON_EDIT), 'edit'),
+        //   order: ButtonDescriptionOrder(BUTTON_EDIT)
+        // )
+      ],
+      renderer: RENDERER
+    );
+  }
+
+  // public static void Update(in Number componentIdx, in Number actionRefIdx) {
+  //   TimelineActionRef ref: timeline.actionRefs[actionRefIdx];
+  //   menuComponents[componentIdx].value = ref;
+  //   menuComponents[componentIdx].label = ref.label;
+  //   Colorize(componentIdx, actionRefIdx);
+  //   menuComponents[componentIdx].Render();
+  // }
+
+  // public static void Colorize(in Number componentIdx, in Number actionRefIdx) {
+  //   TimelineActionRef ref: timeline.actionRefs[actionRefIdx];
+  //   menuComponents[componentIdx].SetColor(
+  //     [COLOR_NEUTRAL, COLOR_DISABLED, COLOR_ERROR, COLOR_SUCCESS][
+  //       timeline.playingIndex == actionRefIdx ? 3 : ref.mark
+  //     ]
+  //   );
+  // }
+}
+
+// TODO: make ref accept both description and string
+rule: '[libs/menu/pages/timeline.del] Handle button press/navigation' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.FocusedComponent().type == MenuTimelineItem.TYPE)
+if(HeldButtonsOf() || NavigationDirectionOf().Y && !menuState.IsNavigationEnabled())
+{
+  Boolean editMode: menuState.IsNavigationEnabled();
+  String id: menuState.FocusedComponentId();
+  Number idx! = timeline.GetIndexFromId(id);
+ 
+  if(NavigationDirectionOf().Y && !menuState.IsNavigationEnabled()) {
+    // TODO: loop
+    timeline.actionRefs = MoveInDirection(timeline.actionRefs, idx, -NavigationDirectionOf().Y);
+    return;
+  } 
+
+  switch(HeldButtonsOf()) {
+    case [BUTTON_PRIMARY]: 
+      timeline.actionRefs[idx].Execute();
+      break;
+    case [BUTTON_SECONDARY]: 
+      timeline.actionRefs[idx].ToggleMark();
+      break;
+    // case [BUTTON_TERTIARY]:
+    //   // edit action
+    //   break; 
+    case [BUTTON_QUATERNARY]: 
+      menuState.SetNavigationEnabled(!editMode);
+      menuState.RenderFocusedComponent();
+      break;
+  }
+}

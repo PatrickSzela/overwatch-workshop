@@ -1,0 +1,34 @@
+import './component.del';
+
+class MenuButton {
+  public static Number TYPE: 1;
+
+  public static MenuComponentProps New(
+    in String label,
+    in String id = null,
+    in String name = null,
+    in Any value = null,
+    in Description[] descriptions = [],
+    in MenuActionRef primaryAction = null,
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE, 
+    label: label,
+    id: id,
+    descriptions: descriptions,
+    primaryAction: primaryAction,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    quaternaryAction: quaternaryAction,
+    color: color,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(TYPE);
+  }
+}

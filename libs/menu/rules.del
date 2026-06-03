@@ -1,0 +1,119 @@
+import '../utils/index.del';
+import '../utils/player/input/heldButtons.del';
+import '../utils/player/input/navigation.del';
+import './state.del';
+
+// TODO: navigation logic (repeat keys in libs) only when menu is open
+
+// let's keep this as a rule here instead of part of the ButtonDown logic so the button handling rule below can work only while menu is open
+rule: '[libs/menu/rules.del] Handle toggle open menu buttons'
+Event.OngoingPlayer
+if(IsDummyBot() == false)
+if(HeldButtonsOf() == menuState.toggleOpenKeybind)
+{
+  menuState.SetOpen(!menuState.IsOpen());
+}
+
+rule: '[libs/menu/rules.del] Reenable crouch after menu is open for toggle crouch users' 99
+Event.OngoingPlayer
+if(menuState.IsOpen())
+{
+  AllowButton(EP, Button.Crouch);
+}
+
+rule: '[libs/menu/rules.del] Trigger component actions when button is pressed'
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(HeldButtonsOf())
+{
+  Number idx! = menuState.FocusedComponentIndex();
+  Number actionIdx! = [[BUTTON_PRIMARY], [BUTTON_SECONDARY], [BUTTON_TERTIARY], [BUTTON_QUATERNARY]].IndexOf(HeldButtonsOf());
+
+  MenuActionId actionId: menuComponents[idx].actions[actionIdx].actionId;
+  String description: menuComponents[idx].actions[actionIdx].buttonDescription;
+  
+  if(actionIdx > -1 && description) {
+    menuComponents[idx].actions[actionIdx].Execute();
+  }
+}
+
+rule: '[libs/menu/rules.del] Handle go back'
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.IsNavigationEnabled())
+if(menuState.IsActionButtonHeld(BUTTON_BACK))
+{
+  WaitForeverUntil(!menuState.IsLoading());
+  menuWindows[menuState.FocusedWindowLocation()].GoBack();
+}
+
+rule: '[libs/menu/rules.del] Handle switch window'
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.IsNavigationEnabled())
+if(menuState.IsActionButtonHeld(BUTTON_SWITCH) || !menuState.FocusedWindow().open)
+{
+  MenuWindowLocation[] locations! = menuState.OpenWindowsLocations();
+  Number idx! = locations.IndexOf(menuState.focusedWindowLocation) + 1;
+  menuState.SetFocusedWindow(locations[ClampFlip(idx, 0, locations.Length)]);
+}
+
+rule: '[libs/menu/rules.del] Handle navigation'
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.IsNavigationEnabled())
+if(NavigationDirectionOf())
+{
+  menuState.Navigate(NavigationDirectionOf());
+}
+
+// rule: '[libs/menu/rules.del] Rerender focused window on navigation or button press/release'
+// Event.OngoingPlayer
+// if(menuState.IsOpen())
+// {
+//   WaitForeverUntil(
+//     HeldButtonsOf() != EvaluateOnce(HeldButtonsOf()) || 
+//     NavigationDirectionOf() != Vector.Zero
+//   );
+//   menuState.RenderFocusedWindow();
+//   MinWait();
+//   LoopIfConditionIsTrue();
+// }
+
+rule: '[libs/menu/rules.del] Rerender all windows on menu open/close'
+Event.OngoingPlayer
+if(IsDummyBot() == false)
+{
+  WaitForeverUntilValueChanges(menuState.IsOpen());
+  menuState.RenderAllWindows();
+  Loop();
+}
+
+rule: '[libs/menu/rules.del] Menu loop logic' 99999
+Event.OngoingPlayer
+if(menuState.IsLoading())
+{
+  for(Number i! = 0; i < menuWindows.Length; i++) {
+    if(menuWindows[i].IsLoading()) {
+      MinWait();
+      menuWindows[i].RULE_Logic(i);
+    }
+  }
+
+  Number openWindowsCount! = menuState.OpenWindowsCount();
+  
+  for(Number i! = 0; i < menuWindows.Length; i++) {
+    if(menuWindows[i].IsLoading()) {
+      menuWindows[i].RULE_Logic_Final(
+        i,
+        menuState.IsOpen(), 
+        menuState.focusedWindowLocation == i, 
+        menuState.IsNavigationEnabled(),
+        openWindowsCount
+      );
+    }
+  }
+
+  MinWait();
+  LoopIfConditionIsTrue();
+}

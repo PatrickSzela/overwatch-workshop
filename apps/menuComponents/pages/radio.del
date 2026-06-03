@@ -1,33 +1,53 @@
 import '../../../libs/menu/components/radio.del';
-import '../../../libs/utils/index.del';
-import '../_variables.del';
+import '../../../libs/menu/simple.del';
 
-String PAGE_DEBUG_RADIO_ID: 'radio';
-String PAGE_DEBUG_RADIO_NAME: 'Radio';
+class PageRadio {
+  public static String ID: 'radio';
+  public static String TITLE: 'Radio';
 
-Component[] PageDebugRadioItems() {
-  Radio[] items = [];
+  public static String NAME: ID;
 
-  for(Number i! = 1; i <= 10; i++) {
-    items += new Radio(
-      menuState: menuState,
-      text: $"Item {i}", 
-      name: PAGE_DEBUG_RADIO_ID, 
-      defaultChecked: i == 5
-    );
+  public static Any[][] STORE: [
+    [NAME, 3]
+  ];
 
-    items.Last.onChange = (checked, it) => Log($'{it.text}: value changed to {checked}');
+  public static String[] Components() {
+    return MenuComponent.Add(ArrayOfLength<Any>(9).Map((_, i) => 
+      MenuRadio.New(
+        label: "Radio ",
+        name: NAME,
+        value: i + 1
+      )
+    ));
   }
 
-  return items;
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
 }
 
-rule: 'Debug/Radio'
+rule: '[apps/menuComponents/pages/radio.del] Create page' 100
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_RADIO_ID)
+if(PageRadio.IsOpen())
 {
-  menuState.CreatePage(
-    title: PAGE_DEBUG_RADIO_NAME, 
-    items: PageDebugRadioItems()
-  );
+  PageRadio.Create();
+}
+
+rule: '[apps/menuComponents/pages/radio.del] Log value on change'
+Event.OngoingPlayer
+{
+  Boolean value: menuStore.Get(PageRadio.NAME);
+  WaitForeverUntilValueChanges(value);
+
+  Log($'{PageRadio.NAME}: values changed to {value}');
+
+  Loop();
 }

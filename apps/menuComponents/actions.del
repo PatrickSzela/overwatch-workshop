@@ -1,0 +1,140 @@
+import '../../libs/menu/action.del';
+
+enum MenuActionArgumentId {
+  PLAYERS,
+  HERO,
+  TEAM,
+  POSITION,
+  HEALTH,
+  DURATION
+}
+
+enum MenuActionId {
+  LOG,
+  CHANGE_HERO,
+  TELEPORT,
+  UPDATE_TELEPORT_POSITION,
+  ADD_COMPONENT,
+  REMOVE_ALL_COMPONENTS,
+  REMOVE_COMPONENT,
+  MOVE_COMPONENT,
+  CLOSE_RIGHT_WINDOW,
+  SPAWN_BOT,
+  REMOVE_PLAYER,
+  MOVE_PLAYER,
+  ADD_ACTION_TO_TIMELINE,
+  // DISABLE_REMOVE_ACTION_FROM_TIMELINE,
+  // MOVE_ACTION_FROM_TIMELINE,
+  // EXECUTE_ACTION_IN_TIMELINE,
+  PLAY_PAUSE_TIMELINE,
+  STOP_TIMELINE,
+  SET_REPEAT_TIMELINE,
+  WAIT,
+  LOG_TIMESTAMP,
+  SET_HEALTH
+}
+
+
+rule: '[apps/menuComponents/actions.del] Initialize actions'
+{
+  MenuButton.Register();
+  MenuCarousel.Register();
+  MenuCheckbox.Register();
+  MenuLink.Register();
+  MenuNumberInput.Register();
+  MenuPositionPicker.Register();
+  MenuRadio.Register();
+  MenuText.Register();
+  MenuTimelineItem.Register();
+  MenuToggle.Register();
+  MenuValue.Register();
+
+  arguments = [
+    ActionArgument.New(
+      name: 'Players', 
+      type: Type.PLAYER, 
+      multiple: true,
+      defaultValue: () => [EP]
+    ),
+    ActionArgument.New(
+      name: 'Hero', 
+      type: Type.HERO, 
+      defaultValue: () => EP.Hero()
+    ),
+    ActionArgument.New(
+      name: 'Team', 
+      type: Type.TEAM
+    ),
+    ActionArgument.New(
+      name: 'Position', 
+      type: Type.VECTOR, 
+      defaultValue: () => Vector.Zero
+    ),
+    ActionArgument.New(
+      name: 'Health', 
+      type: Type.NUMBER, 
+      defaultValue: () => EP.Health(),
+      data: InputSettings.New(
+        integralLength: 5, 
+        fractionalLength: 0, 
+        unit: ' HP'
+      )
+    ),
+    ActionArgument.New(
+      name: 'Duration', 
+      type: Type.NUMBER, 
+      defaultValue: () => 1,
+      data: InputSettings.New(
+        integralLength: 3, 
+        fractionalLength: 3, 
+        unit: ' secs'
+      )
+    )
+  ];
+
+  actions = [
+    PageButton.LOG_ACTION,
+    PageCarousel.CHANGE_HERO_ACTION,
+    PageValue.TELEPORT,
+    PageValue.UPDATE_TELEPORT_POSITION,
+    PageListDynamic.ADD_COMPONENT,
+    PageListDynamic.REMOVE_ALL_COMPONENTS,
+    PageListDynamic.REMOVE_COMPONENT,
+    PageListDynamic.MOVE_COMPONENT,
+    PageWindow.CLOSE_RIGHT_WINDOW,
+    PagePlayerSelectShowcase.SPAWN_BOT_ACTION,
+    PagePlayerSelectShowcase.REMOVE_PLAYER_ACTION,
+    PagePlayerSelectShowcase.MOVE_PLAYER_ACTION,
+    PageTimeline.ADD_ACTION_TO_TIMELINE,
+    // PageTimeline.DISABLE_REMOVE_ACTION_FROM_TIMELINE,
+    // PageTimeline.MOVE_ACTION_FROM_TIMELINE,
+    // PageTimeline.EXECUTE_ACTION_IN_TIMELINE,
+    PageTimeline.PLAY_PAUSE_TIMELINE,
+    PageTimeline.STOP_TIMELINE,
+    PageTimeline.SET_REPEAT_TIMELINE,
+    PageTimelineShowcase.WAIT,
+    PageTimelineShowcase.LOG_TIMESTAMP,
+    PageActionConstructorShowcase.SET_HEALTH
+  ];
+}
+
+rule: '[apps/menuComponents/store.del] Initialize store'
+Event.OngoingPlayer
+if(menuStore.keys.Length == 0)
+if(IsDummyBot() == false)
+if(HeroOf()) // HasSpawned() is unreliable when moving player to a different team
+{
+  menuStore = MenuStore.New(
+    PageCarousel.STORE +
+    PageCheckbox.STORE +
+    PageNumberInput.STORE +
+    PageRadio.STORE +
+    PageText.STORE +
+    PageToggle.STORE +
+    PageValue.STORE +
+    PageWindow.STORE +
+    PagePlayerSelect.STORE +
+    PagePlayerSelectShowcase.STORE +
+    PageTimelineShowcase.STORE
+  );
+}

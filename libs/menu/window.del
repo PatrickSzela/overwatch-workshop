@@ -1,0 +1,559 @@
+import '../utils/index.del';
+import './components/component.del';
+import './renderer.del';
+import './helpers.del';
+
+// TODO: add "It's a bit empty in here..." if page is empty
+// TODO: fix customButtons.settings.del
+
+globalvar Description[] MENU_WINDOW_DESCRIPTIONS! = [
+  Description.New(
+    description: PressToFormatter(WithUnderscores(BUTTON_SWITCH), 'switch to the next window'), 
+    renderMode: DescriptionRenderMode.WindowFocusedNavigationEnabledAndMultipleWindowsOpen,
+    color: COLOR_SUCCESS,
+    order: 20
+  ),
+  Description.New(
+    description: " ", 
+    order: NUMBER_MAX
+  )
+];
+
+playervar MenuWindow[] menuWindows = [];
+
+struct MenuWindow {
+  # Maximum number of visible components, after which the page will become scrollable.
+  public static Number MAX_COMPONENTS_ON_PAGE: MenuRenderer.MAX_COMPONENTS_ON_PAGE;
+
+  # List of component IDs available on the current page.
+  public Any[] componentIds;
+  # ID of currently focused component.
+  public Any focusedComponentId;
+  # ID of root page.
+  public String rootPageId;
+  # Title of the window.
+  public String title;
+  # Whether the window is open.
+  public Boolean open;
+  # History of opened pages.
+  public HistoryItem[] history;
+  # List of additional descriptions that will be show on current page.
+  public Description[] pageDescriptions;
+  # List of additional descriptions that will be shown until manually removed.
+  public Description[] windowDescriptions;
+  # List of additional descriptions that will be shown when window is closed.
+  public Description[] closedDescriptions;
+  # List of rendered components.
+  public RenderedText[] renderedTexts;
+  # Operations to execute on window in update loop
+  public MenuWindowOperation[] operations;
+
+  public static MenuWindow New(
+    in String rootPageId = null, 
+    in Boolean open = true,
+    in Description[] windowDescriptions = [], 
+    in Description[] closedDescriptions = [
+      Description.New(
+        description: $"Press {ButtonFormatter_Underscores(menuState.toggleOpenKeybind)} to toggle Menu", 
+        color: COLOR_NEUTRAL
+      )
+    ]): {
+    componentIds: [],
+    focusedComponentId: null,
+    rootPageId: rootPageId,
+    title: null,
+    open: open,
+    history: rootPageId.Length ? [HistoryItem.New(rootPageId)] : [],
+    pageDescriptions: [],
+    windowDescriptions: MENU_WINDOW_DESCRIPTIONS + windowDescriptions,
+    closedDescriptions: closedDescriptions,
+    renderedTexts: [],
+    operations: [MenuWindowOperation.New(MenuWindowOperationType.RENDER)],
+  };
+
+  # Set `window` at `location`.
+  public static void Set(in MenuWindow window, in MenuWindowLocation location) {
+    menuWindows[<Number>location] = window;
+  }
+
+  # Set all windows at their corresponding locations.
+  public static void SetMultiple(in MenuWindow left = <MenuWindow>null, in MenuWindow center = <MenuWindow>null, in MenuWindow right = <MenuWindow>null) {
+    menuWindows = [left, center, right];
+  }
+
+  # Remove window at `location`. This also removes all attached components from `menuComponents` list.
+  public static void Remove(in MenuWindowLocation location) {
+    menuWindows[<Number>location].DetachAllComponents();
+    menuWindows[<Number>location] = <MenuWindow>null;
+  }
+
+  # Remove all windows and components.
+  public static void RemoveAll() {
+    MenuComponent.RemoveAll();
+    menuWindows = [];
+  }
+
+  # Whether window is currently loading.
+  public ref Boolean IsLoading(): operations.Length;
+
+  # Title of the window.
+  public ref String Title(): title;
+  
+  # Set title of the window.
+  public ref void SetTitle(in String _title) {
+    title = _title;
+  }
+
+  # Whether the window is open.
+  public ref Boolean IsOpen(): open;
+
+  # Set whether the window should be open.
+  public ref void SetOpen(in Boolean value) {
+    open = value;
+    renderedTexts = [];
+  }
+
+  // Component
+  # Currently focused component.
+  public ref MenuComponent FocusedComponent(): 
+    MenuComponent.GetFromId(focusedComponentId);
+
+  # ID of currently focused component.
+  public ref String FocusedComponentId(): focusedComponentId;
+
+  # Set currently focused component.
+  public ref void SetFocusedComponent(in Any id) {
+    focusedComponentId = id;
+  }
+
+  # List of component IDs currently visible.
+  public Any[] VisibleComponentIds(): componentIds
+    .Filter((i) => MenuComponent.GetFromId(i).visible)
+    .Slice(history.Last.outerScroll, MAX_COMPONENTS_ON_PAGE);
+
+  # List of component IDs that can be focused.
+  public Any[] EnabledComponentIds(): componentIds
+    .FilteredArray((i) => 
+      MenuComponent.GetFromId(i).enabled && MenuComponent.GetFromId(i).visible
+    );
+
+  # Find component to focus if currently focused one is disabled, hidden or missing.
+  public ref void FixFocusedComponent() {
+    operations += MenuWindowOperation.New(MenuWindowOperationType.FIX_FOCUSED_COMPONENT);
+  }
+
+  protected ref void FixFocusedComponent_IMPL() {
+    Number oldIndex: history.Last.outerScroll + history.Last.innerScroll;
+    Number focusedIdx! = MenuComponent.GetIndexFromId(focusedComponentId);
+    Number focusedInteractive: menuComponents[focusedIdx].visible && menuComponents[focusedIdx].enabled;
+    
+    // move components before currently hovered one in front, and further ones leave intact
+    Any[] idxs! = componentIds
+      .Sort((i, idx) => idx > oldIndex ? idx : -idx)
+      .Map((i) => MenuComponent.GetIndexFromId(i))
+      .Filter((i) => menuComponents[i].enabled && menuComponents[i].visible);
+
+    if(idxs.Length)
+      SetFocusedComponent(menuComponents[idxs[0]].id);
+  
+    LogHelper($'[Window] FixFocusedComponent - found with ID {focusedComponentId} (label {FocusedComponent().label}), outer scroll: {history.Last.outerScroll}, inner scroll: {history.Last.innerScroll}');
+
+    UpdateScroll();
+  }
+
+  # List of component IDs available on the current page.
+  public ref Any[] ComponentIds(): componentIds;
+
+  # Attaches components to the window.
+  public ref void AttachComponents(in Any[] ids) {
+    LogHelper($'[Window] MARKED TO AttachComponents {ids.Length} components');
+    operations += MenuWindowOperation.New(MenuWindowOperationType.ADD_COMPONENTS, ids);
+  }
+
+  protected ref void AttachComponents_IMPL(in Any[] ids) {
+    componentIds += ids;
+    LogHelper($'[Window] AttachComponents: Attaching {ids.Length} components, {componentIds.Length} total');
+    // FixFocusedComponent();
+  }
+
+  # Detaches components from the window.
+  public ref void DetachComponents(in Any[] ids) {
+    LogHelper($'[Window] MARKED TO DetachComponents {ids.Length} components');
+    operations += MenuWindowOperation.New(MenuWindowOperationType.REMOVE_COMPONENTS, ids);
+  }
+  
+  # Detaches components from the window.
+  public ref void DetachAllComponents() {
+    LogHelper($'[Window] MARKED TO DetachAllComponents {componentIds.Length} components');
+    operations += MenuWindowOperation.New(MenuWindowOperationType.REMOVE_COMPONENTS, componentIds);
+  }
+
+  protected ref void DetachComponents_IMPL(in Number[] ids) {
+    componentIds -= ids;
+    MenuComponent.RemoveMultiple(ids);
+    LogHelper($'[Window] DetachComponents: Detaching {ids.Length} components, {componentIds.Length} left');
+    // FixFocusedComponent();
+  }
+
+  // # Detaches all components from the window and attaches new ones.
+  // public ref void ReplaceComponents(in Any[] ids) {
+  //   // TODO: attach new and detach old components 
+  //   LogHelper($'[Window] ReplaceComponents: Detaching {componentIds.Length} components & attaching {ids.Length} components');
+  //   MenuComponent.RemoveMultiple(componentIds);
+  //   componentIds = ids;
+
+  //   FixFocusedComponent();
+  // }
+
+  # Detaches all components from the window and attaches new ones.
+  public ref void ReplaceComponents(in Any[] order, in Any[] remove) {
+    LogHelper($'[Window] ReplaceComponents: Detaching {remove.Length} components, new order has {order.Length} components');
+    operations += [
+      MenuWindowOperation.New(MenuWindowOperationType.REMOVE_COMPONENTS, remove),
+      MenuWindowOperation.New(MenuWindowOperationType.REORDER_COMPONENTS, order)
+    ];
+    // operations.addComponents = order;
+    // componentIds = [];
+    // componentIds = order;
+  }
+
+  // # Reorder components according to the value rank that is evaluated for each element.
+  // public ref void ReorderComponents(const (Any, Number) => Number conditionLambda) {
+  //   LogHelper($'[Window] ReorderComponents: reordering components');
+  //   componentIds = componentIds.Sort(conditionLambda);
+  // }
+
+  # Update order of components.
+  # 
+  # NOTE: this method doesn't validate the provided `ids`.
+  public ref void ReorderComponents(in Any[] order) {
+    LogHelper($'[Window] ReorderComponents');
+    operations += MenuWindowOperation.New(MenuWindowOperationType.REORDER_COMPONENTS, order);
+  }
+
+  # Update order of components.
+  # 
+  # NOTE: this method doesn't validate the provided `ids`.
+  public ref void ReorderComponents_IMPL(in Any[] ids) {
+    LogHelper($'[Window] UpdateComponentsOrder: updating components order, {ids.Length} items');
+    componentIds = ids;
+    UpdateScroll();
+  }
+
+  # Forcefully renders all components on page and the window.
+  public ref void RenderAllComponents() {
+    menuComponents = menuComponents.Map((i) => 
+      {shouldRerender: componentIds.Contains(i.id) || i.shouldRerender, ..i});
+    Render();
+  }
+
+  // Description
+  # Add `descriptions` to the current page. These descriptions will be automatically removed when navigating to a different page.
+  public ref void AddPageDescriptions(in Description[] descriptions) {
+    pageDescriptions += descriptions;
+  }
+
+  # Set `descriptions` of the current page. These descriptions will be automatically removed when navigating to a different page.
+  public ref void SetPageDescriptions(in Description[] descriptions) {
+    pageDescriptions = descriptions;
+  }
+
+  # Remove all current page's descriptions.
+  public ref void RemoveAllPageDescriptions() {
+    pageDescriptions = [];
+  }
+
+  # Add `descriptions` to the window.
+  public ref void AddWindowDescriptions(in Description[] descriptions) {
+    windowDescriptions += descriptions;
+  }
+
+  # Set `descriptions` of the window.
+  public ref void SetWindowDescriptions(in Description[] descriptions) {
+    windowDescriptions = descriptions;
+  }
+
+  # Remove all window's descriptions.
+  public ref void RemoveAllWindowDescriptions() {
+    windowDescriptions = [];
+  }
+
+  // Page
+  # ID of currently open page.
+  public String PageId(): history.Last.id;
+
+  # Create a page.
+  public ref void CreatePage(in String title, in Any[] componentsIds, in Description[] descriptions = []) {
+    LogHelper($'[Window] MARKED TO: Create page with {componentsIds.Length} components');
+    operations += MenuWindowOperation.New(MenuWindowOperationType.CREATE_PAGE, MenuWindowCreatePage.New(title, componentsIds, descriptions));
+  }
+
+  protected ref void CreatePage_IMPL(in String title, in Any[] componentsIds, in Description[] descriptions = []) {
+    LogHelper($'[Window] CreatePage_IMPL: Creating page {title}');
+    SetTitle(title);
+    AddPageDescriptions(descriptions);
+    AttachComponents(componentsIds);
+    FixFocusedComponent();
+  }
+
+  # Destroy current page.
+  public ref void DestroyPage() {
+    LogHelper($'[Window] MARKED TO: Destroy page');
+    operations += MenuWindowOperation.New(MenuWindowOperationType.DESTROY_PAGE);
+  }
+
+  protected ref void DestroyPage_IMPL() {
+    LogHelper($'[Window] DestroyPage');
+
+    RemoveAllPageDescriptions();
+    DetachAllComponents();
+
+    // let's not carry over pressed button to the next page so we don't trigger actions on components by accident
+    _heldButtons = [];
+  }
+
+  # Navigate to a page with id `pageId`.
+  public ref void OpenPage(in String pageId, in Boolean pushToHistory = true) {
+    LogHelper('[Window] MARKED TO: OpenPage');
+    operations += MenuWindowOperation.New(MenuWindowOperationType.OPEN_PAGE, MenuWindowOpenPage.New(pageId, pushToHistory));
+  }
+
+  protected ref void OpenPage_IMPL(in String id, in Boolean pushToHistory) {
+    LogHelper($'[Window] OpenPage: going from {PageId()} to {id}, push to history: {pushToHistory}');
+
+    if(PageId() != id) {
+      DestroyPage();
+      history[history.Length - (pushToHistory ? 0 : 1)] = HistoryItem.New(id);
+    }
+  }
+
+  # Go back one page.
+  public ref void GoBack() {
+    LogHelper($'[Window] MARKED TO: Go Back');
+    operations += MenuWindowOperation.New(MenuWindowOperationType.GO_BACK);
+  }
+
+  protected ref void GoBack_IMPL() {
+    LogHelper($'[Window] GoBack');
+
+    if(history.Length == 1) {
+      // if(!isRemotelyControlled) Close();
+      return;
+    }
+
+    DestroyPage();
+    ModRemoveLast(history);
+  }
+
+  # Recalculate scroll data.
+  public ref void UpdateScroll() {
+    operations += MenuWindowOperation.New(MenuWindowOperationType.UPDATE_SCROLL);
+  }
+
+  protected ref void UpdateScroll_IMPL() {
+    LogHelper($'[Window] UpdateScroll');
+
+    Number idx! = history.Length - 1;
+
+    LogHelper($"[Window] starting outer scroll: {history.Last.outerScroll}, inner scroll: {history.Last.innerScroll}");
+
+    Number outer! = Min(history[idx].outerScroll, Max(0, componentIds.Length - MAX_COMPONENTS_ON_PAGE));
+    Number inner! = componentIds.IndexOf(focusedComponentId) - outer;
+
+    LogHelper($"[Window] new outer scroll: {outer}, inner: {inner}");
+
+    if(inner > MAX_COMPONENTS_ON_PAGE - 1) {
+      outer += inner - (MAX_COMPONENTS_ON_PAGE - 1);
+      inner = MAX_COMPONENTS_ON_PAGE - 1;
+    } else if(inner < 0) {
+      outer = Max(0, outer + inner);
+      inner = 0;
+    }
+
+    history[idx] = {
+      innerScroll: inner,
+      outerScroll: outer,
+      ..history[idx]
+    };
+
+    LogHelper($"[Window] ending outer scroll: {history.Last.outerScroll}, inner scroll: {history.Last.innerScroll}");
+  }
+
+  // Navigation
+  # Navigate in `direction`.
+  public ref void Navigate(in Vector direction) {
+    LogHelper($'[Window] Navigate: {direction}');
+
+    if([Up(), Down()].Contains(direction)) {
+      Any[] enabled! = EnabledComponentIds();
+      HistoryItem h! = history[history.Length - 1];
+
+      Number focusedIndex! = enabled.IndexOf(focusedComponentId) - direction.Y;
+      Number nextFocusedId! = enabled[ClampFlip(focusedIndex, 0, enabled.Length - 1)];
+
+      // show any non-interactive items on top/bottom of the page when scrolling there
+      if(enabled.First == nextFocusedId)
+        h.outerScroll = 0;
+      else if(enabled.Last == nextFocusedId)
+        h.outerScroll = NUMBER_MAX;
+
+      history[history.Length - 1] = h;
+
+      LogHelper($"calculated next id: {focusedComponentId}");
+
+      if(focusedComponentId != nextFocusedId) {      
+        SetFocusedComponent(nextFocusedId);
+        UpdateScroll();
+      }
+    }
+  }
+
+  // Render
+  protected ref RenderedText[] RenderClosedDescriptions() {
+    return Description.Render(closedDescriptions, false, false, 0);
+  }
+
+  protected ref RenderedText[] RenderTitle() {
+    return [RenderedText.New(title)];
+  }
+
+  protected ref RenderedText[] RenderTopSeparator() {
+    return [
+      RenderedText.New(
+        $"＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿{componentIds.Length < MAX_COMPONENTS_ON_PAGE + 1 ? '＿' : history.Last.outerScroll == 0 ? '︿' : '︽'}＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿", 
+      )
+    ];
+  }
+
+  protected ref RenderedText[] RenderBottomSeparator() {
+    return [
+      RenderedText.New(
+        $"￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣{componentIds.Length < MAX_COMPONENTS_ON_PAGE + 1 ? '￣' : history.Last.outerScroll == componentIds.Length - MAX_COMPONENTS_ON_PAGE ? '﹀' : '︾'}￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣",
+      )
+    ];
+  }
+
+  protected ref RenderedText[] RenderDescriptions(in Boolean isFocused, in Boolean isNavigationEnabled, in Number openWindowsCount) {
+    Number focusedIndex! = MenuComponent.GetIndexFromId(focusedComponentId);
+    MenuComponent component: MenuComponent.GetFromIndex(focusedIndex);
+
+    Description[] actionDescriptions: 
+      component.actions
+        .Map((i, idx) => i.buttonDescription ? Description.New(
+          description: PressToFormatter(WithUnderscores(buttonsSettings[idx % 4]), i.buttonDescription), 
+          order: ButtonDescriptionOrder(buttonsSettings[idx % 4]),
+          renderMode: DescriptionRenderMode.WindowFocused
+        ) : null);
+
+    return Description.Render(
+      actionDescriptions +
+        MenuComponentRegistry.Descriptions(component.type) +
+        component.descriptions +
+        pageDescriptions + windowDescriptions,
+      isFocused,
+      isNavigationEnabled,
+      openWindowsCount
+    );
+  }
+
+  protected ref RenderedText[] RenderVisibleComponents() {
+    Any[] visible = VisibleComponentIds().Map((i) => MenuComponent.GetIndexFromId(i));
+    Any[] rerender = visible.Filter((i) => menuComponents[i].shouldRerender);
+
+    for(menuReusableIdx = 0; menuReusableIdx < rerender.Length; menuReusableIdx++) {
+      Any idx: rerender[menuReusableIdx];
+      MenuComponent component: menuComponents[idx];
+      String value! = component.value;
+      
+      // TODO: figure out a better way to do this
+      if(component.name && ![MenuCheckbox.TYPE, MenuRadio.TYPE].Contains(component.type))
+        value = menuStore.Get(component.name);
+        
+      if(menuComponents[idx].valueFormatter)
+        value = menuComponents[idx].valueFormatter(value);
+
+      // Log($"rendering {menuComponents[idx].name} with {value} (unformatted {menuComponents[idx].GetValue()})");
+
+      menuComponents[idx].renderedText = MenuComponentRegistry.Renderer(component.type)(idx, component.label, value);
+      menuComponents[idx].shouldRerender = false;
+    }
+
+    return visible.Map((i) => RenderedText.New( 
+      text: $"{menuComponents[i].enabled ? '• ' : ''}{menuComponents[i].renderedText}",
+      color: menuComponents[i].color,
+      focused: focusedComponentId == menuComponents[i].id,
+    ));
+  }
+
+  # Forcefully render window.
+  public ref void Render() {
+    operations += MenuWindowOperation.New(MenuWindowOperationType.RENDER);
+  }
+
+  protected ref void Render_IMPL(in Boolean isOpen, in Boolean isFocused, in Boolean isNavigationEnabled, in Number openWindowsCount) {
+    LogHelper($'[Window] Render');
+
+    if(isOpen) {      
+      renderedTexts = 
+        RenderTitle() + 
+        RenderTopSeparator() + 
+        RenderVisibleComponents() + 
+        RenderBottomSeparator() + 
+        RenderDescriptions(isFocused, isNavigationEnabled, openWindowsCount);
+    } else {
+      renderedTexts = RenderClosedDescriptions();
+    }
+  }
+
+  # DO NOT USE.
+  public ref void RULE_Logic(in Number location) {
+    LogHelper($"========= Executing logic of MenuWindow {location}");
+
+    for(Number i! = 0; i < operations.Length; i++) {
+      Any data: operations[i].data;
+
+      switch(operations[i].type) {
+        case MenuWindowOperationType.GO_BACK: 
+          GoBack_IMPL(); 
+          break;
+        case MenuWindowOperationType.OPEN_PAGE: 
+          OpenPage_IMPL(data[0], data[1]); 
+          break;
+        case MenuWindowOperationType.DESTROY_PAGE: 
+          DestroyPage_IMPL(); 
+          break;
+        case MenuWindowOperationType.REMOVE_COMPONENTS: 
+          DetachComponents_IMPL(data);
+          MinWait();
+          break;
+        case MenuWindowOperationType.CREATE_PAGE: 
+          CreatePage_IMPL(data[0], data[1], data[2]); 
+          break;
+        case MenuWindowOperationType.ADD_COMPONENTS: 
+          AttachComponents_IMPL(data); 
+          MinWait();
+          break;
+        case MenuWindowOperationType.REORDER_COMPONENTS: 
+          ReorderComponents_IMPL(data); 
+          break;
+      }
+    }
+
+    MenuWindowOperationType[] final: operations.Map((i) => i.type);
+    if(final.Contains(MenuWindowOperationType.FIX_FOCUSED_COMPONENT)) 
+      FixFocusedComponent_IMPL();
+    if(final.Contains(MenuWindowOperationType.UPDATE_SCROLL))
+      UpdateScroll_IMPL();
+  
+    LogHelper($"========= Finished executing logic of MenuWindow {location}");    
+  }
+
+  public ref void RULE_Logic_Final(in Number location, in Boolean isOpen, in Boolean isFocused, in Boolean isNavigationEnabled, in Number openWindowsCount) {
+    LogHelper($"========= Executing final logic of MenuWindow {location}");
+
+    Render_IMPL(isOpen, isFocused, isNavigationEnabled, openWindowsCount);
+    operations = [];
+    
+    LogHelper($"========= Finished executing final logic of MenuWindow {location}");    
+  }
+}

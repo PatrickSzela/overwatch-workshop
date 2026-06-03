@@ -1,0 +1,95 @@
+import '../../../libs/menu/components/text.del';
+import '../../../libs/menu/components/toggle.del';
+import '../../../libs/menu/simple.del';
+
+// NOTE: windows are pregenerated in `main.del`
+
+class PageWindow {
+  public static String ID: 'window';
+  public static String TITLE: 'Window Management';
+  public static String RIGHT_ID: 'right';
+  public static String RIGHT_TITLE: 'Right window';
+  
+  public static String RIGHT_OPEN_NAME: 'window_right_open';
+  public static String RIGHT_CLOSE_WHEN_LEAVING_NAME: 'window_right_close_when_leaving';
+
+  public static Any[][] STORE: [
+    [RIGHT_OPEN_NAME],
+    [RIGHT_CLOSE_WHEN_LEAVING_NAME]
+  ];
+
+  public static Action CLOSE_RIGHT_WINDOW: Action.New(
+    name: 'close right window',
+    function: (args) => {
+      menuStore.Set(RIGHT_OPEN_NAME, false);
+    }
+  );
+
+  public static String[] Components() {
+    return MenuComponent.Add([
+      MenuToggle.New(
+        label: 'Right window', 
+        name: RIGHT_OPEN_NAME
+      ),
+      MenuToggle.New(
+        label: 'Close right window when leaving page', 
+        name: RIGHT_CLOSE_WHEN_LEAVING_NAME
+      )
+    ]);
+  }
+
+  public static Boolean IsRightOpen(): menuState.IsPageOpen(RIGHT_ID);
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
+}
+
+rule: '[apps/menuComponents/pages/window.del] Create page' 100
+Event.OngoingPlayer
+if(PageWindow.IsOpen())
+{
+  PageWindow.Create();
+
+  menuWindows[MenuWindowLocation.Right].OpenPage(PageWindow.RIGHT_ID, false);
+
+  WaitForeverUntil(!PageWindow.IsOpen());
+
+  if(menuStore.Get(PageWindow.RIGHT_CLOSE_WHEN_LEAVING_NAME)) {
+    menuStore.Set(PageWindow.RIGHT_OPEN_NAME, false);
+  }
+}
+
+rule: '[apps/menuComponents/pages/window.del] Create right page' 100
+Event.OngoingPlayer
+if(PageWindow.IsRightOpen())
+{
+  menuState.CreatePage(
+    id: PageWindow.RIGHT_ID,
+    title: PageWindow.RIGHT_TITLE, 
+    componentIds: MenuComponent.Add([
+      MenuButton.New(
+        label: 'Close', 
+        primaryAction: MenuActionRef.New(MenuActionId.CLOSE_RIGHT_WINDOW, null, 'apply')
+      )
+    ])
+  );
+}
+
+rule: '[apps/menuComponents/pages/window.del] Toggle visibility of a window' 200
+Event.OngoingPlayer
+{
+  Boolean value: menuStore.Get(PageWindow.RIGHT_OPEN_NAME);
+  WaitForeverUntilValueChanges(value);
+
+  menuWindows[MenuWindowLocation.Right].SetOpen(value);
+
+  Loop();
+}

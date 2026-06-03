@@ -1,0 +1,200 @@
+import '../utils/index.del';
+import '../utils/player/input/allButtons.del';
+import '../utils/player/freeze.del';
+import './customButtons.del';
+import './window.del';
+
+// TODO: handle case where the window is scrollable, but last items are disabled and will never be shown
+// TODO: handle multiple windows having the same page open
+
+playervar MenuState menuState;
+
+# Holds current state of `Menu` for a player and handles logic for displaying and controlling every `Component` and its derivatives.
+single struct MenuState {
+  # Whether player has access to menu.
+  public Boolean enabled;
+  # Whether menu is currently open.
+  public Boolean open;
+  # Combination of buttons used to toggle menu on and off.
+  public Button[] toggleOpenKeybind;
+  # Whether player can navigate the menu. Components will still receive navigation events regardless of this setting's value.
+  public Boolean navigationEnabled;
+  # Location of the currently focused window.
+  public MenuWindowLocation focusedWindowLocation;
+
+  public static MenuState New(
+    Boolean enabled = true, 
+    Button[] toggleOpenKeybind = [Button.Crouch, Button.Interact], 
+    MenuWindowLocation initialFocusedWindow = MenuWindowLocation.Left
+  ): { 
+    enabled: enabled,
+    open: false,
+    toggleOpenKeybind: toggleOpenKeybind,
+    navigationEnabled: true,
+    focusedWindowLocation: initialFocusedWindow,
+  };
+
+  # Whether player has access to menu.
+  public ref Boolean IsEnabled(): enabled;
+
+  # Set whether player has access to menu.
+  public ref void SetEnabled(in Boolean value) {
+    enabled = value;
+  }
+
+  # Whether menu is currently open.
+  public ref Boolean IsOpen(): open;
+
+  # Set whether menu is currently open.
+  public ref void SetOpen(in Boolean value) {
+    open = value;
+    SetFrozen(EP, open);
+  }
+
+  # Whether player can navigate the menu. Components will still receive navigation events regardless of this setting's value.
+  public ref Boolean IsNavigationEnabled(): navigationEnabled;
+
+  # Set whether player can navigate the menu.
+  public ref void SetNavigationEnabled(in Boolean value) {
+    navigationEnabled = value;
+  }
+
+  # Get value stored under `name`.
+  public ref T GetValue<T>(in String name) {
+    return <T>menuStore.Get(name);
+  }
+
+  // Window
+  # Currently focused window.
+  public MenuWindow FocusedWindow(): menuWindows[focusedWindowLocation];
+
+  # Currently focused window location.
+  public MenuWindowLocation FocusedWindowLocation(): focusedWindowLocation;
+
+  # Set currently focused window.
+  public ref void SetFocusedWindow(in MenuWindowLocation location) {
+    menuWindows[focusedWindowLocation].Render();
+    focusedWindowLocation = location;
+    menuWindows[focusedWindowLocation].Render();
+
+    // let's not carry over pressed button to other window so we don't trigger actions on components by accident
+    _heldButtons = [];
+  }
+
+  # List of locations of all currently open windows.
+  public MenuWindowLocation[] OpenWindowsLocations(): menuWindows
+    .Map((i, idx) => <MenuWindowLocation>idx)
+    .Filter((i) => menuWindows[i].IsOpen());
+
+  # Amount of windows that are currently open.
+  public Boolean OpenWindowsCount(): menuWindows
+    .Map((w) => w.open)
+    .Filter((w) => w).Length;
+
+  # Forcefully render currently focused window.
+  public ref void RenderFocusedWindow() {
+    menuWindows[focusedWindowLocation].Render();
+  }
+
+  # Forcefully render currently focused window.
+  public ref void RenderWindowWithComponent(in String id) {
+    menuWindows[menuWindows.Map((i) => i.componentIds.Contains(id)).IndexOf(true)].Render();
+  }
+
+  # Forcefully render all windows.
+  public ref void RenderAllWindows() {
+    for(menuReusableIdx = 0; menuReusableIdx < menuWindows.Length; menuReusableIdx++) {
+      if(menuWindows[menuReusableIdx].open)
+        menuWindows[menuReusableIdx].Render();
+    }
+  }
+
+  # Whether any window is currently loading.
+  public ref Boolean IsLoading(): menuWindows
+    .Map((i) => i.operations)
+    .IsTrueForAny((i) => i.Length);
+
+  // Component
+  # Currently focused component.
+  public MenuComponent FocusedComponent(): 
+    MenuComponent.GetFromId(FocusedWindow().focusedComponentId);
+
+  # ID of currently focused component.
+  public String FocusedComponentId(): FocusedWindow().focusedComponentId;
+
+  # Index of currently focused component.
+  public Number FocusedComponentIndex(): 
+    MenuComponent.GetIndexFromId(FocusedWindow().focusedComponentId);
+
+  # Forcefully render currently focused component and window.
+  public ref void RenderFocusedComponent() {
+    menuComponents[FocusedComponentIndex()].Render();
+    RenderFocusedWindow();
+  }
+
+  # Forcefully render all components sharing `name` and all windows.
+  public ref void RenderAllComponentsNamed(in String name) {
+    MenuComponent.RenderAllComponentsNamed(name);
+    RenderAllWindows();
+  }
+
+  // Page
+  # ID of the currently open page in the focused window.
+  public String PageId(): FocusedWindow().PageId();
+
+  # List of IDs of all currently open pages.
+  public String[] PageIds(): menuWindows.Map((i) => i.PageId());
+
+  # Whether page with `id` is currently open in any of the windows.
+  public ref Boolean IsPageOpen(in String id): PageIds().Contains(id);
+
+  # Location of window that has page `id` currently open.
+  public MenuWindowLocation LocationOfWindowWithPageOpen(String id):
+    <MenuWindowLocation>PageIds().IndexOf(id);
+
+  # Window that has page `id` currently open.
+  public MenuWindow WindowWithPageOpen(String id):
+    menuWindows[PageIds().IndexOf(id)];
+
+  # Navigate to a page with `id` in the currently focused window.
+  public ref void OpenPage(in String id) {
+    menuWindows[<Number>FocusedWindowLocation()].OpenPage(id);
+  }
+
+  # Create a page in window with which has page with `id` currently open.
+  public void CreatePage(String id!, String title!, String[] componentIds!, Description[] descriptions! = []) "[libs/menu/state.del] Create Page" {
+    // Log($"CreatePage: {Tick()}");
+    menuWindows[PageIds().IndexOf(id)].CreatePage(title, componentIds, descriptions);
+  }
+
+  // Navigation
+  # Navigate in currently focused window in `direction`.
+  public ref void Navigate(in Vector direction) {
+    LogHelper($'Navigate: {direction}');
+
+    // LogHelper($'Navigate: going from {focusedComponentId}');
+    menuWindows[focusedWindowLocation].Navigate(direction);
+    // LogHelper($'Navigate: ...to {focusedComponentId}');
+  }
+
+  // Buttons
+  # Whether only `button` is currently being held.
+  public ref Boolean IsActionButtonHeld(in Button button):
+    HeldButtonsOf() == [button];
+  
+  # Whether primary action button is being held.
+  public ref Boolean IsPrimaryActionHeld(): 
+    IsActionButtonHeld(BUTTON_PRIMARY);
+
+  # Whether secondary action button is being held.
+  public ref Boolean IsSecondaryActionHeld(): 
+    IsActionButtonHeld(BUTTON_SECONDARY);
+
+  # Whether tertiary action button is being held.
+  public ref Boolean IsTertiaryActionHeld(): 
+    IsActionButtonHeld(BUTTON_TERTIARY);
+
+  # Whether quaternary action button is being held.
+  public ref Boolean IsQuaternaryActionHeld(): 
+    IsActionButtonHeld(BUTTON_QUATERNARY);
+}

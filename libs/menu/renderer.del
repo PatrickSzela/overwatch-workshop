@@ -1,0 +1,116 @@
+import '../utils/index.del';
+import '../utils/color/rainbow.del';
+import './state.del';
+import './window.del';
+
+// TODO: support multiple title rows & closed titles rows
+// TODO: automatically handle scrollable height instead of always forced value (calculate based on amount of hud items and size of description & title)
+
+globalvar MenuRenderer menuRenderer = MenuRenderer.New();
+
+struct MenuRenderer {
+  public static Number MAX_COMPONENTS_ON_PAGE: 15;
+
+  private Any[] hudTexts;
+  private Any[] loadingHuds;
+
+  public static MenuRenderer New(): { hudTexts: [], loadingHuds: [] };
+
+  private String ReplaceInputBindings(in String string): string
+    .Replace($"_{Button.PrimaryFire}_", InputBindingString(Button.PrimaryFire))
+    .Replace($"_{Button.SecondaryFire}_", InputBindingString(Button.SecondaryFire))
+    .Replace($"_{Button.Ability1}_", InputBindingString(Button.Ability1))
+    .Replace($"_{Button.Ability2}_", InputBindingString(Button.Ability2))
+    .Replace($"_{Button.Ultimate}_", InputBindingString(Button.Ultimate))
+    .Replace($"_{Button.Reload}_", InputBindingString(Button.Reload))
+    .Replace($"_{Button.Melee}_", InputBindingString(Button.Melee))
+    .Replace($"_{Button.Jump}_", InputBindingString(Button.Jump))
+    .Replace($"_{Button.Crouch}_", InputBindingString(Button.Crouch))
+    .Replace($"_{Button.Interact}_", InputBindingString(Button.Interact));
+
+  private ref Any CreateHudText(in Number i, in MenuWindowLocation idx, Location location) {
+    Number num: EvaluateOnce(i);
+    Number _idx: EvaluateOnce(<Number>idx);
+    MenuState state: LP.menuState;
+    MenuWindow window: LP.menuWindows[_idx];
+    RenderedText renderedText: window.renderedTexts[num];
+
+    return CreateHudText(
+      VisibleTo: renderedText.text && state.enabled && window.open ? LP : null,
+      Subheader: ReplaceInputBindings(renderedText.text),
+      Location: location, 
+      SortOrder: num - 100, 
+      SubheaderColor: 
+        state.FocusedWindowLocation() == _idx && renderedText.focused ? 
+          TotalTimeElapsed() % 1 > 0.5 || renderedText.color == COLOR_NEUTRAL ? 
+            COLOR_RAINBOW : 
+          renderedText.color : 
+        renderedText.color,
+      Reevaluation: HudTextRev.VisibleToStringAndColor
+    );
+  }
+
+  private ref Any CreateLoadingHud(Location location) {
+    return CreateHudText(
+      VisibleTo: LocalPlayer(),
+      Subheader: "Menu is loading, please wait...\n",
+      Location: location, 
+      SortOrder: NUMBER_MIN, 
+      SubheaderColor: COLOR_RAINBOW,
+      Reevaluation: HudTextRev.VisibleToAndColor
+    );
+  }
+
+  # Generate a HUD text which indicates that menu is loading (HUD texts are being created) at specified location.
+  public ref void GenerateLoadingHud(in MenuWindowLocation idx, Location location) {
+    loadingHuds[idx] = CreateLoadingHud(location);
+  }
+
+  # Destroy the HUD text indicating that menu is loading at specified location.
+  public ref void DestroyLoadingHud(in MenuWindowLocation idx) {
+    DestroyHudText(loadingHuds[idx]);
+  }
+
+  private ref void GenerateHud(in MenuWindowLocation idx, Location location) {
+    for(Number i! = 0; i < MAX_COMPONENTS_ON_PAGE + 10; i++) {
+      hudTexts += CreateHudText(i, idx, location);
+    }
+  }
+
+  # Generate HUD texts for left window.
+  public ref void GenerateLeftHud() {
+    GenerateHud(MenuWindowLocation.Left, Location.Left);
+  }
+
+  # Generate HUD texts for center window.
+  public ref void GenerateCenterHud() {
+    GenerateHud(MenuWindowLocation.Center, Location.Top);
+  }
+
+  # Generate HUD texts for right window.
+  public ref void GenerateRightHud() {
+    GenerateHud(MenuWindowLocation.Right, Location.Right);
+  }
+
+  # Generate HUD texts for left and right windows.
+  public ref void GenerateLeftAndRightHuds() {
+    for(Number i! = 0; i < MAX_COMPONENTS_ON_PAGE + 10; i++) {
+      hudTexts += CreateHudText(i, MenuWindowLocation.Left, Location.Left);
+      hudTexts += CreateHudText(i, MenuWindowLocation.Right, Location.Right);
+    }
+  }
+
+  # Generate HUD texts for left, center and right windows.
+  public ref void GenerateAllHuds() {
+    for(Number i! = 0; i < MAX_COMPONENTS_ON_PAGE + 10; i++) {
+      hudTexts += CreateHudText(i, MenuWindowLocation.Left, Location.Left);
+      hudTexts += CreateHudText(i, MenuWindowLocation.Center, Location.Top);
+      hudTexts += CreateHudText(i, MenuWindowLocation.Right, Location.Right);
+    }
+  }
+
+  # Workaround for some modes (primarily Practice Ranges) that run at a lower tickrate. Creating HUD elements immediately when server instance starts in these modes causes a long delay before player can select their hero and some in-game UI elements (like kill feed) to disappear.
+  public ref void WaitBeforeGenerating() {
+    WaitUntilValueChanges(HasSpawned(HP), 5);
+  }
+}

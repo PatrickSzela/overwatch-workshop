@@ -1,0 +1,79 @@
+import '../../../libs/menu/components/button.del';
+import '../../../libs/menu/components/numberInput.del';
+import '../../../libs/menu/components/toggle.del';
+import '../../../libs/menu/pages/timeline.del';
+import '../../../libs/menu/simple.del';
+
+class PageTimelineShowcase {
+  public static String ID: 'timelineShowcase';
+  public static String TITLE: 'Timeline Showcase';
+
+  public static String ADD_WAIT_TO_TIMELINE_NAME: 'timelineShowcase_addWait';
+
+  public static Any[][] STORE: [
+    [ADD_WAIT_TO_TIMELINE_NAME, 1]
+  ] + MenuTimelineControls.STORE;
+
+  public static Action WAIT: Action.New(
+    name: 'Wait', 
+    argumentIds: [
+      MenuActionArgumentId.DURATION
+    ],
+    function: (args) => {
+      Wait(args[0]);
+    }
+  );
+
+  public static Action LOG_TIMESTAMP: Action.New(
+    name: 'Log timestamp', 
+    function: (args) => {
+      Log(TotalTimeElapsed());
+    }
+  );
+
+  public static String[] Components() {
+    return MenuComponent.Add([
+      MenuText.New('Controls:')
+    ] + MenuTimelineControls.New() + [
+      MenuText.New(),
+
+      MenuText.New('Add to timeline:'),
+      MenuNumberInput.NewWithInputSettings(
+        label: 'Wait',
+        name: ADD_WAIT_TO_TIMELINE_NAME,
+        inputSettings: arguments[MenuActionArgumentId.DURATION].data,
+        primaryAction: PageTimeline.AddActionToTimelineActionRef(MenuActionId.WAIT, [ADD_WAIT_TO_TIMELINE_NAME])
+      ),
+      MenuButton.New(
+        label: 'Log timestamp to inspector',
+        primaryAction: PageTimeline.AddActionToTimelineActionRef(MenuActionId.LOG_TIMESTAMP)
+      )
+    ]);
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
+}
+
+rule: '[apps/menuComponents/pages/timelineShowcase.del] Create page' 100
+Event.OngoingPlayer
+if(PageTimelineShowcase.IsOpen())
+{
+  PageTimelineShowcase.Create();
+
+  menuWindows[MenuWindowLocation.Right].SetOpen(true);
+  menuWindows[MenuWindowLocation.Right].OpenPage(PageTimeline.ID, false);
+
+  WaitForeverUntil(!PageTimelineShowcase.IsOpen());
+
+  menuWindows[MenuWindowLocation.Right].SetOpen(false);
+}

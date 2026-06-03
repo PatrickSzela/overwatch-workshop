@@ -1,41 +1,57 @@
-import '../../utils/index.del';
-import './componentWithValue.del';
+import '../state.del';
+import './value.del';
 
-class Toggle: ComponentWithValue 
+class MenuToggle {
+  public static Number TYPE: 4;
+  public static Button BUTTON_TOGGLE: BUTTON_PRIMARY;
+  public static ((Boolean) => String) FORMATTER: (v) => BooleanFormatterOnOff(v);
+
+  public static MenuComponentProps New(
+    in String label,
+    in String name,
+    in String id = null,
+    in ((Boolean) => String) valueFormatter = FORMATTER,
+    in Description[] descriptions = [],
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: label,
+    id: id,
+    name: name,
+    valueFormatter: valueFormatter,
+    descriptions: descriptions,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    quaternaryAction: quaternaryAction,
+    color: color,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(
+      type: TYPE, 
+      descriptions: [
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_TOGGLE), 'toggle'),
+          order: ButtonDescriptionOrder(BUTTON_TOGGLE)
+        )
+      ],
+      renderer: MenuValue.RENDERER
+    );
+  }
+}
+
+rule: '[libs/menu/components/toggle.del] Toggle value on button press' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.FocusedComponent().type == MenuToggle.TYPE)
+if(menuState.IsActionButtonHeld(MenuToggle.BUTTON_TOGGLE))
 {
-  public Button BUTTON_TOGGLE: BUTTON_PRIMARY;
-  public Boolean checked: value;
-
-  public constructor(
-    in String text,
-    in Boolean defaultChecked = null,
-    in Component child = null
-  ) {
-    ToggleConstructor(text, defaultChecked, child);
-  }
-
-  protected void ToggleConstructor(
-    String text!,
-    Boolean defaultChecked! = null,
-    Component child! = null
-  ) "[Toggle] Constructor" {
-    ComponentWithValueConstructor(text, defaultChecked, child);
-
-    this.valueFormatter = (it) => BooleanFormatterOnOff(it.value);
-
-    AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(BUTTON_TOGGLE)}​ to toggle", order: ButtonDescriptionOrder(BUTTON_TOGGLE)));
-  }
-
-  // events
-  public override void OnButtonDown(Button button!) "[Toggle] OnButtonDown" {
-    onButtonDown(button, this);
-
-    HandleActions();
-
-    if(buttonsHeld == [BUTTON_TOGGLE])
-      SetValue(!checked);
-
-    if(child)
-      child.OnButtonDown(button);
-  }
+  Number idx: menuState.FocusedComponentIndex();
+  String name! = menuComponents[idx].name;
+  menuStore.Set(name, !menuStore.Get(name));
 }

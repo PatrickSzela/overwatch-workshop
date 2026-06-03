@@ -1,49 +1,64 @@
-import '../menuState.del';
+import '../state.del';
 import './component.del';
 
-class Link: Component 
+class MenuLink {
+  public static Number TYPE: 2;
+  public static Button BUTTON_OPEN: BUTTON_PRIMARY;
+  public static ((Number, String, Any) => String) RENDERER: 
+    (idx, label, value) => $"{label} »";
+
+  public static MenuComponentProps New(
+    in String label,
+    in String pageId,
+    in Any pageData = null,
+    in String id = null,
+    in String name = null,
+    in Description[] descriptions = [],
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: label,
+    id: id,
+    name: name,
+    value: pageId,
+    options: pageData,
+    descriptions: descriptions,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    quaternaryAction: quaternaryAction,
+    color: color,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(
+      type: TYPE, 
+      descriptions: [
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_OPEN), 'open'),
+          order: ButtonDescriptionOrder(BUTTON_OPEN)
+        )
+      ],
+      renderer: RENDERER
+    );
+  }
+}
+
+rule: '[libs/menu/components/link.del] Open page on button press' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.FocusedComponent().type == MenuLink.TYPE)
+if(menuState.IsActionButtonHeld(MenuLink.BUTTON_OPEN))
 {
-  public MenuState _menuState;
-  public Any submenuID;
-  public Button openButton;
+  String pageId! = menuState.FocusedComponent().value;
+  Any data! = menuState.FocusedComponent().options;
 
-  public constructor(
-    in MenuState menuState,
-    in String text, 
-    in String submenuID,
-    in Button openButton = BUTTON_PRIMARY
-  ) {
-    LinkConstructor(menuState, text, submenuID, openButton);
-  }
+  if(data)
+    menuStore.SetOrAdd($"{pageId}_data", data);
 
-  protected void LinkConstructor(
-    MenuState menuState!,
-    String text!, 
-    String submenuID!,
-    Button openButton! = BUTTON_PRIMARY
-  ) "[Link] Constructor" {
-    ComponentConstructor(text, null);
-    
-    this._menuState = menuState;
-    this.submenuID = submenuID;
-    this.openButton = openButton;
-
-    AddDescription(Description.New($"Press {ButtonFormatterSingle_Underscores(openButton)}​ to open submenu", order: ButtonDescriptionOrder(openButton)));
-  }
-
-  public override void Render() "[Link] Render" {
-    onRender(this);
-    renderedText = $"{child.renderedText || text}​ ▶";
-  }
-
-  public override void OnButtonDown(Button button!) "[Link] OnButtonDown" {
-    onButtonDown(button, this);
-
-    HandleActions();
-
-    if(buttonsHeld == [openButton])
-      _menuState.GoTo(submenuID);
-    else if(child)
-      child.OnButtonDown(button);
-  }
+  menuState.OpenPage(pageId);
 }

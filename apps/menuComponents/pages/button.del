@@ -1,0 +1,49 @@
+import '../../../libs/menu/components/button.del';
+import '../../../libs/menu/simple.del';
+import '../actions.del';
+
+class PageButton {
+  public static String ID: 'button';
+  public static String TITLE: 'Button';
+
+  public static Action LOG_ACTION: Action.New('Log', null, Log);
+  public static MenuActionRef LogActionRef(String action):
+    MenuActionRef.New(MenuActionId.LOG, [$"Triggered {action}"], $"Log {action} to inspector");
+
+  public static String[] Components() {
+    return MenuComponent.Add([
+      MenuButton.New("normal"),
+      MenuButton.New("orange color", color: Color.Orange),
+      MenuButton.New(
+        label: "with custom description", 
+        descriptions: [Description.New("Button's description")]
+      ),
+      MenuButton.New(
+        label: 'with actions',
+        primaryAction: LogActionRef("Primary Action"), 
+        secondaryAction: LogActionRef("Secondary Action"), 
+        tertiaryAction: LogActionRef("Tertiary Action"), 
+        quaternaryAction: LogActionRef("Quaternary Action"), 
+      )
+    ]);
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+  
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
+}
+
+rule: '[apps/menuComponents/pages/button.del] Create page' 100
+Event.OngoingPlayer
+if(PageButton.IsOpen())
+{
+  PageButton.Create();
+}

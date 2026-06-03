@@ -1,24 +1,144 @@
-import '../_variables.del';
+import '../../../libs/menu/components/button.del';
+import '../../../libs/menu/components/text.del';
+import '../../../libs/menu/simple.del';
 
-String PAGE_DEBUG_LIST_DYNAMIC_ID: 'listDynamic';
-String PAGE_DEBUG_LIST_DYNAMIC_NAME: 'Dynamic List';
+single struct PageListDynamicProps {
+  public Number counter;
+  public String[] componentIds;
+  public String[] prevComponentIds;
 
-Component[] PageDebugListDynamicItems() {
-  Component[] list = [];
+  public Boolean ComponentsChanged(): componentIds != prevComponentIds;
+  public String[] AddedComponents(): componentIds - prevComponentIds;
+  public String[] RemovedComponents(): prevComponentIds - componentIds;
 
-  foreach(Player p in AllPlayers()) {
-    list += new Component($"{HeroIconString(HeroOf(p))}​ {p}");
-  }
-
-  return list;
+  public static PageListDynamicProps New(): 
+    {counter: 1, componentIds: [], prevComponentIds: []};
 }
 
-rule: 'Debug/Dynamic List'
-Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_LIST_DYNAMIC_ID)
-{
-  menuState.CreatePage(
-    title: PAGE_DEBUG_LIST_DYNAMIC_NAME, 
-    items: PageDebugListDynamicItems()
+playervar PageListDynamicProps pageListDynamic = PageListDynamicProps.New();
+
+class PageListDynamic {
+  public static String ID: 'listDynamic';
+  public static String TITLE: 'Dynamic List';
+
+  public static String DYNAMIC_ID_PREFIX: 'listDynamic_dynamic_component_';
+
+  public static Action ADD_COMPONENT: Action.New(
+    name: 'add component',
+    function: (args) => {
+      pageListDynamic.componentIds += 
+        $"{DYNAMIC_ID_PREFIX}{pageListDynamic.counter}";
+      pageListDynamic.counter++;
+    }
   );
+
+  public static Action REMOVE_ALL_COMPONENTS: Action.New(
+    name: 'remove all components',
+    function: (args) => {
+      pageListDynamic.componentIds = [];
+    }
+  );
+
+  public static Action REMOVE_COMPONENT: Action.New(
+    name: 'remove component',
+    function: (args) => {
+      pageListDynamic.componentIds -= args[0];
+    }
+  );
+  public static MenuActionRef REMOVE_REF(String id):
+    MenuActionRef.New(MenuActionId.REMOVE_COMPONENT, [id], 'remove');
+
+  public static Action MOVE_COMPONENT: Action.New(
+    name: 'move component',
+    function: (args) => {
+      pageListDynamic.componentIds = 
+        pageListDynamic.componentIds.Sort((i, idx) => 
+          idx + (i == args[0] ? args[1] : 0)
+        );
+      
+      pageListDynamic.prevComponentIds = pageListDynamic.componentIds;
+      
+      menuWindows[menuState.FocusedWindowLocation()].ReorderComponents(
+        // since the amount of components before dynamic ones is static, we can just hardcode it
+        menuWindows[menuState.FocusedWindowLocation()].ComponentIds().Slice(0, 4)
+        + pageListDynamic.componentIds
+      );
+    }
+  );
+  public static MenuActionRef MOVE_REF(String id, Number offset, String buttonDescription):
+    MenuActionRef.New(MenuActionId.MOVE_COMPONENT, [id, offset], buttonDescription);
+
+  public static String[] Components() {
+    return MenuComponent.Add([
+      MenuButton.New(
+        label: 'Add component',
+        primaryAction: 
+          MenuActionRef.New(MenuActionId.ADD_COMPONENT, null, 'apply')
+      ),
+      MenuButton.New(
+        label: 'Remove all components',
+        primaryAction: 
+          MenuActionRef.New(MenuActionId.REMOVE_ALL_COMPONENTS, null, 'apply')
+      ),
+      MenuText.New(),
+      MenuText.New('Components:')
+    ]);
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
+}
+
+rule: '[apps/menuComponents/pages/listDynamic.del] Create page' 100
+Event.OngoingPlayer
+if(PageListDynamic.IsOpen())
+{ 
+  PageListDynamic.Create();
+
+  MinWait();
+  pageListDynamic.prevComponentIds = [];
+}
+
+rule: '[apps/menuComponents/pages/listDynamic.del] Recreate dynamic components' 101
+Event.OngoingPlayer
+if(pageListDynamic.ComponentsChanged())
+{
+  // we should check above if the page is ListDynamic page is open before doing the logic here, but since we don't change these lists outside of it, we can save a few elements by skipping it
+
+  // this should refer to a window that has a ListDynamic page open, but we can save a few elements by referring to a focused window since it's not really possible to edit the list of items outside of the focused window
+  MenuWindowLocation winIdx: menuState.FocusedWindowLocation();
+
+  String[] removed! = pageListDynamic.RemovedComponents();
+  String[] added! = pageListDynamic.AddedComponents();
+
+  if(removed)
+    menuWindows[winIdx].DetachComponents(removed);
+
+  Any[] ids: MenuComponent.Add(pageListDynamic.AddedComponents().Map((id) => 
+    MenuButton.New(
+      label: $"Component #{id.Replace(PageListDynamic.DYNAMIC_ID_PREFIX, "")}",
+      id: id,
+      primaryAction: PageListDynamic.REMOVE_REF(id),
+      secondaryAction: PageListDynamic.MOVE_REF(id, -1.5, 'move up'),
+      tertiaryAction: PageListDynamic.MOVE_REF(id, 1.5, 'move down')
+    )
+  ));
+
+  // TODO: add MinWait after adding 25 components
+
+  if(added)
+    menuWindows[winIdx].AttachComponents(added);
+
+  menuWindows[winIdx].FixFocusedComponent();
+  
+  pageListDynamic.prevComponentIds = pageListDynamic.componentIds;
 }

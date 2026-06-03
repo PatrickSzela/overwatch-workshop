@@ -1,8 +1,18 @@
-import '../utils/button.allButtons.del';
+import '../utils/player/input/allButtons.del';
 
-// https://github.com/ItsDeltin/Overwatch-Script-To-Workshop/issues/475
+Button BUTTON_PRIMARY:    buttonsSettings[0];
+Button BUTTON_SECONDARY:  buttonsSettings[1];
+Button BUTTON_TERTIARY:   buttonsSettings[2];
+Button BUTTON_QUATERNARY: buttonsSettings[3];
+Button BUTTON_BACK:       buttonsSettings[4];
+Button BUTTON_MODIFIER:   buttonsSettings[5];
+Button BUTTON_SWITCH:     buttonsSettings[6];
+Button BUTTON_INCREASE:   buttonsSettings[7];
+Button BUTTON_DECREASE:   buttonsSettings[8];
 
-String[] buttonsAsStrings:  ['Primary Fire', 'Secondary Fire', 'Ability 1', 'Ability 2', 'Ultimate', 'Reload', 'Melee', 'Jump', 'Crouch', 'Interact'];
+String[] buttonsAsStrings: ['Primary Fire', 'Secondary Fire', 'Ability 1', 'Ability 2', 'Ultimate', 'Reload', 'Melee', 'Jump', 'Crouch', 'Interact'];
+
+globalvar Button[] buttonsSettings;
 
 globalvar Number[] buttonsSettingsWorkshop = [
   WorkshopSettingCombo('Menu Controls', 'Primary action',                 3, buttonsAsStrings, 0),
@@ -16,22 +26,7 @@ globalvar Number[] buttonsSettingsWorkshop = [
   WorkshopSettingCombo('Menu Controls', 'Decrease Ray Cast distance',     1, buttonsAsStrings, 8)
 ];
 
-globalvar Button[] buttonsSettings;
-
-rule: 'Set buttons'
+rule: '[libs/menu/customButtons.del] Set buttons'
 {
-  buttonsSettings = buttonsSettingsWorkshop.Map((i) => allButtons[i]);
+  buttonsSettings = buttonsSettingsWorkshop.Map((i) => AllButtons()[i]);
 }
-
-Button BUTTON_PRIMARY:    buttonsSettings[0];
-Button BUTTON_SECONDARY:  buttonsSettings[1];
-Button BUTTON_TERTIARY:   buttonsSettings[2];
-Button BUTTON_QUATERNARY: buttonsSettings[3];
-Button BUTTON_BACK:       buttonsSettings[4];
-Button BUTTON_MODIFIER:   buttonsSettings[5];
-Button BUTTON_SWITCH:     buttonsSettings[6];
-Button BUTTON_INCREASE:   buttonsSettings[7];
-Button BUTTON_DECREASE:   buttonsSettings[8];
-
-Number ButtonDescriptionOrder(Button button):
-  buttonsSettings.IndexOf(button) - 12;

@@ -1,0 +1,63 @@
+import '../../../libs/menu/components/button.del';
+import '../../../libs/menu/components/toggle.del';
+import '../pages/timeline.del';
+
+class MenuTimelineControls {
+  public static String PLAY_PAUSE_ID: 'timeline_playPause';
+  public static String TOGGLE_REPEAT_NAME: 'timeline_toggleRepeat';
+
+  public static Any[][] STORE: [
+    [TOGGLE_REPEAT_NAME]
+  ];
+
+  public static MenuComponentProps[] New() {
+    return [PLAY_PAUSE, STOP, REPEAT];
+  }
+
+  public static MenuComponentProps PLAY_PAUSE: 
+    MenuButton.New(
+      id: PLAY_PAUSE_ID,
+      label: 'Play/pause',
+      primaryAction: PageTimeline.PlayPauseTimelineActionRef()
+    );
+
+
+  public static MenuComponentProps STOP: 
+    MenuButton.New(
+      label: 'Stop',
+      primaryAction: PageTimeline.StopTimelineActionRef()
+    );
+
+  public static MenuComponentProps REPEAT: 
+    MenuToggle.New(
+      label: 'Repeat',
+      name: TOGGLE_REPEAT_NAME
+    );
+}
+
+rule: '[libs/menu/components/timelineControls.del] Update play/pause button' 101
+Event.OngoingPlayer
+if(MenuComponent.Exists(MenuTimelineControls.PLAY_PAUSE_ID))
+{
+  Number idx! = MenuComponent.GetIndexFromId(MenuTimelineControls.PLAY_PAUSE_ID);
+
+  menuComponents[idx].SetLabel(timeline.IsPlaying() ? 'Pause' : 'Play');
+  menuComponents[idx].Render();
+  menuState.RenderWindowWithComponent(MenuTimelineControls.PLAY_PAUSE_ID);
+
+  WaitForeverUntilValueChanges(timeline.IsPlaying());
+  AbortIfConditionIsFalse();
+  Loop();
+}
+
+// TODO: update toggle if repeat has been changed by something else
+rule: '[libs/menu/components/timelineControls.del] Toggle timeline repeat on component toggle'
+Event.OngoingPlayer
+{
+  Boolean value: menuStore.Get(MenuTimelineControls.TOGGLE_REPEAT_NAME);
+  WaitForeverUntilValueChanges(value);
+
+  timeline.SetRepeat(!timeline.IsRepeating());
+
+  Loop();
+}
