@@ -1,5 +1,5 @@
-import '../../../../libs/utils/vector.del';
-import '../../../../libs/utils/diagnostics.del';
+import '../../../../libs/utils/index.del';
+import '../../../../libs/utils/hud/diagnostics.del';
 import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 
@@ -9,10 +9,10 @@ String PAGE_DIAGNOSTICS_NAME: 'Show diagnostics';
 Component PageDiagnosticsMenuItem() {
   Toggle toggle = new Toggle(
     text: PAGE_DIAGNOSTICS_NAME,
-    defaultChecked: diagnosticsEnabled
+    defaultChecked: diagnosticsVisible
   );
   toggle.onChange = (checked, it) => {
-    diagnosticsEnabled = checked;
+    diagnosticsVisible = checked;
   };
 
   return toggle;
@@ -20,9 +20,8 @@ Component PageDiagnosticsMenuItem() {
 
 rule: 'Status'
 {
-  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
-  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
-  CreateDiagnosticText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed() > 800, ClassMemoryUsed() > 900);
-  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
-  CreateDiagnosticText($"Entity count: {EntityCount()}/128", EntityCount() > 96, EntityCount() > 112);
+  CreateDiagnosticsServerLoad();
+  CreateDiagnosticsText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed() > 800, ClassMemoryUsed() > 900);
+  CreateDiagnosticsTextCount();
+  CreateDiagnosticsEntityCount();
 }

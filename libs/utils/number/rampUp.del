@@ -1,0 +1,24 @@
+import '../helpers.del';
+
+playervar Number _rampUpValue = 0;
+
+void StartRampingUp() {
+  if(!_rampUpValue)
+    _rampUpValue = 0.01;
+}
+
+void StopRampingUp() {
+  _rampUpValue = 0;
+}
+
+Number RampUpValue(): _rampUpValue;
+
+rule: '[libs/utils/number/rampUp.del] Ramp up logic'
+Event.OngoingPlayer
+if(_rampUpValue)
+{
+  Wait(2);
+  ChaseVariableAtRate(_rampUpValue, 1, _rampUpValue * 5, RateChaseReevaluation.DestinationAndRate);
+  WaitForeverUntil(!_rampUpValue);
+  StopChasingVariable(_rampUpValue);
+}

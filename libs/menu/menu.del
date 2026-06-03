@@ -1,4 +1,4 @@
-import '../utils/array.del';
+import '../utils/index.del';
 import './menuState.del';
 
 // TODO: mention support for up to 1 children in Component

@@ -99,7 +99,7 @@ if(redLightGreenLightDoNotMove)
 {
   Wait(0.75);
 
-  Button[] buttonsPressed: allButtons.Map((b) => IsButtonHeld(EventPlayer(), b));
+  Button[] buttonsPressed: AllButtons().Map((b) => IsButtonHeld(EventPlayer(), b));
 
   Button[] buttonsSnapshot = buttonsPressed;
   Vector facingSnapshot = FacingDirectionOf();

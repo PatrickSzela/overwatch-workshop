@@ -1,5 +1,5 @@
 import '../../../../libs/menu/components/numberInput.del';
-import '../../../../libs/utils/vector.del';
+import '../../../../libs/utils/index.del';
 import '../../_variables.del';
 
 String PAGE_SLOW_MOTION_ID: 'slowMotion';

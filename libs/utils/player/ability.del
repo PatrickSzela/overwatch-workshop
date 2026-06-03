@@ -1,0 +1,45 @@
+import '../abbreviations.del';
+
+# Enables all disabled abilities for `player`.
+void EnableAllAbilities(in Player player = EP) {
+  SetPrimaryFireEnabled(player, true);
+  SetSecondaryFireEnabled(player, true);
+  SetAbility1Enabled(player, true);
+  SetAbility2Enabled(player, true);
+  SetUltimateAbilityEnabled(player, true);
+  SetReloadEnabled(player, true);
+  SetMeleeEnabled(player, true);
+  SetJumpEnabled(player, true);
+  SetCrouchEnabled(player, true);
+  AllowButton(player, Button.Interact);
+}
+
+# Disables all abilities for `player`.
+void DisableAllAbilities(in Player player = EP) {
+  SetPrimaryFireEnabled(player, false);
+  SetSecondaryFireEnabled(player, false);
+  SetAbility1Enabled(player, false);
+  SetAbility2Enabled(player, false);
+  SetUltimateAbilityEnabled(player, false);
+  SetReloadEnabled(player, false);
+  SetMeleeEnabled(player, false);
+  SetJumpEnabled(player, false);
+  SetCrouchEnabled(player, false);
+  DisallowButton(player, Button.Interact);
+}
+
+// TODO: figure out why I disabled Primary & Secondary fires here
+# Whether the `player` is using ability `button`.
+# 
+# NOTE: This function is a wrapper around multiple built-in methods and outputs a lot of elements.
+Boolean IsUsingAbility(Player player, Button button):
+  button == Button.PrimaryFire ? IsFiringPrimary(player) :
+  button == Button.SecondaryFire ? IsFiringSecondary(player) :
+  button == Button.Ability1 ? IsUsingAbility1(player) :
+  button == Button.Ability2 ? IsUsingAbility2(player) :
+  button == Button.Ultimate ? IsUsingUltimate(player) :
+  button == Button.Reload ? IsReloading(player) :
+  button == Button.Melee ? IsMeleeing(player) :
+  button == Button.Jump ? IsJumping(player) :
+  button == Button.Crouch ? IsCrouching(player) : false;
+

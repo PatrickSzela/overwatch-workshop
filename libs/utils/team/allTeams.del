@@ -1,0 +1,4 @@
+globalvar Team[] _allTeams! = [Team.All, Team.Team1, Team.Team2];
+
+# Returns all possible teams.
+Team[] AllTeams(): _allTeams;

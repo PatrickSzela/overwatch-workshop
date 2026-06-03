@@ -3,18 +3,15 @@ import './settings.del';
 import './settings.dev.del';
 import './debug.del';
 
-import './variables.del';
-import './modifiers/index.del';
-import '../../libs/utils/vector.del';
-import '../../libs/utils/player.del';
+import '../../libs/utils/hud/diagnostics.del';
+import '../../libs/utils/index.del';
 import '../../libs/utils/log.del';
-import '../../libs/utils/diagnostics.del';
-import '../../libs/utils/hud.del';
-import './hud.del';
 import './controlledBy/index.del';
+import './hud.del';
+import './modifiers/index.del';
+import './variables.del';
 
 globalvar String stopReason = '';
-
 globalvar Number modifierDurationLeft = 0;
 globalvar Number modifierDurationTotal = 0;
 globalvar Number modifierDurationModifier = WorkshopSettingReal("Modifier", "Global modifier duration scalar", 1, 0.2, 5);
@@ -115,11 +112,10 @@ if(IsMatchComplete())
 }
 
 rule: 'Status'
-if(diagnosticsEnabled)
+if(diagnosticsVisible)
 {
-  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
-  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
-  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
-  CreateDiagnosticText($"Entity count: {EntityCount()}/128", EntityCount() > 96, EntityCount() > 112);
-  // CreateDiagnosticText($"Entity count: {EntityCount()}/256", EntityCount() > 192, EntityCount() > 224);
+  CreateDiagnosticsServerLoad();
+  CreateDiagnosticsSpacer();
+  CreateDiagnosticsTextCount();
+  CreateDiagnosticsEntityCount();
 }

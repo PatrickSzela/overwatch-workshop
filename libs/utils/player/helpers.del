@@ -1,0 +1,56 @@
+import '../abbreviations.del';
+import '../number/index.del';
+
+# Whether `player` is currently scoped in.
+# 
+# Detectable on following heroes:
+# - Ana, 
+# - Ashe, 
+# - Widowmaker, 
+# - Freja, 
+# - Emre.
+Boolean IsScopedIn(Player player = EP): 
+  [Hero.Ana, Hero.Ashe, Hero.Widowmaker, Hero.Freja, Hero.Emre].Contains(player.Hero()) && player.IsFiringSecondary();
+
+# Whether `player` is currently holding shield right in front of them.
+# 
+# Detectable on following heroes:
+# - Reinhardt, 
+# - Brigitte.
+Boolean IsHoldingShield(Player player = EP):
+  [Hero.Reinhardt, Hero.Brigitte].Contains(player.Hero()) && player.IsFiringSecondary();
+
+# Whether the `player` is currently using an emote.
+# 
+# NOTE: Workaround for bugged value returned by Workshop, but still hella unreliable.
+Boolean IsEmoting(Player player = EP):
+  $" {IsCommunicatingAnyEmote(player)}" != " 0";
+
+# Returns a direction from eyes of `player` towards `vector`.
+Vector GetDirectionFromPlayerEyes(Player player, Vector vector): 
+  player.EyePosition().DirectionTowards(vector);
+
+# Whether the `player` is a spectator.
+Boolean IsSpectator(Player player = EP): SlotOf(player) < 0;
+
+# Whether the `player` has one of the statuses effects which prevents them from dying.
+Boolean IsKillable(Player player = EP):
+  !HasStatus(player, Status.Invincible) && 
+  !HasStatus(player, Status.Unkillable) && 
+  !HasStatus(player, Status.PhasedOut);
+
+# Instantly kills `player` if they do not have any status effects which prevents them from dying.
+void KillIfKillable(in Player player = EP, in Player killer) {
+  if(IsKillable(player)) {
+    Kill(player, killer);
+  }
+}
+
+# Instantly kills `player`, or deals maximum amount of damage if they have any status effects which prevents them from dying.
+void KillIfKillableElseDamage(in Player player = EP, in Player killer = null) {
+  if(IsKillable(player)) {
+    Kill(player, killer);
+  } else {
+    Damage(player, killer, NUMBER_MAX);
+  }
+}

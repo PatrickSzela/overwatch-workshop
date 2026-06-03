@@ -5,6 +5,7 @@ settings
 		Max FFA Players: 10
     Max Team 1 Players: 5
     Max Team 2 Players: 5
+    Max Spectators: 12
 	}
   main
   {

@@ -1,0 +1,15 @@
+globalvar Boolean _skipToMatch! = WorkshopSettingToggle("Match", "Skip Assembling Heroes and Setup phases", true);
+
+rule: '[libs/utils/match/skipToMatch.del] Skip assembling heroes'
+if(_skipToMatch)
+if(IsAssemblingHeroes())
+{
+  SetMatchTime(0);
+}
+
+rule: '[libs/utils/match/skipToMatch.del] Skip setup'
+if(_skipToMatch)
+if(IsInSetup())
+{
+  SetMatchTime(0);
+}

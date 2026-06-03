@@ -1,8 +1,7 @@
+import '../../../libs/utils/index.del';
+import '../../../libs/utils/player/input/allButtons.del';
 import '../variables.del';
 import '../utils/effects.del';
-import '../../../libs/utils/button.disallowAll.del';
-import '../../../libs/utils/button.allowAll.del';
-import '../../../libs/utils/helpers.del';
 
 // TODO: move to lib?
 
@@ -82,7 +81,7 @@ if(duplicationState == DuplicateState.LOADING)
   }
 
   // some heroes spawn with some of their abilities being on cooldown, like Wrecking Ball and his Grappling Claw
-  foreach(Button button in allButtons) {
+  foreach(Button button in AllButtons()) {
     SetAbilityCooldown(EventPlayer(), button, 0);
   }
 
@@ -111,7 +110,7 @@ if(duplicationState == DuplicateState.FROZEN)
   duplicationState = DuplicateState.ENABLED;
 }
 
-void FreezeInAir(in Player player = EventPlayer()) {
+void FreezeInAir(Player player! = EventPlayer()) "Freeze" {
   CancelPrimaryAction(player);
   SetGravity(player, 0);
   SetMoveSpeed(player, 0);
@@ -120,7 +119,7 @@ void FreezeInAir(in Player player = EventPlayer()) {
   DisallowAllButtons(player);
 }
 
-void Unfreeze(in Player player = EventPlayer()) {
+void Unfreeze(Player player! = EventPlayer()) "Unfreeze" {
   SetGravity(player, 100);
   SetMoveSpeed(player, 100);
   SetAimSpeed(player, 100);
@@ -140,7 +139,7 @@ if(duplicationState > DuplicateState.LOADING)
   if(duplicationData.freeze) 
     MinWait();
 
-  playerSnapshot.RestoreHero(true);
+  playerSnapshot.RestoreHero(EP, true);
   playerSnapshot.RestoreUltimateCharge();
   playerSnapshot.RestoreWeapon();
 

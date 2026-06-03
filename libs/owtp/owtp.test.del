@@ -1,14 +1,13 @@
 import './rules.del';
 // import './gameState.del';
-import '../utils/diagnostics.del';
+import '../utils/hud/diagnostics.del';
 
 rule: 'Status'
-if(diagnosticsEnabled)
+if(diagnosticsVisible)
 {
-  CreateDiagnosticText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
-  CreateDiagnosticText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
-  CreateDiagnosticText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
-  CreateDiagnosticText($"Entity count: {EntityCount()}/256", EntityCount() > 192, EntityCount() > 224);
+  CreateDiagnosticsServerLoad();
+  CreateDiagnosticsTextCount();
+  CreateDiagnosticsEntityCount();
 }
 
 globalvar define TEST_DATA_TYPES = [

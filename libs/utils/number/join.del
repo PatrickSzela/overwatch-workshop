@@ -1,0 +1,21 @@
+import '../array/index.del';
+
+# Converts array split by `SplitNumber()` back into a Number. 
+Number JoinNumber(Number[] parts!) "[libs/utils/number/join.del] Join Number" {
+  Number sign! = parts[0] == 0 ? 1 : parts[0];
+  Number number! = 0;
+
+  Number sliceIdx! = (parts.IndexOf(-2) == -1 ? 999 : parts.IndexOf(-2)) - 1; // `- 1` because of the sign at the beginning
+  Number[] integral! = Reverse(parts.Slice(1, sliceIdx));
+  Number[] fractional! = parts.Slice(sliceIdx + 2, 999); // `+ 2` same as above
+
+  for(Number i! = 0; i < integral.Length; i++) {
+    number += (10 ^ i) * integral[i];
+  }
+
+  for(Number i! = 0; i < fractional.Length; i++) {
+    number += (10 ^ -(i + 1)) * fractional[i];
+  }
+
+  return sign * number;
+}

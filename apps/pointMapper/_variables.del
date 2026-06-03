@@ -1,6 +1,4 @@
-import '../../libs/utils/array.del';
-import '../../libs/utils/bigArray.del';
-import '../../libs/utils/dictionary.del';
+import '../../libs/utils/index.del';
 import '../../libs/menu/_index.del';
 import './outline.del';
 
@@ -48,10 +46,10 @@ globalvar Number scale = 0.025;
 globalvar Boolean modeStarted! = false;
 globalvar Vector center = Vector.Zero;
 
-globalvar BigArray<Vector> allPoints = { multiArray: [[]], Length: 0 };
+globalvar BigArray<Vector> allPoints = BigArray<Vector>.New();
 
 
-playervar BigArray<Vector> points = { multiArray: [[]], Length: 0 };
+playervar BigArray<Vector> points = BigArray<Vector>.New();
 playervar Boolean finished = false;
 playervar Vector position = Vector.Zero;
 playervar Boolean wasOnObjectiveAtLeastOnce = false;

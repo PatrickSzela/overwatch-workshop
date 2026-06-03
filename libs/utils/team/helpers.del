@@ -1,0 +1,3 @@
+import './availableTeams.del';
+
+Team[] TeamsWithPlayers(): AvailableTeams().Filter((i) => AllPlayers(i).Length);

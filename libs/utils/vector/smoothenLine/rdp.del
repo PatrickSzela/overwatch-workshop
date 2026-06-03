@@ -1,0 +1,49 @@
+import '../../array/index.del';
+import '../helpers.del';
+
+# Implementation of [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm).
+# 
+# [Based on code by federicodangelo.](https://gist.github.com/federicodangelo/f7da779cb33a25b087fee58bf6460600)
+BigArray<Vector> SmoothenLineRDP(in BigArray<Vector> arr, in Number epsilon, in Boolean isPolygon) {
+  if(arr.Length() <= 2 + (isPolygon ? 0 : -1)) return arr;
+
+  Number start! = isPolygon ? -1 : 0;
+  Number end! = arr.Length() + (isPolygon ? 0 : -1);
+  BigArray<Vector> ret = BigArray<Vector>.New();
+
+  while(start < end) {
+    if(start > -1)
+      ret.Append(arr.Get(start));
+
+    Number newEnd! = end;
+
+    while(true) {
+      Number maxDistanceIndex! = 0;
+      Number maxDistance! = 0;
+
+      for(Number i! = start + 1; i < newEnd; i++) {
+        Number d! = PerpendicularDistance(arr.Get(i), 
+          arr.Get(start == -1 ? arr.Length() - 1 : start == arr.Length() ? 0 : start), 
+          arr.Get(newEnd == -1 ? arr.Length() - 1 : newEnd == arr.Length() ? 0 : newEnd)
+        );
+
+        if(d > maxDistance) {
+          maxDistanceIndex = i;
+          maxDistance = d;
+        }
+
+        if(i % (ServerLoadAverage() > 80 ? 15 : 30) == 0) 
+          MinWait();
+      }
+
+      if(maxDistance <= epsilon)
+        break;
+
+      newEnd = maxDistanceIndex;
+    }
+
+    start = newEnd;
+  }
+
+  return ret;  
+}

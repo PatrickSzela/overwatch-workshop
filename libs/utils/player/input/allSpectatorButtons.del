@@ -1,0 +1,24 @@
+globalvar Button[] _allSpectatorButtons = [
+  Button.PrimaryFire,       // LCtrl    - Move Slow
+  Button.SecondaryFire,     // LShift   - Move Fast
+  Button.Ability1,          // Q        - Move Down
+  Button.Ability2,          // M1       - Spectate Lock On
+  Button.Ultimate,          // Z        - Disable Camera Blending
+  // Button.Reload,
+  // Button.Melee,
+  Button.Jump,              // F        - Modify FOV
+  // Button.Crouch,
+  Button.Interact           // E        - Move Up
+];
+
+# Array of all buttons that can be detected when pressed by spectating host.
+# 
+# Currently only the specified buttons are detectable, with their respective keybind names:
+# - Primary Fire - Move Slow
+# - Secondary Fire - Move Fast
+# - Ability 1 - Move Down
+# - Ability 2 - Spectate Lock On
+# - Ultimate - Disable Camera Blending
+# - Jump - Modify FOV (not bound my default)
+# - Interact - Move Up
+Button[] AllSpectatorButtons(): _allSpectatorButtons;

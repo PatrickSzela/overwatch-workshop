@@ -1,6 +1,6 @@
+import '../../../libs/utils/index.del';
 import '../modifier.del';
 import '../utils/effects.del';
-import '../../../libs/utils/vector.del';
 
 String JET_PACK_NAME: 'Jet Pack';
 Number JET_PACK_DURATION: 15;

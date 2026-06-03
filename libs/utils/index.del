@@ -1,0 +1,15 @@
+import './array/index.del';
+import './color/index.del';
+import './hud/index.del';
+import './json/index.del';
+import './match/index.del';
+import './number/index.del';
+import './player/index.del';
+import './string/index.del';
+import './team/index.del';
+import './vector/index.del';
+import './abbreviations.del';
+import './helpers.del';
+import './map.del';
+import './quaternion.del';
+import './typeOf.del';

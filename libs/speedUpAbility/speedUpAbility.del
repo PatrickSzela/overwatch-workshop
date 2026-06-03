@@ -1,6 +1,6 @@
-import '../utils/button.allButtons.del';
 import '../utils/helpers.del';
 import '../utils/log.del';
+import '../utils/player/input/allButtons.del';
 
 single struct SpeedUpAbility { 
   Number[] cooldownScalars;
@@ -14,55 +14,55 @@ single struct SpeedUpAbility {
   Number lastUltimateCharge;
 
   public static SpeedUpAbility New(): { 
-    cooldownScalars: allButtons.Map((i) => 1), 
-    resourceScalars: allButtons.Map((i) => 1), 
-    // chargeScalars: allButtons.Map((i) => 1), 
+    cooldownScalars: AllButtons().Map((i) => 1), 
+    resourceScalars: AllButtons().Map((i) => 1), 
+    // chargeScalars: AllButtons().Map((i) => 1), 
     ultimateChargeScalar: 1,
 
-    lastCooldowns: allButtons.Map((i) => 0),  
-    lastResources: allButtons.Map((i) => 100),  
-    // lastCharges: allButtons.Map((i) => 0),
+    lastCooldowns: AllButtons().Map((i) => 0),  
+    lastResources: AllButtons().Map((i) => 100),  
+    // lastCharges: AllButtons().Map((i) => 0),
     lastUltimateCharge: 100
   };
 
   public ref void Cooldown(in Button button, in Number scalar = 2) {
-    cooldownScalars[allButtons.IndexOf(button)] = scalar;
+    cooldownScalars[AllButtons().IndexOf(button)] = scalar;
   }
   public ref void AllCooldowns(in Number scalar = 2) {
-    cooldownScalars = allButtons.Map((i) => scalar);
+    cooldownScalars = AllButtons().Map((i) => scalar);
   }
   public ref void Resource(in Button button, in Number scalar = 2) {
-    resourceScalars[allButtons.IndexOf(button)] = scalar;
+    resourceScalars[AllButtons().IndexOf(button)] = scalar;
   }
   public ref void AllResources(in Number scalar = 2) {
-    resourceScalars = allButtons.Map((i) => scalar);
+    resourceScalars = AllButtons().Map((i) => scalar);
   }
   // public ref void Charge(in Button button, in Number scalar = 2) {
-  //   chargeScalars[allButtons.IndexOf(button)] = scalar;
+  //   chargeScalars[AllButtons().IndexOf(button)] = scalar;
   // }
   public ref void UltimateCharge(in Number scalar = 2) {
     ultimateChargeScalar = scalar;
   }
 
   public ref void StopCooldown(in Button button) {
-    cooldownScalars[allButtons.IndexOf(button)] = 1;
-    lastCooldowns[allButtons.IndexOf(button)] = 0;
+    cooldownScalars[AllButtons().IndexOf(button)] = 1;
+    lastCooldowns[AllButtons().IndexOf(button)] = 0;
   }
   public ref void StopAllCooldowns() {
-    cooldownScalars = allButtons.Map((i) => 1);
-    lastCooldowns = allButtons.Map((i) => 0);
+    cooldownScalars = AllButtons().Map((i) => 1);
+    lastCooldowns = AllButtons().Map((i) => 0);
   }
   public ref void StopResource(in Button button) {
-    resourceScalars[allButtons.IndexOf(button)] = 1;
-    lastResources[allButtons.IndexOf(button)] = 100;
+    resourceScalars[AllButtons().IndexOf(button)] = 1;
+    lastResources[AllButtons().IndexOf(button)] = 100;
   }
   public ref void StopAllResources() {
-    resourceScalars = allButtons.Map((i) => 1);
-    lastResources = allButtons.Map((i) => 100);
+    resourceScalars = AllButtons().Map((i) => 1);
+    lastResources = AllButtons().Map((i) => 100);
   }
   // public ref void StopCharge(in Button button) {
-  //   chargeScalars[allButtons.IndexOf(button)] = 1;
-  //   lastCharges[allButtons.IndexOf(button)] = 0;
+  //   chargeScalars[AllButtons().IndexOf(button)] = 1;
+  //   lastCharges[AllButtons().IndexOf(button)] = 0;
   // }
   public ref void StopUltimateCharge() {
     ultimateChargeScalar = 1;
@@ -71,14 +71,14 @@ single struct SpeedUpAbility {
 
   // Handle cooldowns
   public ref Boolean HandleCooldowns_Condition(): 
-    cooldownScalars.IsTrueForAny((i, idx) => i != 1 && AbilityCooldown(EventPlayer(), allButtons[idx]));
+    cooldownScalars.IsTrueForAny((i, idx) => i != 1 && AbilityCooldown(EventPlayer(), AllButtons()[idx]));
 
   public ref void HandleCooldowns_Rule() {
     DisableInspectorRecording();
 
     for(Number i = 0; i < cooldownScalars.Length; i++) {
       Number scalar: cooldownScalars[i];
-      Button button: allButtons[i];
+      Button button: AllButtons()[i];
       Number cooldown: AbilityCooldown(EventPlayer(), button);
 
       if(scalar == 1 || !cooldown) continue;
@@ -93,7 +93,7 @@ single struct SpeedUpAbility {
       }
     }
 
-    if(inspectorEnabled)
+    if(_inspectorEnabled)
       EnableInspectorRecording();
 
     MinWait();
@@ -102,14 +102,14 @@ single struct SpeedUpAbility {
 
   // Handle resources
   public ref Boolean HandleResources_Condition(): 
-    resourceScalars.IsTrueForAny((i, idx) => i != 1 && AbilityResource(EventPlayer(), allButtons[idx]) > 0 && AbilityResource(EventPlayer(), allButtons[idx]) < 100);
+    resourceScalars.IsTrueForAny((i, idx) => i != 1 && AbilityResource(EventPlayer(), AllButtons()[idx]) > 0 && AbilityResource(EventPlayer(), AllButtons()[idx]) < 100);
 
   public ref void HandleResources_Rule() {
     DisableInspectorRecording();
 
     for(Number i = 0; i < resourceScalars.Length; i++) {
       Number scalar: resourceScalars[i];
-      Button button: allButtons[i];
+      Button button: AllButtons()[i];
       Number resource: AbilityResource(EventPlayer(), button);
 
       if(scalar == 1 || resource == 100 || resource == 0) continue;
@@ -124,7 +124,7 @@ single struct SpeedUpAbility {
       }
     }
 
-    if(inspectorEnabled)
+    if(_inspectorEnabled)
       EnableInspectorRecording();
 
     MinWait();
@@ -138,7 +138,7 @@ single struct SpeedUpAbility {
   public ref void HandleUltimateCharge_Rule() {
     DisableInspectorRecording();
 
-    Number i: allButtons.IndexOf(Button.Ultimate);
+    Number i: AllButtons().IndexOf(Button.Ultimate);
     Number scalar: ultimateChargeScalar;
     Button button: Button.Ultimate;
     Number charge: UltimateChargePercent();
@@ -152,7 +152,7 @@ single struct SpeedUpAbility {
       SetUltimateCharge(EventPlayer(), lastUltimateCharge);
     }
 
-    if(inspectorEnabled)
+    if(_inspectorEnabled)
       EnableInspectorRecording();
 
     WaitUntil(charge != EvaluateOnce(charge), NUMBER_MAX);

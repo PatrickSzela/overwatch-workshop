@@ -1,5 +1,5 @@
 import '../../../../libs/menu/components/toggle.del';
-import '../../../../libs/utils/player.grantMaxPerkLevel.del';
+import '../../../../libs/utils/player/grantMaxPerkLevel.del';
 import '../../_variables.del';
 
 String PAGE_MAX_PERK_LEVEL_ID: 'maxPerkLevel';

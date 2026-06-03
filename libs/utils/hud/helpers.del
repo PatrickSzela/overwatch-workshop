@@ -1,0 +1,35 @@
+import '../abbreviations.del';
+import '../player/index.del';
+
+# Whether the in-world HUDs should be avoided.
+Boolean IsHUDPreferred(Player player): 
+  IsScopedIn(player) || IsEmoting(player) || IsDead(player) || IsHoldingShield(player) ||
+    [Hero.Bastion, Hero.Junkrat].Contains(player.Hero()) && IsUsingUltimate(player) ||
+    player.Hero() == Hero.Mei && IsUsingAbility1(player);
+
+# Displays a small message beneath the reticle that is visible to specific players.
+# 
+# Workaround for missing left margin.
+void SmallMessageFixed(in Player | Player[] visibleTo = EP, in Any header = "") {
+  SmallMessage(visibleTo, $"   {header}");
+}
+
+# Displays a small message beneath the reticle that is visible to specific players, with specified icon placed at beginning.
+void SmallMessageWithIcon(in Player | Player[] visibleTo = EP, in Any header = "", in String icon = IconString(Icon.ExclamationMark)) {
+  SmallMessage(visibleTo, $"   {icon}  {header}");
+}
+
+# Creates an import code HUD in top right.
+Any CreateImportCodeHudText(in String code = "", in String title = "", in String subtitle = "", in Color color = Color.White, in Number order = -99999) {
+  return CreateHudText(
+    VisibleTo: LP, 
+    Header: $" {code} ",
+    Subheader: title, 
+    Text: subtitle,
+    Location: Location.Right, 
+    SortOrder: order, 
+    TextColor: color, 
+    Reevaluation: HudTextRev.None,
+    Spectators: Spectators.VisibleAlways
+  );
+}

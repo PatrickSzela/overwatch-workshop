@@ -1,0 +1,6 @@
+rule: '[libs/utils/match/skipPointLocked.del] Skip point locked'
+if(WorkshopSettingToggle("Match", "Skip point locked phase", true))
+if(IsControlModePointLocked())
+{
+  SetMatchTime(0);
+}

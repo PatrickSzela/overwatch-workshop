@@ -1,23 +1,9 @@
-import '../../libs/utils/player.del';
-import '../../libs/utils/player.sendToHeroSelect.del';
-import '../../libs/utils/team.allTeams.del';
+import '../../libs/utils/index.del';
+import '../../libs/utils/match/skipToMatch.del';
+import '../../libs/utils/player/sendToHeroSelect.del';
+import '../../libs/utils/team/allTeams.del';
 
-globalvar Boolean skipAssemblySetup = WorkshopSettingToggle("Debug", "Skip Assembling Heroes and Setup", false);
 globalvar Boolean spawnDummyBots = WorkshopSettingToggle("Debug", "Spawn dummy bots on Workshop maps for testing purposes", false);
-
-rule: '[Debug] Skip assembling heroes'
-if(skipAssemblySetup)
-if(IsAssemblingHeroes())
-{
-  SetMatchTime(1);
-}
-
-rule: '[Debug] Skip in setup'
-if(skipAssemblySetup)
-if(IsInSetup())
-{
-  SetMatchTime(1);
-}
 
 rule: '[Debug] Send to hero select screen'
 Event.OngoingPlayer
@@ -34,7 +20,7 @@ if(ToString(CurrentMap()).Contains("Workshop"))
 {
   WaitForeverUntil(HasSpawned(HostPlayer()));
 
-  foreach(Team team! in allTeams) {
+  foreach(Team team! in AllTeams()) {
     if(TeamOf(HostPlayer()) == team || TeamOf(HostPlayer()) == OppositeTeamOf(team)) {
       Number idx: team == Team.Team1 ? 0 : 1;
 

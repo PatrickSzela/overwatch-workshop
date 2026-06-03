@@ -1,7 +1,6 @@
-import './utils/hero.baseSpeed.del';
-import './utils/string.formatters.del';
-import './utils/player.sortedAllPlayers.del';
-import './utils/array.del';
+import './utils/index.del';
+import './utils/player/baseSpeed.del';
+import './utils/player/sortedAllPlayers.del';
 
 struct PlayerInfoProps {
   public Number enabled;

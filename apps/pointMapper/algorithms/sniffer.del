@@ -1,6 +1,6 @@
 import "../_variables.del";
 import "../_helpers.del";
-import "../../../libs/utils/vector.del";
+import "../../../libs/utils/index.del";
 
 String SNIFFER_NAME: 'Sniffer';
 
@@ -101,11 +101,9 @@ if(stepSniffer == StepSniffer.Mapping)
         continue;
 
       // mark dummy as finished if is going to loop or is close to the other dummy
-      if(mainDummy.points.Length > 1 && 
+      if(mainDummy.points.Length() > 1 && 
         mainDummies.IsTrueForAny((p) => 
-          // ostw bug
-          // mainDummy.position.DistanceTo(p.points.First()) < 1.5 || 
-          mainDummy.position.DistanceTo(p.points.multiArray[0][0]) < scale * SquareRoot(2) || 
+          mainDummy.position.DistanceTo(p.points.First()) < scale * SquareRoot(2) || 
           mainDummy.position.DistanceTo(p.position) < scale * SquareRoot(2) &&
           p != mainDummy
         )
@@ -128,7 +126,7 @@ if(stepSniffer == StepSniffer.Mapping)
           if(i == mainDummy.helperDummies.Length / 2) continue;
 
           // skip appending point if the bot that's going in the other direction might go further than the current one (bug on King's Row)
-          if(!(mainDummy.points.Length == 0 && helpersOnObjective.First)) {
+          if(!(mainDummy.points.Length() == 0 && helpersOnObjective.First)) {
             mainDummy.points.Append(mainDummy.position);
           }
 
@@ -153,12 +151,10 @@ if(stepSniffer == StepSniffer.Mapping)
       foreach(Player[] dummy in mainDummies) {
         // since the 2nd bot was going anticlockwise, reverse registered points for proper outline generation
         if(dummy != mainDummies[0])
-          dummy.points = dummy.points.Reverse();
+          dummy.points.Reverse();
 
         // outline.ConcatBigArray(outline, dummy.points);
-        foreach(Vector[] arr in dummy.points.multiArray) {
-          allPoints.Concat(arr);
-        }
+        allPoints.ConcatBigArray(dummy.points);
 
         RemoveDummies(dummy.helperDummies);
         DestroyInWorldText(dummy.arrow);
@@ -188,14 +184,14 @@ if(stepSniffer == StepSniffer.Simplifying)
   // DisableInspectorRecording();
 
   for(Number i! = 0; i < 8; i++) {
-    Number oldCount = allPoints.Length;
-    allPoints = SmoothenBetweenVectors(allPoints);
+    Number oldCount = allPoints.Length();
+    allPoints = SmoothenLineBetweenPrevVectors(allPoints);
 
     // EnableInspectorRecording();
     // LogToInspector($"Pass {i}​ finished, length: {outline.Length}");
     // DisableInspectorRecording();
     
-    if(oldCount - allPoints.Length <= 1)
+    if(oldCount - allPoints.Length() <= 1)
       break;
   }
 
@@ -205,7 +201,7 @@ if(stepSniffer == StepSniffer.Simplifying)
   // LogToInspector($"Smoothing using RDP {outline.Length}​ points");
   // DisableInspectorRecording();
 
-  allPoints = SmoothenRDP(allPoints, 1, true);
+  allPoints = SmoothenLineRDP(allPoints, 1, true);
 
   Wait(0.25);
 
@@ -213,8 +209,8 @@ if(stepSniffer == StepSniffer.Simplifying)
 
   Outline _outline = { algorithm: SNIFFER_NAME, ..Outline.BASE };
 
-  for(Number i! = 0; i < allPoints.Length; i++) {
-    Vertex vertex: { position: allPoints.Get(i), connectedTo: [allPoints.Get(i == allPoints.Length - 1 ? 0 : i + 1)] };
+  for(Number i! = 0; i < allPoints.Length(); i++) {
+    Vertex vertex: { position: allPoints.Get(i), connectedTo: [allPoints.Get(i == allPoints.Length() - 1 ? 0 : i + 1)] };
     _outline.vertices += [vertex];
   }
 

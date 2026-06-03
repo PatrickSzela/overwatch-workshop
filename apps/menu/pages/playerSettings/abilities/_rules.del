@@ -1,4 +1,4 @@
-import '../../../../../libs/utils/player.del';
+import '../../../../../libs/utils/player/ability.del';
 import './_index.del';
 
 rule: 'Infinite Ammo'
@@ -98,7 +98,7 @@ if(pageAbilitiesKeepHoldingButton)
 
   WaitForeverUntil(pageAbilitiesKeepHoldingButton != EvaluateOnce(pageAbilitiesKeepHoldingButton) || menuState.isOpen);
 
-  foreach(Button button in allButtons) {
+  foreach(Button button in AllButtons()) {
     StopHoldingButton(EventPlayer(), button);
   }
 
@@ -160,7 +160,7 @@ if(IsButtonHeld(EventPlayer(), Button.Interact))
   pageAbilitiesKeepSpammingButton = [];
 
   // just in case
-  foreach(Button button in allButtons) {
+  foreach(Button button in AllButtons()) {
     StopHoldingButton(EventPlayer(), button);
   }
 }

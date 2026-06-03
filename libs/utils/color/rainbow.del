@@ -1,0 +1,46 @@
+import '../number/index.del';
+import './helpers.del';
+
+globalvar Vector _rainbowVector = Vector.Zero;
+
+Color COLOR_RAINBOW: Rainbow.Color();
+
+# Creates a cycling rainbow color that changes over time.
+# 
+# [Based on rainbow code by PharingWell and Provoxin.](https://github.com/CactusPuppy/CustomGameToolbox/blob/main/lib/utils/rainbow.del)
+class Rainbow {
+  private static Number SATURATION: 0.5;
+  private static Number VALUE: 1.0;
+  private static Number RATE: 100;
+
+  private static Number min: 255 * (1 - SATURATION) * VALUE;
+  private static Number max: 255 * VALUE;
+  private static Number mod: (max - min) * 6;
+  private static Number offset: max - 2 * min;
+
+  private static Number CalculateValue(Number color, Number time): 
+    Min(Max(AbsoluteValue(((time + (color * mod) / 3) % mod) - mod / 2) - offset, min), max);
+
+  private static Number Red(Number time): CalculateValue(0, time);
+  private static Number Green(Number time): CalculateValue(1, time);
+  private static Number Blue(Number time): CalculateValue(2, time);
+
+  public static Vector CalculateVector(Number time): 
+    Vector(Red(time * RATE), Green(time * RATE), Blue(time * RATE));
+
+  public static void RULE_ChaseVector(in Number time = TotalTimeElapsed()) {
+    ChaseVariableAtRate(
+      _rainbowVector,
+      CalculateVector(time),
+      NUMBER_MAX,
+      RateChaseReevaluation.DestinationAndRate
+    );
+  }
+
+  public static Color Color(Number alpha = 255): VectorToColor(_rainbowVector, alpha);
+}
+
+rule: "[libs/utils/color/rainbow.del] Chase `_rainbowVector` variable"
+{
+  Rainbow.RULE_ChaseVector();
+}

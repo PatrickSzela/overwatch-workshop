@@ -1,0 +1,18 @@
+# Converts `data` to string.
+String ToString(Any data): "{0}".Format([data]);
+
+String UP_DOWN: "Move Up/Down";
+String FORWARD_BACK: "Move Forward/Back";
+String LEFT_RIGHT: "Move Left/Right";
+
+String LOTS_OF_SPACES: "                                                                                                                                                                          ";
+
+# Sort array of strings (or any other type of data, as long as each element can be safely converted to a string) alphabetically.
+T[] SortAlphabetically<single T>(in T[] array) {
+  return array.Sort((i, idx) => FirstOf(ToString(i)));
+}
+
+# Sort array of heroes alphabetically. Handles special cases like `ú` for Lucio
+Hero[] SortHeroesAlphabetically(in Hero[] array) {
+  return array.Sort((i, idx) => FirstOf(ToString(i).Replace("ú", "u")));
+}

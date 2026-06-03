@@ -1,24 +1,28 @@
 settings
 {
-	// its borked. as always. because why not. thanks blizzard.
-	// modes
-	// {
-	// 	All
-	// 	{
-	// 		Competitive Rules: On
-	// 	}
-	// }
-	modes 
+	modes
 	{
-		Skirmish
+		General
 		{
+			Competitive Rules: On
+			Enable Perks: On
+			Game Mode Start: Manual
+			Hero Limit: 1 Per Team
+			Limit Roles: 1 Tank 2 Offense 2 Support
+			Tank Role Passive Health Bonus: 1 Tank 2 Offense 2 Support
 		}
-		Deathmatch
-		{
-    }
+		Assault
+		Clash
+		Control
+		Escort
+		Flashpoint
+		Hybrid
+		Push
 	}
 	workshop
 	{
 		Enable Inspector: Off
+		Skip Assembling Heroes and Setup phases: Off
+		Show Diagnostics: Off
 	}
 }

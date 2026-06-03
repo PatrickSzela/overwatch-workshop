@@ -1,6 +1,6 @@
+import '../../../libs/speedUpAbility/index.del';
 import '../modifier.del';
 import '../utils/effects.del';
-import '../../../libs/speedUpAbility/index.del';
 
 String SPIDER_WOMAN_NAME: 'Spider-Woman';
 Number SPIDER_WOMAN_DURATION: 15;

@@ -1,0 +1,10 @@
+import '../string/index.del';
+
+globalvar Hero[] _sortedHeroes = [];
+
+Hero[] SortedHeroes(): _sortedHeroes;
+
+rule: '[libs/utils/player/sortedHeroes.del] Initialize sorted heroes array'
+{
+  _sortedHeroes = SortHeroesAlphabetically(AllHeroes());
+}

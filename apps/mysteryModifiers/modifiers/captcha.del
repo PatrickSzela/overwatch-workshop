@@ -1,8 +1,8 @@
+import '../../../libs/utils/index.del';
+import '../../../libs/utils/player/freeze.del';
+import '../../../libs/utils/string/holyGrail.del';
 import '../modifier.del';
 import '../utils/effects.del';
-import '../../../libs/utils/player.freeze.del';
-import '../../../libs/utils/string.holyGrail.del';
-import '../../../libs/utils/string.formatters.del';
 
 String CAPTCHA_NAME: 'CAPTCHA';
 Number CAPTCHA_DURATION: 15;
@@ -38,11 +38,11 @@ struct Captcha {
     huds += CreateInWorldText(
       VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
       Header: $"{LocalPlayer().captchaData.title}",
-      Position: UpdateEveryFrame(ScreenPositionToWorldVector(Vector(0, 1.75) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
+      Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(0, 1.75) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
       Scale: Captcha.SCALE * 0.75,
       Clipping: Clipping.DoNotClip,
       Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-      TextColor: rainbow,
+      TextColor: COLOR_RAINBOW,
       Spectators: Spectators.VisibleNever
     );
 
@@ -51,7 +51,7 @@ struct Captcha {
         huds += CreateInWorldText(
           VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
           Header: LocalPlayer().captchaData.hud[EvaluateOnce(y) + 1][EvaluateOnce(x) + 1],
-          Position: UpdateEveryFrame(ScreenPositionToWorldVector(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Captcha.OFFSET)),
+          Position: UpdateEveryFrame(ScreenVectorToWorld(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Captcha.OFFSET)),
           Scale: Captcha.SCALE,
           Clipping: Clipping.DoNotClip,
           Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
@@ -61,7 +61,7 @@ struct Captcha {
 
         huds += CreateIcon(
           VisibleTo: LocalPlayer().captchaData.enabled && LocalPlayer().captchaData.choice[EvaluateOnce(y) + 1][EvaluateOnce(x) + 1] ? LocalPlayer() : null,
-          Position: UpdateEveryFrame(ScreenPositionToWorldVector(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Vector(-0.065, -0.05) + Captcha.OFFSET)),
+          Position: UpdateEveryFrame(ScreenVectorToWorld(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Vector(-0.065, -0.05) + Captcha.OFFSET)),
           Icon: Icon.Checkmark,
           Reevaluation: IconRev.VisibleToPositionAndColor,
           IconColor: Color.Green,
@@ -75,7 +75,7 @@ struct Captcha {
     huds += CreateInWorldText(
       VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
       Header: HolyGrailString("tx0C0000000002DD21"),
-      Position: UpdateEveryFrame(ScreenPositionToWorldVector(LocalPlayer().captchaData.cursorPos * Captcha.DISTANCE_BETWEEN + Vector(0.125, -0.1) + Captcha.OFFSET)),
+      Position: UpdateEveryFrame(ScreenVectorToWorld(LocalPlayer().captchaData.cursorPos * Captcha.DISTANCE_BETWEEN + Vector(0.125, -0.1) + Captcha.OFFSET)),
       Scale: Captcha.SCALE * 0.75,
       Clipping: Clipping.DoNotClip,
       Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
@@ -86,7 +86,7 @@ struct Captcha {
     huds += CreateInWorldText(
       VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
       Header: $"Retries left: {LocalPlayer().captchaData.retries}\nUse {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
-      Position: UpdateEveryFrame(ScreenPositionToWorldVector(Vector(4.5, 0) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
+      Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(4.5, 0) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
       Scale: Captcha.SCALE * 0.6,
       Clipping: Clipping.DoNotClip,
       Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
@@ -97,11 +97,11 @@ struct Captcha {
     huds += CreateInWorldText(
       VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
       Header: "Verify",
-      Position: UpdateEveryFrame(ScreenPositionToWorldVector(Vector(0, -2) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
+      Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(0, -2) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
       Scale: Captcha.SCALE * 0.75,
       Clipping: Clipping.DoNotClip,
       Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-      TextColor: rainbow,
+      TextColor: COLOR_RAINBOW,
       Spectators: Spectators.VisibleNever
     );
 
@@ -109,13 +109,13 @@ struct Captcha {
   }
 
   public ref void Enable() {
-    FreezePlayer();
+    SetFrozen(EP, true);
     DisableHeroHud();
     enabled = true;
   }
 
   public ref void Disable() {
-    UnfreezePlayer();
+    SetFrozen(EP, false);
     EnableHeroHud();
     DestroyPlayerEffects();
     enabled = false;

@@ -1,5 +1,6 @@
 import '../rules.del';
-import '../../utils/color.rainbow.del';
+import '../../utils/color/rainbow.del';
+import '../../utils/index.del';
 
 enum StreamIntegrationMessage {
   POLL_START = "POLL_START",
@@ -68,7 +69,7 @@ single struct StreamIntegration {
     CreateHudText(
       VisibleTo: LocalPlayer(),
       Header: pollHUDText ? $"{title}{pollHUDText}\nPoll will close in {RoundToInteger(pollTimeoutDisplay, Rounding.Up)} secs" : "",
-      HeaderColor: rainbow,
+      HeaderColor: COLOR_RAINBOW,
       Location: Location.Left,
       SortOrder: -100,
       Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor,

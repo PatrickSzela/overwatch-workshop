@@ -1,4 +1,4 @@
-import '../../../../libs/utils/vector.del';
+import '../../../../libs/utils/index.del';
 import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 

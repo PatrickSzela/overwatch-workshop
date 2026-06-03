@@ -1,0 +1,152 @@
+import '../log.del';
+import '../number/index.del';
+
+T[] ArrayOfLength<T>(in Number endIndex) {
+  T[] array!;
+  SetArrayLength(array, endIndex);
+  return array;
+}
+
+void SetArrayLength<T>(ref T[] array, in Number endIndex) {
+  array[endIndex] = <T>null;
+}
+
+# Add an `item` into the `array` on position `index`.
+T[] AddAtPosition<T>(T[] array, T item, Number index):
+  array.Slice(0, index) + [item] + array.Slice(index, NUMBER_MAX);
+
+# Move item in an `array` on position `index` to `newIndex`.
+T[] Move<T>(T[] array, Number index, Number newIndex): 
+  array.SortedArray((_, idx) => idx == index ? newIndex + (newIndex > index ? 0.5 : -0.5) : idx);
+
+# Move item in an `array` on position `index` in `direction`, where `direction` is either `-1` or `1`.
+T[] MoveInDirection<T>(T[] array, Number index, Number direction): 
+  array.SortedArray((_, idx) => idx + ((idx == index) * direction * 1.5));
+
+# Shifts an `array` by `amount` of elements.
+T[] ShiftAndPush<T>(T[] array, Number amount): amount > 0 ? 
+  array.Slice(amount, array.Length).Append(array.Slice(0, amount)) :
+  array.Slice(array.Length + amount, -amount).Append(array.Slice(0, array.Length + amount));
+
+# Reverses an `array`.
+T[] Reverse<T>(T[] array): array.SortedArray((_, idx) => -idx);
+
+# Removes first item from an `array`.
+T[] RemoveFirst<T>(T[] array): array.Slice(1, NUMBER_MAX);
+
+# Removes first item from an `array`. This will modify the array directly rather than returning a copy of the array.
+void ModRemoveFirst<T>(ref T[] array) {
+  array.ModRemoveByIndex(0);
+}
+
+# Removes last item from an `array`.
+T[] RemoveLast<T>(T[] array): array.Slice(0, array.Length - 1);
+
+# Removes last item from an `array`. This will modify the array directly rather than returning a copy of the array.
+void ModRemoveLast<T>(ref T[] array) {
+  array.ModRemoveByIndex(array.Length - 1);
+}
+
+# Removes last item from an `array` and returns it.
+T Pop<T>(ref T[] array) {
+  T item! = array.Last;
+  ModRemoveLast(array);
+  return item;
+}
+
+# Splits an `array` into 2 parts based on first occurrence of `separator`.
+# 
+# NOTE: This method assumes `separator` occurs at least once in the `array`.
+T[][] SplitFirst<T>(T[] array, T separator): 
+  [array.Slice(0, array.IndexOf(separator)), array.Slice(array.IndexOf(separator) + 1, NUMBER_MAX)];
+
+# Splits an `array` into parts based on `separator`.
+T[][] Split<T>(in T[] array, in T separator) {
+  Number slot = 0;
+  T[][] parts = [[]];
+
+  foreach(T n in array) {
+    if(<Any>n == <Any>separator) {
+      // comma found
+      slot++;
+      parts[slot] = [];
+    } else {
+      parts[slot] += n;
+    }
+  }
+
+  return parts;
+}
+
+# A copy of the specified array of structs with any values that do not match the specified condition removed.
+T[] FilterStruct<T>(in T[] array, const (T, Number) => Boolean func) {
+  Number[] filterStructMapped! = array.Map((v, idx) => idx).Filter(i => func(array[i], i));
+  return filterStructMapped.Map(i => array[i]);
+}
+
+# Joins elements of `array` into a String while also inserting `separator` between them.
+String Join(in Any[] array, in String separator = ", ") {
+  String ret! = "";
+  Any[] arr! = array.Map((i, idx) => idx ? $"{separator}{i}" : i);
+  foreach(String str! in arr) {
+    ret = $"{ret}{str}";
+  }
+  return ret;
+}
+
+# Joins 3 first elements of `array` into a String while also inserting `separator` between them.
+# This is an inline function, which means it can be used client-side.
+# 
+# NOTE: Doesn't handle falsy values.
+String InlineJoin3(Any[] array, String separator = ", "): 
+  (array[0] ? $"{array[0]}" : '') +
+  (array[1] ? $"{separator}{array[1]}" : '') +
+  (array[2] ? $"{separator}{array[2]}" : '');
+
+# Joins 5 first elements of `array` into a String while also inserting `separator` between them.
+# This is an inline function, which means it can be used client-side.
+# 
+# NOTE: Doesn't handle falsy values.
+String InlineJoin5(Any[] array, String separator = ", "): 
+  (array[0] ? $"{array[0]}" : '') +
+  (array[1] ? $"{separator}{array[1]}" : '') +
+  (array[2] ? $"{separator}{array[2]}" : '') +
+  (array[3] ? $"{separator}{array[3]}" : '') +
+  (array[4] ? $"{separator}{array[4]}" : '');
+
+# Joins 10 first elements of `array` into a String while also inserting `separator` between them.
+# This is an inline function, which means it can be used client-side.
+# 
+# NOTE: Doesn't handle falsy values.
+String InlineJoin10(Any[] array, String separator = ", "): 
+  (array[0] ? $"{array[0]}" : '') +
+  (array[1] ? $"{separator}{array[1]}" : '') +
+  (array[2] ? $"{separator}{array[2]}" : '') +
+  (array[3] ? $"{separator}{array[3]}" : '') +
+  (array[4] ? $"{separator}{array[4]}" : '') +
+  (array[5] ? $"{separator}{array[5]}" : '') +
+  (array[6] ? $"{separator}{array[6]}" : '') +
+  (array[7] ? $"{separator}{array[7]}" : '') +
+  (array[8] ? $"{separator}{array[8]}" : '') +
+  (array[9] ? $"{separator}{array[9]}" : '');
+
+# Joins 10 first elements of `array` into a String while also inserting `separator` between them.
+# This is an inline function, which means it can be used client-side.
+# 
+# NOTE: Doesn't handle falsy values.
+String InlineJoin15(Any[] array, String separator = ", "): 
+  (array[0] ? $"{array[0]}" : '') +
+  (array[1] ? $"{separator}{array[1]}" : '') +
+  (array[2] ? $"{separator}{array[2]}" : '') +
+  (array[3] ? $"{separator}{array[3]}" : '') +
+  (array[4] ? $"{separator}{array[4]}" : '') +
+  (array[5] ? $"{separator}{array[5]}" : '') +
+  (array[6] ? $"{separator}{array[6]}" : '') +
+  (array[7] ? $"{separator}{array[7]}" : '') +
+  (array[8] ? $"{separator}{array[8]}" : '') +
+  (array[8] ? $"{separator}{array[9]}" : '') +
+  (array[8] ? $"{separator}{array[10]}" : '') +
+  (array[8] ? $"{separator}{array[11]}" : '') +
+  (array[8] ? $"{separator}{array[12]}" : '') +
+  (array[8] ? $"{separator}{array[13]}" : '') +
+  (array[9] ? $"{separator}{array[14]}" : '');

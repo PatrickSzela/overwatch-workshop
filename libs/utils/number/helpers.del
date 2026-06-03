@@ -1,0 +1,50 @@
+# Duration of 1 game tick (16ms when no Slow Motion is enabled).
+Number ONE_TICK: 0.016;
+# Minimum number supported by Workshop.
+Number NUMBER_MIN: -9999999;
+# Maximum number supported by Workshop.
+Number NUMBER_MAX: 9999999;
+
+# Returns sign of `value` (with `0` for 0).
+Number Sign(Number value): value < 0 ? -1 : value > 0 ? 1 : 0;
+
+# Clamps `value` between `min` and `max`.
+Number Clamp(Number value, Number min, Number max): Max(min, Min(max, value));
+
+# Clamps `value` between `min` and `max`, but flips it when it extends the range (`min` when `value` > `max` and vice versa).
+Number ClampFlip(in Number value, in Number min, in Number max):
+  value < min ? max : 
+    value > max ? min :
+    value;
+// Number ClampFlip(in Number value, in Number min, in Number max) {
+//   if(value < min) return max;
+//   if(value > max) return min;
+//   return value;
+// }
+
+# Converts an array of booleans into a number.
+Number FromBinary(in Boolean[] array) {
+  Number sum! = 0;
+  for(Number i = 0; i < array.Length; i++) {
+    if(array[i]) 
+      sum += RaiseToPower(2, i);
+  }
+  return sum;
+}
+
+# Converts `number` into binary, represented as array of booleans.
+Boolean[] ToBinary(in Number number) {
+  Number cache! = number;
+  Boolean[] result! = [];
+  while(cache > 0) {
+    result += number % 2 ? true : false;
+    cache = RoundToInteger(cache, Rounding.Down);
+  }
+  return result;
+}
+
+# Modifies `variable` by turning it into a breathing modifier that continuously increases and decreases over time over specified `speed`.
+void StartBreatheMultiplier(ref Number variable, in Number speed = 500) {
+  Number calculation: (CosineFromDegrees((TotalTimeElapsed() * speed) % 360) + 1) / 2;
+  ChaseVariableAtRate(variable, calculation, NUMBER_MAX, RateChaseReevaluation.DestinationAndRate);
+}

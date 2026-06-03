@@ -12,8 +12,11 @@ import './pages/_index.del';
 import './pages2/index.del';
 import './switchMenu.del';
 import '../../libs/playerInfo.del';
-import '../../libs/utils/diagnostics.del';
-import '../../libs/utils/rules/skipToMatch.del';
+import '../../libs/utils/hud/diagnostics.del';
+import '../../libs/utils/index.del';
+import '../../libs/utils/match/pauseTimer.del';
+import '../../libs/utils/match/skipToMatch.del';
+import '../../libs/utils/match/skipPointLocked.del';
 
 rule: 'Generate Menu State'
 Event.OngoingPlayer
@@ -50,11 +53,11 @@ if(pickPosition.RULE_UpdateRaycastDistanceCondition())
   pickPosition.RULE_UpdateRaycastDistance();
 }
 
-rule: 'Player Info'
-Event.OngoingPlayer
-{
-  PlayerInfo(playerName, buttonsHeld, pageStatusAppliedStatuses);
-}
+// rule: 'Player Info'
+// Event.OngoingPlayer
+// {
+//   PlayerInfo(playerName, buttonsHeld, pageStatusAppliedStatuses);
+// }
 
 rule: '[Timeline] Start playing'
 if(timeline.isPlaying)
@@ -80,7 +83,7 @@ if(CurrentGameMode() == GameMode.Skirmish)
   // let other rules that set match time do their work first
   Wait(1);
 
-  pauseMatchTime = true;
+  SetMatchTimerPaused(true);
   // for some reason SetMatchTime breaks Pause/UnpauseMatchTime
   MinWait();
   SetMatchTime(260);

@@ -1,15 +1,50 @@
-import './string.del';
+import './string/index.del';
+import './player/input/allButtons.del';
+import './team/allTeams.del';
 
 enum Type {
-  ARRAY = 1, //= "ARRAY",
-  BOOLEAN = 2, //= "BOOLEAN",
-  // NULL = "NULL", // it's not possible to differentiate it from 0 in Workshop
-  NUMBER = 3, //= "NUMBER",
-  STRING = 4, //= "STRING",
-  VECTOR = 5 //= "VECTOR"
+  UNKNOWN,
+  ARRAY,
+  BOOLEAN,
+  // NULL,        // not possible to differentiate from 0
+  NUMBER,
+  STRING,
+  VECTOR,
+  // GAME_MODE,   // not possible to detect
+  // MAP,         // not possible to detect
+  TEAM,
+  PLAYER,
+  HERO,
+  BUTTON
 }
 
+# Returns type of `value`.
 Type TypeOf(in Any value) {
+  if(true >= value) {
+    return Type.BOOLEAN;
+  } else if(AllHeroes().Contains(value)) {
+    return Type.HERO;
+  } else if(AllButtons().Contains(value)) {
+    return Type.BUTTON;
+  } else if(AllTeams().Contains(value)) {
+    return Type.TEAM;
+  } else if(AllPlayers().Contains(value)) {
+    return Type.PLAYER;
+  } else if(CountOf(value) > 0 || value == []) {
+    return Type.ARRAY;
+  } else if(DoNotOptimize(value * 1) == value && !ToString(value).Contains(" ")) {
+    return Type.NUMBER;
+  } else if(EntityExists(value) || ToString(value) == value) {
+    return Type.STRING;
+  } else if(CharInString(value, 0) == "(") {
+    return Type.VECTOR;
+  } else {
+    return Type.UNKNOWN;
+  }
+}
+
+# Returns type of `value`, limited to "primitive" types - string, number, boolean, vector and array.
+Type TypeOfPrimitive(in Any value) {
   if(true >= value) {
     return Type.BOOLEAN;
   } else if(CountOf(value) > 0 || value == []) {
@@ -18,10 +53,49 @@ Type TypeOf(in Any value) {
     return Type.NUMBER;
   } else if(EntityExists(value) || ToString(value) == value) {
     return Type.STRING;
-  // } else if(DoNotOptimize(value * 0) == Vector.Zero) {
   } else if(CharInString(value, 0) == "(") {
     return Type.VECTOR;
   } else {
     return Type.STRING;
   }
 }
+
+// rule: 'Tester'
+// if(HasSpawned(HP))
+// {
+//   Any value: null;
+//   Any[] values: AllPlayers();
+
+//   Any[][] data = [
+//     ["true",                  Type.BOOLEAN,   true], 
+//     ["false",                 Type.BOOLEAN,   false],
+//     ["null",                  Type.NUMBER,    null],
+//     ["number",                Type.NUMBER,    123],
+//     ["number negative",       Type.NUMBER,    -123],
+//     ["one",                   Type.NUMBER,    1],
+//     ["minus one",             Type.NUMBER,    -1],
+//     ["zero",                  Type.NUMBER,    0],
+//     ["string",                Type.STRING,    "test"],
+//     ["empty string",          Type.STRING,    ""],
+//     ["array",                 Type.ARRAY,     [1,2,3]],
+//     ["array bigger",          Type.ARRAY,     [1,2,3,4,5]],
+//     ["one element array 0",   Type.ARRAY,     [0]],
+//     ["one element array 1",   Type.ARRAY,     [1]],
+//     ["array of empty stuff",  Type.ARRAY,     [0,false,"",Vector(0,0,0),null]],
+//     ["empty array",           Type.ARRAY,     []],
+//     ["vector",                Type.VECTOR,    Vector(1,2,3)],
+//     ["vector of zeros",       Type.VECTOR,    Vector(0,0,0)]
+//   ] + 
+//     AllPlayers().Map((i) =>             [$"player {i}", Type.PLAYER,  i]) +
+//     AllHeroes().Slice(0, 3).Map((i) =>  [$"hero {i}",   Type.HERO,    i]) +
+//     AllButtons().Map((i) =>             [$"button {i}", Type.BUTTON,  i]) +
+//     AllTeams().Map((i) =>               [$"team {i}",   Type.TEAM,    i]);
+
+//   foreach(Any[] d in data) {
+//     // LogToInspector($"{d[0]}: {value == d[2]}");
+//     // LogToInspector($"{d[0]}: {values.Contains(d[2])}");
+//     Type type = TypeOf(d[2]);
+//     Boolean success = type == d[1];
+//     LogToInspector($"{success ? 'SUCCESS' : 'FAIL'}: {d[0]}");
+//   }
+// }

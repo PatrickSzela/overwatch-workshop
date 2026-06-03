@@ -1,0 +1,27 @@
+import '../abbreviations.del';
+import '../helpers.del';
+import './input/allButtons.del';
+
+playervar Boolean _frozen! = false;
+
+# Whether the `player` is currently frozen - they cannot move and press any buttons.
+Boolean IsFrozen(Player player = EP): EP._frozen;
+
+# Freezes or unfreezes `player` - they cannot move and press any buttons.
+void SetFrozen(in Player | Player[] player = EP, in Boolean value) {
+  EP._frozen = value;
+}
+
+rule: '[libs/utils/player.freeze.del] Handle freeze state change' 50
+Event.OngoingPlayer
+if(_frozen)
+{
+  SetMoveSpeed(EP, 0);
+  DisallowAllButtons();
+
+  WaitForeverUntil(_frozen == false);
+
+  // TODO: store & restore previous speed in case it was modified - how?
+  SetMoveSpeed(EP, 100);
+  AllowAllButtons();
+}

@@ -1,3 +1,4 @@
+import '../../../../libs/menu/components/toggle.del';
 import '../../_variables.del';
 
 String PAGE_NO_COOLDOWNS_ID: 'noCooldowns';
@@ -22,9 +23,9 @@ rule: 'Quick Actions/No Cooldowns'
 Event.OngoingPlayer
 if(pageNoCooldownsEnabled)
 {
-  pageAbilitiesNoCooldown = allButtons;
-  pageAbilitiesInfiniteCharge = allButtons;
-  pageAbilitiesInfiniteResource = allButtons;
+  pageAbilitiesNoCooldown = AllButtons();
+  pageAbilitiesInfiniteCharge = AllButtons();
+  pageAbilitiesInfiniteResource = AllButtons();
 
   WaitForeverUntil(!pageNoCooldownsEnabled);
 

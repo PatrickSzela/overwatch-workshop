@@ -1,0 +1,26 @@
+import '../../vector/index.del';
+import '../../helpers.del';
+
+# List of currently pressed buttons by a player.
+playervar Vector _navigationDirection = Vector.Zero;
+playervar Number _repeatTimer!;
+
+Boolean IsNavigating(): MagnitudeOf(ThrottleOf()) > 0.75;
+Vector NavigationDirectionOf(Player player = EP): player._navigationDirection;
+
+rule: '[libs/utils/input/navigation.del] Handle player\'s throttle' -100
+Event.OngoingPlayer
+if(IsNavigating())
+{
+  _repeatTimer = 0.5;
+
+  while(true) {
+    _navigationDirection = SnapToAngle(Vector(ThrottleOf().X, ThrottleOf().Z, 0), 90);
+    MinWait();
+    _navigationDirection = Vector.Zero;
+
+    Wait(_repeatTimer, WaitBehavior.AbortWhenFalse);
+
+    _repeatTimer = 0.075;
+  }
+}

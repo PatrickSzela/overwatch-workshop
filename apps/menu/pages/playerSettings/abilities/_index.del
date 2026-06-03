@@ -14,7 +14,7 @@ String PAGE_ABILITIES_CANCEL_PRIMARY_ACTION: 'Stop Ability';
 Component[] PageAbilitiesItems() {
   Component[] list = [];
 
-  foreach(Button button! in allButtons) {
+  foreach(Button button! in AllButtons()) {
     list += new Link(menuState, $"{button}", submenuID: $"{button}", openButton: BUTTON_SECONDARY);
     list.Last.onSecondaryAction = (it) => {
       selectedButton = button;

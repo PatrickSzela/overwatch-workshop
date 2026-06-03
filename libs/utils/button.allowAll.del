@@ -1,7 +1,0 @@
-import './button.allButtons.del';
-
-void AllowAllButtons(Player player = EventPlayer()) "Allow All Buttons" {
-  foreach(Button button! in allButtons) {
-    AllowButton(player, button);
-  }
-}

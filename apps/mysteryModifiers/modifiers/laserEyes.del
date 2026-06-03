@@ -126,7 +126,7 @@ if(IsAlive())
 
   Wait(0.1);
 
-  WaitUntil(LASER_EYES_LOOK_AT_RAY_CAST_PLAYER() != player || IsDead(), modifierDurationLeft);
+  WaitUntilModifierIsOverOrCondition(LASER_EYES_LOOK_AT_RAY_CAST_PLAYER() != player || IsDead());
 
   StopDamageOverTime(laserEyesData.dot);
   laserEyesData.dot = null;

@@ -1,4 +1,31 @@
 {
+  "Player rule with file path": {
+    "prefix": ["rule (player, path)"],
+    "description": "Template for player rule with file path in rule's name",
+    "scope": "ostw",
+    "isFileTemplate": false,
+    "body": [
+      "rule: '[${RELATIVE_FILEPATH}] ${1}'",
+      "Event.OngoingPlayer",
+      "${2}{",
+      "  ${3}",
+      "}",
+    ]
+  },
+
+  "Global rule with file path": {
+    "prefix": ["rule (global, path)"],
+    "description": "Template for global rule with file path in rule's name",
+    "scope": "ostw",
+    "isFileTemplate": false,
+    "body": [
+      "rule: '[${RELATIVE_FILEPATH}] ${1}'",
+      "${2}{",
+      "  ${3}",
+      "}",
+    ]
+  },
+
   "Menu Item": {
     "prefix": ["menu", "menu item"],
     "description": "Template for a Menu Item",

@@ -1,5 +1,3 @@
-import '../../libs/utils/array.del';
-import '../../libs/utils/dictionary.del';
 import './box.del';
 
 globalvar Menu menu;

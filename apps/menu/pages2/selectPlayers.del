@@ -1,7 +1,7 @@
 import '../../../libs/menu/components/text.del';
 import '../../../libs/menu/components/checkbox.del';
-import '../../../libs/utils/string.formatters.del';
-import '../../../libs/utils/player.sortedAllPlayers.del';
+import '../../../libs/utils/index.del';
+import '../../../libs/utils/player/sortedAllPlayers.del';
 import '../_variables.del';
 
 String PAGE_SELECT_PLAYERS_ID: 'selectPlayers';
@@ -76,8 +76,8 @@ if(menuState2.pageId == PAGE_SELECT_PLAYERS_ID)
       if(titles[team - 1])
         titles[team] += new Text();
 
-      titles[team] += new Text($"{team == 0 ? Team.Team1 : team == 1 ? Team.Team2 : Team.All}:");
-      titles[team].Last.color = team == 0 ? Color.Team1 : Color.Team2;
+      titles[team] += new Text($"{AllTeams()[team]}");
+      titles[team].Last.color = team == 1 ? Color.Team1 : Color.Team2;
     }
   }
 

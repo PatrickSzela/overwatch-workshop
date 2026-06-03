@@ -1,28 +1,34 @@
-globalvar Boolean inspectorEnabled;
+# Whether Workshop Inspector is currently enabled.
+# 
+# NOTE: Do not set this value manually, use `EnableInspector()` and `DisableInspector()` instead.
+globalvar Boolean _inspectorEnabled!;
 
+# Enables Workshop Inspector.
 void EnableInspector() {
-  inspectorEnabled = true;
+  _inspectorEnabled = true;
   EnableInspectorRecording();
 }
 
+# Disables Workshop Inspector.
 void DisableInspector() {
-  inspectorEnabled = false;
+  _inspectorEnabled = false;
   DisableInspectorRecording();
 }
 
-void Log(in Any text) {
+# Outputs `text` to Workshop Inspector, even while Workshop Inspector is currently disabled.
+void Log(Any text!) "[libs/utils/log.del] Log" {
   EnableInspectorRecording();
 
   LogToInspector(text);
 
-  if(!inspectorEnabled) 
+  if(!_inspectorEnabled) 
     DisableInspectorRecording();
 }
 
-rule: '[LOG] Handle initial state' -99999
+rule: '[libs/utils/log.del] Handle initial state' -99999
 {
-  inspectorEnabled  = WorkshopSettingToggle("Debug", "Enable Inspector", true);
+  _inspectorEnabled = WorkshopSettingToggle("Debug", "Enable Inspector", true);
 
-  if(!inspectorEnabled)
+  if(!_inspectorEnabled)
     DisableInspectorRecording();
 }

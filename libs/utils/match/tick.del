@@ -1,0 +1,10 @@
+globalvar Number _tick = 0;
+
+Number Tick(): _tick;
+
+rule: '[libs/utils/match/tick.del] Tick counter' -99999
+{
+  MinWait();
+  _tick++;
+  Loop();
+}

@@ -1,5 +1,5 @@
 import '../../../libs/menu/components/radio.del';
-import '../../../libs/utils/array.del';
+import '../../../libs/utils/index.del';
 import '../_variables.del';
 
 String PAGE_DEBUG_RADIO_ID: 'radio';

@@ -1,9 +1,9 @@
 import '../utils/helpers.del';
-import '../utils/button.spectatorButtons.del';
-import '../utils/string.ascii.del';
-import '../utils/number.join.del';
-import '../utils/json.del';
-import '../utils/player.del';
+import '../utils/index.del';
+import '../utils/player/input/allSpectatorButtons.del';
+import '../utils/string/ascii.del';
+import '../utils/number/join.del';
+import '../utils/json/json.del';
 
 enum OWTP_MessageName {
   CONNECT = "OWTP_CONNECT",
@@ -176,7 +176,7 @@ single struct OWTP {
       return null;
 
     // encoded data doesn't contain "[" and "]" to reduce amount of packets
-    Any[] data = FromJSON($"[{DecodeAsciiString(encodedData)}]");
+    Any[] data = FromJson($"[{DecodeAsciiString(encodedData)}]");
 
     for(Number i = 0; i < data.Length; i++) {
       Type type: structure.dataTypes[i];
@@ -199,9 +199,9 @@ single struct OWTP {
     Any type: sendMessageQueue.First[0];
     Any[][] data: sendMessageQueue.First[1];
 
-    Log(ToJSON([[OWTP_MessageData.MESSAGE_NAME, type]] + data));
+    Log(ToJson([[OWTP_MessageData.MESSAGE_NAME, type]] + data));
 
-    sendMessageQueue = RemoveFirst(sendMessageQueue);
+    ModRemoveFirst(sendMessageQueue);
 
     LoopIfConditionIsTrue();
   }
@@ -219,7 +219,7 @@ single struct OWTP {
   public ref Boolean HandleButtons_Condition(): _enabled;
 
   public ref void HandleButtons_Rule() {
-    Button[] pressedButtons: spectatorButtons.Filter((button, idx) => HostPlayer().IsButtonHeld(button));
+    Button[] pressedButtons: AllSpectatorButtons().Filter((button, idx) => HostPlayer().IsButtonHeld(button));
     Button[] unhandledButtons: pressedButtons - buttonsBuffer;
 
     WaitForeverUntil(unhandledButtons || !_enabled);
@@ -233,13 +233,13 @@ single struct OWTP {
 
   // Handle Packets
   public ref Boolean HandlePackets_Condition():
-    enabled && buttonsBuffer && spectatorButtons.IsTrueForAll((button, idx) => !HostPlayer().IsButtonHeld(button));
+    enabled && buttonsBuffer && AllSpectatorButtons().IsTrueForAll((button, idx) => !HostPlayer().IsButtonHeld(button));
 
   public ref void HandlePackets_Rule() {
     // TODO: possibly decode packets here
     Number segment: packetsBuffer.Last;
 
-    packetsBuffer += FromBinary(spectatorButtons.Map((button, idx) => buttonsBuffer.Contains(button)));
+    packetsBuffer += FromBinary(AllSpectatorButtons().Map((button, idx) => buttonsBuffer.Contains(button)));
     Number count = packetsBuffer.Filter((i) => i == OWTP_ReservedPackets.START_END_CONFIRM).Length;
 
     if(segment <= 0 || segment > OWTP_ReservedPackets.START_END_CONFIRM) {
@@ -304,7 +304,7 @@ single struct OWTP {
     DebugHudHelper($"Is connected: {BooleanFormatterYesNo(_connected)}");
     DebugHudHelper($"Transmission enabled: {BooleanFormatterYesNo(_enabled)}\n");
     DebugHudHelper(
-      $"Client-side buttons:\n{InlineJoin10(spectatorButtons.Filter((button, idx) => HostPlayer().IsButtonHeld(button)))}"
+      $"Client-side buttons:\n{InlineJoin10(AllSpectatorButtons().Filter((button, idx) => HostPlayer().IsButtonHeld(button)))}"
     );
     DebugHudHelper($"Server-side buttons:\n{InlineJoin10(buttonsBuffer)}");
     DebugHudHelper($"Packets buffer:\n{InlineJoin10(packetsBuffer)}");

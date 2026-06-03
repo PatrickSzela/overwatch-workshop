@@ -1,0 +1,25 @@
+import '../abbreviations.del';
+import '../hud/index.del';
+
+# Returns a list of all dummy bots.
+Player[] AllDummyBots(Team team = Team.All): AllPlayers(team).FilteredArray((i) => i.IsDummy());
+
+# Adds a new bot to the specified slot on the specified team so long as the slot is available. This bot will only move, fire, or use abilities if executing Workshop actions.
+# 
+# When bot creation fails, small message will pop up on screen.
+Player CreateDummyBotWithMessageOnFail(in Hero hero, in Team team = Team.Team1, in Number slot = -1, in Vector position = null) {
+  CreateDummyBot(hero, team, slot, position);
+
+  if(!EntityExists(LastCreatedEntity())) {
+    SmallMessageFixed(EP, "Failed to create a bot");
+    return null;
+  }
+  
+  return LastCreatedEntity();
+}
+
+# Destroys multiple dummy bots.
+void DestroyDummyBots(in Player[] players) {
+  foreach(Player player! in players)
+    DestroyDummyBot(player);
+}
