@@ -4,9 +4,12 @@ settings
   {
     General
     {
-      Hero Limit: Off
-      Respawn Time Scalar: 0%
       Game Mode Start: Manual
+      Hero Limit: Off
+      Limit Roles: Off
+      Respawn Time Scalar: 0%
+      Tank Role Passive Health Bonus: 1 Tank 2 Offense 2 Support
+      Enable Perks: On
     }
     Skirmish
     {
@@ -15,12 +18,18 @@ settings
         Workshop Island Night
       }
     }
-    disabled Control
-    disabled Hybrid
-    disabled Assault
-    disabled Escort
-    disabled Push
-    disabled Deathmatch
+    Practice Range
+    {
+      enabled maps
+      {
+      }
+    }
+    Stadium Practice Range
+    {
+      enabled maps
+      {
+      }
+    }
   }
   main
   {

@@ -6,22 +6,14 @@ settings
   }
   modes
   {
-    Clash
+    General
     {
       Competitive Rules: On
     }
-    Control
-    {
-      Competitive Rules: On
-    }
-    Payload Race
-    {
-      Competitive Rules: On
-    }
-    Push
-    {
-      Competitive Rules: On
-    }
+    Clash Stadium
+    Control Stadium
+    Payload Race Stadium
+    Push Stadium
   }
   main
   {

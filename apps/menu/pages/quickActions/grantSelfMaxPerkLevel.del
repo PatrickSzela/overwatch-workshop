@@ -1,5 +1,5 @@
 import '../../_variables.del';
-import '../../../../libs/utils/player.grantMaxPerkLevel.del';
+import '../../../../libs/utils/player/grantMaxPerkLevel.del';
 import '../playerSettings/changeHero.del';
 
 String PAGE_GRANT_SELF_MAX_PERK_LEVEL_ID: 'grantSelfMaxPerkLevel';

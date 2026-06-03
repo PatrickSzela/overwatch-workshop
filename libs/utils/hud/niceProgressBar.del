@@ -1,0 +1,89 @@
+import '../abbreviations.del';
+import '../hud/index.del';
+import '../player/index.del';
+import '../vector/index.del';
+
+// TODO: reduce element count
+
+# Creates a in-world progress bar with `value` overlaying it and `text` placed below it, with fallback to HUD progress bar in specific cases.
+Any[] CreateNiceProgressBar(
+  in Number value, 
+  in String displayValue = $"{value}",
+  in String text = null, 
+  in Color progressBarColor = Color.White,
+  in Color textColor = Color.White, 
+  in Vector position = null,
+  in Number scale = 0.75,
+  in String fallbackText = "",
+  in Boolean visibilityCondition = true, 
+  in Boolean preferFallback = false
+) {
+  Boolean displayFallback: preferFallback || IsHUDPreferred(LP) || IsSpectator(LP);
+
+  Any[] items = [];
+
+  // TODO: place texts properly when scale is different
+
+  // hud progress bar
+  items += CreateProgressBarHudText(
+    VisibleTo: visibilityCondition && displayFallback ? LP : null,
+    Value: value, 
+    Text: fallbackText.Length ? fallbackText : $"{text}: {displayValue}", 
+    Location: Location.Left,
+    SortOrder: 100, 
+    ProgressBarColor: progressBarColor, 
+    TextColor: textColor,
+    ProgressBarHudEvaluation.VisibleToValuesAndColor,
+    Spectators.VisibleAlways
+  );
+
+  // world progress bar
+  items += CreateProgressBarInWorldText(
+    VisibleTo: visibilityCondition && !displayFallback ? LP : null,
+    Value: value,
+    Text: null,
+    Position: UpdateEveryFrame(ScreenVectorToWorld(position)),
+    Scale: scale,
+    Clipping: Clipping.DoNotClip,
+    ProgressBarColor: progressBarColor,
+    TextColor: textColor,
+    Reevaluation: ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor,
+    NonteamSpectators: Spectators.VisibleNever
+  );
+
+  // world text
+  if(text.Length)
+    items += CreateInWorldText(
+      VisibleTo: visibilityCondition && !displayFallback ? LP : null,
+      Header: text,
+      Position: UpdateEveryFrame(ScreenVectorToWorld(position + Vector(0, 0.12))),
+      Scale: scale * 2,
+      Clipping: Clipping.DoNotClip, 
+      Reevaluation: InworldTextRev.VisibleToPositionAndString, 
+      TextColor: textColor,
+      Spectators: Spectators.VisibleNever
+    );
+
+  // world value
+  if(displayValue.Length)
+    items += CreateInWorldText(
+      VisibleTo: visibilityCondition && !displayFallback ? LP : null,
+      Header: displayValue,
+      Position: UpdateEveryFrame(ScreenVectorToWorld(position + Vector(0, 0.21))),
+      Scale: scale * 2.6666666,
+      Clipping: Clipping.DoNotClip, 
+      Reevaluation: InworldTextRev.VisibleToPositionAndString, 
+      TextColor: textColor,
+      Spectators: Spectators.VisibleNever
+    );
+
+  return items;
+}
+
+# Destroys progress bar created by `CreateNiceProgressBar`.
+void DestroyNiceProgressBar(in Any[] items) {
+  DestroyProgressBarHudText(items[0]);
+  DestroyProgressBarInWorldText(items[1]);
+  DestroyInWorldText(items[2]);
+  DestroyInWorldText(items[3]);
+}

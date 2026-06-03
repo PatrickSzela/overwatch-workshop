@@ -1,0 +1,2 @@
+import './smoothenLine/index.del';
+import './helpers.del';

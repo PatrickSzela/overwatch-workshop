@@ -1,6 +1,6 @@
+import '../../../libs/speedUpAbility/index.del';
 import '../modifier.del';
 import '../utils/effects.del';
-import '../../../libs/speedUpAbility/index.del';
 
 String ENERGIZE_NAME: 'Energized';
 Number ENERGIZE_DURATION: 10;

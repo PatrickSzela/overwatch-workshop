@@ -1,0 +1,83 @@
+import '../../abbreviations.del';
+import '../../helpers.del';
+
+playervar Button[] _heldButtons = [];
+
+# List of currently pressed buttons by a player.
+Button[] HeldButtonsOf(Player player = EP): EP._heldButtons;
+
+void _HeldButtonsHelper(in Button button) {
+  _heldButtons += button;
+  WaitForeverUntil(!EP.IsButtonHeld(button));
+  _heldButtons -= button;
+}
+
+rule: '[libs/utils/input/heldButtons.del] Ability 1' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.Ability1))
+{
+  _HeldButtonsHelper(Button.Ability1);
+}
+
+rule: '[libs/utils/input/heldButtons.del] Ability 2' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.Ability2))
+{
+  _HeldButtonsHelper(Button.Ability2);
+}
+
+rule: '[libs/utils/input/heldButtons.del] Crouch' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.Crouch))
+{
+  _HeldButtonsHelper(Button.Crouch);
+}
+
+rule: '[libs/utils/input/heldButtons.del] Interact' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.Interact))
+{
+  _HeldButtonsHelper(Button.Interact);
+}
+
+rule: '[libs/utils/input/heldButtons.del] Jump' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.Jump))
+{
+  _HeldButtonsHelper(Button.Jump);
+}
+
+rule: '[libs/utils/input/heldButtons.del] Melee' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.Melee))
+{
+  _HeldButtonsHelper(Button.Melee);
+}
+
+rule: '[libs/utils/input/heldButtons.del] Primary Fire' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.PrimaryFire))
+{
+  _HeldButtonsHelper(Button.PrimaryFire);
+}
+
+rule: '[libs/utils/input/heldButtons.del] Reload' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.Reload))
+{
+  _HeldButtonsHelper(Button.Reload);
+}
+
+rule: '[libs/utils/input/heldButtons.del] Secondary Fire' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.SecondaryFire))
+{
+  _HeldButtonsHelper(Button.SecondaryFire);
+}
+
+rule: '[libs/utils/input/heldButtons.del] Ultimate' -100
+Event.OngoingPlayer
+if(EP.IsButtonHeld(Button.Ultimate))
+{
+  _HeldButtonsHelper(Button.Ultimate);
+}

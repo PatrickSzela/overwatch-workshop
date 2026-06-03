@@ -1,6 +1,4 @@
 import '../modifier.del';
-import '../../../libs/utils/button.allowAll.del';
-import '../../../libs/utils/button.disallowAll.del';
 
 String USE_ULTIMATE_NAME: 'Use Ultimate';
 Number USE_ULTIMATE_DURATION: 10;

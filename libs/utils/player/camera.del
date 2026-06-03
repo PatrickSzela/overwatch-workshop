@@ -1,0 +1,120 @@
+import '../abbreviations.del';
+
+# Whether Ray Casted Camera should be disabled due to hero bugs.
+Boolean RayCastedCameraDisabled():
+  IsUsingUltimate() && 
+    [Hero.Bastion, Hero.Junkrat, Hero.Doomfist].Contains(HeroOf()) ||
+  IsUsingAbility1() && 
+    [Hero.Mei].Contains(HeroOf());
+
+Vector _RAY_CASTED_CAMERA_POSITION(
+  Player player, 
+  Vector startPosition,
+  Vector desiredPosition
+): RayCastHitPosition(
+    StartPOS: startPosition, 
+    EndPOS: desiredPosition, 
+    PlayersToInclude: null, 
+    PlayersToExclude: player, 
+    IncludePlayerOwnedObjects: false
+  );
+
+Vector _RAY_CASTED_LOOK_AT_POSITION(
+  Player player, 
+  Vector startPosition,
+  Vector lookAtPosition
+): RayCastHitPosition(
+    StartPOS: startPosition,
+    EndPOS: lookAtPosition,
+    PlayersToInclude: null,
+    PlayersToExclude: player,
+    IncludePlayerOwnedObjects: false
+  );
+
+Vector _RAY_CASTED_CURSOR_POSITION(
+  Player player, 
+  Vector startPosition,
+  Vector desiredPosition
+): RayCastHitPosition(
+    StartPOS: startPosition,
+    EndPOS: desiredPosition,
+    PlayersToInclude: AP,
+    PlayersToExclude: player,
+    IncludePlayerOwnedObjects: true
+  );
+
+# Places your camera at a location, facing a position, while making sure the camera doesn't go inside of map geometry.
+void StartRayCastedCamera(
+  in Player player, 
+  in Vector startPosition,
+  in Vector desiredPosition,
+  in Vector lookAtPosition,
+  in Number blendSpeed,
+  in Vector finalPositionOffset = Vector(0, 0, 0)
+) {
+  StartCamera(
+    Player: player, 
+    EyePosition: UpdateEveryFrame(
+      _RAY_CASTED_CAMERA_POSITION(player, startPosition, desiredPosition)
+    ) + finalPositionOffset,
+    LookAtPosition: UpdateEveryFrame(lookAtPosition),
+    BlendSpeed: blendSpeed
+  );
+
+  // EyePosition: UpdateEveryFrame(
+  //   RAY_CASTED_CAMERA_POSITION(player, lookAtPosition, RAY_CASTED_CAMERA_POSITION(player, startPosition, desiredPosition))
+  // ),
+}
+
+# Places your camera at a location, facing a position, while making sure the camera doesn't go inside of map geometry.
+void StartRayCastedCameraWithLookAt(
+  in Player player, 
+  in Vector startPosition,
+  in Vector desiredPosition,
+  in Vector lookAtPosition,
+  in Number blendSpeed,
+  in Vector finalPositionOffset = Vector(0, 0, 0)
+) {
+  StartCamera(
+    Player: player, 
+    EyePosition: UpdateEveryFrame(
+      _RAY_CASTED_CAMERA_POSITION(player, startPosition, desiredPosition)
+    ) + finalPositionOffset,
+    LookAtPosition: UpdateEveryFrame(
+      _RAY_CASTED_LOOK_AT_POSITION(player, startPosition, lookAtPosition)
+    ),
+    BlendSpeed: blendSpeed
+  );
+}
+
+# Creates multiple overlaying Sphere effects at desired position, while also taking map geometry into consideration.
+void CreateRayCastedCursor(
+  in Player player, 
+  in Vector startPosition,
+  in Vector desiredPosition,
+  ref Any[] effectStorage,
+  in Boolean visibleCondition = true
+) {
+  for(Number i! = 0; i < 5; i++) {
+    effectStorage += CreateEffect(
+      VisibleTo: visibleCondition ? player : null,
+      Type: Effect.Sphere,
+      Color: Color.Red,
+      Position: UpdateEveryFrame(
+        _RAY_CASTED_CURSOR_POSITION(player, startPosition, desiredPosition)
+      ),
+      Radius: 0.15,
+      Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+    );
+
+    MinWait();
+  }
+
+  // effectStorage += CreateBeamEffect(
+  //   VisibleTo: visibleCondition ? player : null,
+  //   BeamType: BeamType.GrappleBeam,
+  //   StartPosition: UpdateEveryFrame(startPosition),
+  //   EndPosition: UpdateEveryFrame(CURSOR_POSITION),
+  //   Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+  // );
+}

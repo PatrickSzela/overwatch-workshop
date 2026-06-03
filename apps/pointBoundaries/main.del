@@ -7,13 +7,11 @@ import '../../libs/menu/components/toggle.del';
 import '../../libs/menu/components/checkbox.del'; 
 import '../../libs/menu/components/radio.del'; 
 import '../../libs/menu/components/carousel.del'; 
-import "../../libs/utils/helpers.del";
-import "../../libs/utils/vector.del";
-import "../../libs/utils/player.del";
-import "../../libs/utils/helpers.del";
-import "../../libs/utils/team.availableTeams.del";
-import "../../libs/utils/rules/skipToMatch.del";
-import "../../libs/utils/rules/pauseMatchTime.del";
+import "../../libs/utils/index.del";
+import "../../libs/utils/team/availableTeams.del";
+import "../../libs/utils/match/skipToMatch.del";
+import "../../libs/utils/match/skipPointLocked.del";
+import "../../libs/utils/match/pauseTimer.del";
 import "./_rules.del";
 import "./_variables.del";
 import "./menu/_index.del";
@@ -58,7 +56,7 @@ Event.OngoingPlayer
 
 void SpawnContestingBots() {
   // contesting dummies
-  foreach (Team team in availableTeams) {
+  foreach (Team team in AvailableTeams()) {
     dummiesContesting += AddDummies(1, team);
     SetInvisible(LastCreatedEntity(), InvisibleTo.All);
   }
@@ -139,7 +137,7 @@ void GeneratePlayerPosIndicatorLines() {
 
   for(Number i = 0; i < 4; i++) {
     Number _i: EvaluateOnce(i);
-    posIndicators += RotateAroundY(Forward() * 100, i * 45);
+    posIndicators += RotateVectorAroundY(Forward() * 100, i * 45);
 
     CreateBeamEffect(
       VisibleTo: playerPosIndicators ? LP : null, 

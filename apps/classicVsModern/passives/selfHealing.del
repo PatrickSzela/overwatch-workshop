@@ -1,8 +1,9 @@
+// TODO: move to libs
+
 globalvar Number selfHealingPassiveEnabledGlobal = WorkshopSettingCombo("Passive - Self Healing", "Enable Self Healing Passive for", 5, teamAndHeroCombo, 0);
 globalvar Number selfHealingPassiveBaseHealth = WorkshopSettingInteger("Passive - Self Healing", "Base Healing", 10, 0, 50, 1);
 globalvar Number selfHealingPassiveMaxHealthPercentage = WorkshopSettingReal("Passive - Self Healing", "Percentage of Max Health", 5, 0, 100, 2);
-globalvar Number selfHealingPassiveDelay = WorkshopSettingReal("Passive - Self Healing", "Delay after taking damage in seconds", 5, 0.1, 10, 3);
-globalvar Number selfHealingPassiveDelaySupports = WorkshopSettingReal("Passive - Self Healing", "Delay after taking damage in seconds (Supports)", 2.5, 0.1, 10, 4);
+globalvar Number selfHealingPassiveDelay = WorkshopSettingReal("Passive - Self Healing", "Delay after taking damage in seconds", 6, 0.1, 10, 3);
 
 playervar Boolean selfHealingPassiveEnabled = false;
 playervar Any selfHealingId;
@@ -24,7 +25,7 @@ Event.OnDamageTaken
 if(selfHealingPassiveEnabled)
 {
   stopSelfHealing = true;
-  Wait(AllSupportHeroes().Contains(HeroOf()) ? selfHealingPassiveDelaySupports : selfHealingPassiveDelay, WaitBehavior.RestartWhenTrue);
+  Wait(selfHealingPassiveDelay, WaitBehavior.RestartWhenTrue);
   StopHealOverTime(selfHealingId);
   stopSelfHealing = false;
 }

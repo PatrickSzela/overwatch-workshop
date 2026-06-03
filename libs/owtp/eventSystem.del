@@ -58,12 +58,12 @@ single struct EventSystem {
 
   public ref void EventFinished() {
     SendMessage(EventSystemMessage.FINISHED);
-    _queue = RemoveFirst(_queue);
+    ModRemoveFirst(_queue);
   }
 
   public ref void EventFailed() {
     SendMessage(EventSystemMessage.FAILED);
-    _queue = RemoveFirst(_queue);
+    ModRemoveFirst(_queue);
   }
 
   // public ref Boolean QueueLoop_Condition(): _queue;

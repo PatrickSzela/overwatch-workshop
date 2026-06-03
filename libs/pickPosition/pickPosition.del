@@ -1,4 +1,4 @@
-import '../utils/string.formatters.del';
+import '../utils/index.del';
 import '../menu/components/component.del';
 
 class PickPosition {

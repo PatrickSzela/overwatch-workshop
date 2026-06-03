@@ -1,0 +1,26 @@
+import '../team/availableTeams.del';
+import './bot.del';
+
+Number GRANT_MAX_PERK_LEVEL_HEALTH: 10000;
+
+# Grants maximum perk level (or big amount of Stadium cash in Stadium mode) to `players`.
+# 
+# This function spawns dummy bots and can fail under certain conditions.
+void GrantMaxPerkLevel(Player[] players!) "[libs/utils/player/grantMaxPerkLevel.del] Grant Max Perk Level/Stadium Cash" {
+  Player[] dummies! = [];
+
+  foreach(Team team! in AvailableTeams()) {
+    dummies += CreateDummyBotWithMessageOnFail(Hero.Roadhog, team, -1, Vector(0, NUMBER_MAX, 0));
+  }
+
+  AddHealthPoolToPlayer(dummies, HealthType.Health, GRANT_MAX_PERK_LEVEL_HEALTH, true, false);
+  
+  foreach(Player player! in players) {
+    Heal(dummies, null, NUMBER_MAX);
+    MinWait();
+    Damage(dummies.Filter((i) => TeamOf(i) == OppositeTeamOf(TeamOf(player))), player, GRANT_MAX_PERK_LEVEL_HEALTH);
+    MinWait();
+  }
+
+  DestroyDummyBots(dummies);
+}

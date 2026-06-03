@@ -1,4 +1,5 @@
 import '../modifier.del';
+import '../../../libs/utils/player/camera.del';
 
 String THIRD_PERSON_CAMERA_NAME: 'Third Person Camera';
 Number THIRD_PERSON_CAMERA_DURATION: 13;

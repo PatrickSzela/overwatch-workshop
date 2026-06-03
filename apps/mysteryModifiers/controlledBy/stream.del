@@ -1,8 +1,8 @@
-import '../../../libs/utils/color.rainbow.del';
 import '../../../libs/owtp/rules.del';
 import '../../../libs/owtp/utils/notifyGameState.del';
 import '../../../libs/owtp/utils/startGameAfterConnecting.del';
 import '../../../libs/owtp/integrations/stream.del';
+import '../../../libs/utils/color/rainbow.del';
 import '../variables.del';
 
 enum ControlledByStreamStartPoll {

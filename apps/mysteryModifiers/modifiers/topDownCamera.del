@@ -1,6 +1,6 @@
 import '../modifier.del';
 import '../utils/effects.del';
-import '../../../libs/utils/player.camera.del';
+import '../../../libs/utils/player/camera.del';
 
 String TOP_DOWN_CAMERA_NAME: 'Top Down Camera';
 Number TOP_DOWN_CAMERA_DURATION: 13;

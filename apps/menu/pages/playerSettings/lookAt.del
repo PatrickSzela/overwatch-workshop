@@ -1,8 +1,7 @@
 import '../../../../libs/menu/components/radio.del';
 import '../../../../libs/menu/components/carousel.del';
-import '../../../../libs/utils/string.formatters.del';
-import '../../../../libs/utils/player.sortedAllPlayers.del';
-import '../../../../libs/utils/player.del';
+import '../../../../libs/utils/index.del';
+import '../../../../libs/utils/player/sortedAllPlayers.del';
 import '../../_variables.del';
 
 String PAGE_LOOK_AT_ID: 'lookAt';

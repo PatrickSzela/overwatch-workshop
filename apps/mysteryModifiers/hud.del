@@ -1,7 +1,6 @@
-import '../../libs/utils/hud.progressBar.del';
-import '../../libs/utils/helpers.del';
-import '../../libs/utils/color.del';
-import '../../libs/utils/number.del';
+import '../../libs/utils/color/rainbow.del';
+import '../../libs/utils/hud/niceProgressBar.del';
+import '../../libs/utils/index.del';
 
 playervar Boolean tooltipChangeProgressBarPosition = false;
 playervar Boolean preferFallbackHud = false;
@@ -51,22 +50,12 @@ rule: 'Create UI'
   //   preferFallback: LocalPlayer().preferFallbackHud || LocalPlayer().preferFallbackHudOverride,
   // );
 
-  CreateHudText(
-    VisibleTo: LocalPlayer(), 
-    Header: " 7HBSA ", 
-    Subheader: "Mystery Modifiers", 
-    Text: "By Patriq", 
-    Location: Location.Right, 
-    SortOrder: -3, 
-    HeaderColor: Color.Blue, 
-    Spectators: Spectators.VisibleAlways,
-    Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor
-  );
+  CreateImportCodeHudText("7HBSA", "Mystery Modifiers", "By Patriq", Color.Blue);
 
   CreateHudText(
     VisibleTo: state == State.MODIFIER_STARTED ? LocalPlayer() : null, 
     Text: $"Current modifier: {currentModifier.name}", 
-    TextColor: rainbow,
+    TextColor: COLOR_RAINBOW,
     Location: Location.Left, 
     SortOrder: -2, 
     Spectators: Spectators.VisibleAlways,

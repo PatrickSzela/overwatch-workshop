@@ -1,0 +1,18 @@
+Color COLOR_NEUTRAL: Color.White;
+Color COLOR_INFO: Color.SkyBlue;
+Color COLOR_WARNING: Color.Orange;
+Color COLOR_ERROR: Color.Red;
+Color COLOR_DISABLED: Color.Gray;
+Color COLOR_SUCCESS: Color.Green;
+
+# Fades color from `start` to `end` based on the provided `scalar` with range between 0 to 1.
+Color FadeColor(Vector start, Vector end, Number scalar, Number alpha = 255):
+  CustomColor(
+    start.X * (1 - scalar) + end.X * (scalar), 
+    start.Y * (1 - scalar) + end.Y * (scalar), 
+    start.Z * (1 - scalar) + end.Z * (scalar), 
+  alpha);
+
+# Create a color from `vector`.
+Color VectorToColor(Vector vector, Number alpha = 255): 
+  CustomColor(vector.X, vector.Y, vector.Z, alpha);

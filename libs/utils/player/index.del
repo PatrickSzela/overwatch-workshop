@@ -1,0 +1,5 @@
+import './input/index.del';
+import './ability.del';
+import './bot.del';
+import './camera.del';
+import './helpers.del';

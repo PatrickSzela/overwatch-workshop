@@ -1,0 +1,11 @@
+# Shorthand for `EventPlayer()`.
+Player EP: EventPlayer();
+
+# Shorthand for `HostPlayer()`.
+Player HP: HostPlayer();
+
+# Shorthand for `LocalPlayer()`.
+Player LP: LocalPlayer();
+
+# Shorthand for `AllPlayers()`.
+Player[] AP: AllPlayers();

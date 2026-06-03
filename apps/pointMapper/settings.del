@@ -14,51 +14,36 @@ settings
 		{
 			Game Mode Start: Immediately
 			Hero Limit: Off
+			Limit Roles: Off
 			Respawn Time Scalar: 0%
+			Capture Speed Modifier: 500%
+			Scoring Speed Modifier: 500%
 		}
 
-		Skirmish
-    {
-      enabled maps
-      {
-        Workshop Island Night
-      }
-    }
-    disabled Control
-    disabled Hybrid
-    disabled Assault
-    disabled Escort
-    disabled Push
-    disabled Deathmatch
+    Assault
+		Clash
+    Control
+		{
+			Score To Win: 3
+		}
+		Flashpoint
+		{
+			Score To Win: 10
+		}
+    Hybrid
+	}
 
-		// Assault
-		// {
-		// 	Capture Speed Modifier: 500%
-		// }
+	heroes 
+	{
+		General 
+		{
+			Ability Cooldown Time: 0%
 
-		// Clash
-		// {
-		// 	Capture Speed Modifier: 500%
-		// }
-
-		// Control
-		// {
-		// 	Capture Speed Modifier: 500%
-		// 	Score To Win: 3
-		// 	Scoring Speed Modifier: 500%
-		// }
-
-		// Flashpoint
-		// {
-		// 	Capture Speed Modifier: 500%
-		// 	Score To Win: 10
-		// 	Scoring Speed Modifier: 500%
-		// }
-
-		// Hybrid
-		// {
-		// 	Capture Speed Modifier: 500%
-		// }
+			Pharah 
+			{
+				Hover Jets Unlimited Fuel: On
+			}
+		}
 	}
 
 	extensions

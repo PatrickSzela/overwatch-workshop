@@ -1,0 +1,33 @@
+import '../abbreviations.del';
+import '../helpers.del';
+import '../team/allTeams.del';
+
+# Array of all players, sorted by their team and slot.
+globalvar Player[] sortedPlayers = [];
+
+# Array of all players, split into teams (Team All, Team 1, Team 2), sorted by their slots.
+globalvar Player[][] sortedPlayersPerTeam = [[], [], []];
+globalvar Player[][] sortedPlayersPerTeamPerSlot = [[], [], []];
+
+rule: '[libs/utils/player.sortedAllPlayers.del] Sort Players'
+{
+  Number[] sorted: AP.Map((i) => (AllTeams().IndexOf(i.Team()) ^ 100) + SlotOf(i));
+
+  WaitForeverUntilValueChanges(sorted);
+  
+  sortedPlayersPerTeam = [[], [], []];
+  sortedPlayersPerTeamPerSlot = [[], [], []];
+
+  foreach(Player player! in AP) {
+    Number idx: AllTeams().IndexOf(player.Team());
+    sortedPlayersPerTeam[idx] += player;
+    sortedPlayersPerTeamPerSlot[idx][SlotOf(player)] = player;
+  }
+
+  for(Number i! = 0; i < sortedPlayersPerTeam.Length; i++)
+    sortedPlayersPerTeam[i] = sortedPlayersPerTeam[i].SortedArray((c) => SlotOf(c));
+
+  sortedPlayers = sortedPlayersPerTeam[0] + sortedPlayersPerTeam[1] + sortedPlayersPerTeam[2];
+
+  Loop();
+}

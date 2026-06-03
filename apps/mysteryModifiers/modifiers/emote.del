@@ -1,7 +1,6 @@
+import '../../../libs/utils/index.del';
+import '../../../libs/utils/player/input/allButtons.del';
 import '../modifier.del';
-import '../../../libs/utils/player.del';
-import '../../../libs/utils/button.allowAll.del';
-import '../../../libs/utils/button.disallowAll.del';
 
 String EMOTE_NAME: 'Emote';
 Number EMOTE_DURATION: 5;

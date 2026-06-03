@@ -1,0 +1,102 @@
+# Creates an array with maximum size of 1 000 000 elements (compared to built-in limit of 1 000 elements) by internally utilizing multi-dimensional arrays.
+# 
+# NOTE: Multi-dimensional arrays have a big performance cost.
+struct BigArray<T> {
+  static public Number MAX_ARRAY_SIZE: 1000;
+
+  private Number length;
+  private T[][] multiArray;
+  
+  public static BigArray<T> New(in T[] arr = []): { multiArray: [arr], length: arr.Length };
+
+  private Number FirstIdx(in Number index): RoundToInteger(index / MAX_ARRAY_SIZE, Rounding.Down);
+  private Number SecondIdx(in Number index): index % MAX_ARRAY_SIZE;
+
+  # Get value from array at `index`.
+  public T Get(in Number index): multiArray[FirstIdx(index)][SecondIdx(index)];
+
+  # Returns the length of the array.
+  public Number Length(): length;
+
+  # Whether the array contains `value`.
+  public ref Boolean Contains(in T value): multiArray.IsTrueForAny((t) => t.Contains(value));
+
+  private ref void Set(in Number index, in T value) {
+    multiArray[FirstIdx(index)][SecondIdx(index)] = value;
+  }
+
+  private ref void RecalculateLength() {
+    length = 0;
+    foreach (T[] i in multiArray)
+      length += i.Length;
+  }
+
+  # Removes all items from the array.
+  public ref void Clear() {
+    multiArray = [[]];
+    length = 0;
+  }
+
+  # Returns first item in the array.
+  public T First(): multiArray[0][0];
+
+  # Returns last item in the array.
+  public T Last(): Get(length - 1);
+
+  # Appends `value` to the end of array. 
+  # 
+  # NOTE: This will modify the array directly rather than returning a copy of the array.
+  public ref void Append(in T value) { 
+    Set(length, value); 
+    length++;
+  }
+
+  # Appends items from `array` to the end of the array.
+  # 
+  # NOTE: This will modify the array directly rather than returning a copy of the array.
+  public ref void Concat(in T[] array) {
+    Number count! = length;
+
+    if(!multiArray[FirstIdx(count)].Length) {
+      multiArray[FirstIdx(count)] = [];
+    }
+
+    Number availableSpace! = MAX_ARRAY_SIZE - multiArray[FirstIdx(count)].Length;
+
+    T[][] split = [array.Slice(0, availableSpace), array.Length > availableSpace ? array.Slice(availableSpace, array.Length - availableSpace) : []];
+
+    if(array.Length >= availableSpace) {
+      multiArray[FirstIdx(count)] += split[0].Slice(0, split[0].Length - 1);
+      // WORKAROUND: broken Append() when resulting array would end up having 1000 elements
+      multiArray[FirstIdx(count)][multiArray[FirstIdx(count)].Length] = split[0].Last;    
+    } else {
+      multiArray[FirstIdx(count)] += split[0];
+    }
+
+    if(split[1].Length) multiArray[FirstIdx(count) + 1] = split[1];
+
+    RecalculateLength();
+  }
+
+  # Appends items from `array` of type `BigArray<T>` to the end of the array.
+  # 
+  # NOTE: This will modify the array directly rather than returning a copy of the array.
+  public ref void ConcatBigArray(in BigArray<T> array) {
+    foreach(T[] arr in array.multiArray) {
+      Concat(arr);
+    }
+  }
+
+  # Reverses the array.
+  # 
+  # NOTE: This will modify the array directly rather than returning a copy of the array.
+  public ref void Reverse() {
+    T[][] copy = multiArray.SortedArray((_, idx) => -idx);
+
+    for(Number i! = 0; i < copy.Length; i++) {
+      copy[i] = copy[i].SortedArray((_, idx) => -idx);
+    }
+
+    multiArray = copy;    
+  }
+}

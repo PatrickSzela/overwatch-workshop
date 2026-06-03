@@ -1,0 +1,22 @@
+import './libs/utils/index.del';
+
+settings {
+  modes {
+    Skirmish {
+      enabled maps {
+        Workshop Island Night
+      }
+    }
+  }
+}
+
+rule: '[playground.del]'
+{
+  
+}
+
+rule: '[playground.del]'
+Event.OngoingPlayer
+{
+  
+}

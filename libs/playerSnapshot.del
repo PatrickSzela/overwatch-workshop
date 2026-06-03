@@ -1,4 +1,4 @@
-import './utils/button.allButtons.del';
+import './utils/player/input/allButtons.del';
 
 single struct PlayerSnapshot {
   public Vector position;
@@ -11,13 +11,13 @@ single struct PlayerSnapshot {
   public Number weapon;
   public Number[] ammos;
 
-  public static PlayerSnapshot New(in Player player = EventPlayer()): { 
+  public static PlayerSnapshot New(in Player player = EP): { 
     position: player.Position(),
     facingDirection: player.FacingDirection(),
     hero: player.Hero(), 
     health: player.Health(), 
-    cooldowns: allButtons.Map((i) => AbilityCooldown(player, i)),
-    resources: allButtons.Map((i) => AbilityResource(player, i)),
+    cooldowns: AllButtons().Map((i) => AbilityCooldown(player, i)),
+    resources: AllButtons().Map((i) => AbilityResource(player, i)),
     ultimateCharge: UltimateChargePercent(player), 
     weapon: Weapon(player),
     ammos: [Ammo(player, 0), Ammo(player, 1)]
@@ -43,75 +43,75 @@ single struct PlayerSnapshot {
   //   SetWeapon(EventPlayer(), weapon);
   // }
 
-  public ref void RestorePosition() {
-    Teleport(EventPlayer(), position);
+  public ref void RestorePosition(in Player player = EP) {
+    Teleport(player, position);
   }
 
-  public ref void RestoreFacingDirection() {
-    SetFacing(EventPlayer(), facingDirection, Relative.ToWorld);
+  public ref void RestoreFacingDirection(in Player player = EP) {
+    SetFacing(player, facingDirection, Relative.ToWorld);
   }
 
-  public ref void RestoreHero(in Boolean respawnIfTheSameHero = false) {
+  public ref void RestoreHero(in Player player = EP, in Boolean respawnIfTheSameHero = false) {
     Vector position = PositionOf();
     Vector camera = FacingDirectionOf();
 
     if(respawnIfTheSameHero) {
       if(hero == HeroOf())
-        ForcePlayerHero(EventPlayer(), (AllHeroes() - HeroOf()).Random());
+        ForcePlayerHero(player, (AllHeroes() - HeroOf()).Random());
     }
 
-    ForcePlayerHero(EventPlayer(), hero);
+    ForcePlayerHero(player, hero);
     StopForcingHero();
 
     MinWait();
 
-    SetFacing(EventPlayer(), camera, Relative.ToWorld);
+    SetFacing(player, camera, Relative.ToWorld);
   }
 
-  public ref void RestoreHealth(in Number minHealth = 100) {
-    SetPlayerHealth(EventPlayer(), Max(health, minHealth));
+  public ref void RestoreHealth(in Player player = EP, in Number minHealth = 100) {
+    SetPlayerHealth(player, Max(health, minHealth));
   }
 
-  public ref void RestoreCooldowns() {
-    for(Number i! = 0; i < allButtons.Length; i++) {
-      SetAbilityCooldown(EventPlayer(), allButtons[i], cooldowns[i]);
+  public ref void RestoreCooldowns(in Player player = EP) {
+    for(Number i! = 0; i < AllButtons().Length; i++) {
+      SetAbilityCooldown(player, AllButtons()[i], cooldowns[i]);
     }
   }
 
-  public ref void RestoreResources() {
-    for(Number i! = 0; i < allButtons.Length; i++) {
-      SetAbilityResource(EventPlayer(), allButtons[i], resources[i]);
+  public ref void RestoreResources(in Player player = EP) {
+    for(Number i! = 0; i < AllButtons().Length; i++) {
+      SetAbilityResource(player, AllButtons()[i], resources[i]);
     }
   }
 
-  public ref void RestoreCooldownsResources() {
-    for(Number i! = 0; i < allButtons.Length; i++) {
-      SetAbilityCooldown(EventPlayer(), allButtons[i], cooldowns[i]);
-      SetAbilityResource(EventPlayer(), allButtons[i], resources[i]);
+  public ref void RestoreCooldownsResources(in Player player = EP) {
+    for(Number i! = 0; i < AllButtons().Length; i++) {
+      SetAbilityCooldown(player, AllButtons()[i], cooldowns[i]);
+      SetAbilityResource(player, AllButtons()[i], resources[i]);
     }
   }
 
-  public ref void RestoreUltimateCharge() {
-    SetUltimateCharge(EventPlayer(), ultimateCharge);
+  public ref void RestoreUltimateCharge(in Player player = EP) {
+    SetUltimateCharge(player, ultimateCharge);
   }
 
-  public ref void RestoreWeapon() {
-    SetWeapon(EventPlayer(), weapon);
+  public ref void RestoreWeapon(in Player player = EP) {
+    SetWeapon(player, weapon);
   }
 
-  public ref void RestoreAmmos() {
+  public ref void RestoreAmmos(in Player player = EP) {
     for(Number i! = 0; i < ammos.Length; i++) 
-      SetAmmo(EventPlayer(), i, ammos[i]);
+      SetAmmo(player, i, ammos[i]);
   }
 
-  public ref void RestoreAll(in Boolean respawnIfTheSameHero = false, in Number minHealth = 100) {
-    RestorePosition();
-    RestoreFacingDirection();
-    RestoreHero(respawnIfTheSameHero);
-    RestoreHealth(minHealth);
-    RestoreCooldownsResources();
-    RestoreUltimateCharge();
-    RestoreWeapon();
-    RestoreAmmos();
+  public ref void RestoreAll(in Player player = EP, in Boolean respawnIfTheSameHero = false, in Number minHealth = 100) {
+    RestorePosition(player);
+    RestoreFacingDirection(player);
+    RestoreHero(player, respawnIfTheSameHero);
+    RestoreHealth(player, minHealth);
+    RestoreCooldownsResources(player);
+    RestoreUltimateCharge(player);
+    RestoreWeapon(player);
+    RestoreAmmos(player);
   }
 }

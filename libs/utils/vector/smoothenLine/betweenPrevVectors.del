@@ -1,0 +1,43 @@
+import '../../array/index.del';
+
+# Simplifies a line by removing points which are between 2 previous vectors.
+BigArray<Vector> SmoothenLineBetweenPrevVectors(in BigArray<Vector> arr) {
+  if(arr.Length() < 3) 
+    return arr;
+
+  BigArray<Vector> ret = BigArray<Vector>.New();
+  Vector[] cache = [];
+  Number maxAngle! = 45;
+
+  for(Number i! = 0; i < arr.Length(); i++) {
+    cache += arr.Get(i);
+
+    if(cache.Length < 4) {
+      continue;
+    }
+
+    Number length: cache.Length - 1;
+    Number[] angles = [
+      AngleBetweenVectors(cache[length - 2] - cache[0], cache[length - 1] - cache[0]),
+      AngleBetweenVectors(cache[length - 2] - cache[0], cache[length] - cache[0]),
+      AngleBetweenVectors(cache[length - 1] - cache[0], cache[length] - cache[0])
+    ];
+
+    Number d1: DistanceBetween(cache[0], cache[length - 2]);
+    Number d2: DistanceBetween(cache[0], cache[length - 1]);
+
+    maxAngle = 90 / SquareRoot(d1^2 + d2^2);
+
+    if((angles[1] + angles[2]) > angles[0] || angles[0] > maxAngle) {     
+      ret.Append(cache[0]);
+      cache = cache.Slice(cache.Length - 3, 3);
+    }
+
+    if(i % (ServerLoadAverage() > 100 ? 15 : 30) == 0) 
+      MinWait();
+  }
+
+  ret.Concat(cache);
+
+  return ret;
+}

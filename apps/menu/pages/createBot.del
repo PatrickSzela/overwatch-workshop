@@ -1,7 +1,6 @@
 import '../_variables.del';
-import '../../../libs/utils/string.formatters.del';
-import '../../../libs/utils/team.availableTeams.del';
-import '../../../libs/utils/hud.del';
+import '../../../libs/utils/index.del';
+import '../../../libs/utils/team/availableTeams.del';
 import '../../../libs/menu/components/carousel.del';
 import '../../../libs/menu/components/text.del';
 
@@ -33,8 +32,8 @@ playervar Number botIdx;
 
 Component[] PageCreateBotItems() {
   // workaround for `pageCreateBotProps` containing wrong slot in deathmatch like modes even though the component shows correct information
-  if(!availableTeams.Contains(pageCreateBotProps.team))
-    pageCreateBotProps.team = availableTeams.First;
+  if(!AvailableTeams().Contains(pageCreateBotProps.team))
+    pageCreateBotProps.team = AvailableTeams().First;
 
   Carousel hero = new Carousel(
     text: PAGE_CREATE_BOT_HERO_NAME,
@@ -46,7 +45,7 @@ Component[] PageCreateBotItems() {
 
   Carousel team = new Carousel(
     text: PAGE_CREATE_BOT_TEAM_NAME,
-    options: availableTeams,
+    options: AvailableTeams(),
     defaultValue: pageCreateBotProps.team
   );
   team.onChange = (value, it) => pageCreateBotProps.team = value;
@@ -70,7 +69,7 @@ Component[] PageCreateBotItems() {
 
   Component spawnBot = new Component(PAGE_CREATE_BOT_SPAWN_NAME);
   spawnBot.SetPrimaryAction("Spawn the bot", (it) => {
-    CreateDummyBotWithMessage(pageCreateBotProps.hero, pageCreateBotProps.team, pageCreateBotProps.slot, pageCreateBotProps.position);
+    CreateDummyBotWithMessageOnFail(pageCreateBotProps.hero, pageCreateBotProps.team, pageCreateBotProps.slot, pageCreateBotProps.position);
     LastCreatedEntity().botIdx = -1;
   });
 

@@ -1,0 +1,8 @@
+globalvar Team[] _availableTeams! = [
+  GameMode.BountyHunter, 
+  GameMode.Deathmatch, 
+  GameMode.SnowballDeathmatch
+].Contains(CurrentGameMode()) ? [Team.All] : [Team.Team1, Team.Team2];
+
+# Returns list of all currently available teams, depending on current game mode.
+Team[] AvailableTeams(): _availableTeams;

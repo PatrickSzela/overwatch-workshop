@@ -1,8 +1,8 @@
+import '../../../libs/speedUpAbility/index.del';
+import '../../../libs/utils/index.del';
 import '../modifier.del';
 import '../variables.del';
 import '../utils/duplicate.del';
-import '../../../libs/speedUpAbility/index.del';
-import '../../../libs/utils/string.formatters.del';
 
 String DUPLICATE_RANDOM_HERO_NAME: 'Duplicate - Random Hero';
 Number DUPLICATE_RANDOM_HERO_DURATION: 15;

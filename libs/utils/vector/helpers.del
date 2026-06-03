@@ -1,0 +1,90 @@
+import '../abbreviations.del';
+import '../number/index.del';
+
+# Converts an array of numbers to vector.
+Vector ArrayToVector(Number[] array): Vector(array[0], array[1], array[2]);
+
+# Rounds each component of `vector` with specified `precision`.
+Vector RoundVector(Vector vector, Number precision = 1):
+  Vector(
+    RoundToInteger(vector.X * precision), 
+    RoundToInteger(vector.Y * precision),
+    RoundToInteger(vector.Z * precision)
+  ) / precision;
+
+# Snaps `vector` to the closest axis.
+Vector SnapToClosestAxis(in Vector vector) {
+  if(AbsoluteValue(vector.X) >= AbsoluteValue(vector.Z))
+    return Vector(vector.X, vector.Y, 0);
+  else
+    return Vector(0, vector.Y, vector.Z);
+}
+
+# Snaps `vector` to the closest axis based on specified `angle`.
+Vector SnapToAngle(in Vector vector, in Number angle = 90) {
+  Number azimuth: RoundToInteger((HorizontalAngleFromDirection(vector) - angle / 2) / angle) * angle;
+  Number inclination: RoundToInteger((VerticalAngleFromDirection(vector) - angle / 2) / angle) * angle;
+
+  Vector dir! = DirectionFromAngles(azimuth, inclination);
+  return SnapTo1(dir);
+}
+
+# Remaps on screen position, where (0,0) is its center, to an in-world position.
+# 
+# [Based on code available on Workshop.codes.](https://workshop.codes/wiki/articles/rendering-an-inworld-text-at-a-specific-onscreen-position)
+Vector ScreenPositionToWorld(Number x, Number y): 
+  LP.EyePosition() + 100 * (
+    x * WorldVectorOf(Right(), LP, LocalVector.Rotation) +
+    y * DirectionFromAngles(
+      HorizontalAngleFromDirection(LP.FacingDirection()), 
+      VerticalAngleFromDirection(LP.FacingDirection()) - 90
+    ) + 3 * LP.FacingDirection()
+  );
+
+# Remaps on screen position, where (0,0, 0) is its center, to an in-world position.
+# 
+# [Based on code available on Workshop.codes.](https://workshop.codes/wiki/articles/rendering-an-inworld-text-at-a-specific-onscreen-position)
+Vector ScreenVectorToWorld(Vector vector): 
+  ScreenPositionToWorld(vector.X, vector.Y);
+
+# Rotates `vector` around Y axis by `degrees`.
+Vector RotateVectorAroundY(in Vector vector, in Number degrees): Vector(
+  CosineFromDegrees(degrees) * vector.X - SineFromDegrees(degrees) * vector.Z, 
+  vector.Y, 
+  SineFromDegrees(degrees) * vector.X + CosineFromDegrees(degrees) * vector.Z
+);
+
+# Rotates `vector` around `vector2`.
+Vector RotateVectorAroundVector(Vector vector, Vector vector2):
+  DirectionFromAngles(
+    HorizontalAngleFromDirection(vector) + HorizontalAngleFromDirection(vector2),
+    VerticalAngleFromDirection(vector) + VerticalAngleFromDirection(vector2),
+  );
+
+# Snaps each component of `vector` to -1, 0 or 1.
+Vector SnapTo1(Vector vector): Vector(Sign(vector.X), Sign(vector.Y), Sign(vector.Z));
+
+# Calculates a perpendicular distance between a `point` and a line, specified by `lineStart` and `lineEnd` in a 3D space.
+# 
+# [Based on simplifyline.](https://github.com/JeremyBYU/simplifyline/blob/master/src/SimplifyLine/SimplifyLine.cpp)
+Number PerpendicularDistance(in Vector point, in Vector lineStart, in Vector lineEnd) {
+  Number dx! = lineEnd.X - lineStart.X;
+  Number dy! = lineEnd.Z - lineStart.Z;
+  
+  Number mag! = SquareRoot(dx * dx + dy * dy);
+
+  if(mag > 0) {
+    dx /= mag;
+    dy /= mag;
+  }
+
+  Number pvx! = point.X - lineStart.X;
+  Number pvy! = point.Z - lineStart.Z;
+
+  Number pvdot! = dx * pvx + dy * pvy;
+
+  Number ax! = pvx - pvdot * dx;
+  Number ay! = pvy - pvdot * dy;
+
+  return SquareRoot(ax * ax + ay * ay);
+}

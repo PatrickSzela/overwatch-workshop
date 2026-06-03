@@ -1,5 +1,0 @@
-import './number.del';
-
-String ToString(in Any data): "{0}".Format([data]);
-
-String LOTS_OF_SPACES: "                                                                                                                                                                          ";

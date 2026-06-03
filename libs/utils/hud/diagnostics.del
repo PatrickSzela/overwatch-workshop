@@ -1,0 +1,61 @@
+import '../abbreviations.del';
+
+# Whether diagnostics HUDs are visible.
+globalvar Boolean diagnosticsVisible! = WorkshopSettingToggle("Debug", "Show Diagnostics", true, 99999);
+
+# Creates a HUD Text in top right corner that will automatically change color depending whether `colorOrange` or `colorRed` are set to `true`, with `colorRed` having a higher priority.
+Any CreateDiagnosticsText(in String text, in Boolean colorOrange = false, in Boolean colorRed = false, in Boolean visible = diagnosticsVisible) { 
+  return CreateHudText(
+    VisibleTo: visible ? LP : null, 
+    Subheader: text, 
+    Location: Location.Right,
+    SubheaderColor: 
+      colorRed ? Color.Red : 
+      colorOrange ? Color.Orange : 
+      Color.White,
+    Reevaluation: HudTextRev.VisibleToStringAndColor,
+    SortOrder: 99
+  );
+}
+
+# Creates a HUD Text in top right corner.
+Any CreateDiagnosticsTextSimple(in String text, in Boolean visible = diagnosticsVisible) { 
+  return CreateHudText(
+    VisibleTo: visible ? LP : null, 
+    Subheader: text, 
+    Location: Location.Right,
+    SubheaderColor: Color.White,
+    Reevaluation: HudTextRev.VisibleToAndString,
+    SortOrder: 99
+  );
+}
+
+void CreateDiagnosticsSpacer() {
+  CreateDiagnosticsTextSimple($"──────────────────");
+}
+
+void CreateDiagnosticsServerLoad() {
+  CreateDiagnosticsText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
+  CreateDiagnosticsText($"Server Load Average: {ServerLoadAverage()}%", ServerLoadAverage() > 80, ServerLoadAverage() > 100);
+  CreateDiagnosticsText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
+}
+
+void CreateDiagnosticsTextCount() {
+  CreateDiagnosticsText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
+}
+
+void CreateDiagnosticsEntityCount() {
+  CreateDiagnosticsText($"Entity count: {EntityCount()}/128", EntityCount() > 96, EntityCount() > 112);
+}
+
+void CreateDiagnosticsEntityCountExtended() {
+  CreateDiagnosticsText($"Entity count: {EntityCount()}/256", EntityCount() > 192, EntityCount() > 224);
+}
+
+void CreateDiagnosticsPlayerCount() {
+  CreateDiagnosticsText($"Player count: {AllPlayers().Length}/12", AllPlayers().Length > 10, AllPlayers().Length > 11);
+}
+
+void CreateDiagnosticsPlayerCountExtended() {
+  CreateDiagnosticsText($"Player count: {AllPlayers().Length}/24", AllPlayers().Length > 12, AllPlayers().Length > 18);
+}

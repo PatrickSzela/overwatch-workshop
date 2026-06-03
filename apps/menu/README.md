@@ -32,23 +32,3 @@ Most of these actions can also be added to the **Timeline**, which allows you to
 More information about the Workshop mode available on the [Workshop.codes](https://workshop.codes/not-so-simple-menu/) website
 
 Source code written in [OSTW](https://github.com/ItsDeltin/Overwatch-Script-To-Workshop)
-
-#### Settings to apply after pasting compiled code
-
-Because, as of the day of writing this, the Custom Game menus are pretty broken, and precompiled settings cannot even be imported, after compiling and importing the code, you must change these settings manually, in the specified order:
-
-1. **Modes:**
-
-- Disable all modes and enable **Skirmish** and **Practice Range** _(optional)_
-- For every enabled mode:
-  - Set **Enable Perks** to `On` _(optional)_
-- Open **All** menu:
-  - Set **Game Mode Start** to `Manual` _(optional)_
-  - Set **Hero Limit** to `Off`
-  - Set **Limit Roles** to `Off`
-  - Set **Respawn Time Scalar** to `0%` _(optional)_
-  - Set **Tank Role Passive Health Bonus** to `1 Tank, 2 Offense, 2 Support` _(optional)_
-
-2. **Maps:**
-
-- Disable every map except for **Workshop Island (Night)** _(optional)_

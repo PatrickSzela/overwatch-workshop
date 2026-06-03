@@ -1,0 +1,31 @@
+import '../../abbreviations.del';
+
+globalvar Button[] _allButtons = [
+  Button.PrimaryFire,
+  Button.SecondaryFire,
+  Button.Ability1,
+  Button.Ability2,
+  Button.Ultimate,
+  Button.Reload,
+  Button.Melee,
+  Button.Jump,
+  Button.Crouch,
+  Button.Interact
+];
+
+# Returns list of all available buttons.
+Button[] AllButtons(): _allButtons;
+
+# Allows usage of all buttons by `player`.
+void AllowAllButtons(in Player player = EP) {
+  foreach(Button button! in _allButtons) {
+    AllowButton(player, button);
+  }
+}
+
+# Disallows usage of all buttons by `player`.
+void DisallowAllButtons(in Player player = EP) {
+  foreach(Button button! in _allButtons) {
+    DisallowButton(player, button);
+  }
+}

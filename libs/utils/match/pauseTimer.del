@@ -1,0 +1,17 @@
+import '../helpers.del';
+
+globalvar Boolean _matchPaused! = false;
+
+Boolean IsMatchTimerPaused(): _matchPaused;
+
+void SetMatchTimerPaused(in Boolean value) {
+  _matchPaused = value;
+}
+
+rule: '[libs/utils/match/pause.del] Handle match paused change' 99999
+if(_matchPaused)
+{
+  PauseMatchTime();
+  WaitForeverUntil(!_matchPaused);
+  UnpauseMatchTime();
+}

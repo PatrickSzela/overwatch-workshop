@@ -1,13 +1,16 @@
-import './number.del';
+import './number/index.del';
 
+# Waits forever until `continueCondition` becomes true.
 void WaitForeverUntil(in Boolean continueCondition) {
   WaitUntil(continueCondition, NUMBER_MAX);
 }
 
+# Waits `duration` seconds until `value` changes.
 void WaitUntilValueChanges(in Any value, in Number duration) {
-  WaitUntil(EvaluateOnce(value) != value, NUMBER_MAX);
+  WaitUntil(EvaluateOnce(value) != value, duration);
 }
 
+# Waits forever until `value` changes.
 void WaitForeverUntilValueChanges(in Any value) {
   WaitUntilValueChanges(value, NUMBER_MAX);
 }

@@ -1,5 +1,6 @@
-import '../../utils/number.split.del';
-import '../../utils/number.join.del';
+import '../../utils/number/split.del';
+import '../../utils/number/join.del';
+import '../../utils/index.del';
 import '../menuState.del';
 import './componentWithValue.del';
 
@@ -56,7 +57,7 @@ class NumberInput: ComponentWithValue
 
     CalculateLength();
 
-    AddDescription(Description.New(DESCRIPTION, COLOR_SWITCH, order: -20));
+    AddDescription(Description.New(DESCRIPTION, COLOR_SUCCESS, order: -20));
     AddDescription(Description.New('Use [↑] or [↓] to increase/decrease current number', visible: false, order: -19));
     AddDescription(Description.New('Use [←] or [→] to change currenty edited number', visible: false, order: -18));
   }
@@ -110,7 +111,7 @@ class NumberInput: ComponentWithValue
       shouldRerender = true;
 
       _menuState.isLocked = editMode;
-      this.description[0].color = editMode ? COLOR_ERROR : COLOR_SWITCH;
+      this.description[0].color = editMode ? COLOR_ERROR : COLOR_SUCCESS;
       this.description[0].text = DESCRIPTION;
       this.description[1].visible = editMode;
       this.description[2].visible = editMode;

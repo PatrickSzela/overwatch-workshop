@@ -22,8 +22,8 @@ rule: 'Create description about switching menu'
 Event.OngoingPlayer
 if(!IsDummyBot())
 {
-  switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle_Underscores(BUTTON_SWITCH)}​ to switch to right side', COLOR_SWITCH, visible: false, order: 99));
-  switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle_Underscores(BUTTON_SWITCH)}​ to switch to left side', COLOR_SWITCH, visible: false, order: 99));
+  switchFocusDescriptionIdx += menuState.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle_Underscores(BUTTON_SWITCH)}​ to switch to right side', COLOR_SUCCESS, visible: false, order: 99));
+  switchFocusDescriptionIdx += menuState2.AddMenuDescription(Description.New($'Press {ButtonFormatterSingle_Underscores(BUTTON_SWITCH)}​ to switch to left side', COLOR_SUCCESS, visible: false, order: 99));
 }
 
 rule: 'Show description about switching menu on currently focused menu' 99
@@ -93,7 +93,7 @@ if(!IsDummyBot())
 rule: 'Add open timeline description'
 Event.OngoingPlayer
 {
-  switchToTimelineIdx = menuState.AddMenuDescription(Description.New($"Press {ButtonFormatter_Underscores([BUTTON_MODIFIER, BUTTON_SWITCH])}​ to open Timeline menu", COLOR_SWITCH, order: 98));
+  switchToTimelineIdx = menuState.AddMenuDescription(Description.New($"Press {ButtonFormatter_Underscores([BUTTON_MODIFIER, BUTTON_SWITCH])}​ to open Timeline menu", COLOR_SUCCESS, order: 98));
 }
 
 rule: 'Show/hide open timeline description' 51

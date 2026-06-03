@@ -1,6 +1,6 @@
+import '../../../libs/speedUpAbility/index.del';
 import '../modifier.del';
 import '../utils/duplicate.del';
-import '../../../libs/speedUpAbility/index.del';
 
 String ANA_PAINTBALL_NAME: 'Ana\'s Sleep Dart Paintball';
 Number ANA_PAINTBALL_DURATION: 15;

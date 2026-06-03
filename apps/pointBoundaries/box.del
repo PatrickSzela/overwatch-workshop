@@ -27,7 +27,7 @@ struct Box {
   }
 
   public ref void CalculateCorners() {
-    Vector[] rotMatrix = QuaternionToRotationMatrix(orientation);
+    Vector[] rotMatrix = orientation.QuaternionToRotationMatrix();
 
     // Define multipliers in an order that forms two faces (bottom and top)
     // This makes drawing lines between them easier (0-1-2-3-0, 4-5-6-7-4, 0-4, 1-5, 2-6, 3-7)

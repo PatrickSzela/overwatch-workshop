@@ -1,3 +1,7 @@
+import './abbreviations.del';
+
+# The position in the world of current objective (either a control point, a payload checkpoint, or a payload destination) Valid in Assault, Assault/Escort (Hybrid), Escort, and Control.
 Vector CurrentObjectivePosition(): ObjectivePosition(ObjectiveIndex());
 
-Vector CurrentSpawnPosition(in Player player = EventPlayer()): SpawnPoints(player.Team())[ObjectiveIndex()];
+# Returns a position of current spawn point of specified player.
+Vector CurrentSpawnPosition(Player player = EP): SpawnPoints(player.Team())[ObjectiveIndex()];

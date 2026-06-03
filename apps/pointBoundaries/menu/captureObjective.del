@@ -1,6 +1,6 @@
 import '../_variables.del';
-import '../../../libs/utils/hud.del';
-import '../../../libs/utils/player.safeTeleport.del';
+import '../../../libs/utils/index.del';
+import '../../../libs/utils/player/safeTeleport.del';
 
 String PAGE_CAPTURE_OBJECTIVE_ID: 'captureObjective';
 String PAGE_CAPTURE_OBJECTIVE_NAME: 'Capture Objective By';
@@ -54,8 +54,8 @@ void PageCaptureObjectiveCaptureObjective(Team team) "Capture Objective" {
 Component PageCaptureObjectiveMenuItem() {
   Carousel captureObjective = new Carousel(
     text: PAGE_CAPTURE_OBJECTIVE_NAME,
-    options: availableTeams,
-    defaultValue: availableTeams[1]
+    options: AvailableTeams(),
+    defaultValue: OppositeTeamOf()
   );
 
   captureObjective.SetPrimaryAction("Apply", (it) => {

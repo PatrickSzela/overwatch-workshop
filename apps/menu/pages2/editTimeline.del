@@ -1,4 +1,4 @@
-import '../../../libs/utils/array.del';
+import '../../../libs/utils/index.del';
 import '../../../libs/menu/components/checkbox.del';
 import '../_variables.del';
 
@@ -25,7 +25,7 @@ Component PageTimelineEditItemGenerator(in Action action) {
       componentBeingMoved == it ? COLOR_WARNING :
       markedToRemove.Contains(action.id) ? COLOR_ERROR :
       editableActions[PageEditTimelineGetActionIdx(action.id)].disabled ? COLOR_DISABLED :
-      timeline.isPlaying && timeline.index == menuState2.items.IndexOf(it) ? COLOR_SWITCH : COLOR_NEUTRAL;
+      timeline.isPlaying && timeline.index == menuState2.items.IndexOf(it) ? COLOR_SUCCESS : COLOR_NEUTRAL;
   };
 
   component.SetPrimaryAction("Execute action", (it) => {
