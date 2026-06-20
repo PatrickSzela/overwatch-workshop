@@ -1,4 +1,4 @@
-globalvar String importDate = "2026-01-18";
+globalvar String importDate = "2026-06-20";
 
 rule: "Temple of Anubis - e7472f83-fef2-430a-b4ba-1806641c5bd0"
 if("Temple of Anubis" == ToString(CurrentMap()))
@@ -253,6 +253,17 @@ if(DistanceBetween(Vector(9.34285200, 8.29472350, 30.20498700), ObjectivePositio
   maxBoxCount = 10;
 }
 
+rule: "NEON JUNCTION - 4f722ae2-7a32-4fe7-b53c-52ebbeedd4d2"
+if("NEON JUNCTION" == ToString(CurrentMap()))
+if("Hybrid" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(9.31802500, 3.99999800, 253.78772000), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[-0.00000000, 1.00000000, 0.00000071, 0.00000006]];
+  translations = [Vector(9.31802500, 3.99999800, 253.78772000)];
+  extents = [Vector(6.56560600, 2.00000000, 7.88825700)];
+  maxBoxCount = 1;
+}
+
 rule: "Nepal - 0e13e20f-92d0-496e-9f15-66086e83802b"
 if("Nepal" == ToString(CurrentMap()))
 if("Control" == ToString(CurrentGameMode()))
@@ -451,7 +462,18 @@ if(DistanceBetween(Vector(222.34221000, 10.52770000, 241.27184000), ObjectivePos
   maxBoxCount = 1;
 }
 
-rule: "Antarctic Peninsula - aec8c31b-40b5-40c9-84ac-c8229f52e0be"
+rule: "Antarctic Peninsula - 1e69893e-d7b9-42af-9e8f-2976042e2238"
+if("Antarctic Peninsula" == ToString(CurrentMap()))
+if("Control" == ToString(CurrentGameMode()))
+if(DistanceBetween(Vector(-74.45827500, 2.19944790, 0.06048942), ObjectivePosition(ObjectiveIndex())) < 20)
+{
+  orientations = [[0.00000000, 0.70710677, 0.00000000, -0.70710700]];
+  translations = [Vector(-74.45827500, 2.19944790, 0.06048942)];
+  extents = [Vector(8.91249900, 3.01431300, 7.55948200)];
+  maxBoxCount = 6;
+}
+
+rule: "Antarctic Peninsula - 7acd4326-71bc-4b1b-843a-d61e91945d06"
 if("Antarctic Peninsula" == ToString(CurrentMap()))
 if("Control" == ToString(CurrentGameMode()))
 if(DistanceBetween(Vector(270.00000000, 41.19289400, 159.99994000), ObjectivePosition(ObjectiveIndex())) < 20)
@@ -462,7 +484,7 @@ if(DistanceBetween(Vector(270.00000000, 41.19289400, 159.99994000), ObjectivePos
   maxBoxCount = 6;
 }
 
-rule: "Antarctic Peninsula - b4e79d43-b87b-4486-9ca9-2804261449fb"
+rule: "Antarctic Peninsula - b19f524d-db4d-4c4c-83b1-32164aeb57ed"
 if("Antarctic Peninsula" == ToString(CurrentMap()))
 if("Control" == ToString(CurrentGameMode()))
 if(DistanceBetween(Vector(284.00000000, -10.25000100, -223.00000000), ObjectivePosition(ObjectiveIndex())) < 20)
@@ -473,25 +495,14 @@ if(DistanceBetween(Vector(284.00000000, -10.25000100, -223.00000000), ObjectiveP
   maxBoxCount = 6;
 }
 
-rule: "Antarctic Peninsula - c5baf680-ee4b-4d24-b422-6345883560ba"
-if("Antarctic Peninsula" == ToString(CurrentMap()))
-if("Control" == ToString(CurrentGameMode()))
-if(DistanceBetween(Vector(-74.45827500, -158.30055000, 60.06049000), ObjectivePosition(ObjectiveIndex())) < 20)
-{
-  orientations = [[0.00000000, 0.70710677, 0.00000000, -0.70710700]];
-  translations = [Vector(-74.45827500, -158.30055000, 60.06049000)];
-  extents = [Vector(8.91249900, 3.01431300, 7.55948200)];
-  maxBoxCount = 6;
-}
-
 rule: "Samoa - cc23ed07-e29e-4162-aa71-6aaf3dae4675"
 if("Samoa" == ToString(CurrentMap()))
 if("Control" == ToString(CurrentGameMode()))
-if(DistanceBetween(Vector(27.61905300, 341.70398000, 359.59674000), ObjectivePosition(ObjectiveIndex())) < 20)
+if(DistanceBetween(Vector(27.61905300, 341.52158000, 359.59674000), ObjectivePosition(ObjectiveIndex())) < 20)
 {
   orientations = [[0.00000000, 1.00000000, 0.00000000, -0.00000004]];
-  translations = [Vector(27.61905300, 341.70398000, 359.59674000)];
-  extents = [Vector(9.00193400, 1.96004870, 8.94907300)];
+  translations = [Vector(27.61905300, 341.52158000, 359.59674000)];
+  extents = [Vector(9.00193400, 2.14245220, 8.94907300)];
   maxBoxCount = 12;
 }
 
