@@ -104,6 +104,7 @@ struct MenuComponent {
 
   public static void RemoveMultiple(in Any[] ids) {
     Any[] idxsToRemove! = ids.Map((i) => MenuComponent.GetIndexFromId(i));
+    // TODO: we can use normal filter here since we use indexes already?
     menuComponents = FilterStruct(menuComponents, (c, idx) => !idxsToRemove.Contains(idx));
   }
 
