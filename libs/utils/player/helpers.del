@@ -7,8 +7,10 @@ import '../number/index.del';
 # - Ana, 
 # - Ashe, 
 # - Widowmaker, 
-# - Freja, 
 # - Emre.
+# 
+# Even though Freja is included, Is Firing Secondary doesn't work on her.
+# Since it's not possible to differentiate between Cassidy's Fan the Hammer and Silver Bullet, he's not included.
 Boolean IsScopedIn(Player player = EP): 
   [Hero.Ana, Hero.Ashe, Hero.Widowmaker, Hero.Freja, Hero.Emre].Contains(player.Hero()) && player.IsFiringSecondary();
 
