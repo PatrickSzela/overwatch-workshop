@@ -33,11 +33,10 @@ Modifier thirdPersonCamera: Modifier.New(
 rule: '[Third Person Camera] Is preloading'
 if(ModifierIsPreloading(THIRD_PERSON_CAMERA_NAME))
 {
-  CreateRayCastedCursor(
+  thirdPersonCameraEffects += CreateRayCastedEffect(
     player: LocalPlayer(),
     startPosition: THIRD_PERSON_CAMERA_START_POSITION,
     desiredPosition: THIRD_PERSON_CAMERA_CURSOR_DESIRED_POSITION,
-    effectStorage: thirdPersonCameraEffects,
     visibleCondition: THIRD_PERSON_CAMERA_CONDITION
   );
 }

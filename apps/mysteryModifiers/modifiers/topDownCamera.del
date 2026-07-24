@@ -36,11 +36,10 @@ playervar Vector topDownCameraPrevFacingDir = Vector.Zero;
 rule: '[Top Down Camera] Is preloading'
 if(ModifierIsPreloading(TOP_DOWN_CAMERA_NAME))
 {
-  CreateRayCastedCursor(
+  topDownCameraEffects += CreateRayCastedEffect(
     player: LocalPlayer(),
     startPosition: TOP_DOWN_CAMERA_START_POSITION,
     desiredPosition: TOP_DOWN_CAMERA_CURSOR_DESIRED_POSITION,
-    effectStorage: topDownCameraEffects,
     visibleCondition: TOP_DOWN_CAMERA_CONDITION
   );
 }

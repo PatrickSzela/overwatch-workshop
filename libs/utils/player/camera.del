@@ -87,34 +87,22 @@ void StartRayCastedCameraWithLookAt(
   );
 }
 
-# Creates multiple overlaying Sphere effects at desired position, while also taking map geometry into consideration.
-void CreateRayCastedCursor(
-  in Player player, 
-  in Vector startPosition,
-  in Vector desiredPosition,
-  ref Any[] effectStorage,
-  in Boolean visibleCondition = true
-) {
-  for(Number i! = 0; i < 5; i++) {
-    effectStorage += CreateEffect(
-      VisibleTo: visibleCondition ? player : null,
-      Type: Effect.Sphere,
-      Color: Color.Red,
-      Position: UpdateEveryFrame(
-        _RAY_CASTED_CURSOR_POSITION(player, startPosition, desiredPosition)
-      ),
-      Radius: 0.15,
-      Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
-    );
-
-    MinWait();
-  }
-
-  // effectStorage += CreateBeamEffect(
-  //   VisibleTo: visibleCondition ? player : null,
-  //   BeamType: BeamType.GrappleBeam,
-  //   StartPosition: UpdateEveryFrame(startPosition),
-  //   EndPosition: UpdateEveryFrame(CURSOR_POSITION),
-  //   Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
-  // );
-}
+# Creates an effect at desired position, while also taking map geometry into consideration.
+Any CreateRayCastedEffect(
+  Player player, 
+  Vector startPosition,
+  Vector desiredPosition,
+  Boolean visibleCondition = true,
+  Effect type = Effect.Sphere,
+  Number radius = 0.15,
+  Color color = Color.Red
+): CreateEffect(
+  VisibleTo: visibleCondition ? player : null,
+  Type: type,
+  Color: color,
+  Position: UpdateEveryFrame(
+    _RAY_CASTED_CURSOR_POSITION(player, startPosition, desiredPosition)
+  ),
+  Radius: radius,
+  Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
+);
