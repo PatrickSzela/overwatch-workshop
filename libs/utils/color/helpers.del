@@ -11,7 +11,24 @@ Color FadeColor(Vector start, Vector end, Number scalar, Number alpha = 255):
     start.X * (1 - scalar) + end.X * (scalar), 
     start.Y * (1 - scalar) + end.Y * (scalar), 
     start.Z * (1 - scalar) + end.Z * (scalar), 
-  alpha);
+    alpha
+  );
+
+# Fades color from `start` to `end` based on the provided `speed`, where 1 equals to an entire fade cycle over 1 sec.
+Color FadeColorOverTime(
+  Vector start, 
+  Vector end,
+  Number speed = 1, 
+  Number alpha = 255
+) {
+  Number scalar: (SineFromDegrees(TotalTimeElapsed() % 360 * 360 * speed) + 1) / 2;
+  return CustomColor(
+    start.X * (1 - scalar) + end.X * (scalar), 
+    start.Y * (1 - scalar) + end.Y * (scalar), 
+    start.Z * (1 - scalar) + end.Z * (scalar), 
+    alpha
+  );
+}
 
 # Create a color from `vector`.
 Color VectorToColor(Vector vector, Number alpha = 255): 

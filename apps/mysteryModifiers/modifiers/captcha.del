@@ -10,7 +10,7 @@ Number CAPTCHA_DURATION: 15;
 struct Captcha {
   static Number SCALE: 2.5;
   static Number DISTANCE_BETWEEN: 0.3;
-  static Vector OFFSET: Vector(0, 0.25);
+  static Vector OFFSET: Vector(0, 0.15);
 
   public Boolean enabled;
   public String title;
@@ -38,7 +38,7 @@ struct Captcha {
     huds += CreateInWorldText(
       VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
       Header: $"{LocalPlayer().captchaData.title}",
-      Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(0, 1.75) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
+      Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(0, 2) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
       Scale: Captcha.SCALE * 0.75,
       Clipping: Clipping.DoNotClip,
       Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
@@ -96,12 +96,12 @@ struct Captcha {
 
     huds += CreateInWorldText(
       VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
-      Header: "Verify",
+      Header: "Press here to verify",
       Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(0, -2) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
       Scale: Captcha.SCALE * 0.75,
       Clipping: Clipping.DoNotClip,
       Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-      TextColor: COLOR_RAINBOW,
+      TextColor: FadeColorOverTime(Vector(255, 255, 255), Vector(69, 255, 87)),
       Spectators: Spectators.VisibleNever
     );
 
@@ -124,7 +124,7 @@ struct Captcha {
   public ref void Navigate(in Vector direction) {
     Vector newPos! = cursorPos + direction;
 
-    if(newPos.X >= -1 && newPos.X <= 1 && newPos.Y >= (newPos.X == 0 ? -2 : -1) && newPos.Y <= 1) {
+    if(newPos.X >= -1 && newPos.X <= 1 && newPos.Y >= -2 && newPos.Y <= 1) {
       cursorPos = RoundVector(newPos);
     }
   }
