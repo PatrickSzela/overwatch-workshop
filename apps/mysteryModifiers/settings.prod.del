@@ -21,7 +21,6 @@ settings
 	}
 	workshop
 	{
-		Enable Inspector: Off
 		Skip Assembling Heroes and Setup phases: Off
 		Show Diagnostics: Off
 	}

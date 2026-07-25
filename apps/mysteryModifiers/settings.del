@@ -26,4 +26,8 @@ Created by: PatPatPatriq"
     Buff Status Effects
     Debuff Status Effects
   }
+  workshop
+  {
+		Enable Inspector: Off
+  }
 }

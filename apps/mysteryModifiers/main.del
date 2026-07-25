@@ -9,6 +9,7 @@ import '../../libs/utils/log.del';
 import './controlledBy/index.del';
 import './hud.del';
 import './modifiers/index.del';
+import './utils/effects.del';
 import './variables.del';
 
 globalvar String stopReason = '';
