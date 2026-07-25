@@ -20,6 +20,7 @@ struct Captcha {
   public Boolean[][] choice;
   public Number retries;
   public Vector cursorPos;
+  public Any shield;
 
   public static Captcha New(in String title, in String[][] hud, in Any[][] values, in Boolean[][] solution): {
     enabled: false,
@@ -30,6 +31,7 @@ struct Captcha {
     choice: [[false, false, false], [false, false, false], [false, false, false]],
     cursorPos: Vector.Zero,
     retries: 3,
+    shield: null
   };
 
   public static Any[] GenerateHUD() {
@@ -110,12 +112,14 @@ struct Captcha {
 
   public ref void Enable() {
     SetFrozen(EP, true);
+    shield = AddHealthPoolToPlayer(EventPlayer(), HealthType.Health, 500, false, false);
     DisableHeroHud();
     enabled = true;
   }
 
   public ref void Disable() {
     SetFrozen(EP, false);
+    RemoveHealthPoolFromPlayer(shield);
     EnableHeroHud();
     DestroyPlayerEffects();
     enabled = false;
@@ -183,7 +187,7 @@ if(ModifierIsPreloading(CAPTCHA_NAME))
   CreatePlayerEffect(EventPlayer(), Effect.AnaSleepingEffect, 1);
 
   WaitBeforePreloading(2);
-  Number choice! = RandomInteger(0, 5);
+  Number choice! = RandomInteger(0, 2);
   String title!;
   Number validCount!;
   Any[] validValues!;
@@ -193,48 +197,34 @@ if(ModifierIsPreloading(CAPTCHA_NAME))
 
   switch(choice) {
     case 0:
-      title = "Select all Tank heroes";
+      Number role! = RandomInteger(0, 2);
+      Hero[][] allHeroes! = [AllTankHeroes(), AllDamageHeroes(), AllSupportHeroes()];
+      title = $"Select all {role == 0 ? 'Tank' : role == 1 ? 'Damage' : 'Support'} heroes";
       validCount = RandomInteger(3, 7);
-      validValues = AllTankHeroes();
-      invalidValues = AllDamageHeroes() + AllSupportHeroes();
+      validValues = allHeroes[role];
+      invalidValues = AllHeroes() - allHeroes[role];
       break;
     case 1:
-      title = "Select all Damage heroes";
-      validCount = RandomInteger(3, 7);
-      validValues = AllDamageHeroes();
-      invalidValues = AllTankHeroes() + AllSupportHeroes();
-      break;
-    case 2:
-      title = "Select all Support heroes";
-      validCount = RandomInteger(3, 7);
-      validValues = AllSupportHeroes();
-      invalidValues = AllTankHeroes() + AllDamageHeroes();
-      break;
-    case 3:
       title = "Select all vowels";
       validCount = RandomInteger(3, 5);
       validValues = ["A", "E", "I", "O", "U"];
       invalidValues = alphabet - validValues;
       break;
-    case 4:
-      Number div! = [2, 5].Random();
+    case 2:
+      Number div! = [2, 3, 5].Random();
+      Number max! = div == 3 ? 30 : 50;
       title = $"Select all numbers divisible by {div}";
-      values = [RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50), RandomInteger(1, 50)];
+      values = Array(9).Map((i) => RandomInteger(1, max));
       validValues = values.Filter((i) => i % div == 0);
-      break;
-    case 5:
-      title = $"Select all numbers divisible by 3";
-      values = [RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30), RandomInteger(1, 30)];
-      validValues = values.Filter((i) => i % 3 == 0);
       break;
   }
 
-  if(choice <= 3) {
+  if(!values.Length) {
     values = (validValues.Randomize().Slice(0, validCount) + 
       invalidValues.Randomize().Slice(0, 9 - validCount)).Randomize();
   }
 
-  huds = values.Map((i) => choice <= 2 ? HeroIconString(i) : i);
+  huds = values.Map((i) => choice == 0 ? HeroIconString(i) : i);
   Any[] solution = values.Map((i) => validValues.Contains(i));
 
   captchaData = Captcha.New(

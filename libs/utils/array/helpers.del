@@ -1,6 +1,9 @@
 import '../log.del';
 import '../number/index.del';
 
+T[] Array<T>(in Number length): 
+  <T[]>("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||".Split("|"));
+
 T[] ArrayOfLength<T>(in Number endIndex) {
   T[] array!;
   SetArrayLength(array, endIndex);
