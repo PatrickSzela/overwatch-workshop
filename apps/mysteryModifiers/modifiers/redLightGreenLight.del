@@ -116,7 +116,7 @@ if(redLightGreenLightDoNotMove)
   String deathReason = buttonsDiff ? "ability usage" : facingDiff ? "looking around" : "movement";
 
   if(IsKillable()) {
-    SmallMessageWithIcon(EventPlayer(), $"Died due to {deathReason}", IconString(Icon.Warning));
+    SmallMessageWithIcon(AllPlayers(), $"{EventPlayer()} died due to {deathReason}", IconString(Icon.Warning));
     Log($"[Red Light Green Light]: {EventPlayer()} died due to {deathReason}{deathReason == "movement" && redLightGreenLightKnockback ? $" (caused by {redLightGreenLightKnockback})" : ""}");
   } else {
     SmallMessageWithIcon(EventPlayer(), "Survived", IconString(Icon.Happy));
