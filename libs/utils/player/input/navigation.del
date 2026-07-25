@@ -1,26 +1,54 @@
 import '../../vector/index.del';
 import '../../helpers.del';
 
-# List of currently pressed buttons by a player.
-playervar Vector _navigationDirection = Vector.Zero;
+playervar Vector _navigationDir! = Vector.Zero;
+playervar Vector _navigationDirReal! = Vector.Zero;
+playervar Vector _navigationDirPrev! = Vector.Zero;
 playervar Number _repeatTimer!;
 
 Boolean IsNavigating(): MagnitudeOf(ThrottleOf()) > 0.75;
-Vector NavigationDirectionOf(Player player = EP): player._navigationDirection;
+Vector NavigationDirectionOf(Player player = EP): player._navigationDir;
 
-rule: '[libs/utils/input/navigation.del] Handle player\'s throttle' -100
+rule: '[libs/utils/input/navigation.del] Handle player\'s throttle' -101
 Event.OngoingPlayer
 if(IsNavigating())
+{  
+  _navigationDirReal = SnapToAngle(Vector(-ThrottleOf().X, ThrottleOf().Z, 0), 45);
+  
+  MinWait();
+  LoopIfConditionIsTrue();
+
+  _navigationDir = Vector.Zero;
+  _navigationDirReal = Vector.Zero;
+  _navigationDirPrev = Vector.Zero;
+}
+
+rule: '[libs/utils/input/navigation.del] Update exposed navigation data' -100
+Event.OngoingPlayer
+if(_navigationDirReal)
 {
   _repeatTimer = 0.5;
+  _navigationDir = Vector(
+    _navigationDirPrev.X == _navigationDirReal.X ? 0 : _navigationDirReal.X, 
+    _navigationDirPrev.Y == _navigationDirReal.Y ? 0 : _navigationDirReal.Y, 
+  );
+  _navigationDirPrev = _navigationDirReal;
 
-  while(true) {
-    _navigationDirection = SnapToAngle(Vector(ThrottleOf().X, ThrottleOf().Z, 0), 90);
-    MinWait();
-    _navigationDirection = Vector.Zero;
+  while(_navigationDirReal) {
+    WaitUntilValueChanges(_navigationDirReal, ONE_TICK);
+    _navigationDir = Vector.Zero;
 
-    Wait(_repeatTimer, WaitBehavior.AbortWhenFalse);
+    if(_navigationDirReal != _navigationDirPrev)
+      break;
 
+    WaitUntilValueChanges(_navigationDirReal, _repeatTimer);
+
+    if(_navigationDirReal != _navigationDirPrev)
+      break;
+
+    _navigationDir = _navigationDirReal;
     _repeatTimer = 0.075;
   }
+
+  LoopIfConditionIsTrue();
 }

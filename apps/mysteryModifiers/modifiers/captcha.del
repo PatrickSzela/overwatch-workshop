@@ -1,5 +1,6 @@
 import '../../../libs/utils/index.del';
 import '../../../libs/utils/player/freeze.del';
+import '../../../libs/utils/player/input/navigation.del';
 import '../../../libs/utils/string/holyGrail.del';
 import '../modifier.del';
 import '../utils/effects.del';
@@ -13,6 +14,8 @@ struct Captcha {
   static Vector OFFSET: Vector(0, 0.15);
 
   public Boolean enabled;
+  public Boolean generate;
+  public Boolean navigationEnabled;
   public String title;
   public String[][] hud;
   public Any[][] values;
@@ -22,12 +25,14 @@ struct Captcha {
   public Vector cursorPos;
   public Any shield;
 
-  public static Captcha New(in String title, in String[][] hud, in Any[][] values, in Boolean[][] solution): {
+  public static Captcha New(): {
     enabled: false,
-    title: title,
-    hud: hud,
-    values: values,
-    solution: solution,
+    generate: true,
+    navigationEnabled: false,
+    title: null,
+    hud: [],
+    values: [],
+    solution: null,
     choice: [[false, false, false], [false, false, false], [false, false, false]],
     cursorPos: Vector.Zero,
     retries: 3,
@@ -69,9 +74,9 @@ struct Captcha {
           IconColor: Color.Green,
           ShowWhenOffscreen: true
         );
-      }
 
-      MinWait();
+        MinWait();
+      }
     }
 
     huds += CreateInWorldText(
@@ -87,7 +92,7 @@ struct Captcha {
 
     huds += CreateInWorldText(
       VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
-      Header: $"Retries left: {LocalPlayer().captchaData.retries}\nUse {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
+      Header: $"Retries left: {LocalPlayer().captchaData.retries}\nUse {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection\nUse {InputBindingFormatterSingle(Button.Reload)} to reroll at cost of 1 retry",
       Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(4.5, 0) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
       Scale: Captcha.SCALE * 0.6,
       Clipping: Clipping.DoNotClip,
@@ -110,6 +115,76 @@ struct Captcha {
     return huds;
   }
 
+  public ref void GeneratePuzzle() {
+    generate = true;
+  }
+
+  public ref void RULE_GeneratePuzzle() {
+    Number choice! = RandomInteger(0, 4);
+    Number validCount!;
+    Any[] validValues!;
+    Any[] invalidValues!;
+    Any[] _values!;
+    String[] _huds!;
+
+    switch(choice) {
+      case 0:
+        Number role! = RandomInteger(0, 2);
+        Hero[][] allHeroes! = [AllTankHeroes(), AllDamageHeroes(), AllSupportHeroes()];
+        title = $"Select all {role == 0 ? 'Tank' : role == 1 ? 'Damage' : 'Support'} heroes";
+        validCount = RandomInteger(3, 7);
+        validValues = allHeroes[role];
+        invalidValues = AllHeroes() - allHeroes[role];
+        break;
+      case 1:
+        Boolean vowels! = RandomInteger(0, 1);
+        title = $"Select all {vowels ? 'vowels' : 'consonants'}";
+        validCount = RandomInteger(3, 5);
+        validValues = ["A", "E", "I", "O", "U"];
+        if(!vowels) {
+          validValues = alphabet - validValues;
+          validCount = RandomInteger(5, 7);
+        }
+        invalidValues = alphabet - validValues;
+        break;
+      case 2:
+        Number div! = [2, 3, 5].Random();
+        Number max! = div == 3 ? 30 : 50;
+        title = $"Select all numbers divisible by {div}";
+        _values = Array(9).Map((i) => RandomInteger(1, max));
+        validValues = _values.Filter((i) => i % div == 0);
+        break;
+      case 3:
+        Boolean bigger! = RandomInteger(0, 1);
+        Number num! = RandomInteger(25, 75);
+        title = $"Select all numbers {bigger ? 'bigger' : 'smaller'} than {num}";
+        _values = Array(9).Map((i) => RandomInteger(0, 99));
+        validValues = _values.Filter((i) => bigger ? i > num : i < num);
+        break;
+      case 4:
+        Boolean before! = RandomInteger(0, 1);
+        Number[] idxs! = alphabet.Map((i, idx) => idx);
+        Number idx! = idxs.Slice(5, idxs.Length - 10).Random();
+        title = $"Select all letters {before ? 'before' : 'after'} {alphabet[idx]}";
+        _values = idxs.Randomize().Slice(0, 9);
+        validValues = _values.Filter((i) => before ? i < idx : i > idx);
+        break;
+    }
+
+    if(!_values.Length) {
+      _values = (validValues.Randomize().Slice(0, validCount) + 
+        invalidValues.Randomize().Slice(0, 9 - validCount)).Randomize();
+    }
+
+    Any[] _solution = _values.Map((i) => validValues.Contains(i));
+    _huds = _values.Map((i) => choice == 0 ? HeroIconString(i) : choice == 4 ? alphabet[i] : i);
+
+    hud = [_huds.Slice(0, 3), _huds.Slice(3, 3), _huds.Slice(6, 3)];
+    values = [_values.Slice(0, 3), _values.Slice(3, 3), _values.Slice(6, 3)];
+    solution = [_solution.Slice(0, 3), _solution.Slice(3, 3), _solution.Slice(6, 3)];
+    generate = false;
+  }
+
   public ref void Enable() {
     SetFrozen(EP, true);
     shield = AddHealthPoolToPlayer(EventPlayer(), HealthType.Health, 500, false, false);
@@ -122,6 +197,7 @@ struct Captcha {
     RemoveHealthPoolFromPlayer(shield);
     EnableHeroHud();
     DestroyPlayerEffects();
+    navigationEnabled = false;
     enabled = false;
   }
 
@@ -149,9 +225,7 @@ struct Captcha {
       } else {
         retries--;
 
-        if(retries <= 0) {
-          CaptchaFailed();
-        } else {
+        if(retries) {
           PlayEffect(EventPlayer(), PlayEffect.ExplosionSound, Color.Red, EventPlayer(), 100);
         }
       }
@@ -187,52 +261,16 @@ if(ModifierIsPreloading(CAPTCHA_NAME))
   CreatePlayerEffect(EventPlayer(), Effect.AnaSleepingEffect, 1);
 
   WaitBeforePreloading(2);
-  Number choice! = RandomInteger(0, 2);
-  String title!;
-  Number validCount!;
-  Any[] validValues!;
-  Any[] invalidValues!;
-  Any[] values!;
-  String[] huds!;
+  captchaData = Captcha.New();
+}
 
-  switch(choice) {
-    case 0:
-      Number role! = RandomInteger(0, 2);
-      Hero[][] allHeroes! = [AllTankHeroes(), AllDamageHeroes(), AllSupportHeroes()];
-      title = $"Select all {role == 0 ? 'Tank' : role == 1 ? 'Damage' : 'Support'} heroes";
-      validCount = RandomInteger(3, 7);
-      validValues = allHeroes[role];
-      invalidValues = AllHeroes() - allHeroes[role];
-      break;
-    case 1:
-      title = "Select all vowels";
-      validCount = RandomInteger(3, 5);
-      validValues = ["A", "E", "I", "O", "U"];
-      invalidValues = alphabet - validValues;
-      break;
-    case 2:
-      Number div! = [2, 3, 5].Random();
-      Number max! = div == 3 ? 30 : 50;
-      title = $"Select all numbers divisible by {div}";
-      values = Array(9).Map((i) => RandomInteger(1, max));
-      validValues = values.Filter((i) => i % div == 0);
-      break;
-  }
-
-  if(!values.Length) {
-    values = (validValues.Randomize().Slice(0, validCount) + 
-      invalidValues.Randomize().Slice(0, 9 - validCount)).Randomize();
-  }
-
-  huds = values.Map((i) => choice == 0 ? HeroIconString(i) : i);
-  Any[] solution = values.Map((i) => validValues.Contains(i));
-
-  captchaData = Captcha.New(
-    title: title, 
-    hud: [huds.Slice(0, 3), huds.Slice(3, 3), huds.Slice(6, 3)],
-    values: [values.Slice(0, 3), values.Slice(3, 3), values.Slice(6, 3)],
-    solution: [solution.Slice(0, 3), solution.Slice(3, 3), solution.Slice(6, 3)],
-  );
+rule: '[Captcha] Generate puzzle'
+Event.OngoingPlayer
+if(ModifierHasStarted(CAPTCHA_NAME))
+if(EventPlayer().IsButtonHeld(Button.Reload))
+{
+  captchaData.GeneratePuzzle();
+  captchaData.retries -= 1;
 }
 
 rule: '[Captcha] Has Started'
@@ -261,46 +299,50 @@ if(ModifierHasStarted(CAPTCHA_NAME))
   DestroyPlayerEffects();
 }
 
-void NavigationHelper(Vector direction!) "[Captcha]: Navigation Helper" {
-  captchaData.Navigate(direction);
-}
-
-rule: '[Captcha]: Interacted with menu - Up'
+rule: '[Captcha] Enable navigation after all used inputs have been let go'
 Event.OngoingPlayer
 if(captchaData.enabled)
-if(ThrottleOf(EventPlayer()).Z > 0.5)
+if(!captchaData.navigationEnabled)
 {
-  NavigationHelper(Up());
+  WaitUntilModifierIsOverOrCondition(
+    !IsNavigating() && !EventPlayer().IsButtonHeld(Button.PrimaryFire)
+  );
+  AbortIfConditionIsFalse();
+  captchaData.navigationEnabled = true;
 }
 
-rule: '[Captcha]: Interacted with menu - Down'
+rule: '[Captcha] Navigate menu'
 Event.OngoingPlayer
 if(captchaData.enabled)
-if(ThrottleOf(EventPlayer()).Z < -0.5)
+if(captchaData.navigationEnabled)
+if(NavigationDirectionOf())
 {
-  NavigationHelper(Down());
+  captchaData.Navigate(NavigationDirectionOf());
+  MinWait();
+  LoopIfConditionIsTrue();
 }
 
-rule: '[Captcha]: Interacted with menu - Left'
+rule: '[Captcha] Interact with menu'
 Event.OngoingPlayer
 if(captchaData.enabled)
-if(ThrottleOf(EventPlayer()).X < -0.5)
-{
-  NavigationHelper(Left());
-}
-
-rule: '[Captcha]: Interacted with menu - Right'
-Event.OngoingPlayer
-if(captchaData.enabled)
-if(ThrottleOf(EventPlayer()).X > 0.5)
-{
-  NavigationHelper(Right());
-}
-
-rule: '[Captcha]: Interacted with menu'
-Event.OngoingPlayer
-if(captchaData.enabled)
+if(captchaData.navigationEnabled)
 if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
 {
   captchaData.ToggleChoice();
+}
+
+rule: '[Captcha] Generate puzzle'
+Event.OngoingPlayer
+if(captchaData.enabled)
+if(captchaData.generate)
+{
+  captchaData.RULE_GeneratePuzzle();
+}
+
+rule: '[Captcha] Handle retries'
+Event.OngoingPlayer
+if(captchaData.enabled)
+if(!captchaData.retries)
+{
+  captchaData.CaptchaFailed();
 }
