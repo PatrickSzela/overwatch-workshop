@@ -18,6 +18,12 @@ Modifier drunk: Modifier.New(
 playervar Vector drunkMovementChase = Vector.Zero;
 playervar Vector drunkMovementFinal = Vector.Zero;
 
+void KnockDownAndDamage(in Player player = EP) {
+  SetStatus(EventPlayer(), EventPlayer(), Status.KnockedDown, 1);
+  Wait(0.3);
+  Damage(EventPlayer(), EventPlayer(), 5);
+}
+
 rule: '[Drunk] Has Started - Global rule'
 if(ModifierHasStarted(DRUNK_NAME))
 {
@@ -59,14 +65,26 @@ if(ModifierHasStarted(DRUNK_NAME))
   LoopIfConditionIsTrue();
 }
 
-rule: '[Drunk] Knock down randomly'
+rule: '[Drunk] Knock down randomly if lands on ground'
 Event.OngoingPlayer
 if(ModifierHasStarted(DRUNK_NAME))
+if(!IsOnGround())
 {
+  WaitUntilModifierIsOverOrCondition(IsOnGround());
+  if(!ModifierHasStarted(DRUNK_NAME) || RandomInteger(0, 1))
+    return;
+  KnockDownAndDamage();
+}
+
+rule: '[Drunk] Knock down randomly if on ground'
+Event.OngoingPlayer
+if(ModifierHasStarted(DRUNK_NAME))
+if(IsOnGround())
+{
+  WaitUntilModifierIsOverOrCondition(!HasStatus(EP, Status.KnockedDown));
   Wait(RandomReal(2, 5), WaitBehavior.AbortWhenFalse);
-
-  SetStatus(EventPlayer(), EventPlayer(), Status.KnockedDown, 1);
-
+  AbortIfConditionIsFalse();
+  KnockDownAndDamage();
   LoopIfConditionIsTrue(); 
 }
 
