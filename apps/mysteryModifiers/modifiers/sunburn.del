@@ -15,12 +15,34 @@ Number SUNBURN_RAYCAST:
     !(IsHoldingShield() && FacingDirectionOf().Y > 0.5);
 
 playervar Any sunburnDot;
+globalvar Any sunburnSun;
 
 Modifier sunburn: Modifier.New(
   name: SUNBURN_NAME, 
   duration: SUNBURN_DURATION,
   description: ["Increased Sun activity detected. Seek shelter immediately"]
 );
+
+rule: '[Sunburn] Is Preloading'
+if(ModifierIsPreloading(SUNBURN_NAME))
+{
+  Boolean condition: ModifierHasStarted(SUNBURN_NAME);
+
+  sunburnSun = CreateEffect(
+    VisibleTo: condition ? LocalPlayer() : null, 
+    Type: Effect.Sphere, 
+    Color: Color.Orange, 
+    Position: UpdateEveryFrame(LocalPlayer().EyePosition() + Vector(0, 150, 0)), 
+    Radius: 100
+  );
+}
+
+rule: '[Sunburn] Destroy effect'
+if(ModifierHasStarted(SUNBURN_NAME))
+{
+  WaitUntilModifierIsOver();
+  DestroyEffect(sunburnSun);
+}
 
 rule: '[Sunburn] Apply burning'
 Event.OngoingPlayer
