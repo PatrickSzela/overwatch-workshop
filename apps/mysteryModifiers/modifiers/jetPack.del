@@ -42,7 +42,7 @@ rule: '[Jet Pack] Is Preloading - Player rule'
 Event.OngoingPlayer
 if(ModifierIsPreloading(JET_PACK_NAME))
 {
-  WaitBeforePreloading();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.WreckingBallPiledriverFireSound, 75, visibleCondition: jetPackIsUsing);
 }
 

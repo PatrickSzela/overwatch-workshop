@@ -20,10 +20,9 @@ if(ModifierIsPreloading(CAT_WARS_NAME))
 
   Boolean condition: catWarsShields;
 
-  WaitBeforePreloading(2);
-
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.WreckingBallAdaptiveShieldTargetEffect, 1, visibleCondition: condition);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.WreckingBallAdaptiveShieldTargetSound, 100, visibleCondition: condition);
 }
 

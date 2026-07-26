@@ -14,10 +14,9 @@ rule: '[Anti-Heal] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(ANTI_HEAL_NAME))
 {
-  WaitBeforePreloading(2);
-
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.AnaBioticGrenadeNoHealingEffect, 1);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.Cloud, 0.25, CustomColor(127, 0, 255, 127), false);
 
 }

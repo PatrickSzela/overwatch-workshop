@@ -14,10 +14,9 @@ rule: '[Nano Boost] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(NANO_BOOST_NAME))
 {
-  WaitBeforePreloading(2);
-  
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.AnaNanoBoostedEffect, 1);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.AnaNanoBoostedSound, 50);
 }
 

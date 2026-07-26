@@ -14,10 +14,9 @@ rule: '[Vampiric Exchange] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(VAMPIRIC_EXCHANGE_NAME))
 {
-  WaitBeforePreloading(2);
-
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.BadAura, 1, Color.Violet);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.ZenyattaOrbOfDiscordTargetSound, 100);
 }
 

@@ -76,7 +76,7 @@
       "Event.OngoingPlayer",
       "if(ModifierIsPreloading(${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}NAME))",
       "{",
-      "  WaitBeforePreloading(1);",
+      "  WaitSpreadPerPlayer();",
       "  CreatePlayerEffect(EventPlayer(), Effect.Ring, 1);",
       "}",
       "",

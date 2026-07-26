@@ -23,10 +23,9 @@ rule: '[Energized] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(ENERGIZE_NAME))
 {
-  WaitBeforePreloading(2);
-  
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.Sparkles, 2);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.WinstonTeslaCannonTargetSound, 100);
 }
 
@@ -37,14 +36,14 @@ if(ModifierHasStarted(ENERGIZE_NAME))
   SetMoveSpeed(EventPlayer(), 130);
 
   speedUpAbility.AllCooldowns();
-  speedUpAbility.AllResources();
+  // speedUpAbility.AllResources();
   speedUpAbility.UltimateCharge();
 
   // end
   WaitUntilModifierIsOver();
   
   speedUpAbility.StopAllCooldowns();
-  speedUpAbility.StopAllResources();
+  // speedUpAbility.StopAllResources();
   speedUpAbility.StopUltimateCharge();
 
   SetMoveSpeed(EventPlayer(), 100);

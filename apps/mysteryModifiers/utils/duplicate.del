@@ -37,11 +37,11 @@ void PreloadDuplicate(in Player player = EventPlayer(), in Hero hero, in Boolean
   
   player.duplicationData = DuplicateData.New(hero, echoEffect, freeze, resetUltOnStart, false);
 
-  WaitBeforePreloading(2);
+  WaitSpreadPerPlayer();
 
   if(echoEffect) {
     CreatePlayerEffect(player, Effect.EchoCloningEffect, 1);
-    MinWait();
+    WaitSpreadPerPlayer();
     CreatePlayerEffect(player, Effect.EchoCloningSound, 100);
   }
 }

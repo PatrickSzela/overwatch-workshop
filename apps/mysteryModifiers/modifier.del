@@ -47,11 +47,6 @@ Boolean CurrentModifierIs(in String name): currentModifier.name == name;
 Boolean ModifierIsPreloading(in String name): currentModifier.name == name && currentModifier.state == ModifierState.PRELOAD;
 Boolean ModifierHasStarted(in String name): currentModifier.name == name && currentModifier.state == ModifierState.STARTED;
 
-# Waits before continuing preloading to not overwhelm server and weaker PCs/consoles
-void WaitBeforePreloading(in Number multiplier = 1) {
-  Wait(ONE_TICK * AllPlayers().IndexOf(EventPlayer()) * multiplier);
-}
-
 void WaitUntilAlive(in Player player = EventPlayer()) { 
   WaitUntil(IsAlive(player), modifierDurationLeft);
   AbortIfConditionIsFalse();

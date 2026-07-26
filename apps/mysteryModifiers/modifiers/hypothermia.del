@@ -48,7 +48,7 @@ if(ModifierIsPreloading(HYPOTHERMIA_NAME))
 // Event.OngoingPlayer
 // if(ModifierIsPreloading(HYPOTHERMIA_NAME))
 // {
-//   WaitBeforePreloading(1);
+//   WaitSpreadPerPlayer();
 //   CreatePlayerEffect(EventPlayer(), Effect.MeiFrozenEffect, 1, visibleCondition: hypothermiaFreezePercentage > 50);
 //   // MinWait();
 //   // CreatePlayerEffect(EventPlayer(), Effect.MeiFrozenSound, 50, visibleCondition: hypothermiaFreezePercentage > 50);

@@ -16,8 +16,7 @@ rule: '[Sleep] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(SLEEP_NAME))
 {
-  WaitBeforePreloading();
-
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.AnaSleepingEffect, 1, visibleCondition: isSleeping);
 }
 

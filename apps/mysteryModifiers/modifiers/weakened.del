@@ -19,9 +19,9 @@ rule: '[Weakened] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(WEAKENED_NAME))
 {
-  WaitBeforePreloading(2);
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.ZenyattaOrbOfDiscordTargetEffect, 1);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.ZenyattaOrbOfDiscordTargetSound, 1);
 }
 
@@ -50,13 +50,13 @@ Event.OngoingPlayer
 if(ModifierHasStarted(WEAKENED_NAME))
 {
   speedUpAbility.AllCooldowns(0.75);
-  speedUpAbility.AllResources(0.75);
-  speedUpAbility.UltimateCharge(0.75);
+  // speedUpAbility.AllResources(0.75);
+  // speedUpAbility.UltimateCharge(0.75);
 
   // end
   WaitUntilModifierIsOver();
   
   speedUpAbility.StopAllCooldowns();
-  speedUpAbility.StopAllResources();
-  speedUpAbility.StopUltimateCharge();
+  // speedUpAbility.StopAllResources();
+  // speedUpAbility.StopUltimateCharge();
 }

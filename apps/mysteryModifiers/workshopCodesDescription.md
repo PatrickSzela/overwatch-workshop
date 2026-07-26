@@ -223,7 +223,6 @@ Once the meter is fully charged, the same randomly selected modifier will be app
       <ul class="update-notes__changes">
         <li>Increases move speed to 130%</li>
         <li>Speeds up cooldowns to 200%</li>
-        <li>Speeds up resource restoration to 200%</li>
         <li>Speeds up Ultimate generation to 200%</li>
       </ul>
     </div>
@@ -851,8 +850,6 @@ Once the meter is fully charged, the same randomly selected modifier will be app
         <li>Decreases move speed to 75%</li>
         <li>Increases gravity to 125%</li>
         <li>Slows down cooldowns to 75%</li>
-        <li>Slows down resource restoration to 75%</li>
-        <li>Slows down Ultimate generation to 75%</li>
       </ul>
     </div>
   </div>

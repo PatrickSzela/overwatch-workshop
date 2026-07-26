@@ -14,12 +14,11 @@ rule: '[Speed Boost] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(SPEED_BOOST_NAME))
 {
-  WaitBeforePreloading(2);
-  
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.LucioSoundBarrierProtectedEffect, 1);
   // CreatePlayerEffect(EventPlayer(), Effect.Soldier76SprintingEffect, 1);
   // CreatePlayerEffect(EventPlayer(), Effect.MercyDamageBoostedEffect, 1);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.WreckingBallPiledriverFireSound, 50);
 }
 

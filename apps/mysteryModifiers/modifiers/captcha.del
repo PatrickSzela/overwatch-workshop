@@ -257,10 +257,9 @@ rule: '[Captcha] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(CAPTCHA_NAME))
 {
-  WaitBeforePreloading(1);
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.AnaSleepingEffect, 1);
-
-  WaitBeforePreloading(2);
+  WaitSpreadPerPlayer();
   captchaData = Captcha.New();
 }
 

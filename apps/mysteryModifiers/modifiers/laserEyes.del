@@ -70,7 +70,7 @@ rule: '[Laser Eyes] Is Preloading - Player rule'
 Event.OngoingPlayer
 if(ModifierIsPreloading(LASER_EYES_NAME))
 {
-  WaitBeforePreloading(2);
+  WaitSpreadPerPlayer();
 
   laserEyesData.effects += CreateBeamEffect(
     VisibleTo: ModifierHasStarted(LASER_EYES_NAME) && IsAlive() ? AllPlayers() - EventPlayer() : null, 
@@ -81,7 +81,7 @@ if(ModifierIsPreloading(LASER_EYES_NAME))
     Reevaluation: EffectRev.VisibleToPositionRadiusAndColor
   );
 
-  MinWait();
+  WaitSpreadPerPlayer();
 
   laserEyesData.effects += CreateEffect(
     VisibleTo: ModifierHasStarted(LASER_EYES_NAME) && IsAlive() ? AllPlayers() : null,

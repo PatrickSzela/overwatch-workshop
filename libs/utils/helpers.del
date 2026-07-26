@@ -1,3 +1,4 @@
+import './abbreviations.del';
 import './number/index.del';
 
 # Waits forever until `continueCondition` becomes true.
@@ -13,4 +14,10 @@ void WaitUntilValueChanges(in Any value, in Number duration) {
 # Waits forever until `value` changes.
 void WaitForeverUntilValueChanges(in Any value) {
   WaitUntilValueChanges(value, NUMBER_MAX);
+}
+
+# Waits before continuing, with its duration depending on player's index in All Players array.
+# Useful for spreading server heavy logic per player.
+void WaitSpreadPerPlayer(in Number multiplier = 1) {
+  Wait(ONE_TICK * AP.IndexOf(EP) * multiplier);
 }

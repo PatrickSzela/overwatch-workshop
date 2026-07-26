@@ -14,10 +14,9 @@ rule: '[Invert Controls] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(INVERT_CONTROLS_NAME))
 {
-  WaitBeforePreloading(2);
-  
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.BadAura, 0.25);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.BadAuraSound, 100);
 }
 

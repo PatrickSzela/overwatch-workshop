@@ -18,12 +18,11 @@ rule: '[Body Odor] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(BODY_ODOR_NAME))
 {
-  WaitBeforePreloading(3);
-  
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.Cloud, 1, CustomColor(78, 168, 9, 127), false);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.Ring, BODY_ODOR_RADIUS, CustomColor(78, 168, 9, 127));
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.BadAuraSound, 100);
 }
 

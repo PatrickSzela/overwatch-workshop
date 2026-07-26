@@ -40,7 +40,7 @@ rule: '[Red Light, Green Light] Is Preloading - Player'
 Event.OngoingPlayer
 if(ModifierIsPreloading(RED_LIGHT_GREEN_LIGHT_NAME))
 {
-  WaitBeforePreloading();
+  WaitSpreadPerPlayer();
 
   redLightGreenLightEffects += CreateBeamEffect(
     VisibleTo: redLightGreenLightBeam ? AllPlayers() : null, 

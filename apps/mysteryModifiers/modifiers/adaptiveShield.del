@@ -23,10 +23,9 @@ if(ModifierIsPreloading(ADAPTIVE_SHIELD_NAME))
 {
   Boolean condition: (<Player>EvaluateOnce(EventPlayer())).adaptiveShieldHealth > 0;
 
-  WaitBeforePreloading(2);
-
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.WreckingBallAdaptiveShieldTargetEffect, 1, visibleCondition: condition);
-  MinWait();
+  WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.WreckingBallAdaptiveShieldTargetSound, 100, visibleCondition: condition);
 }
 
