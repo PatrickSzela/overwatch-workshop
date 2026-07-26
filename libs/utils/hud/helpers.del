@@ -29,7 +29,7 @@ Any CreateImportCodeHudText(in String code = "", in String title = "", in String
     Location: Location.Right, 
     SortOrder: order, 
     TextColor: color, 
-    Reevaluation: HudTextRev.None,
+    Reevaluation: HudTextRev.VisibleTo,
     Spectators: Spectators.VisibleAlways
   );
 }
