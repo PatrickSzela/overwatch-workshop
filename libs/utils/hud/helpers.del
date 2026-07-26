@@ -28,7 +28,7 @@ Any CreateImportCodeHudText(in String code = "", in String title = "", in String
     Text: subtitle,
     Location: Location.Right, 
     SortOrder: order, 
-    TextColor: color, 
+    HeaderColor: color, 
     Reevaluation: HudTextRev.VisibleTo,
     Spectators: Spectators.VisibleAlways
   );
