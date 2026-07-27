@@ -17,12 +17,12 @@ settings
   }
   main
   {
-    Mode Name: "Stadium vs Non-Stadium Heroes"
+    Mode Name: "{{metadata.name}}"
     Description: "Have you ever wanted to play a Stadium game with heroes that are not enabled in it by default, against a team of either Stadium enabled heroes or non-Stadium ones? Well, now you can!
 
 ----------
-Version: 1.0.0
-Import Code: XTMM9
-Created by: PatPatPatriq"
+Version: {{metadata.version}}
+Import Code: {{metadata.code}}
+Created by: {{metadata.author.battletag}}"
   }
 }

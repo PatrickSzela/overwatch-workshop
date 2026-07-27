@@ -50,7 +50,12 @@ rule: 'Create UI'
   //   preferFallback: LocalPlayer().preferFallbackHud || LocalPlayer().preferFallbackHudOverride,
   // );
 
-  CreateImportCodeHudText("7HBSA", "Mystery Modifiers", "By Patriq", Color.Blue);
+  CreateImportCodeHudText(
+    code: import('./metadata.json').code, 
+    title: import('./metadata.json').name, 
+    subtitle: "By " + import('./metadata.json').author.name, 
+    color: Color.Blue
+  );
 
   CreateHudText(
     VisibleTo: state == State.MODIFIER_STARTED ? LocalPlayer() : null, 

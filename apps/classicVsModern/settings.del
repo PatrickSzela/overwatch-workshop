@@ -2,14 +2,14 @@ settings
 {
   main 
   {
-    Mode Name: "Classic vs Modern Heroes"
+    Mode Name: "{{metadata.name}}"
     Description: "Have you ever thought how the game would look like, if you could put classic Overwatch 1 heroes against modern Overwatch 2 ones, or even if you could mix them all together?
 Well now you can, with configurable Self Healing and Tank Bonus Health passives!
 
 ----------
-Version: 1.1.0
-Import Code: 5KMTT
-Created by: PatPatPatriq"
+Version: {{metadata.version}}
+Import Code: {{metadata.code}}
+Created by: {{metadata.author.battletag}}"
   }
   modes 
   {

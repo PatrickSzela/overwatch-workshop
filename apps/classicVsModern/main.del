@@ -16,7 +16,12 @@ playervar Hero[] modernHeroes 65 = [];
 
 rule: 'Import code in top right'
 {
-  CreateImportCodeHudText("5KMTT", "Classic vs Modern Heroes", "By Patriq", Color.Orange);
+  CreateImportCodeHudText(
+    code: import('./metadata.json').code, 
+    title: import('./metadata.json').name, 
+    subtitle: "By " + import('./metadata.json').author.name, 
+    color: Color.Orange
+  );
 }
 
 rule: 'Set allowed heroes'

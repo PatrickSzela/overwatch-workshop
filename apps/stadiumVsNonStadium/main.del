@@ -21,7 +21,12 @@ void AllowHeroes(in Player player = EventPlayer(), in Boolean classic, in Boolea
 
 rule: 'Import code in top right'
 {
-  CreateImportCodeHudText("XTMM9", "Stadium vs Non-Stadium Heroes", "By Patriq", Color.Yellow);
+  CreateImportCodeHudText(
+    code: import('./metadata.json').code, 
+    title: import('./metadata.json').name, 
+    subtitle: "By " + import('./metadata.json').author.name, 
+    color: Color.Yellow
+  );
 }
 
 rule: 'Set allowed heroes'

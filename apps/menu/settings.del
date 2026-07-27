@@ -33,16 +33,16 @@ settings
   }
   main
   {
-    Mode Name: "(Not So) Simple Menu"
+    Mode Name: "{{metadata.main.name}}"
     Description: "Controls:
 [Crouch + Interact] - Open/Close menu
 [Ultimate] - Go back (when in submenu)/Close menu (when in root)
 The rest of controls depends on currently hovered menu item and are listed below the menu itself
 
 ----------
-Version: 2.7.1
-Import Code: PS3MX
-Created by: PatPatPatriq"
+Version: {{metadata.main.version}}
+Import Code: {{metadata.main.code}}
+Created by: {{metadata.author.battletag}}"
   }
   workshop
   {

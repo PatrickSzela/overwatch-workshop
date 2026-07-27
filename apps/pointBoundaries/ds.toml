@@ -1,3 +1,4 @@
 subroutine_stacks_are_extended = true
 c_style_workshop_output = true
 entry_point = "./main.del"
+out_file = "./out.ws"

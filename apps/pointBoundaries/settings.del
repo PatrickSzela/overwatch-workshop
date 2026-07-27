@@ -51,7 +51,7 @@ settings
 
   main
   {
-    Mode Name: "Point Boundaries (WIP)"
+    Mode Name: "{{metadata.name}}"
     Description: "Displays precise Control Point boundaries
 
 Controls:
@@ -60,9 +60,9 @@ Controls:
 The rest of controls depends on currently hovered menu item and are listed below the menu itself
 
 ----------
-Version: 2.1.0
-Import Code: WXAMY
-Created by: PatPatPatriq"
+Version: {{metadata.version}}
+Import Code: {{metadata.code}}
+Created by: {{metadata.author.battletag}}"
   }
 	workshop
 	{

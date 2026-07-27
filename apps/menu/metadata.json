@@ -1,0 +1,19 @@
+{
+  "main": {
+    "name": "(Not So) Simple Menu",
+    "version": "2.7.1",
+    "code": "PS3MX"
+  }, 
+  "stadium": {
+    "name": "(Not So) Simple Menu - Stadium Edition",
+    "version": "2.7.0",
+    "code": "EM1Y9"
+  },
+  "author": {
+    "name": "Patriq",
+    "battletag": "Patriq#2214",
+    "workshop_codes": "PatPatPatriq",
+    "twitch": "PatPatPatriq",
+    "youtube": "PatPatPatriq"
+  }
+}
