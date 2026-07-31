@@ -1,5 +1,4 @@
-import '../modifier.del';
-import '../utils/duplicate.del';
+import './index.del';
 
 String TORB_HAMMER_WAR_NAME: 'Torbjörn\'s Forge Hammer War';
 Number TORB_HAMMER_WAR_DURATION: 15;
@@ -10,32 +9,26 @@ Modifier torbHammerWar: Modifier.New(
   description: ["It's Hammer time!"]
 );
 
-rule: '[Torbjörn\'s Hammer War] Is Preloading'
+rule: '[Duplicate: Torbjörn\'s Hammer War] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(TORB_HAMMER_WAR_NAME))
 {
-  PreloadDuplicate(EventPlayer(), Hero.Torbjorn, true, true);
+  DuplicateModifSetHero(EP, Hero.Torbjorn);
 }
 
-rule: '[Torbjörn\'s Hammer War] Setup'
+rule: '[Duplicate: Torbjörn\'s Hammer War] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(TORB_HAMMER_WAR_NAME))
+if(DuplicateModifIsReady())
 {
-  WaitUntilAlive();
-
-  StartDuplicate();
-
-  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
-  
   SetAbility1Enabled(EventPlayer(), false);
 
   WaitUntilIsDeadOrModifierIsOver();
 
   SetAbility1Enabled(EventPlayer(), true);
-  StopDuplicate(EventPlayer(), IsAlive());
 }
 
-rule: '[Torbjörn\'s Hammer War] Swap weapon'
+rule: '[Duplicate: Torbjörn\'s Hammer War] Swap weapon'
 Event.OngoingPlayer
 if(ModifierHasStarted(TORB_HAMMER_WAR_NAME))
 if(IsDuplicatingFrozen())

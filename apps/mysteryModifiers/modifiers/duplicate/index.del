@@ -1,0 +1,81 @@
+import '../../../../libs/utils/index.del';
+import '../../modifier.del';
+import '../../variables.del';
+import '../../utils/duplicate.del';
+import '../../utils/effects.del';
+
+playervar Hero duplicateModifHeroCache;
+
+Modifier[] DUPLICATE_MODIF_LIST: [
+  anaPaintball,
+  babyDva,
+  catWars,
+  duplicateRandomHero,
+  duplicateSameHero,
+  mothWar,
+  primalRage,
+  roleWatch,
+  sigmaDodgeball,
+  spiderWoman,
+  torbHammerWar
+];
+
+globalvar String[] duplicateModifNamesList = [
+  anaPaintball.name,
+  babyDva.name,
+  catWars.name,
+  duplicateRandomHero.name,
+  duplicateSameHero.name,
+  mothWar.name,
+  primalRage.name,
+  roleWatch.name,
+  sigmaDodgeball.name,
+  spiderWoman.name,
+  torbHammerWar.name
+];
+
+
+void DuplicateModifSetHero(in Player | Player[] players, in Hero hero) {
+  players.duplicateModifHeroCache = hero;
+}
+
+Boolean DuplicateModifIsReady(): IsDuplicatingFrozenReady();
+
+rule: '[Duplicate Modifier] Is Preloading'
+Event.OngoingPlayer
+if(duplicateModifNamesList.Contains(currentModifier.name))
+if(currentModifier.state == ModifierState.PRELOAD)
+{
+  MinWait(); // wait a tick so modifiers can set the hero
+  PreloadDuplicate(EventPlayer(), duplicateModifHeroCache, true, true);
+}
+
+rule: '[Duplicate Modifier] Setup'
+Event.OngoingPlayer
+if(duplicateModifNamesList.Contains(currentModifier.name))
+if(currentModifier.state == ModifierState.STARTED)
+{
+  if(!currentModifier.notification)
+    BigMessage(EP, $"Duplicating: {HeroWithIconFormatter(EP.duplicateModifHeroCache)}");
+
+  WaitUntilAlive();
+  StartDuplicate();
+
+  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
+  WaitUntilIsDeadOrModifierIsOver();
+
+  StopDuplicate(EventPlayer(), IsAlive());
+}
+
+
+import "./anaPaintball.del";
+import "./babyDva.del";
+import "./catWars.del";
+import "./duplicateRandomHero.del";
+import "./duplicateSameHero.del";
+import "./mothWar.del";
+import "./primalRage.del";
+import "./roleWatch.del";
+import "./sigmaDodgeball.del";
+import "./spiderWoman.del";
+import "./torbHammerWar.del";

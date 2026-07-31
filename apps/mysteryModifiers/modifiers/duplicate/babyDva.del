@@ -1,5 +1,4 @@
-import '../modifier.del';
-import '../utils/effects.del';
+import './index.del';
 
 String BABY_DVA_NAME: 'Baby D.Va';
 Number BABY_DVA_DURATION: 15;
@@ -10,23 +9,18 @@ Modifier babyDva: Modifier.New(
   description: ["No mech? No problem!"]
 );
 
-rule: '[Baby D.Va] Is Preloading'
+rule: '[Duplicate: Baby D.Va] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(BABY_DVA_NAME))
 {
-  PreloadDuplicate(EventPlayer(), Hero.Dva, true, true, false);
+  DuplicateModifSetHero(EP, Hero.Dva);
 }
 
-rule: '[Baby D.Va] Has Started'
+rule: '[Duplicate: Baby D.Va] Has Started'
 Event.OngoingPlayer
 if(ModifierHasStarted(BABY_DVA_NAME))
+if(DuplicateModifIsReady())
 {
-  WaitUntilAlive();
-
-  StartDuplicate();
-
-  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
-    
   SetUltimateAbilityEnabled(EventPlayer(), false);
   Kill(EventPlayer());
 
@@ -34,5 +28,4 @@ if(ModifierHasStarted(BABY_DVA_NAME))
   WaitUntilIsDeadOrModifierIsOver();
   
   SetUltimateAbilityEnabled(EventPlayer(), true);
-  StopDuplicate(EventPlayer(), IsAlive());
 }

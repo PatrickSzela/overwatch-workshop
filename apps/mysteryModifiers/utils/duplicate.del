@@ -40,7 +40,7 @@ void PreloadDuplicate(in Player player = EventPlayer(), in Hero hero, in Boolean
   WaitSpreadPerPlayer();
 
   if(echoEffect) {
-    CreatePlayerEffect(player, Effect.EchoCloningEffect, 1);
+    CreatePlayerEffect(player, Effect.EchoCloningEffect, 1, visibleCondition: HeroOf(LP) == LP.duplicationData.hero);
     WaitSpreadPerPlayer();
     CreatePlayerEffect(player, Effect.EchoCloningSound, 100);
   }

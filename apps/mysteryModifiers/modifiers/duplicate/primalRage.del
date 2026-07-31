@@ -1,5 +1,4 @@
-import '../modifier.del';
-import '../utils/duplicate.del';
+import './index.del';
 
 String PRIMAL_RAGE_NAME: 'Primal Rage';
 Number PRIMAL_RAGE_DURATION: 10 + 0.25;
@@ -12,23 +11,18 @@ Modifier primalRage: Modifier.New(
   description: ["Winton is angy"]
 );
 
-rule: '[Primal Rage] Is Preloading'
+rule: '[Duplicate: Primal Rage] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(PRIMAL_RAGE_NAME))
 {
-  PreloadDuplicate(EventPlayer(), Hero.Winston, true, true, false);
+  DuplicateModifSetHero(EP, Hero.Winston);
 }
 
-rule: '[Primal Rage] Setup'
+rule: '[Duplicate: Primal Rage] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(PRIMAL_RAGE_NAME))
+if(DuplicateModifIsReady())
 {
-  WaitUntilAlive();
-
-  StartDuplicate();
-
-  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
-
   AllowButton(EventPlayer(), Button.Ultimate);
   SetUltimateCharge(EventPlayer(), 100);
   PressButton(EventPlayer(), Button.Ultimate);
@@ -36,10 +30,9 @@ if(ModifierHasStarted(PRIMAL_RAGE_NAME))
   WaitUntilIsDeadOrModifierIsOver();
 
   SetMaxHealth(EventPlayer(), 100);
-  StopDuplicate(EventPlayer(), IsAlive());
 }
 
-rule: '[Primal Rage] Press Button safeguard'
+rule: '[Duplicate: Primal Rage] Press Button safeguard'
 Event.OngoingPlayer
 if(ModifierHasStarted(PRIMAL_RAGE_NAME))
 if(IsDuplicatingFrozenReady())
@@ -50,7 +43,7 @@ if(UltimateChargePercent() == 100)
   LoopIfConditionIsTrue();
 }
 
-rule: '[Primal Rage] Set Max Health when Ultimate is active'
+rule: '[Duplicate: Primal Rage] Set Max Health when Ultimate is active'
 Event.OngoingPlayer
 if(ModifierHasStarted(PRIMAL_RAGE_NAME))
 if(IsUsingUltimate())

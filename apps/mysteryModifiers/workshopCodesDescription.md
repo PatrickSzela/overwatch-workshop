@@ -178,7 +178,25 @@ Once the meter is fully charged, the same randomly selected modifier will be app
     </div>
     <div class="modifier__content">
       <div class="modifier__description">
-        <p>Become a copy of a random hero. Greatly accelerates Ultimate generation</p>
+        <p>Everyone becomes a copy of a random hero. Greatly accelerates Ultimate generation</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>
+          Switches every player's hero to randomly selected hero that isn't currently being played by anyone in the lobby
+        </li>
+        <li>Speeds up Ultimate generation to 550%</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
+      <div class="modifier__title">Duplicate - Same Hero<span>[1][2][3]</span></div>  
+      <div class="modifier__duration">15 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>Everyone becomes a copy of the same random hero. Greatly accelerates Ultimate generation</p>
       </div>
       <ul class="update-notes__changes">
         <li>
@@ -613,6 +631,24 @@ Once the meter is fully charged, the same randomly selected modifier will be app
         <li>
           Players who applied knockback to other players will get the kill credit if the victim dies due to movement during red light
         </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
+      <div class="modifier__title">RoleWatch<span>[1][2][3]</span></div>  
+      <div class="modifier__duration">15 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>Everyone becomes a copy of randomly selected hero from the same randomly selected role. Greatly accelerates Ultimate generation</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>
+          Switches every player's hero to randomly selected hero from a poll of randomly selected role that isn't currently being played by anyone in the lobby
+        </li>
+        <li>Speeds up Ultimate generation to 550%</li>
       </ul>
     </div>
   </div>

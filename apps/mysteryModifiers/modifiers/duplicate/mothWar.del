@@ -1,5 +1,4 @@
-import '../modifier.del';
-import '../utils/duplicate.del';
+import './index.del';
 
 String MOTH_WAR_NAME: 'Moth War';
 Number MOTH_WAR_DURATION: 15 + 0.25;
@@ -14,23 +13,18 @@ Modifier mothWar: Modifier.New(
   ]
 );
 
-rule: '[Moth War] Is Preloading'
+rule: '[Duplicate: Moth War] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(MOTH_WAR_NAME))
 {
-  PreloadDuplicate(EventPlayer(), Hero.Mercy, true, true, false);
+  DuplicateModifSetHero(EP, Hero.Mercy);
 }
 
-rule: '[Moth War] Setup'
+rule: '[Duplicate: Moth War] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(MOTH_WAR_NAME))
+if(DuplicateModifIsReady())
 {
-  WaitUntilAlive();
-
-  StartDuplicate();
-
-  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
-
   SetDamageDealt(EventPlayer(), 200);
   AllowButton(EventPlayer(), Button.Ultimate);
   SetUltimateCharge(EventPlayer(), 100);
@@ -44,10 +38,9 @@ if(ModifierHasStarted(MOTH_WAR_NAME))
 
   // SetAbility2Enabled(EventPlayer(), true);
   SetDamageDealt(EventPlayer(), 100);
-  StopDuplicate(EventPlayer(), IsAlive());
 }
 
-rule: '[Moth War] Press Button safeguard'
+rule: '[Duplicate: Moth War] Press Button safeguard'
 Event.OngoingPlayer
 if(ModifierHasStarted(MOTH_WAR_NAME))
 if(IsDuplicatingFrozen())
@@ -58,7 +51,7 @@ if(UltimateChargePercent() == 100)
   LoopIfConditionIsTrue();
 }
 
-rule: '[Moth War] Swap weapon'
+rule: '[Duplicate: Moth War] Swap weapon'
 Event.OngoingPlayer
 if(ModifierHasStarted(MOTH_WAR_NAME))
 if(IsDuplicatingFrozen())

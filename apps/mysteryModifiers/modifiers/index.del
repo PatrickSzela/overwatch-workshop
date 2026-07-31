@@ -1,14 +1,11 @@
 import '../modifier.del';
 import './adaptiveShield.del';
-import './anaPaintball.del';
 import './antiHeal.del';
-import './babyDva.del';
 import './blinded.del';
 import './bodyOdor.del';
 import './captcha.del';
-import './catWars.del';
 import './drunk.del';
-import './duplicateRandomHero.del';
+import './duplicate/index.del';
 import './emote.del';
 import './energize.del';
 import './floorIsLava.del';
@@ -25,25 +22,20 @@ import './invisibility.del';
 import './jetPack.del';
 import './laserEyes.del';
 import './lowVisibility.del';
-import './mothWar.del';
 import './nanoBoost.del';
 import './noHud.del';
 import './packetLoss.del';
 import './playerSizeBig.del';
 import './playerSizeSmall.del';
-import './primalRage.del';
 import './redLightGreenLight.del';
-import './sigmaDodgeball.del';
 import './sleep.del';
 import './slowMotion.del';
 import './speedBoost.del';
-import './spiderWoman.del';
 import './sunburn.del';
 import './tbagging.del';
 import './theVoices.del';
 import './thirdPersonCamera.del';
 import './topDownCamera.del';
-import './torbHammerWar.del';
 import './trampoline.del';
 import './useUltimate.del';
 import './weakened.del';
@@ -51,15 +43,11 @@ import './vampiricExchange.del';
 
 globalvar Modifier[] allModifiers = [
   adaptiveShield,
-  anaPaintball,
   antiHeal,
-  babyDva,
   blinded,
   bodyOdor,
   captcha,
-  catWars,
   drunk,
-  duplicateRandomHero,
   emote,
   energize,
   floorIsLava,
@@ -76,29 +64,24 @@ globalvar Modifier[] allModifiers = [
   jetPack,
   laserEyes,
   lowVisibility,
-  mothWar,
   nanoBoost,
   noHud,
   packetLoss,
   playerSizeBig,
   playerSizeSmall,
-  primalRage,
   redLightGreenLight,
-  sigmaDodgeball,
   sleep,
   slowMotion,
   speedBoost,
-  spiderWoman,
   sunburn,
   tbagging,
   theVoices,
   thirdPersonCamera,
   topDownCamera,
-  torbHammerWar,
   trampoline,
   useUltimate,
   weakened,
   vampiricExchange
-];
+] + DUPLICATE_MODIF_LIST;
 
 globalvar String[] enabledModifiers = [];

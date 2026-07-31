@@ -1,0 +1,43 @@
+import '../../../../libs/speedUpAbility/index.del';
+import './index.del';
+
+String ROLE_WATCH_NAME: 'RoleWatch';
+Number ROLE_WATCH_DURATION: 15;
+
+globalvar Hero[] roleWatchHeroes!;
+
+Modifier roleWatch: Modifier.New(
+  name: ROLE_WATCH_NAME, 
+  duration: ROLE_WATCH_DURATION,
+  notification: false,  // we create a custom message in `Has Started` rule
+  description: [
+    "Everyone becomes a copy of randomly selected hero from the same role", 
+    "Greatly accelerates Ultimate generation"
+  ]
+);
+
+rule: '[RoleWatch] Is Preloading - Select random hero'
+if(ModifierIsPreloading(ROLE_WATCH_NAME))
+{
+  roleWatchHeroes = RandomValueInArray([AllTankHeroes(), AllDamageHeroes(), AllSupportHeroes()]);
+}
+
+rule: '[RoleWatch] Is Preloading - Select random hero'
+Event.OngoingPlayer
+if(ModifierIsPreloading(ROLE_WATCH_NAME))
+{
+  DuplicateModifSetHero(EP, RandomValueInArray(roleWatchHeroes - AllPlayers().Map((i) => i.Hero())));
+}
+
+rule: '[RoleWatch] Setup'
+Event.OngoingPlayer
+if(ModifierHasStarted(ROLE_WATCH_NAME))
+if(DuplicateModifIsReady())
+{
+  speedUpAbility.UltimateCharge(5.5);
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+
+  speedUpAbility.StopUltimateCharge();
+}

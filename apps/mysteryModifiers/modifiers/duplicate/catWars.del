@@ -1,5 +1,4 @@
-import '../modifier.del';
-import '../utils/effects.del';
+import './index.del';
 
 String CAT_WARS_NAME: 'Cat Wars';
 Number CAT_WARS_DURATION: 15;
@@ -12,11 +11,11 @@ Modifier catWars: Modifier.New(
 
 playervar Boolean catWarsShields;
 
-rule: '[Cat Wars] Is Preloading'
+rule: '[Duplicate: Cat Wars] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(CAT_WARS_NAME))
 {
-  PreloadDuplicate(EP, Hero.JetpackCat, true, true);
+  DuplicateModifSetHero(EP, Hero.JetpackCat);
 
   Boolean condition: catWarsShields;
 
@@ -26,16 +25,11 @@ if(ModifierIsPreloading(CAT_WARS_NAME))
   CreatePlayerEffect(EventPlayer(), Effect.WreckingBallAdaptiveShieldTargetSound, 100, visibleCondition: condition);
 }
 
-rule: '[Cat Wars] Has Started'
+rule: '[Duplicate: Cat Wars] Has Started'
 Event.OngoingPlayer
 if(ModifierHasStarted(CAT_WARS_NAME))
+if(DuplicateModifIsReady())
 {
-  WaitUntilAlive();
-
-  StartDuplicate();
-
-  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
-
   SetAbility1Enabled(EP, false);
   SetUltimateAbilityEnabled(EP, false);
   SetMaxHealth(EP, 200 / MaxHealth(EP) * 100);
@@ -55,12 +49,10 @@ if(ModifierHasStarted(CAT_WARS_NAME))
   StopScalingPlayer(EP);
   StopModifyingHeroVoiceLines(EP);
   speedUpAbility.StopCooldown(Button.Ability2);
-
-  StopDuplicate(EP, IsAlive());
 }
 
 // client side gets randomly broken :)
-rule: '[Cat Wars] Display shields'
+rule: '[Duplicate: Cat Wars] Display shields'
 Event.OngoingPlayer
 if(ModifierHasStarted(CAT_WARS_NAME))
 if(HealthOfType(<Player>EvaluateOnce(EventPlayer()), HealthType.Shields) > 0)
@@ -70,7 +62,7 @@ if(HealthOfType(<Player>EvaluateOnce(EventPlayer()), HealthType.Shields) > 0)
   catWarsShields = false;
 }
 
-rule: 'My Player Rule'
+rule: '[Duplicate: Cat Wars] Cancel Purr after first pulse (knockback)'
 Event.OngoingPlayer
 if(ModifierHasStarted(CAT_WARS_NAME))
 if(IsUsingAbility2())

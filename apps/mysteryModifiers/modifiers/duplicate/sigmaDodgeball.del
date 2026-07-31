@@ -1,5 +1,4 @@
-import '../modifier.del';
-import '../utils/effects.del';
+import './index.del';
 
 String SIGMA_DODGEBALL_NAME: 'Sigma Dodgeball';
 Number SIGMA_DODGEBALL_DURATION: 15;
@@ -14,23 +13,18 @@ Modifier sigmaDodgeball: Modifier.New(
   ]
 );
 
-rule: '[Sigma Dodgeball] Is Preloading'
+rule: '[Duplicate: Sigma Dodgeball] Is Preloading'
 Event.OngoingPlayer
 if(ModifierIsPreloading(SIGMA_DODGEBALL_NAME))
 {
-  PreloadDuplicate(EventPlayer(), Hero.Sigma, true, true);
+  DuplicateModifSetHero(EP, Hero.Sigma);
 }
 
-rule: '[Sigma Dodgeball] Setup'
+rule: '[Duplicate: Sigma Dodgeball] Setup'
 Event.OngoingPlayer
 if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
+if(DuplicateModifIsReady())
 {
-  WaitUntilAlive();
-
-  StartDuplicate();
-
-  WaitUntil(IsDuplicatingFrozenReady(), modifierDurationLeft);
-  
   SetAbility1Enabled(EventPlayer(), false);
   SetPrimaryFireEnabled(EventPlayer(), false);
   SetMeleeEnabled(EventPlayer(), false);
@@ -63,11 +57,9 @@ if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
   speedUpAbility.StopCooldown(Button.Ability2);
 
   StopAccelerating();
-
-  StopDuplicate(EventPlayer(), IsAlive());
 }
 
-rule: '[Sigma Dodgeball] Reset rock cooldown on kill'
+rule: '[Duplicate: Sigma Dodgeball] Reset rock cooldown on kill'
 Event.OnElimination
 if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
 if(IsDuplicatingFrozenReady())
@@ -76,7 +68,7 @@ if(IsDuplicatingFrozenReady())
   SetAbilityCooldown(EventPlayer(), Button.Ability2, 0);
 }
 
-rule: '[Sigma Dodgeball] Use Ability 1 on Primary Fire'
+rule: '[Duplicate: Sigma Dodgeball] Use Ability 1 on Primary Fire'
 Event.OngoingPlayer
 if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
 if(IsDuplicatingFrozenReady())

@@ -1,0 +1,38 @@
+import '../../../../libs/speedUpAbility/index.del';
+import './index.del';
+
+String DUPLICATE_SAME_HERO_NAME: 'Duplicate - Same Hero';
+Number DUPLICATE_SAME_HERO_DURATION: 15;
+
+Modifier duplicateSameHero: Modifier.New(
+  name: DUPLICATE_SAME_HERO_NAME, 
+  duration: DUPLICATE_SAME_HERO_DURATION,
+  notification: false,  // we create a custom message in `Has Started` rule
+  description: [
+    "Everyone becomes a copy of the same random hero", 
+    "Greatly accelerates Ultimate generation"
+  ]
+);
+
+rule: '[Duplicate: Same Hero] Is Preloading - Select random hero'
+if(ModifierIsPreloading(DUPLICATE_SAME_HERO_NAME))
+{
+  // WORKAROUND: apparently AllPlayers().variable = RandomX() will not set the same value for every player
+  // instead the value is randomized for EVERYONE
+  // THIS DOESN'T MAKE SENSE BLIZZARD, WHY!?!?!?
+  // and the best part, apparently using Evaluate Once fixes that!?!?!??!?!?
+  DuplicateModifSetHero(AP, EvaluateOnce(RandomValueInArray(AllHeroes() - AllPlayers().Map((i) => i.Hero()))));
+}
+
+rule: '[Duplicate: Same Hero] Setup'
+Event.OngoingPlayer
+if(ModifierHasStarted(DUPLICATE_SAME_HERO_NAME))
+if(DuplicateModifIsReady())
+{
+  speedUpAbility.UltimateCharge(5.5);
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+
+  speedUpAbility.StopUltimateCharge();
+}
