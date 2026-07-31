@@ -13,6 +13,7 @@ Modifier[] DUPLICATE_MODIF_LIST: [
   duplicateRandomHero,
   duplicateSameHero,
   mothWar,
+  orbHell,
   primalRage,
   roleWatch,
   sigmaDodgeball,
@@ -27,6 +28,7 @@ globalvar String[] duplicateModifNamesList = [
   duplicateRandomHero.name,
   duplicateSameHero.name,
   mothWar.name,
+  orbHell.name,
   primalRage.name,
   roleWatch.name,
   sigmaDodgeball.name,
@@ -74,6 +76,7 @@ import "./catWars.del";
 import "./duplicateRandomHero.del";
 import "./duplicateSameHero.del";
 import "./mothWar.del";
+import "./orbHell.del";
 import "./primalRage.del";
 import "./roleWatch.del";
 import "./sigmaDodgeball.del";

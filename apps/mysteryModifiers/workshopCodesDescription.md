@@ -547,6 +547,26 @@ Once the meter is fully charged, the same randomly selected modifier will be app
   </div>
 
   <div class="modifier">
+		<div class="modifier__header">
+			<div class="modifier__title">Orb Hell<span>[1][2][3]</span></div>  
+			<div class="modifier__duration">15 secs</div>
+		</div>
+		<div class="modifier__content">
+			<div class="modifier__description">
+				<p>
+          It's orbin time
+        </p>
+			</div>
+			<ul class="update-notes__changes">
+        <li>Switches player's hero to Moira</li>
+        <li>Speeds up Biotic Orb cooldown to 1500%</li>
+        <li>Speeds up Fade cooldown to 200%</li>
+        <li>Disables usage of Primary, Secondary Fire and Ultimate</li>
+			</ul>
+		</div>
+	</div>
+
+  <div class="modifier">
     <div class="modifier__header">
       <div class="modifier__title">Packet Loss</div>  
       <div class="modifier__duration">10 secs</div>

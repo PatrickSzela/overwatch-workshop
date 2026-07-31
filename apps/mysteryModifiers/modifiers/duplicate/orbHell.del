@@ -1,0 +1,40 @@
+import '../../../../libs/speedUpAbility/index.del';
+import './index.del';
+
+String ORB_HELL_NAME: 'Orb Hell';
+Number ORB_HELL_DURATION: 15;
+
+Modifier orbHell: Modifier.New(
+  name: ORB_HELL_NAME, 
+  duration: ORB_HELL_DURATION,
+  description: [
+    "It's orbin time"
+  ]
+);
+
+rule: '[Duplicate: Orb Hell] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(ORB_HELL_NAME))
+{
+  DuplicateModifSetHero(EP, Hero.Moira);
+}
+
+rule: '[Duplicate: Orb Hell] Setup'
+Event.OngoingPlayer
+if(ModifierHasStarted(ORB_HELL_NAME))
+if(DuplicateModifIsReady())
+{
+  SetPrimaryFireEnabled(EP, false);
+  SetSecondaryFireEnabled(EP, false);
+  SetUltimateAbilityEnabled(EP, false);
+  speedUpAbility.Cooldown(Button.Ability1, 2);
+  speedUpAbility.Cooldown(Button.Ability2, 15);
+
+  WaitUntilIsDeadOrModifierIsOver();
+
+  SetPrimaryFireEnabled(EP, true);
+  SetSecondaryFireEnabled(EP, true);
+  SetUltimateAbilityEnabled(EP, false);
+  speedUpAbility.StopCooldown(Button.Ability1);
+  speedUpAbility.StopCooldown(Button.Ability2);
+}
