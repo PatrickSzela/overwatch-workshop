@@ -1,0 +1,49 @@
+import '../../../../libs/speedUpAbility/index.del';
+import './index.del';
+
+String ETSI_JA_TUHOA_NAME: 'ETSI JA TUHOA';
+Number ETSI_JA_TUHOA_DURATION: 10.5;
+
+Modifier etsiJaTuhoa: Modifier.New(
+  name: ETSI_JA_TUHOA_NAME, 
+  duration: ETSI_JA_TUHOA_DURATION,
+  description: [
+    "PROTOCOL OVERRIDE INITIATED. ERROR 418: HOST'S SIZE TOO SMALL"
+  ]
+);
+
+rule: '[Duplicate: ETSI JA TUHOA] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(ETSI_JA_TUHOA_NAME))
+{
+  DuplicateModifSetHero(EP, Hero.Emre);
+}
+
+rule: '[Duplicate: ETSI JA TUHOA] Setup'
+Event.OngoingPlayer
+if(ModifierHasStarted(ETSI_JA_TUHOA_NAME))
+if(DuplicateModifIsReady())
+{
+  StartScalingPlayer(EP, 0.5);
+  StartModifyingHeroVoiceLines(EP, 1.5);
+
+  AllowButton(EP, Button.Ultimate);
+  SetUltimateCharge(EP, 100);
+  PressButton(EP, Button.Ultimate);
+
+  WaitUntilIsDeadOrModifierIsOver();
+
+  StopScalingPlayer(EP);
+  StopModifyingHeroVoiceLines(EP);
+}
+
+rule: '[Duplicate: ETSI JA TUHOA] Press Button safeguard'
+Event.OngoingPlayer
+if(ModifierHasStarted(ETSI_JA_TUHOA_NAME))
+if(IsDuplicatingFrozen())
+if(UltimateChargePercent() == 100)
+{
+  PressButton(EventPlayer(), Button.Ultimate);
+  Wait(0.1);
+  LoopIfConditionIsTrue();
+}

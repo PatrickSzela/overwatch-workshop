@@ -248,6 +248,22 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
+      <div class="modifier__title">ETSI JA TUHOA<span>[1][2][3]</span></div>  
+      <div class="modifier__duration">10 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>PROTOCOL OVERRIDE INITIATED. ERROR 418: HOST'S SIZE TOO SMALL</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>Switcher player's hero to Emre and triggers Protocol Override</li>
+        <li>Reduces player's size to 50%</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
       <div class="modifier__title">Floor Is Lava</div>  
       <div class="modifier__duration">10 secs</div>
     </div>
