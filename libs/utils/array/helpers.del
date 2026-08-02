@@ -1,8 +1,10 @@
 import '../log.del';
 import '../number/index.del';
 
+String ONE_HUNDRED_PIPES: "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||";
+
 T[] Array<T>(in Number length): 
-  <T[]>("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||".Split("|"));
+  <T[]>(ONE_HUNDRED_PIPES.Split("|")).Slice(0, length);
 
 T[] ArrayOfLength<T>(in Number endIndex) {
   T[] array!;
