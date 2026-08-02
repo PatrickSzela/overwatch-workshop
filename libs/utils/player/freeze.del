@@ -9,7 +9,7 @@ Boolean IsFrozen(Player player = EP): EP._frozen;
 
 # Freezes or unfreezes `player` - they cannot move and press any buttons.
 void SetFrozen(in Player | Player[] player = EP, in Boolean value) {
-  EP._frozen = value;
+  player._frozen = value;
 }
 
 rule: '[libs/utils/player.freeze.del] Handle freeze state change' 50
