@@ -287,7 +287,8 @@ rule: '[Captcha] Has Started'
 Event.OngoingPlayer
 if(ModifierHasStarted(CAPTCHA_NAME))
 {
-  WaitUntilAlive();
+  if(IsDead())
+    Respawn();
 
   captchaData.Enable();
 

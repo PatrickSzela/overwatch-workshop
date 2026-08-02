@@ -123,10 +123,25 @@ Once the meter is fully charged, the same randomly selected modifier will be app
       </div>
       <ul class="update-notes__changes">
         <li>Forces players to solve a simple CAPTCHA</li>
+        <li>
+          Possible choices include:
+          <ul>
+            <li>Select all Tank/Damage/Support heroes</li>
+            <li>Select all vowels/consonants</li>
+            <li>Select all numbers divisible by 2/3/5</li>
+            <li>Select all numbers bigger/smaller than X</li>
+            <li>Select all letters before/after X</li>
+          </ul>
+        </li>
         <li>Use <code>Movement Inputs</code> to navigate</li>
         <li>Use <code>Primary Fire</code> to toggle selection</li>
-        <li>Players get 3 chances to solve it</li>
+        <li>Use <code>Reload</code> to reroll CAPTCHA at the cost of 1 retry</li>
+        <li>Players get 3 retries to solve it</li>
         <li>Failing to solve the CAPTCHA ends with player's death</li>
+        <li>Grants players 500 temporary HP for the duration of the modifier</li>
+        <li>
+          Dead players will be respawned (in their appropriate spawn rooms) when the modifier begins
+        </li>
       </ul>
     </div>
   </div>
