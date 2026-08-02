@@ -218,6 +218,8 @@ Once the meter is fully charged, the same randomly selected modifier will be app
           Adds random throttle to players in random directions, without overriding their requested movement direction
         </li>
         <li>Randomly applies Knocked Down status every few seconds</li>
+        <li>Landing on ground has 50% chance of knocking down the player</li>
+        <li>After getting knocked down, the player takes 5 DMG</li>
         <li>Slows down time to 85%</li>
       </ul>
     </div>
