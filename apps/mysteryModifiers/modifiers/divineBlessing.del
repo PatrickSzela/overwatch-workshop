@@ -1,0 +1,452 @@
+import '../../../libs/utils/team/availableTeams.del';
+import '../../../libs/speedUpAbility/index.del';
+import '../modifier.del';
+import '../utils/effects.del';
+
+// TODO: info about gods being happy/unhappy
+
+String DIVINE_BLESSING_NAME: 'Divine Blessing';
+Number DIVINE_BLESSING_DURATION: 15;
+
+Vector DIVINE_BLESSING_CAMERA_OFFSET: Vector(0, -0.125, 0);
+Vector DIVINE_BLESSING_CAMERA_LOCAL_OFFSET: Vector(0.25, 0, 0);
+Number DIVINE_BLESSING_CAMERA_ZOOM: 1.5;
+Number DIVINE_BLESSING_CAMERA_LOOK_AT_ROT_MODIF: 2.5;
+Number DIVINE_BLESSING_DICE_SIDES: 20;
+Number DIVINE_BLESSING_DIFF_CLASS: 10;
+Number DIVINE_BLESSING_END_DELAY: 2;
+Number DIVINE_BLESSING_CHOICES_COUNT: 4;
+
+Modifier divineBlessing: Modifier.New(
+  name: DIVINE_BLESSING_NAME, 
+  duration: DIVINE_BLESSING_DURATION,
+  description: [
+    "Ask the gods for a blessing. Gain a buff or a debuff lasting until", 
+    "the next modifier, with its strength depending on a d20 roll",
+    "May the gods of RNG be in your favor"
+  ]
+);
+
+enum DivineBlessingState {
+  LOADING_FINISHED = 0,
+  QUESTION = 1,
+  PRESS_ROLL_DICE = 2,
+  ROLLING_DICE = 3,
+  ROLLED_DICE = 4
+}
+
+single struct DivineBlessing {
+  public static Number CAMERA_ZOOM: 4;
+
+  public String text;
+  public String description;
+  public (Number) => Number calculateStrength;
+  public (Player, Number) => void onStart;
+  public (Player) => void onEnd;
+
+  public static DivineBlessing New(
+    String text,
+    String description,
+    (Number) => Number calculateStrength,
+    (Player, Number) => void onStart,
+    (Player) => void onEnd
+  ): {
+    text: text,
+    description: description,
+    calculateStrength: calculateStrength,
+    onStart: onStart,
+    onEnd: onEnd,
+  };
+}
+
+struct DivineBlessingUi {
+  public DivineBlessingState state;
+  public Number[] choices;
+  public Number choice;
+  public String[][] hud;
+  public Number cursorPos;
+  public Boolean freeResurrect;
+  public Number dice;
+  public String description;
+
+  public static DivineBlessingUi New(): {
+    state: DivineBlessingState.LOADING_FINISHED,
+    hud: [],
+    choices: [],
+    choice: -1,
+    cursorPos: 0,
+    freeResurrect: false,
+    dice: 20,
+    description: ""
+  };
+
+  public static Any[] GenerateHud() {
+    Any[] huds = [];
+
+    AP.divineBlessingUi.choices = [];
+
+    // phase 1
+    huds += CreateHudText(
+      VisibleTo: LP.divineBlessingUi.state == DivineBlessingState.QUESTION ? LP : null,
+      Text: "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGods of RNG: We've heard your pleas. What is it that you most desire?",
+      Location: Location.Top,
+      Reevaluation: HudTextRev.VisibleToStringAndColor,
+      Spectators: Spectators.VisibleNever
+    );
+
+    huds += CreateHudText(
+      VisibleTo: LP.divineBlessingUi.state == DivineBlessingState.QUESTION ? LP : null,
+      Subheader: $"Use {InputStringFormatterSingle('Movement Inputs')} to navigate | Use {InputBindingFormatterSingle(Button.PrimaryFire)} to select option\n",
+      Location: Location.Top,
+      Reevaluation: HudTextRev.VisibleToStringAndColor,
+      Spectators: Spectators.VisibleNever
+    );
+
+    for(Number i = 0; i < DIVINE_BLESSING_CHOICES_COUNT; i++) {
+      MinWait();
+
+      huds += CreateHudText(
+      VisibleTo: LP.divineBlessingUi.state == DivineBlessingState.QUESTION ? LP : null,
+        Subheader: $"{EvaluateOnce(i + 1)}. {divineBlessingChoices[LP.divineBlessingUi.choices[EvaluateOnce(i)]].text}",
+        SubheaderColor: LP.divineBlessingUi.cursorPos == EvaluateOnce(i) ? COLOR_RAINBOW : COLOR_NEUTRAL,
+        Location: Location.Top,
+        Reevaluation: HudTextRev.VisibleToStringAndColor,
+        Spectators: Spectators.VisibleNever
+      );
+    }
+
+    huds += CreateHudText(
+      VisibleTo: LP.divineBlessingUi.state == DivineBlessingState.QUESTION ? LP : null,
+      Subheader: $"\n{LP.divineBlessingUi.description}",
+      SubheaderColor: COLOR_SUCCESS,
+      Location: Location.Top,
+      Reevaluation: HudTextRev.VisibleToStringAndColor,
+      Spectators: Spectators.VisibleNever
+    );
+
+    // phase 2
+    huds += CreateHudText(
+      VisibleTo: LP.divineBlessingUi.state >= DivineBlessingState.PRESS_ROLL_DICE ? LP : null,
+      Subheader: $"\n\n\n\n\n\n\n\n\n\n\n\n{LP}: {divineBlessingChoices[LP.divineBlessingUi.choice].text}",
+      Location: Location.Top,
+      Spectators: Spectators.VisibleNever
+    );
+
+    MinWait();
+
+    huds += CreateHudText(
+      VisibleTo: LP.divineBlessingUi.state >= DivineBlessingState.PRESS_ROLL_DICE ? LP : null,
+      Text: "\nDifficulty Class",
+      Location: Location.Top,
+      Spectators: Spectators.VisibleNever
+    );
+
+    huds += CreateHudText(
+      VisibleTo: LP.divineBlessingUi.state >= DivineBlessingState.PRESS_ROLL_DICE ? LP : null,
+      Text: $"{DIVINE_BLESSING_DIFF_CLASS}\n",
+      TextColor: COLOR_RAINBOW,
+      Location: Location.Top,
+      Reevaluation: HudTextRev.VisibleToStringAndColor,
+      Spectators: Spectators.VisibleNever
+    );
+
+    MinWait();
+
+    huds += CreateHudText(
+      VisibleTo: LP.divineBlessingUi.state >= DivineBlessingState.PRESS_ROLL_DICE ? LP : null,
+      Header: $"\n\n          {LP.divineBlessingUi.dice < 10 ? " " : ""}{LP.divineBlessingUi.dice}{LP.divineBlessingUi.dice < 10 ? " " : ""}           \n\n",
+      HeaderColor: 
+        LP.divineBlessingUi.state == DivineBlessingState.ROLLED_DICE ? 
+          LP.divineBlessingUi.dice < DIVINE_BLESSING_DIFF_CLASS ? COLOR_ERROR : COLOR_SUCCESS : COLOR_NEUTRAL,
+      Location: Location.Top,
+      Reevaluation: HudTextRev.VisibleToStringAndColor,
+      Spectators: Spectators.VisibleNever
+    );
+
+    huds += CreateHudText(
+      VisibleTo: LP.divineBlessingUi.state == DivineBlessingState.PRESS_ROLL_DICE ? LP : null,
+      Subheader: $"\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to roll",
+      Location: Location.Top,
+      Spectators: Spectators.VisibleNever
+    );
+
+    return huds;
+  }
+  
+  public ref void Enable() {
+    SetNavigationEnabled(EP, true);
+    SetStatus(EP, null, Status.PhasedOut, NUMBER_MAX);
+    DisableHeroHud(EP);
+    DisableGameModeHud(EP);
+    DisableGameModeInworldUI(EP);
+    StartRayCastedCamera(
+      player: EP,
+      startPosition: EP.EyePosition(),
+      desiredPosition: 
+        EP.EyePosition() +
+        DIVINE_BLESSING_CAMERA_OFFSET + 
+        WorldVectorOf(DIVINE_BLESSING_CAMERA_LOCAL_OFFSET, EP) +
+        EP.FacingDirection() * DIVINE_BLESSING_CAMERA_ZOOM,
+      lookAtPosition: EP.EyePosition() +
+        DIVINE_BLESSING_CAMERA_OFFSET +
+        WorldVectorOf(-DIVINE_BLESSING_CAMERA_LOOK_AT_ROT_MODIF * DIVINE_BLESSING_CAMERA_LOCAL_OFFSET, EP),
+      blendSpeed: 1000
+    );
+    state = DivineBlessingState.QUESTION;
+  }
+
+  public ref void Disable() {
+    SetNavigationEnabled(EP, false);
+    ClearStatus(EP, Status.PhasedOut);
+    EnableHeroHud(EP);
+    EnableGameModeHud(EP);
+    EnableGameModeInworldUI(EP);
+    StopCamera(EP);
+    state = DivineBlessingState.LOADING_FINISHED;
+  }
+
+  public ref void GenerateQuestions() {
+    choices = divineBlessingChoices.Map((i, idx) => idx).Randomize().Slice(0, DIVINE_BLESSING_CHOICES_COUNT);
+  }
+
+  public ref Number Strength(in Number choice) {
+    return divineBlessingChoices[choice].calculateStrength(dice - DIVINE_BLESSING_DIFF_CLASS);
+  }
+
+  public ref void Navigate(in Number direction) {
+    cursorPos = Clamp(cursorPos + direction, 0, DIVINE_BLESSING_CHOICES_COUNT - 1);
+    description = divineBlessingChoices[choices[cursorPos]].description.Replace("__NUM__", $"up to {Strength(choices[cursorPos])}");
+  }
+
+  public ref void Select() {
+    if(state == DivineBlessingState.QUESTION) {
+      choice = divineBlessingUi.choices[cursorPos];
+      state = DivineBlessingState.PRESS_ROLL_DICE;
+    } else if(state == DivineBlessingState.PRESS_ROLL_DICE) {
+      state = DivineBlessingState.ROLLING_DICE;
+    }
+  }
+}
+
+globalvar DivineBlessing[] divineBlessingChoices = [
+  DivineBlessing.New(
+    text: "I want to be the strongest person in the world",
+    description: "You deal __NUM__% more damage to your enemies",
+    calculateStrength: (s) => (s >= 0 ? 10 : 0) + s * 2,
+    onStart: (p, s) => SetDamageDealt(p, 100 + s),
+    onEnd: (p) => SetDamageDealt(p, 100)
+  ),
+  DivineBlessing.New(
+    text: "Strengthen my power of healing the wounded",
+    description: "Your healing abilities are __NUM__% more potent",
+    calculateStrength: (s) => (s >= 0 ? 10 : 0) + s * 2,
+    onStart: (p, s) => SetHealingDealt(p, 100 + s),
+    onEnd: (p) => SetHealingDealt(p, 100)
+  ),
+  DivineBlessing.New(
+    text: "Give my feet the speed of the wind",
+    description: "Your movement speed is increased by __NUM__%",
+    calculateStrength: (s) => (s >= 0 ? 25 : 0) + s * 2.5,
+    onStart: (p, s) => SetMoveSpeed(p, 100 + s),
+    onEnd: (p) => SetMoveSpeed(p, 100)
+  ),
+  DivineBlessing.New(
+    text: "Bless me with a weightless body",
+    description: "Your gravity is decreased by __NUM__%",
+    calculateStrength: (s) => (s >= 0 ? 25 : 0) + s * 3.75,
+    onStart: (p, s) => SetGravity(p, 100 - s),
+    onEnd: (p) => SetGravity(p, 100)
+  ),
+  DivineBlessing.New(
+    text: "Save me from death's door",
+    description: "You gain __NUM__ free resurrect charge(s)",
+    calculateStrength: (s) => s >= 0 ? 1 : 0,
+    onStart: (p, s) => p.divineBlessingUi.freeResurrect = s,
+    onEnd: (p) => p.divineBlessingUi.freeResurrect = 0
+  ),
+  DivineBlessing.New(
+    text: "Let my powers recharge faster",
+    description: "Your cooldown restoration speed is increased by __NUM__%",
+    calculateStrength: (s) => (s >= 0 ? 10 : 0) + s * 4,
+    onStart: (p, s) => {
+      p.speedUpAbility.AllCooldowns(1 + s / 100);
+    },
+    onEnd: (p) => {
+      p.speedUpAbility.AllCooldowns(1);
+    }
+  ),
+  DivineBlessing.New(
+    text: "Allow me to use my ultimate power right away",
+    description: "You gain __NUM__% of Ultimate charge",
+    calculateStrength: (s) => (s >= 0 ? 20 : 0) + s * 3,
+    onStart: (p, s) => SetUltimateCharge(EP, UltimateChargePercent() + s),
+    onEnd: (p) => {}
+  ),
+  DivineBlessing.New(
+    text: "Make my wounds heal much faster",
+    description: "Your healing received is increased by __NUM__%",
+    calculateStrength: (s) => (s >= 0 ? 20 : 0) + s * 3,
+    onStart: (p, s) => SetHealingReceived(p, 100 + s),
+    onEnd: (p) => SetHealingReceived(p, 100)
+  ),
+  DivineBlessing.New(
+    text: "Shield me from the strikes of my enemies",
+    description: "You take __NUM__% less damage",
+    calculateStrength: (s) => (s >= 0 ? 10 : 0) + s * 2,
+    onStart: (p, s) => SetDamageReceived(p, 100 + s),
+    onEnd: (p) => SetDamageReceived(p, 100)
+  )
+];
+
+globalvar Any[] divineBlessingHuds;
+globalvar Any divineBlessingStatusHud!;
+playervar DivineBlessingUi divineBlessingUi;
+playervar String divineBlessingStatus!;
+playervar Number divineBlessingDice!;
+
+rule: '[Divine Blessing] Is Preloading'
+if(ModifierIsPreloading(DIVINE_BLESSING_NAME))
+{
+  divineBlessingHuds = DivineBlessingUi.GenerateHud();
+}
+
+rule: '[Divine Blessing] Is Preloading'
+Event.OngoingPlayer
+if(ModifierIsPreloading(DIVINE_BLESSING_NAME))
+{
+  WaitSpreadPerPlayer();
+  divineBlessingUi = DivineBlessingUi.New();
+  divineBlessingUi.GenerateQuestions();
+}
+
+rule: '[Divine Blessing] Has Started'
+if(ModifierHasStarted(DIVINE_BLESSING_NAME))
+{
+  WaitUntilModifierIsOver();
+  
+  foreach(Any d in divineBlessingHuds) {
+    DestroyHudText(d);
+  }
+
+  divineBlessingStatusHud = CreateHudText(
+    VisibleTo: LP.divineBlessingStatus ? LP : null,
+    Subheader: "\nGranted blessing:",
+    Text: LP.divineBlessingStatus,
+    TextColor: LP.divineBlessingDice >= DIVINE_BLESSING_DIFF_CLASS ? COLOR_SUCCESS : COLOR_ERROR,
+    SortOrder: 999,
+    Location: Location.Left,
+    Reevaluation: HudTextRev.VisibleToStringAndColor,
+    Spectators: Spectators.VisibleNever
+  );
+
+  WaitForeverUntil(currentModifier.state == ModifierState.ABOUT_TO_BE_STARTED);
+  DestroyHudText(divineBlessingStatusHud);
+  AP.divineBlessingStatus = "";
+}
+
+rule: '[Divine Blessing] Is Preloading'
+Event.OngoingPlayer
+if(ModifierHasStarted(DIVINE_BLESSING_NAME))
+{
+  if(IsDead())
+    Respawn();
+  
+  divineBlessingUi.Enable();
+
+  WaitUntilModifierIsOver();
+
+  divineBlessingUi.Disable();
+}
+
+rule: '[Divine Blessing] Wave randomly'
+Event.OngoingPlayer
+if(divineBlessingUi.state)
+{
+  Wait(RandomReal(3.5, 7.5), WaitBehavior.AbortWhenFalse);
+  Communicate(EP, Communication.Hello);
+  Loop();
+}
+
+rule: '[Divine Blessing] Navigate menu'
+Event.OngoingPlayer
+if(divineBlessingUi.state)
+if(IsNavigating() || !divineBlessingUi.description)
+{
+  divineBlessingUi.Navigate(-NavigationDirectionOf().Y);
+  MinWait();
+  LoopIfConditionIsTrue();
+}
+
+rule: '[Divine Blessing] Select choice'
+Event.OngoingPlayer
+if(divineBlessingUi.state)
+if(IsNavigationEnabled())
+if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
+{
+  divineBlessingUi.Select();
+}
+
+rule: '[Divine Blessing] Select choice' -1
+Event.OngoingPlayer
+if(divineBlessingUi.state == DivineBlessingState.ROLLING_DICE)
+{
+  divineBlessingUi.dice = RandomInteger(1, DIVINE_BLESSING_DICE_SIDES);
+
+  while(modifierDurationLeft - DIVINE_BLESSING_END_DELAY > 0) {
+    Wait(1 / modifierDurationLeft);
+    divineBlessingUi.dice = RandomInteger(1, DIVINE_BLESSING_DICE_SIDES);
+
+    if(!divineBlessingUi.state) {
+      return;
+    }
+  }
+  
+  Wait(Min(1, modifierDurationLeft - (DIVINE_BLESSING_END_DELAY - 1)));
+
+  if(!divineBlessingUi.state) {
+    return;
+  }
+
+  divineBlessingUi.state = DivineBlessingState.ROLLED_DICE;
+  divineBlessingDice = divineBlessingUi.dice;
+  
+  BigMessage(EP, 
+    divineBlessingUi.dice == 1 ? "Critical Failure" :
+    divineBlessingUi.dice == DIVINE_BLESSING_DICE_SIDES ? "Critical Success" :
+    divineBlessingUi.dice >= DIVINE_BLESSING_DIFF_CLASS ? "Success" : "Failure"
+  );
+
+  WaitUntilModifierIsOver();
+
+  Number choice! = divineBlessingUi.choice;
+  Number strength! = divineBlessingUi.Strength(choice);
+
+  if(divineBlessingUi.dice > 1) {
+    divineBlessingStatus = divineBlessingChoices[choice].description.Replace("__NUM__", <String>strength);
+  }
+
+  MinWait();
+
+  if(divineBlessingUi.dice == 1) {
+    PlayEffect(AllPlayers(), PlayEffect.ExplosionSound, Color.Red, EventPlayer(), 100);
+    PlayEffect(AllPlayers(), PlayEffect.BadExplosion, Color.Red, EventPlayer(), 1.5);
+    Kill();
+  } else 
+    divineBlessingChoices[divineBlessingUi.choice].onStart(EP, strength);
+  
+  WaitForeverUntil(currentModifier.state == ModifierState.ABOUT_TO_BE_STARTED);
+  divineBlessingChoices[choice].onEnd(EP);
+}
+
+rule: '[Divine Blessing] Select choice'
+Event.OnDeath
+if(divineBlessingUi.freeResurrect)
+{
+  Wait(1);
+  divineBlessingUi.freeResurrect = 0;
+
+  if(EventWasEnvironment())
+    Respawn();
+  else
+    Resurrect();
+}

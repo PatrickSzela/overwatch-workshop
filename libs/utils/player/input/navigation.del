@@ -1,17 +1,36 @@
+import '../../player/input/heldButtons.del';
+import '../../player/freeze.del';
 import '../../vector/index.del';
 import '../../helpers.del';
 
+playervar Number _navigationState! = 0;
 playervar Vector _navigationDir! = Vector.Zero;
 playervar Vector _navigationDirReal! = Vector.Zero;
 playervar Vector _navigationDirPrev! = Vector.Zero;
-playervar Number _repeatTimer!;
+playervar Number _navigationRepeatTimer!;
 
-Boolean IsNavigating(): MagnitudeOf(ThrottleOf()) > 0.75;
+Boolean IsNavigationEnabled(): _navigationState == 2;
+
+void SetNavigationEnabled(Player player! = EP, Boolean enabled!) "[libs/utils/input/navigation.del] Set Navigation Enabled" {
+  _navigationState = enabled ? 1 : 0;
+  SetFrozen(EP, enabled);
+}
+
+Vector IsMagnitude(): MagnitudeOf(ThrottleOf()) > 0.75;
+Boolean IsNavigating(): IsNavigationEnabled() && IsMagnitude();
 Vector NavigationDirectionOf(Player player = EP): player._navigationDir;
+
+rule: '[libs/utils/input/navigation.del] Pause until player releases all buttons' -102
+Event.OngoingPlayer
+if(_navigationState == 1)
+{
+  WaitForeverUntil(!IsMagnitude() && !(HeldButtonsOf() - Button.Crouch));
+  _navigationState = 2;
+}
 
 rule: '[libs/utils/input/navigation.del] Handle player\'s throttle' -101
 Event.OngoingPlayer
-if(IsNavigating())
+if(_navigationState == 2)
 {  
   _navigationDirReal = SnapToAngle(Vector(-ThrottleOf().X, ThrottleOf().Z, 0), 45);
   
@@ -25,29 +44,30 @@ if(IsNavigating())
 
 rule: '[libs/utils/input/navigation.del] Update exposed navigation data' -100
 Event.OngoingPlayer
+if(_navigationState == 2)
 if(_navigationDirReal)
 {
-  _repeatTimer = 0.5;
+  _navigationRepeatTimer = 0.5;
   _navigationDir = Vector(
     _navigationDirPrev.X == _navigationDirReal.X ? 0 : _navigationDirReal.X, 
     _navigationDirPrev.Y == _navigationDirReal.Y ? 0 : _navigationDirReal.Y, 
   );
   _navigationDirPrev = _navigationDirReal;
 
-  while(_navigationDirReal) {
-    WaitUntilValueChanges(_navigationDirReal, ONE_TICK);
+  while(_navigationDirReal && _navigationState == 2) {
+    WaitUntil(_navigationDirReal != EvaluateOnce(_navigationDirReal) || _navigationState != EvaluateOnce(_navigationState), ONE_TICK);
     _navigationDir = Vector.Zero;
 
-    if(_navigationDirReal != _navigationDirPrev)
+    if(_navigationDirReal != _navigationDirPrev || _navigationState != 2)
       break;
 
-    WaitUntilValueChanges(_navigationDirReal, _repeatTimer);
+    WaitUntil(_navigationDirReal != EvaluateOnce(_navigationDirReal) || _navigationState != EvaluateOnce(_navigationState), _navigationRepeatTimer);
 
-    if(_navigationDirReal != _navigationDirPrev)
+    if(_navigationDirReal != _navigationDirPrev || _navigationState != 2)
       break;
 
     _navigationDir = _navigationDirReal;
-    _repeatTimer = 0.075;
+    _navigationRepeatTimer = 0.075;
   }
 
   LoopIfConditionIsTrue();

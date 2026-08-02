@@ -15,7 +15,6 @@ struct Captcha {
 
   public Boolean enabled;
   public Boolean generate;
-  public Boolean navigationEnabled;
   public String title;
   public String[][] hud;
   public Any[][] values;
@@ -28,7 +27,6 @@ struct Captcha {
   public static Captcha New(): {
     enabled: false,
     generate: true,
-    navigationEnabled: false,
     title: null,
     hud: [],
     values: [],
@@ -120,14 +118,14 @@ struct Captcha {
   }
 
   public ref void RULE_GeneratePuzzle() {
-    Number choice! = RandomInteger(0, 4);
+    Number puzzle! = RandomInteger(0, 4);
     Number validCount!;
     Any[] validValues!;
     Any[] invalidValues!;
     Any[] _values!;
     String[] _huds!;
 
-    switch(choice) {
+    switch(puzzle) {
       case 0:
         Number role! = RandomInteger(0, 2);
         Hero[][] allHeroes! = [AllTankHeroes(), AllDamageHeroes(), AllSupportHeroes()];
@@ -177,27 +175,27 @@ struct Captcha {
     }
 
     Any[] _solution = _values.Map((i) => validValues.Contains(i));
-    _huds = _values.Map((i) => choice == 0 ? HeroIconString(i) : choice == 4 ? alphabet[i] : i);
+    _huds = _values.Map((i) => puzzle == 0 ? HeroIconString(i) : puzzle == 4 ? alphabet[i] : i);
 
     hud = [_huds.Slice(0, 3), _huds.Slice(3, 3), _huds.Slice(6, 3)];
     values = [_values.Slice(0, 3), _values.Slice(3, 3), _values.Slice(6, 3)];
     solution = [_solution.Slice(0, 3), _solution.Slice(3, 3), _solution.Slice(6, 3)];
+    choice = [[false, false, false], [false, false, false], [false, false, false]];
     generate = false;
   }
 
   public ref void Enable() {
-    SetFrozen(EP, true);
+    SetNavigationEnabled(EP, true);
     shield = AddHealthPoolToPlayer(EventPlayer(), HealthType.Health, 500, false, false);
     DisableHeroHud();
     enabled = true;
   }
 
   public ref void Disable() {
-    SetFrozen(EP, false);
+    SetNavigationEnabled(EP, false);
     RemoveHealthPoolFromPlayer(shield);
     EnableHeroHud();
     DestroyPlayerEffects();
-    navigationEnabled = false;
     enabled = false;
   }
 
@@ -265,7 +263,8 @@ if(ModifierIsPreloading(CAPTCHA_NAME))
 
 rule: '[Captcha] Generate puzzle'
 Event.OngoingPlayer
-if(ModifierHasStarted(CAPTCHA_NAME))
+if(captchaData.enabled)
+if(IsNavigationEnabled())
 if(EventPlayer().IsButtonHeld(Button.Reload))
 {
   captchaData.GeneratePuzzle();
@@ -299,22 +298,10 @@ if(ModifierHasStarted(CAPTCHA_NAME))
   DestroyPlayerEffects();
 }
 
-rule: '[Captcha] Enable navigation after all used inputs have been let go'
-Event.OngoingPlayer
-if(captchaData.enabled)
-if(!captchaData.navigationEnabled)
-{
-  WaitUntilModifierIsOverOrCondition(
-    !IsNavigating() && !EventPlayer().IsButtonHeld(Button.PrimaryFire)
-  );
-  AbortIfConditionIsFalse();
-  captchaData.navigationEnabled = true;
-}
-
 rule: '[Captcha] Navigate menu'
 Event.OngoingPlayer
 if(captchaData.enabled)
-if(captchaData.navigationEnabled)
+if(IsNavigationEnabled())
 if(NavigationDirectionOf())
 {
   captchaData.Navigate(NavigationDirectionOf());
@@ -325,7 +312,7 @@ if(NavigationDirectionOf())
 rule: '[Captcha] Interact with menu'
 Event.OngoingPlayer
 if(captchaData.enabled)
-if(captchaData.navigationEnabled)
+if(IsNavigationEnabled())
 if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
 {
   captchaData.ToggleChoice();

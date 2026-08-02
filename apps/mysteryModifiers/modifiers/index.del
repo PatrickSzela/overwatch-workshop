@@ -5,6 +5,7 @@ import './blinded.del';
 import './bodyOdor.del';
 import './captcha.del';
 import './drunk.del';
+import './divineBlessing.del';
 import './duplicate/index.del';
 import './emote.del';
 import './energize.del';
@@ -42,46 +43,50 @@ import './weakened.del';
 import './vampiricExchange.del';
 
 globalvar Modifier[] allModifiers = [
-  adaptiveShield,
-  antiHeal,
-  blinded,
-  bodyOdor,
-  captcha,
-  drunk,
-  emote,
-  energize,
-  floorIsLava,
-  goForward,
-  gravityHigh,
-  gravityLow,
-  hacked,
-  healthBoundSize,
-  healthBoundSpeed,
-  hypothermia,
-  iceRink,
-  invertControls,
-  invisibility,
-  jetPack,
-  laserEyes,
-  lowVisibility,
-  nanoBoost,
-  noHud,
-  packetLoss,
-  playerSizeBig,
-  playerSizeSmall,
-  redLightGreenLight,
-  sleep,
-  slowMotion,
-  speedBoost,
-  sunburn,
-  tbagging,
-  theVoices,
-  thirdPersonCamera,
-  topDownCamera,
-  trampoline,
-  useUltimate,
-  weakened,
-  vampiricExchange
-] + DUPLICATE_MODIF_LIST;
+  divineBlessing
+];
+
+// globalvar Modifier[] allModifiers = [
+//   adaptiveShield,
+//   antiHeal,
+//   blinded,
+//   bodyOdor,
+//   captcha,
+//   drunk,
+//   emote,
+//   energize,
+//   floorIsLava,
+//   goForward,
+//   gravityHigh,
+//   gravityLow,
+//   hacked,
+//   healthBoundSize,
+//   healthBoundSpeed,
+//   hypothermia,
+//   iceRink,
+//   invertControls,
+//   invisibility,
+//   jetPack,
+//   laserEyes,
+//   lowVisibility,
+//   nanoBoost,
+//   noHud,
+//   packetLoss,
+//   playerSizeBig,
+//   playerSizeSmall,
+//   redLightGreenLight,
+//   sleep,
+//   slowMotion,
+//   speedBoost,
+//   sunburn,
+//   tbagging,
+//   theVoices,
+//   thirdPersonCamera,
+//   topDownCamera,
+//   trampoline,
+//   useUltimate,
+//   weakened,
+//   vampiricExchange
+// ] + DUPLICATE_MODIF_LIST;
 
 globalvar String[] enabledModifiers = [];

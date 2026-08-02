@@ -1,6 +1,7 @@
 enum ModifierState {
   NONE,
   PRELOAD,
+  ABOUT_TO_BE_STARTED,
   STARTED,
   ENDED
 }
@@ -16,6 +17,7 @@ single struct Modifier {
   public String[] description;
 
   public Boolean preloading: state == ModifierState.PRELOAD;
+  public Boolean aboutToBeStarted: state == ModifierState.ABOUT_TO_BE_STARTED;
   public Boolean started: state == ModifierState.STARTED;
   public Boolean ended: state == ModifierState.ENDED;
 
@@ -39,6 +41,8 @@ single struct Modifier {
   }
 
   public ref void Enable() {
+    state = ModifierState.ABOUT_TO_BE_STARTED;
+    Wait(ONE_TICK * 2);
     state = ModifierState.STARTED;
   }
 }

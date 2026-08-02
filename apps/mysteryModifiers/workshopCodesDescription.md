@@ -133,10 +133,11 @@ Once the meter is fully charged, the same randomly selected modifier will be app
             <li>Select all letters before/after X</li>
           </ul>
         </li>
-        <li>Use <code>Movement Inputs</code> to navigate</li>
-        <li>Use <code>Primary Fire</code> to toggle selection</li>
-        <li>Use <code>Reload</code> to reroll CAPTCHA at the cost of 1 retry</li>
+        <li>Use <kbd>Movement Inputs</kbd> to navigate</li>
+        <li>Use <kbd>Primary Fire</kbd> to toggle selection</li>
+        <li>Use <kbd>Reload</kbd> to reroll CAPTCHA at the cost of 1 retry</li>
         <li>Players get 3 retries to solve it</li>
+        <li>Successfully solving the CAPTCHA allows the player to continue playing</li>
         <li>Failing to solve the CAPTCHA ends with player's death</li>
         <li>Grants players 500 temporary HP for the duration of the modifier</li>
         <li>
@@ -163,6 +164,42 @@ Once the meter is fully charged, the same randomly selected modifier will be app
         <li>Limits pulses emitted by Purr to 1</li>
         <li>Disables usage of Lifeline</li>
         <li>Disables usage of Catnapper</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
+      <div class="modifier__title">Divine Blessing</div>  
+      <div class="modifier__duration">15 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>Ask the gods for a blessing. Gain a buff or a debuff lasting until the next modifier, with its strength depending on a d20 roll. May the gods of RNG be in your favor</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>
+          Each player gains a chance of asking the Gods of RNG for one of the 4 randomly selected blessings:
+          <ul>
+            <li>You deal up to 30% more damage to your enemies</li>
+            <li>Your healing abilities are up to 30% more potent</li>
+            <li>Your movement speed is increased by up to 50%</li>
+            <li>Your gravity is decreased by up to 62.5%</li>
+            <li>You gain up to 1 free resurrect charge(s) (or instantaneous respawn if death was caused by environment)</li>
+            <li>Your cooldown restoration speed is increased by up to 50%</li>
+            <li>You gain up to 50% of Ultimate charge</li>
+            <li>Your healing received is increased by 50%</li>
+            <li>You take 30% less damage</li>
+          </ul>
+        </li>
+        <li>Use <kbd>Movement Inputs</kbd> to navigate</li>
+        <li>Use <kbd>Primary Fire</kbd> to select option/roll a dice</li>
+        <li>The strength of the buff (or debuff) depends on a d20 roll, with difficulty class of 10</li>
+        <li>Critical Failure ends up with player's death</li>
+        <li>Not selecting a blessing or not rolling the dice doesn't grant any buffs or debuffs</li>
+        <li>
+          Dead players will be respawned (in their appropriate spawn rooms) when the modifier begins
+        </li>
       </ul>
     </div>
   </div>
