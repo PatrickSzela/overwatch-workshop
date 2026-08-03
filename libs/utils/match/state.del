@@ -1,0 +1,35 @@
+enum GameState {
+  // TODO: add assembling heroes & in setup (how to handle control mode & competitive?)
+  NONE,
+  STARTED,
+  IN_PROGRESS,
+  IN_BETWEEN_ROUNDS,
+  COMPLETE
+}
+
+globalvar GameState _gameState = GameState.NONE;
+
+GameState CurrentGameState(): _gameState;
+
+rule: '[libs/utils/match/state.del] Game started'
+{
+  _gameState = GameState.STARTED;
+}
+
+rule: '[libs/utils/match/state.del] Game in progress'
+if(IsGameInProgress() || CurrentGameMode() == GameMode.Skirmish)
+{
+  _gameState = GameState.IN_PROGRESS;
+}
+
+rule: '[libs/utils/match/state.del] Game finished'
+if(IsMatchComplete())
+{
+  _gameState = GameState.COMPLETE;
+}
+
+rule: '[libs/utils/match/state.del] In between rounds'
+if(IsBetweenRounds() && !IsMatchComplete())
+{
+  _gameState = GameState.IN_BETWEEN_ROUNDS;
+}
