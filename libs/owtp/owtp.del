@@ -236,17 +236,17 @@ single struct OWTP {
 
   // Handle Send Message Queue
   // NOTE: triggering SendMessage from 2 different rules at the same time breaks JSON parser, so we store them in queue and sending them from one rule
-  public ref Boolean HandleSendMessageQueue_Condition(): sendMessageQueue;
-
   public ref void HandleSendMessageQueue_Rule() {
+    // since item can be added to the queue later in the rule execution list, checking this in a condition can cause the rule to not execute anymore
+    WaitForeverUntil(sendMessageQueue);
+
     Any type: sendMessageQueue.First[0];
     Any[][] data: sendMessageQueue.First[1];
 
     Log(ToJson([[OWTP_MessageData.MESSAGE_NAME, type]] + data));
-
     ModRemoveFirst(sendMessageQueue);
 
-    LoopIfConditionIsTrue();
+    Loop();
   }
 
   // Handle Button

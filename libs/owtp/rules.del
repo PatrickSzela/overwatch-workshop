@@ -13,7 +13,6 @@ Event.OngoingPlayer
 }
 
 rule: 'OWTP: Handle Send Message Queue'
-if(connection.HandleSendMessageQueue_Condition())
 {
   connection.HandleSendMessageQueue_Rule();
 }
