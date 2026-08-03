@@ -48,3 +48,24 @@ void StartBreatheMultiplier(ref Number variable, in Number speed = 500) {
   Number calculation: (CosineFromDegrees((TotalTimeElapsed() * speed) % 360) + 1) / 2;
   ChaseVariableAtRate(variable, calculation, NUMBER_MAX, RateChaseReevaluation.DestinationAndRate);
 }
+
+Number _FletchersChecksumNormalize(in Number value, in Number mod) {
+  Number v! = value % mod;
+  return v != 0 ? v : mod - 1;
+}
+
+# Based to Fletcher's checksum algorithm
+# - `mod` must be a prime number
+# - `mix_a` and `mix_b` must be co-primes of `mod`, mixing factors used to increase avalanche effect
+Number[] FletchersChecksumMix(in Number[] data, in Number mod, in Number mix_a, in Number mix_b) {
+  Number sumPart = 0;
+  Number prodPart = 1;
+
+  for(Number i! = 0; i < data.Length; i++) {
+    Number x: data[i];
+    sumPart = _FletchersChecksumNormalize(sumPart + (x * (i + 1) * mix_a), mod);
+    prodPart = _FletchersChecksumNormalize(prodPart * (x + mix_b + i), mod);
+  }
+
+  return [sumPart, prodPart];
+}

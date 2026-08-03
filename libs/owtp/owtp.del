@@ -1,7 +1,6 @@
 import '../utils/helpers.del';
 import '../utils/index.del';
 import '../utils/player/input/allSpectatorButtons.del';
-import '../utils/string/ascii.del';
 import '../utils/number/join.del';
 import '../utils/json/json.del';
 
@@ -57,6 +56,8 @@ single struct MessageStructure {
 }
 
 single struct OWTP {
+  # String containing all printable characters in ASCII table, with some additions.
+  String ALPHABET: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
   Boolean _enabled;
   Boolean _connected;
   Boolean _interactive;
@@ -87,6 +88,19 @@ single struct OWTP {
       MessageStructure.New("TRANSMISSION FINISHED")
     ],
   };
+
+  # Decodes an index of an ASCII character.
+  String DecodeCharacter(Number number): 
+    ALPHABET.CharAt(number - 1);
+
+  # Decodes an array of ASCII character indexes into a string.
+  String DecodeString(in Number[] numbers) {
+    String string! = "";
+    foreach(Number num! in numbers) {
+      string = $"{string}{DecodeCharacter(num)}";
+    }
+    return string;
+  }
 
   public ref void MarkMessageAsHandled() {
     message = null;
@@ -145,13 +159,6 @@ single struct OWTP {
     ]);
   }
 
-  ref String GenerateChecksum(in Number[] packets) {
-    Number sum = 0;
-    for(Number i = 0; i < packets.Length; i++)
-      sum += packets[i] + i + 1;
-    return ToString(sum);
-  }
-
   ref Message DecodeMessage(in Number[] packets) {
     // remove start, confirmation & end packets and split it by comma
     Number[][] parts = Split(packets.Remove(<Number>OWTP_ReservedPackets.START_END_CONFIRM), <Number>OWTP_ReservedPackets.COMMA);
@@ -169,14 +176,13 @@ single struct OWTP {
       }
     }
 
-    String calculatedChecksum: GenerateChecksum(id + encodedData);
-    String receivedChecksum: DecodeAsciiString(checksumData);
+    Number[] calculatedChecksum: FletchersChecksumMix(id + encodedData, 113, 73, 59);
 
-    if(!structure || calculatedChecksum != receivedChecksum) 
+    if(!structure || calculatedChecksum != checksumData) 
       return null;
 
     // encoded data doesn't contain "[" and "]" to reduce amount of packets
-    Any[] data = FromJson($"[{DecodeAsciiString(encodedData)}]");
+    Any[] data = FromJson($"[{DecodeString(encodedData)}]");
 
     for(Number i = 0; i < data.Length; i++) {
       Type type: structure.dataTypes[i];
