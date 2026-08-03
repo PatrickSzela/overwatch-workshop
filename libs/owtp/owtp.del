@@ -353,4 +353,8 @@ single struct OWTP {
       Loop();
     }
   }
+
+  public static void WaitForGameToLoad() {
+    Wait(5);
+  }
 }

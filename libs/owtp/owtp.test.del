@@ -30,6 +30,8 @@ rule: 'Setup'
     name: "TEST", 
     args: TEST_DATA_TYPES
   ));
+
+  OWTP.WaitForGameToLoad();
   
   connection.Connect("TEST", "-----", "1.0.0", "PatPatPatriq");
   // connection.SendMessage("connection created");

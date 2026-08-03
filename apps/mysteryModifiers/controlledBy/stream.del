@@ -40,6 +40,9 @@ if(controlledBy == ControlledBy.STREAM)
   OWTP.WaitForSpectator();
 
   connection.DebugHud();
+
+  OWTP.WaitForGameToLoad();
+
   connection.Connect(
     modeName: import('../metadata.json').name,
     modeCode: import('../metadata.json').code,
