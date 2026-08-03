@@ -40,7 +40,12 @@ if(controlledBy == ControlledBy.STREAM)
   OWTP.WaitForSpectator();
 
   connection.DebugHud();
-  connection.Connect();
+  connection.Connect(
+    modeName: import('../metadata.json').name,
+    modeCode: import('../metadata.json').code,
+    modeVersion: import('../metadata.json').version,
+    modeAuthor: import('../metadata.json').author.name
+  );
 
   if(streamSettings.showPollHUD)
     streamIntegration.CreatePollHUD();

@@ -11,10 +11,7 @@ enum GameStateMessage {
 
 rule: '[OWTP - GAME STATE] Game started'
 {
-  connection.SendMessage(GameStateMessage.STARTED, [
-    ["mode", CurrentGameMode()], 
-    ["map", CurrentMap()]
-  ]);
+  connection.SendMessage(GameStateMessage.STARTED);
 }
 
 rule: '[OWTP - GAME STATE] Game in progress'

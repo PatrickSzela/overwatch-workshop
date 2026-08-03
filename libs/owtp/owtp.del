@@ -107,13 +107,29 @@ single struct OWTP {
   }
 
   # Will pause the execution of the current rule until connection has been established
-  public ref void Connect(in Boolean interactive = false) {
+  public ref void Connect(
+    in String modeName,
+    in String modeCode,
+    in String modeVersion,
+    in String modeAuthor,
+    in Boolean interactive = false
+  ) {
     if(_connected) return;
 
     _interactive = interactive;
     _enabled = true;
+
     SendMessage(OWTP_MessageName.CONNECT, [
-      ["interactive", interactive]
+      ["version", import("./metadata.json").version],
+      ["interactive", interactive],
+      ["mode", [
+        ["name", modeName],
+        ["code", modeCode],
+        ["version", modeVersion],
+        ["author", modeAuthor],
+        ["game_mode", CurrentGameMode()], 
+        ["map", CurrentMap()]
+      ]]
     ]);
 
     WaitForeverUntil(message.name[0] == "CONNECT" || !_enabled);
