@@ -24,8 +24,8 @@ Any CreateImportCodeHudText(in String code = "", in String title = "", in String
   return CreateHudText(
     VisibleTo: LP, 
     Header: $" {code} ",
-    Subheader: title, 
-    Text: subtitle,
+    Subheader: subtitle, 
+    Text: title,
     Location: Location.Right, 
     SortOrder: order, 
     HeaderColor: color, 
