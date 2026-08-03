@@ -9,18 +9,19 @@ enum OWTP_MessageName {
   DISCONNECT = "OWTP_DISCONNECT",
   ERROR = "OWTP_ERROR",
   CONFIRM = "OWTP_CONFIRM",
-  REGISTER_MESSAGE_STRUCTURE = "OWTP_REGISTER_MESSAGE_STRUCTURE",
+  REGISTER_MESSAGE_DEFINITION = "OWTP_REGISTER_MESSAGE_DEFINITION",
   TRANSMISSION_READY = "OWTP_TRANSMISSION_READY",
-  TRANSMISSION_NOT_READY = "OWTP_TRANSMISSION_NOT_READY"
+  TRANSMISSION_NOT_READY = "OWTP_TRANSMISSION_NOT_READY",
+  TRANSMISSION_FINISHED = "OWTP_TRANSMISSION_FINISHED"
 }
 
 enum OWTP_MessageData {
   MESSAGE_NAME = "OWTP_messageName",
   ERROR_CODE = "errorCode",
   PACKETS = "packets",
-  REGISTER_MESSAGE_STRUCTURE_NAME = "name",
-  REGISTER_MESSAGE_STRUCTURE_ID = "id",
-  REGISTER_MESSAGE_STRUCTURE_DATA_TYPES = "dataTypes"
+  REGISTER_MESSAGE_DEFINITION_NAME = "name",
+  REGISTER_MESSAGE_DEFINITION_ID = "id",
+  REGISTER_MESSAGE_DEFINITION_DATA_TYPES = "dataTypes"
 }
 
 enum OWTP_ErrorCode {
@@ -46,18 +47,27 @@ single struct Message {
     { _name: name, _data: data };
 }
 
-single struct MessageStructure {
+single struct MessageDefinitionArg {
   public String name;
-  public String[] dataNames;
-  public Type[] dataTypes;
+  public Type type;
 
-  public static MessageStructure New(String name, String[] dataNames = [], Type[] dataTypes = [], in Boolean interactive = false): 
-    { name: name, dataNames: dataNames, dataTypes: dataTypes };
+  public static MessageDefinitionArg New(String name, Type type):
+    { name: name, type: type };
+}
+
+single struct MessageDefinition {
+  public Number[] id;
+  public String name;
+  public MessageDefinitionArg[] args;
+
+  public static MessageDefinition New(Number[] id, String name, MessageDefinitionArg[] args = []): 
+    { id: id, name: name, args: args };
 }
 
 single struct OWTP {
   # String containing all printable characters in ASCII table, with some additions.
   String ALPHABET: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+
   Boolean _enabled;
   Boolean _connected;
   Boolean _interactive;
@@ -65,8 +75,7 @@ single struct OWTP {
   Number[] packetsBuffer;
   Any[] sendMessageQueue;
   public Message message;
-  (Number | OWTP_ReservedPackets)[][] registeredMessageIds;
-  MessageStructure[] registeredMessageStructures;
+  MessageDefinition[] registeredMessageDefinitions;
 
   public Boolean enabled: _enabled;
   public Boolean connected: _connected;
@@ -79,13 +88,15 @@ single struct OWTP {
     buttonsBuffer: [], 
     sendMessageQueue: [],
     message: null, 
-    registeredMessageIds: [
-      [OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT],
-      [OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT - 1]
-    ],
-    registeredMessageStructures: [
-      MessageStructure.New("CONNECT"),
-      MessageStructure.New("TRANSMISSION FINISHED")
+    registeredMessageDefinitions: [
+      MessageDefinition.New(
+        id: <Number[]>[OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT],
+        name: <String>OWTP_MessageName.CONNECT
+      ),
+      MessageDefinition.New(
+        id: <Number[]>[OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT, OWTP_ReservedPackets.CONNECT - 1],
+        name: <String>OWTP_MessageName.TRANSMISSION_FINISHED
+      )
     ],
   };
 
@@ -132,7 +143,7 @@ single struct OWTP {
       ]]
     ]);
 
-    WaitForeverUntil(message.name[0] == "CONNECT" || !_enabled);
+    WaitForeverUntil(message.name[0] == OWTP_MessageName.CONNECT || !_enabled);
 
     if(!_enabled) return;
 
@@ -163,15 +174,13 @@ single struct OWTP {
     packetsBuffer = [];
   }
 
-  // TODO: rename to RegisterReceivedMessageType
-  public ref void RegisterMessageType(in Number[] id, in String name, in Any[][] dataTypes = []) {
-    registeredMessageIds += id;
-    registeredMessageStructures += MessageStructure.New(name, dataTypes.Map((i) => i[0]), dataTypes.Map((i) => i[1]));
+  public ref void RegisterMessageDefinition(in MessageDefinition definition) {
+    registeredMessageDefinitions += definition;
     
-    SendMessage(OWTP_MessageName.REGISTER_MESSAGE_STRUCTURE, [
-      [OWTP_MessageData.REGISTER_MESSAGE_STRUCTURE_NAME, name],
-      [OWTP_MessageData.REGISTER_MESSAGE_STRUCTURE_ID, id],
-      [OWTP_MessageData.REGISTER_MESSAGE_STRUCTURE_DATA_TYPES, dataTypes]
+    SendMessage(OWTP_MessageName.REGISTER_MESSAGE_DEFINITION, [
+      [OWTP_MessageData.REGISTER_MESSAGE_DEFINITION_NAME, definition.name],
+      [OWTP_MessageData.REGISTER_MESSAGE_DEFINITION_ID, definition.id],
+      [OWTP_MessageData.REGISTER_MESSAGE_DEFINITION_DATA_TYPES, definition.args]
     ]);
   }
 
@@ -183,34 +192,30 @@ single struct OWTP {
     Number[] encodedData: parts[2] || [];
 
     // WORKAROUND: apparently you can't get index of array item in an array, thanks Workshop for making my life difficult...
-    // Number idx = registeredMessageIds.IndexOf(parts[0]);
-    MessageStructure structure;
-    for(Number i = 0; i < registeredMessageIds.Length; i++) {
-      if(registeredMessageIds[i] == id) {
-        structure = registeredMessageStructures[i];
+    MessageDefinition definition;
+    for(Number i = 0; i < registeredMessageDefinitions.Length; i++) {
+      if(registeredMessageDefinitions[i].id == id) {
+        definition = registeredMessageDefinitions[i];
         break;
       }
     }
 
     Number[] calculatedChecksum: FletchersChecksumMix(id + encodedData, 113, 73, 59);
 
-    if(!structure || calculatedChecksum != checksumData) 
+    if(!definition || calculatedChecksum != checksumData) 
       return null;
 
     // encoded data doesn't contain "[" and "]" to reduce amount of packets
     Any[] data = FromJson($"[{DecodeString(encodedData)}]");
 
     for(Number i = 0; i < data.Length; i++) {
-      Type type: structure.dataTypes[i];
+      Type type: definition.args[i].type;
       if(type == Type.VECTOR) {
         data[i] = Vector(data[i][0], data[i][1], data[i][2]);
       }
     }
 
-    return Message.New(
-      structure.name, 
-      data
-    );
+    return Message.New(definition.name, data);
   }
 
   // Handle Send Message Queue
@@ -296,7 +301,7 @@ single struct OWTP {
   public ref Boolean HandlePacketsTimeout_Condition(): enabled && packetsBuffer;
 
   public ref Boolean HandleTransmissionFinishedMessage_Condition(): 
-    message.name == "TRANSMISSION FINISHED";
+    message.name == OWTP_MessageName.TRANSMISSION_FINISHED;
 
   public ref void HandleTransmissionFinishedMessage_Rule() {
     _enabled = false;

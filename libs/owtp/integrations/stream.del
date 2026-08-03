@@ -21,9 +21,13 @@ single struct StreamIntegration {
   public String pollInProgress: _pollInProgress;
 
   public static StreamIntegration New() {
-    connection.RegisterMessageType([2,1,1], <String>StreamIntegrationMessage.POLL_WINNER, [
-      ["winnerIdx", Type.NUMBER]
-    ]);
+    connection.RegisterMessageDefinition(MessageDefinition.New(
+      id: [2,1,1], 
+      name: <String>StreamIntegrationMessage.POLL_WINNER, 
+      args: [
+        MessageDefinitionArg.New("winnerIdx", Type.NUMBER)
+      ]
+    ));
 
     return { pollChoices: [], pollTimeout: 0, _pollInProgress: false, pollHUDText: '', _pollWinner: '' };
   }

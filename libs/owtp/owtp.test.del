@@ -10,14 +10,14 @@ if(diagnosticsVisible)
   CreateDiagnosticsEntityCount();
 }
 
-globalvar define TEST_DATA_TYPES = [
-  ["zero", Type.NUMBER],
-  ["positiveNumber", Type.NUMBER],
-  ["negativeNumber", Type.NUMBER],
-  ["string", Type.STRING],
-  ["emptyString", Type.STRING],
-  ["true", Type.BOOLEAN],
-  ["false", Type.BOOLEAN]
+globalvar MessageDefinitionArg[] TEST_DATA_TYPES = [
+  MessageDefinitionArg.New("zero", Type.NUMBER),
+  MessageDefinitionArg.New("positiveNumber", Type.NUMBER),
+  MessageDefinitionArg.New("negativeNumber", Type.NUMBER),
+  MessageDefinitionArg.New("string", Type.STRING),
+  MessageDefinitionArg.New("emptyString", Type.STRING),
+  MessageDefinitionArg.New("true", Type.BOOLEAN),
+  MessageDefinitionArg.New("false", Type.BOOLEAN)
 ];
 
 rule: 'Setup'
@@ -25,8 +25,13 @@ rule: 'Setup'
   OWTP.WaitForSpectator();
 
   connection.DebugHud();
-  connection.RegisterMessageType([1,1,1], "TEST", TEST_DATA_TYPES);
-  connection.Connect();
+  connection.RegisterMessageDefinition(MessageDefinition.New(
+    id: [1,1,1], 
+    name: "TEST", 
+    args: TEST_DATA_TYPES
+  ));
+  
+  connection.Connect("TEST", "-----", "1.0.0", "PatPatPatriq");
   // connection.SendMessage("connection created");
   // Wait(3);
   // connection.SendMessage("random msg");
