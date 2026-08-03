@@ -60,8 +60,20 @@ single struct MessageDefinition {
   public String name;
   public MessageDefinitionArg[] args;
 
-  public static MessageDefinition New(Number[] id, String name, MessageDefinitionArg[] args = []): 
+  # NOTE: when passed to `RegisterMessageDefinition`, the `id` will be overwritten
+  public static MessageDefinition New(String name, MessageDefinitionArg[] args = [], Number[] id = null): 
     { id: id, name: name, args: args };
+}
+
+Number[] OWTP_SplitId(Number id!) "OWTP: Split ID" {
+  Number[] parts! = [];
+
+  while(id > 0) {
+    parts += Min(id, 112);
+    id -= parts.Last;
+  }
+
+  return parts;
 }
 
 single struct OWTP {
@@ -175,11 +187,15 @@ single struct OWTP {
   }
 
   public ref void RegisterMessageDefinition(in MessageDefinition definition) {
-    registeredMessageDefinitions += definition;
+    registeredMessageDefinitions += {
+      // `- 1` because we have 2 static messages already registered and ID can't be 0
+      id: OWTP_SplitId(registeredMessageDefinitions.Length - 1), 
+      ..definition
+    };
     
     SendMessage(OWTP_MessageName.REGISTER_MESSAGE_DEFINITION, [
       [OWTP_MessageData.REGISTER_MESSAGE_DEFINITION_NAME, definition.name],
-      [OWTP_MessageData.REGISTER_MESSAGE_DEFINITION_ID, definition.id],
+      [OWTP_MessageData.REGISTER_MESSAGE_DEFINITION_ID, registeredMessageDefinitions.Last.id],
       [OWTP_MessageData.REGISTER_MESSAGE_DEFINITION_DATA_TYPES, definition.args]
     ]);
   }

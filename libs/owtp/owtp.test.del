@@ -26,7 +26,6 @@ rule: 'Setup'
 
   connection.DebugHud();
   connection.RegisterMessageDefinition(MessageDefinition.New(
-    id: [1,1,1], 
     name: "TEST", 
     args: TEST_DATA_TYPES
   ));

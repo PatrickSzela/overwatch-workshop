@@ -22,7 +22,6 @@ single struct StreamIntegration {
 
   public static StreamIntegration New() {
     connection.RegisterMessageDefinition(MessageDefinition.New(
-      id: [2,1,1], 
       name: <String>StreamIntegrationMessage.POLL_WINNER, 
       args: [
         MessageDefinitionArg.New("winnerIdx", Type.NUMBER)
