@@ -9,7 +9,7 @@ Number THIRD_PERSON_CAMERA_ZOOM: 4;
 Number THIRD_PERSON_CAMERA_BLEND_SPEED: 1000;
 
 Boolean THIRD_PERSON_CAMERA_CONDITION: 
-  ModifierHasStarted(THIRD_PERSON_CAMERA_NAME) && LocalPlayer().thirdPersonCameraEnabled;
+  ModifierInProgress() && LocalPlayer().thirdPersonCameraEnabled;
 
 Vector THIRD_PERSON_CAMERA_START_POSITION: LocalPlayer().EyePosition();
 Vector THIRD_PERSON_CAMERA_DESIRED_POSITION: 
@@ -31,7 +31,8 @@ Modifier thirdPersonCamera: Modifier.New(
 );
 
 rule: '[Third Person Camera] Is preloading'
-if(ModifierIsPreloading(THIRD_PERSON_CAMERA_NAME))
+if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME))
+if(ModifierIsPreloading())
 {
   thirdPersonCameraEffects += CreateRayCastedEffect(
     player: LocalPlayer(),
@@ -42,7 +43,8 @@ if(ModifierIsPreloading(THIRD_PERSON_CAMERA_NAME))
 }
 
 rule: '[Third Person Camera] Has Started'
-if(ModifierHasStarted(THIRD_PERSON_CAMERA_NAME))
+if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME))
+if(ModifierInProgress())
 {
   AllPlayers().thirdPersonCameraEnabled = true;
 
@@ -56,15 +58,16 @@ if(ModifierHasStarted(THIRD_PERSON_CAMERA_NAME))
 
 rule: '[Third Person Camera] Temporarily disable for abilities that would break it'
 Event.OngoingPlayer
-if(ModifierHasStarted(THIRD_PERSON_CAMERA_NAME))
+if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME))
+if(ModifierInProgress())
 if(thirdPersonCameraEnabled)
 if(RayCastedCameraDisabled())
 {
   thirdPersonCameraEnabled = false;
 
-  WaitUntil(!RayCastedCameraDisabled() || !ModifierHasStarted(THIRD_PERSON_CAMERA_NAME), modifierDurationLeft);
+  WaitUntil(!RayCastedCameraDisabled() || !ModifierInProgress(), modifierDurationLeft);
 
-  if(!ModifierHasStarted(THIRD_PERSON_CAMERA_NAME))
+  if(!ModifierInProgress())
     return;
 
   thirdPersonCameraEnabled = true;
@@ -72,7 +75,8 @@ if(RayCastedCameraDisabled())
 
 rule: '[Third Person Camera] Disable in certain scenarios'
 Event.OngoingPlayer
-if(ModifierHasStarted(THIRD_PERSON_CAMERA_NAME))
+if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME))
+if(ModifierInProgress())
 if(thirdPersonCameraEnabled)
 {
   StartRayCastedCamera(

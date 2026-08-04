@@ -10,7 +10,8 @@ Modifier noHud: Modifier.New(
 );
 
 rule: '[No HUD] Has Started'
-if(ModifierHasStarted(NO_HUD_NAME))
+if(CurrentModifierIs(NO_HUD_NAME))
+if(ModifierInProgress())
 {
   DisableGameModeHud(AllPlayers());
   DisableGameModeInworldUI(AllPlayers());

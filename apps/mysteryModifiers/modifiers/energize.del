@@ -21,7 +21,8 @@ Modifier energize: Modifier.New(
 
 rule: '[Energized] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(ENERGIZE_NAME))
+if(CurrentModifierIs(ENERGIZE_NAME))
+if(ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.Sparkles, 2);
@@ -31,7 +32,8 @@ if(ModifierIsPreloading(ENERGIZE_NAME))
 
 rule: '[Energized] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(ENERGIZE_NAME))
+if(CurrentModifierIs(ENERGIZE_NAME))
+if(ModifierInProgress())
 {
   SetMoveSpeed(EventPlayer(), 130);
 

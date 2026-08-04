@@ -13,14 +13,16 @@ Modifier primalRage: Modifier.New(
 
 rule: '[Duplicate: Primal Rage] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(PRIMAL_RAGE_NAME))
+if(CurrentModifierIs(PRIMAL_RAGE_NAME))
+if(ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.Winston);
 }
 
 rule: '[Duplicate: Primal Rage] Setup'
 Event.OngoingPlayer
-if(ModifierHasStarted(PRIMAL_RAGE_NAME))
+if(CurrentModifierIs(PRIMAL_RAGE_NAME))
+if(ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   AllowButton(EventPlayer(), Button.Ultimate);
@@ -34,7 +36,8 @@ if(DuplicateModifIsReady())
 
 rule: '[Duplicate: Primal Rage] Press Button safeguard'
 Event.OngoingPlayer
-if(ModifierHasStarted(PRIMAL_RAGE_NAME))
+if(CurrentModifierIs(PRIMAL_RAGE_NAME))
+if(ModifierInProgress())
 if(IsDuplicatingFrozenReady())
 if(UltimateChargePercent() == 100)
 {
@@ -45,7 +48,8 @@ if(UltimateChargePercent() == 100)
 
 rule: '[Duplicate: Primal Rage] Set Max Health when Ultimate is active'
 Event.OngoingPlayer
-if(ModifierHasStarted(PRIMAL_RAGE_NAME))
+if(CurrentModifierIs(PRIMAL_RAGE_NAME))
+if(ModifierInProgress())
 if(IsUsingUltimate())
 {
   SetMaxHealth(EventPlayer(), PRIMAL_RAGE_HEALTH / MaxHealth() * 100);

@@ -195,7 +195,6 @@ struct Captcha {
     SetNavigationEnabled(EP, false);
     RemoveHealthPoolFromPlayer(shield);
     EnableHeroHud();
-    DestroyPlayerEffects();
     enabled = false;
   }
 
@@ -246,14 +245,16 @@ Modifier captcha: Modifier.New(
 );
 
 rule: '[Captcha] Is Preloading'
-if(ModifierIsPreloading(CAPTCHA_NAME))
+if(CurrentModifierIs(CAPTCHA_NAME))
+if(ModifierIsPreloading())
 {
   captchaHuds = Captcha.GenerateHUD();
 }
 
 rule: '[Captcha] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(CAPTCHA_NAME))
+if(CurrentModifierIs(CAPTCHA_NAME))
+if(ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.AnaSleepingEffect, 1);
@@ -272,7 +273,8 @@ if(EventPlayer().IsButtonHeld(Button.Reload))
 }
 
 rule: '[Captcha] Has Started'
-if(ModifierHasStarted(CAPTCHA_NAME))
+if(CurrentModifierIs(CAPTCHA_NAME))
+if(ModifierInProgress())
 {
   WaitUntilModifierIsOver();
   
@@ -284,7 +286,8 @@ if(ModifierHasStarted(CAPTCHA_NAME))
 
 rule: '[Captcha] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(CAPTCHA_NAME))
+if(CurrentModifierIs(CAPTCHA_NAME))
+if(ModifierInProgress())
 {
   if(IsDead())
     Respawn();
@@ -295,7 +298,6 @@ if(ModifierHasStarted(CAPTCHA_NAME))
   WaitUntilIsDeadOrModifierIsOver();
   if(captchaData.enabled && !IsDead()) captchaData.CaptchaFailed();
   captchaData.Disable();
-  DestroyPlayerEffects();
 }
 
 rule: '[Captcha] Navigate menu'

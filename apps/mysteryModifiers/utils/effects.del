@@ -20,9 +20,3 @@ void DestroyPlayerEffects(in Player player = EventPlayer()) {
   DestroyEffect(player.effects);
   player.effects = [];
 }
-
-void DestroyAllPlayersEffects() {
-  foreach(Player player in AllPlayers()) {
-    DestroyPlayerEffects(player);
-  }
-}

@@ -15,14 +15,16 @@ Modifier sigmaDodgeball: Modifier.New(
 
 rule: '[Duplicate: Sigma Dodgeball] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(SIGMA_DODGEBALL_NAME))
+if(CurrentModifierIs(SIGMA_DODGEBALL_NAME))
+if(ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.Sigma);
 }
 
 rule: '[Duplicate: Sigma Dodgeball] Setup'
 Event.OngoingPlayer
-if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
+if(CurrentModifierIs(SIGMA_DODGEBALL_NAME))
+if(ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   SetAbility1Enabled(EventPlayer(), false);
@@ -61,7 +63,8 @@ if(DuplicateModifIsReady())
 
 rule: '[Duplicate: Sigma Dodgeball] Reset rock cooldown on kill'
 Event.OnElimination
-if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
+if(CurrentModifierIs(SIGMA_DODGEBALL_NAME))
+if(ModifierInProgress())
 if(IsDuplicatingFrozenReady())
 {
   WaitUntil(!IsUsingAbility2(), 3);
@@ -70,7 +73,8 @@ if(IsDuplicatingFrozenReady())
 
 rule: '[Duplicate: Sigma Dodgeball] Use Ability 1 on Primary Fire'
 Event.OngoingPlayer
-if(ModifierHasStarted(SIGMA_DODGEBALL_NAME))
+if(CurrentModifierIs(SIGMA_DODGEBALL_NAME))
+if(ModifierInProgress())
 if(IsDuplicatingFrozenReady())
 if(IsButtonHeld(EventPlayer(), Button.PrimaryFire))
 {

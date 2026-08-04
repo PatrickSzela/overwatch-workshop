@@ -16,7 +16,8 @@ void CommunicateHelper(Communication communication) {
 
 rule: '[The Voices] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(THE_VOICES_NAME))
+if(CurrentModifierIs(THE_VOICES_NAME))
+if(ModifierInProgress())
 {
   switch(RandomInteger(0, 9)) {
     case 0: CommunicateHelper(Communication.Hello); break;

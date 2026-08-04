@@ -47,8 +47,8 @@ Boolean DuplicateModifIsReady(): IsDuplicatingFrozenReady();
 
 rule: '[Duplicate Modifier] Is Preloading'
 Event.OngoingPlayer
-if(duplicateModifNamesList.Contains(currentModifier.name))
-if(currentModifier.state == ModifierState.PRELOAD)
+if(duplicateModifNamesList.Contains(currentModifierName))
+if(ModifierIsPreloading())
 {
   MinWait(); // wait a tick so modifiers can set the hero
   PreloadDuplicate(EventPlayer(), duplicateModifHeroCache, true, true);
@@ -56,10 +56,10 @@ if(currentModifier.state == ModifierState.PRELOAD)
 
 rule: '[Duplicate Modifier] Setup'
 Event.OngoingPlayer
-if(duplicateModifNamesList.Contains(currentModifier.name))
-if(currentModifier.state == ModifierState.STARTED)
+if(duplicateModifNamesList.Contains(currentModifierName))
+if(ModifierInProgress())
 {
-  if(!currentModifier.notification)
+  if(!CurrentModifier().notification)
     BigMessage(EP, $"Duplicating: {HeroWithIconFormatter(EP.duplicateModifHeroCache)}");
 
   WaitUntilAlive();

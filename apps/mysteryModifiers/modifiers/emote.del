@@ -13,7 +13,8 @@ Modifier emote: Modifier.New(
 
 rule: '[Emote] Is in air'
 Event.OngoingPlayer
-if(ModifierHasStarted(EMOTE_NAME))
+if(CurrentModifierIs(EMOTE_NAME))
+if(ModifierInProgress())
 {
   WaitUntilAlive();
 
@@ -27,7 +28,7 @@ if(ModifierHasStarted(EMOTE_NAME))
 
   MinWait();
 
-  while(!IsEmoting(EventPlayer()) && IsAlive() && ModifierHasStarted(EMOTE_NAME)) {
+  while(!IsEmoting(EventPlayer()) && IsAlive() && ModifierInProgress()) {
     Communicate(EventPlayer(), Communication.EmoteUp);
     Wait(1);
   }

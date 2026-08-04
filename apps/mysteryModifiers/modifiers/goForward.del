@@ -12,7 +12,8 @@ Modifier goForward: Modifier.New(
 
 rule: '[Go Forward] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(GO_FORWARD_NAME))
+if(CurrentModifierIs(GO_FORWARD_NAME))
+if(ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.BadAura, 0.25);
@@ -21,7 +22,8 @@ if(ModifierIsPreloading(GO_FORWARD_NAME))
 }
 
 rule: '[Go Forward] Has Started'
-if(ModifierHasStarted(GO_FORWARD_NAME))
+if(CurrentModifierIs(GO_FORWARD_NAME))
+if(ModifierInProgress())
 {
   ForceThrottle(AllPlayers(), 1, 1, 0, 0, -1, 1);
 

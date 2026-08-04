@@ -15,13 +15,14 @@ Modifier floorIsLava: Modifier.New(
 
 rule: '[Floor Is Lava] Handle logic'
 Event.OngoingPlayer
-if(ModifierHasStarted(FLOOR_IS_LAVA_NAME))
+if(CurrentModifierIs(FLOOR_IS_LAVA_NAME))
+if(ModifierInProgress())
 if(EventPlayer().IsOnGround())
 {
   SetStatus(EventPlayer(), EventPlayer(), Status.Burning, modifierDurationLeft);
   Any dmg = StartDamageOverTime(EventPlayer(), null, modifierDurationLeft, FLOOR_IS_LAVA_DOT);
 
-  WaitForeverUntil(!ModifierHasStarted(FLOOR_IS_LAVA_NAME) || !EventPlayer().IsOnGround());
+  WaitForeverUntil(!ModifierInProgress() || !EventPlayer().IsOnGround());
 
   StopDamageOverTime(dmg);
   ClearStatus(EventPlayer(), Status.Burning);

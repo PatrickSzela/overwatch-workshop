@@ -12,7 +12,8 @@ Modifier nanoBoost: Modifier.New(
 
 rule: '[Nano Boost] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(NANO_BOOST_NAME))
+if(CurrentModifierIs(NANO_BOOST_NAME))
+if(ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.AnaNanoBoostedEffect, 1);
@@ -22,7 +23,8 @@ if(ModifierIsPreloading(NANO_BOOST_NAME))
 
 rule: '[Nano Boost] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(NANO_BOOST_NAME))
+if(CurrentModifierIs(NANO_BOOST_NAME))
+if(ModifierInProgress())
 {
   WaitUntilAlive();
 
@@ -31,7 +33,6 @@ if(ModifierHasStarted(NANO_BOOST_NAME))
 
   // end
   WaitUntilIsDeadOrModifierIsOver();
-  DestroyPlayerEffects();
 
   SetDamageDealt(EventPlayer(), 100);
 }

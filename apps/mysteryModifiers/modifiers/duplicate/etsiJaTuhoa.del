@@ -14,14 +14,16 @@ Modifier etsiJaTuhoa: Modifier.New(
 
 rule: '[Duplicate: ETSI JA TUHOA] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(ETSI_JA_TUHOA_NAME))
+if(CurrentModifierIs(ETSI_JA_TUHOA_NAME))
+if(ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.Emre);
 }
 
 rule: '[Duplicate: ETSI JA TUHOA] Setup'
 Event.OngoingPlayer
-if(ModifierHasStarted(ETSI_JA_TUHOA_NAME))
+if(CurrentModifierIs(ETSI_JA_TUHOA_NAME))
+if(ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   StartScalingPlayer(EP, 0.5);
@@ -39,7 +41,8 @@ if(DuplicateModifIsReady())
 
 rule: '[Duplicate: ETSI JA TUHOA] Press Button safeguard'
 Event.OngoingPlayer
-if(ModifierHasStarted(ETSI_JA_TUHOA_NAME))
+if(CurrentModifierIs(ETSI_JA_TUHOA_NAME))
+if(ModifierInProgress())
 if(IsDuplicatingFrozen())
 if(UltimateChargePercent() == 100)
 {

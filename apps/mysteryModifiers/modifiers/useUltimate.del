@@ -11,7 +11,8 @@ Modifier useUltimate: Modifier.New(
 
 rule: '[Use Ultimate] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(USE_ULTIMATE_NAME))
+if(CurrentModifierIs(USE_ULTIMATE_NAME))
+if(ModifierInProgress())
 {
   WaitUntilAlive();
 
@@ -22,7 +23,7 @@ if(ModifierHasStarted(USE_ULTIMATE_NAME))
 
   MinWait();
 
-  while(UltimateChargePercent(EventPlayer()) == 100 && ModifierHasStarted(USE_ULTIMATE_NAME)) {
+  while(UltimateChargePercent(EventPlayer()) == 100 && ModifierInProgress()) {
     if(!IsUsingUltimate()) {
       // if ult is cancelled, force it again
       // this has a sideeffect of bap and sym rotating their ults, but idc because blizzard didn't bother to make things consistent across different heroes

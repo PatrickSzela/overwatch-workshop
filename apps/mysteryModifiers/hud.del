@@ -25,7 +25,7 @@ rule: 'Create UI'
     VisibleTo: !hideModifierChargeMeter || state == State.MODIFIER_STARTED ? LocalPlayer() : null,
     Value: state == State.MODIFIER_STARTED ? MODIFIER_PERCENTAGE : CHARGE_PERCENTAGE, 
     Text: state == State.MODIFIER_STARTED ?
-      $"{currentModifier.name}​ ends in: {MODIFIER_DURATION.Ceil()}​ sec" :
+      $"{currentModifierName}​ ends in: {MODIFIER_DURATION.Ceil()}​ sec" :
       $"Modifier charge at: {CHARGE_PERCENTAGE.Floor()}%",
     Location: Location.Left,
     SortOrder: 100, 
@@ -38,13 +38,13 @@ rule: 'Create UI'
   // CreateNiceProgressBar(
   //   value: state == State.MODIFIER_STARTED ? MODIFIER_PERCENTAGE : CHARGE_PERCENTAGE, 
   //   displayValue: state == State.MODIFIER_STARTED ? $"{MODIFIER_DURATION.Ceil()}" : $"{CHARGE_PERCENTAGE.Floor()}%",
-  //   text: state == State.MODIFIER_STARTED ? currentModifier.name : "Modifier charge",
+  //   text: state == State.MODIFIER_STARTED ? currentModifierName : "Modifier charge",
   //   progressBarColor: state == State.MODIFIER_STARTED ? COLOR_OVERWATCH : COLOR_ORANGE_TO_WHITE,
   //   textColor: Color.White,
   //   position: Vector(0, -0.9),
   //   scale: 0.75,
   //   fallbackText: state == State.MODIFIER_STARTED ?
-  //     $"{currentModifier.name}​ ends in: {MODIFIER_DURATION.Ceil()}​ sec" :
+  //     $"{currentModifierName}​ ends in: {MODIFIER_DURATION.Ceil()}​ sec" :
   //     $"Modifier charge at: {CHARGE_PERCENTAGE.Floor()}%",
   //   visibilityCondition: !hideModifierChargeMeter || state == State.MODIFIER_STARTED,
   //   preferFallback: LocalPlayer().preferFallbackHud || LocalPlayer().preferFallbackHudOverride,
@@ -59,7 +59,7 @@ rule: 'Create UI'
 
   CreateHudText(
     VisibleTo: state == State.MODIFIER_STARTED ? LocalPlayer() : null, 
-    Text: $"Current modifier: {currentModifier.name}", 
+    Text: $"Current modifier: {currentModifierName}", 
     TextColor: COLOR_RAINBOW,
     Location: Location.Left, 
     SortOrder: -2, 
@@ -69,8 +69,8 @@ rule: 'Create UI'
 
   for(Number i! = 0; i < 3; i++)
     CreateHudText(
-      VisibleTo: currentModifier.description[EvaluateOnce(i)] && state == State.MODIFIER_STARTED ? LocalPlayer() : null, 
-      Subheader: $"{currentModifier.description[EvaluateOnce(i)]}", 
+      VisibleTo: CurrentModifier().description[EvaluateOnce(i)] && state == State.MODIFIER_STARTED ? LocalPlayer() : null, 
+      Subheader: $"{CurrentModifier().description[EvaluateOnce(i)]}", 
       Location: Location.Left, 
       SortOrder: -1, 
       Spectators: Spectators.VisibleAlways,

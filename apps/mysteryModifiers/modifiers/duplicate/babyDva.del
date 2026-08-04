@@ -11,14 +11,16 @@ Modifier babyDva: Modifier.New(
 
 rule: '[Duplicate: Baby D.Va] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(BABY_DVA_NAME))
+if(CurrentModifierIs(BABY_DVA_NAME))
+if(ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.Dva);
 }
 
 rule: '[Duplicate: Baby D.Va] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(BABY_DVA_NAME))
+if(CurrentModifierIs(BABY_DVA_NAME))
+if(ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   SetUltimateAbilityEnabled(EventPlayer(), false);

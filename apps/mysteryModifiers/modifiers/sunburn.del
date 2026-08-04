@@ -24,9 +24,10 @@ Modifier sunburn: Modifier.New(
 );
 
 rule: '[Sunburn] Is Preloading'
-if(ModifierIsPreloading(SUNBURN_NAME))
+if(CurrentModifierIs(SUNBURN_NAME))
+if(ModifierIsPreloading())
 {
-  Boolean condition: ModifierHasStarted(SUNBURN_NAME);
+  Boolean condition: ModifierInProgress();
 
   sunburnSun = CreateEffect(
     VisibleTo: condition ? LocalPlayer() : null, 
@@ -38,7 +39,8 @@ if(ModifierIsPreloading(SUNBURN_NAME))
 }
 
 rule: '[Sunburn] Destroy effect'
-if(ModifierHasStarted(SUNBURN_NAME))
+if(CurrentModifierIs(SUNBURN_NAME))
+if(ModifierInProgress())
 {
   WaitUntilModifierIsOver();
   DestroyEffect(sunburnSun);
@@ -46,7 +48,8 @@ if(ModifierHasStarted(SUNBURN_NAME))
 
 rule: '[Sunburn] Apply burning'
 Event.OngoingPlayer
-if(ModifierHasStarted(SUNBURN_NAME))
+if(CurrentModifierIs(SUNBURN_NAME))
+if(ModifierInProgress())
 if(SUNBURN_RAYCAST)
 {
   SetStatus(EventPlayer(), null, Status.Burning, modifierDurationLeft);

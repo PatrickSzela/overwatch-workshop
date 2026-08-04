@@ -305,14 +305,16 @@ playervar String divineBlessingStatus!;
 playervar Number divineBlessingDice!;
 
 rule: '[Divine Blessing] Is Preloading'
-if(ModifierIsPreloading(DIVINE_BLESSING_NAME))
+if(CurrentModifierIs(DIVINE_BLESSING_NAME))
+if(ModifierIsPreloading())
 {
   divineBlessingHuds = DivineBlessingUi.GenerateHud();
 }
 
 rule: '[Divine Blessing] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(DIVINE_BLESSING_NAME))
+if(CurrentModifierIs(DIVINE_BLESSING_NAME))
+if(ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   divineBlessingUi = DivineBlessingUi.New();
@@ -320,7 +322,8 @@ if(ModifierIsPreloading(DIVINE_BLESSING_NAME))
 }
 
 rule: '[Divine Blessing] Has Started'
-if(ModifierHasStarted(DIVINE_BLESSING_NAME))
+if(CurrentModifierIs(DIVINE_BLESSING_NAME))
+if(ModifierInProgress())
 {
   WaitUntilModifierIsOver();
   
@@ -339,14 +342,15 @@ if(ModifierHasStarted(DIVINE_BLESSING_NAME))
     Spectators: Spectators.VisibleNever
   );
 
-  WaitForeverUntil(currentModifier.state == ModifierState.ABOUT_TO_BE_STARTED);
+  WaitForeverUntil(ModifierAboutToBeStarted());
   DestroyHudText(divineBlessingStatusHud);
   AP.divineBlessingStatus = "";
 }
 
 rule: '[Divine Blessing] Is Preloading'
 Event.OngoingPlayer
-if(ModifierHasStarted(DIVINE_BLESSING_NAME))
+if(CurrentModifierIs(DIVINE_BLESSING_NAME))
+if(ModifierInProgress())
 {
   if(IsDead())
     Respawn();
@@ -434,7 +438,7 @@ if(divineBlessingUi.state == DivineBlessingState.ROLLING_DICE)
   } else 
     divineBlessingChoices[divineBlessingUi.choice].onStart(EP, strength);
   
-  WaitForeverUntil(currentModifier.state == ModifierState.ABOUT_TO_BE_STARTED);
+  WaitForeverUntil(ModifierAboutToBeStarted());
   divineBlessingChoices[choice].onEnd(EP);
 }
 

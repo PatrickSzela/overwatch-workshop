@@ -13,9 +13,10 @@ Modifier blinded: Modifier.New(
 );
 
 rule: '[Blinded] Is Preloading'
-if(ModifierIsPreloading(BLINDED_NAME))
+if(CurrentModifierIs(BLINDED_NAME))
+if(ModifierIsPreloading())
 {
-  Boolean condition: ModifierHasStarted(BLINDED_NAME);
+  Boolean condition: ModifierInProgress();
 
   blindedEffect = CreateEffect(
     VisibleTo: condition ? LocalPlayer() : null, 
@@ -27,7 +28,8 @@ if(ModifierIsPreloading(BLINDED_NAME))
 }
 
 rule: '[Blinded] Has Started'
-if(ModifierHasStarted(BLINDED_NAME))
+if(CurrentModifierIs(BLINDED_NAME))
+if(ModifierInProgress())
 {
   StartForcingPlayerOutlines(AllPlayers(), AllPlayers(), false);
   DisableNameplates(AllPlayers(), AllPlayers());

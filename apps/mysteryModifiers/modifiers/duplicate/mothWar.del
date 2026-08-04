@@ -15,14 +15,16 @@ Modifier mothWar: Modifier.New(
 
 rule: '[Duplicate: Moth War] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(MOTH_WAR_NAME))
+if(CurrentModifierIs(MOTH_WAR_NAME))
+if(ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.Mercy);
 }
 
 rule: '[Duplicate: Moth War] Setup'
 Event.OngoingPlayer
-if(ModifierHasStarted(MOTH_WAR_NAME))
+if(CurrentModifierIs(MOTH_WAR_NAME))
+if(ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   SetDamageDealt(EventPlayer(), 200);
@@ -42,7 +44,8 @@ if(DuplicateModifIsReady())
 
 rule: '[Duplicate: Moth War] Press Button safeguard'
 Event.OngoingPlayer
-if(ModifierHasStarted(MOTH_WAR_NAME))
+if(CurrentModifierIs(MOTH_WAR_NAME))
+if(ModifierInProgress())
 if(IsDuplicatingFrozen())
 if(UltimateChargePercent() == 100)
 {
@@ -53,7 +56,8 @@ if(UltimateChargePercent() == 100)
 
 rule: '[Duplicate: Moth War] Swap weapon'
 Event.OngoingPlayer
-if(ModifierHasStarted(MOTH_WAR_NAME))
+if(CurrentModifierIs(MOTH_WAR_NAME))
+if(ModifierInProgress())
 if(IsDuplicatingFrozen())
 if(Weapon() == 1)
 {

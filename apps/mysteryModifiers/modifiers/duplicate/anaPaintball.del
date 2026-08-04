@@ -15,14 +15,16 @@ Modifier anaPaintball: Modifier.New(
 
 rule: '[Duplicate: Ana Paintball] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(ANA_PAINTBALL_NAME))
+if(CurrentModifierIs(ANA_PAINTBALL_NAME))
+if(ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.Ana);
 }
 
 rule: '[Duplicate: Ana Paintball] Setup'
 Event.OngoingPlayer
-if(ModifierHasStarted(ANA_PAINTBALL_NAME))
+if(CurrentModifierIs(ANA_PAINTBALL_NAME))
+if(ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   SetAbility2Enabled(EventPlayer(), false);
@@ -38,7 +40,8 @@ if(DuplicateModifIsReady())
 
 rule: '[Duplicate: Ana Paintball] Kill on sleeping someone'
 Event.OnDamageDealt
-if(ModifierHasStarted(ANA_PAINTBALL_NAME))
+if(CurrentModifierIs(ANA_PAINTBALL_NAME))
+if(ModifierInProgress())
 if(IsDuplicatingFrozenReady())
 if(EventAbility() == Button.Ability1)
 {
@@ -47,7 +50,8 @@ if(EventAbility() == Button.Ability1)
 
 rule: '[Duplicate: Ana Paintball] Reset sleep dart cooldown on kill'
 Event.OnElimination
-if(ModifierHasStarted(ANA_PAINTBALL_NAME))
+if(CurrentModifierIs(ANA_PAINTBALL_NAME))
+if(ModifierInProgress())
 if(IsDuplicatingFrozenReady())
 {
   WaitUntil(!IsUsingAbility1(), 3);

@@ -12,7 +12,8 @@ Modifier invertControls: Modifier.New(
 
 rule: '[Invert Controls] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(INVERT_CONTROLS_NAME))
+if(CurrentModifierIs(INVERT_CONTROLS_NAME))
+if(ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.BadAura, 0.25);
@@ -21,7 +22,8 @@ if(ModifierIsPreloading(INVERT_CONTROLS_NAME))
 }
 
 rule: '[Invert Controls] Has Started'
-if(ModifierHasStarted(INVERT_CONTROLS_NAME))
+if(CurrentModifierIs(INVERT_CONTROLS_NAME))
+if(ModifierInProgress())
 {
   StartTransformingThrottle(AllPlayers(), -1, -1, LocalPlayer().FacingDirection());
 

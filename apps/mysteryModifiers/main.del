@@ -28,6 +28,8 @@ rule: 'Initialize modifier list'
     modifierHistorySize = 0;
 }
 
+Modifier CurrentModifier(): allModifiers[currentModifierIdx];
+
 void DisableModifiersLogic(in String reason) {
   // Log($"Stopped because {reason}");
   StopModifier();
@@ -42,25 +44,26 @@ void EnableModifiersLogic() {
 }
 
 void SetModifier(in String modifier) {
-  currentModifier = allModifiers[allModifiers.Map((i) => i.name).IndexOf(modifier)];
-  // Log($'Setting modifier {currentModifier.name}');
+  currentModifierIdx = allModifiers.Map((i) => i.name).IndexOf(modifier);
+  currentModifierName = allModifiers[currentModifierIdx].name;
+  // Log($'Setting modifier {currentModifierName}');
 }
 
 void PreloadModifier() "Preload Modifier" {
-  // Log($'Preloading modifier {currentModifier.name}');
-  currentModifier.Preload();
+  // Log($'Preloading modifier {currentModifierName}');
+  CurrentModifier().Preload();
 }
 
 void StartModifier() "Start Modifier" {
-  // Log($'Starting modifier {currentModifier.name}');
-  currentModifier.Enable();
+  // Log($'Starting modifier {currentModifierName}');
+  CurrentModifier().Enable();
 
-  if(currentModifier.notification) 
-    BigMessage(AllPlayers(), currentModifier.name);
+  if(CurrentModifier().notification) 
+    BigMessage(AllPlayers(), currentModifierName);
 
-  modifierDurationLeft = currentModifier.duration;
+  modifierDurationLeft = CurrentModifier().duration;
 
-  if(currentModifier.canDurationBeExtended || modifierDurationModifier < 1) {
+  if(CurrentModifier().canDurationBeExtended || modifierDurationModifier < 1) {
     modifierDurationLeft *= modifierDurationModifier;
   }
 
@@ -70,29 +73,37 @@ void StartModifier() "Start Modifier" {
 
 void StopModifier(Boolean addToHistory = true) "Stop Modifier" {
   if(addToHistory) {
-    modifierHistory = modifierHistory.Append(currentModifier.name);
+    modifierHistory = modifierHistory.Append(currentModifierName);
     
     if(modifierHistory.Length > modifierHistorySize)
       modifierHistory = modifierHistory.Slice(modifierHistory.Length - modifierHistorySize, modifierHistorySize);
   }
 
-  // Log($'Disabling modifier {currentModifier.name}');
+  // Log($'Disabling modifier {currentModifierName}');
 
-  currentModifier.Disable();
+  CurrentModifier().Disable();
   modifierDurationLeft = 0;
-  DestroyAllPlayersEffects();
   state = State.WAITING;
 }
 
 rule: 'Wait for modifier to end'
 if(state == State.MODIFIER_STARTED)
 {
-  ChaseVariableOverTime(modifierDurationLeft, 0, modifierDurationLeft * currentModifier.slowMotionSpeed / 100, TimeChaseReevaluation.None);
+  ChaseVariableOverTime(modifierDurationLeft, 0, modifierDurationLeft * CurrentModifier().slowMotionSpeed / 100, TimeChaseReevaluation.None);
   WaitForeverUntil(modifierDurationLeft <= 0);
 
   AbortIfConditionIsFalse();
 
   StopModifier();
+}
+
+rule: 'Destroy player effects after modifier ends'
+Event.OngoingPlayer
+if(state == State.MODIFIER_STARTED)
+{
+  WaitForeverUntil(!ModifierInProgress());
+  WaitSpreadPerPlayer();
+  DestroyPlayerEffects();
 }
 
 rule: 'Start modifier logic if game is in progress'

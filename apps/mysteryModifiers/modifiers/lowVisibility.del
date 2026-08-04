@@ -15,9 +15,10 @@ Modifier lowVisibility: Modifier.New(
 globalvar Any[] lowVisibilityEffects = [];
 
 rule: '[Low Visibility] Is Preloading'
-if(ModifierIsPreloading(LOW_VISIBILITY_NAME))
+if(CurrentModifierIs(LOW_VISIBILITY_NAME))
+if(ModifierIsPreloading())
 {
-  Boolean condition: ModifierHasStarted(LOW_VISIBILITY_NAME);
+  Boolean condition: ModifierInProgress();
   Number count: 50;
 
   for(Number i! = 0; i < count; i++) {
@@ -51,7 +52,8 @@ if(ModifierIsPreloading(LOW_VISIBILITY_NAME))
 }
 
 rule: '[Low Visibility] Has Started'
-if(ModifierHasStarted(LOW_VISIBILITY_NAME))
+if(CurrentModifierIs(LOW_VISIBILITY_NAME))
+if(ModifierInProgress())
 {
   // end
   WaitUntilModifierIsOver();
@@ -62,7 +64,8 @@ if(ModifierHasStarted(LOW_VISIBILITY_NAME))
 
 rule: '[Low Visibility] Disable outlines'
 Event.OngoingPlayer
-if(ModifierHasStarted(LOW_VISIBILITY_NAME))
+if(CurrentModifierIs(LOW_VISIBILITY_NAME))
+if(ModifierInProgress())
 {
   Number distance: LOW_VISIBILITY_START_DISTANCE + LOW_VISIBILITY_FADE_DISTANCE * 0.15;
 
@@ -72,7 +75,7 @@ if(ModifierHasStarted(LOW_VISIBILITY_NAME))
   StartForcingPlayerOutlines(EventPlayer(), playersTooFar, false);
   DisableNameplates(EventPlayer(), playersTooFar);
 
-  WaitForeverUntil(_playersTooFar != playersTooFar || !ModifierHasStarted(LOW_VISIBILITY_NAME));
+  WaitForeverUntil(_playersTooFar != playersTooFar || !ModifierInProgress());
 
   StopForcingPlayerOutlines(EventPlayer(), AllPlayers());
   EnableNameplates(EventPlayer(), playersTooFar);

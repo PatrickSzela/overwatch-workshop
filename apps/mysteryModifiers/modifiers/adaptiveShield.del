@@ -19,7 +19,8 @@ Modifier adaptiveShield: Modifier.New(
 
 rule: '[Adaptive Shield] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(ADAPTIVE_SHIELD_NAME))
+if(CurrentModifierIs(ADAPTIVE_SHIELD_NAME))
+if(ModifierIsPreloading())
 {
   Boolean condition: (<Player>EvaluateOnce(EventPlayer())).adaptiveShieldHealth > 0;
 
@@ -31,7 +32,8 @@ if(ModifierIsPreloading(ADAPTIVE_SHIELD_NAME))
 
 rule: '[Adaptive Shield] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(ADAPTIVE_SHIELD_NAME))
+if(CurrentModifierIs(ADAPTIVE_SHIELD_NAME))
+if(ModifierInProgress())
 {
   WaitUntilAlive();
 
@@ -42,7 +44,6 @@ if(ModifierHasStarted(ADAPTIVE_SHIELD_NAME))
 
   // end
   WaitUntilIsDeadOrModifierIsOver();
-  DestroyPlayerEffects();
   
   RemoveHealthPoolFromPlayer(adaptiveShieldHealthPoolId);
   adaptiveShieldHealth = 0;

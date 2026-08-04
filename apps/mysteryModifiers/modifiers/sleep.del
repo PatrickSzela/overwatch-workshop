@@ -14,7 +14,8 @@ Modifier sleep: Modifier.New(
 
 rule: '[Sleep] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(SLEEP_NAME))
+if(CurrentModifierIs(SLEEP_NAME))
+if(ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.AnaSleepingEffect, 1, visibleCondition: isSleeping);
@@ -22,7 +23,8 @@ if(ModifierIsPreloading(SLEEP_NAME))
 
 rule: '[Sleep] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(SLEEP_NAME))
+if(CurrentModifierIs(SLEEP_NAME))
+if(ModifierInProgress())
 {
   WaitUntilAlive();
   
@@ -36,7 +38,8 @@ if(ModifierHasStarted(SLEEP_NAME))
 
 rule: '[Sleep] Wake on damage taken'
 Event.OngoingPlayer
-if(ModifierHasStarted(SLEEP_NAME))
+if(CurrentModifierIs(SLEEP_NAME))
+if(ModifierInProgress())
 if(HasStatus(EventPlayer(), Status.KnockedDown))
 {
   isSleeping = true;

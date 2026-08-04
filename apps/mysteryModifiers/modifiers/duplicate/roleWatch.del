@@ -17,21 +17,24 @@ Modifier roleWatch: Modifier.New(
 );
 
 rule: '[RoleWatch] Is Preloading - Select random hero'
-if(ModifierIsPreloading(ROLE_WATCH_NAME))
+if(CurrentModifierIs(ROLE_WATCH_NAME))
+if(ModifierIsPreloading())
 {
   roleWatchHeroes = RandomValueInArray([AllTankHeroes(), AllDamageHeroes(), AllSupportHeroes()]);
 }
 
 rule: '[RoleWatch] Is Preloading - Select random hero'
 Event.OngoingPlayer
-if(ModifierIsPreloading(ROLE_WATCH_NAME))
+if(CurrentModifierIs(ROLE_WATCH_NAME))
+if(ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, RandomValueInArray(roleWatchHeroes - AllPlayers().Map((i) => i.Hero())));
 }
 
 rule: '[RoleWatch] Setup'
 Event.OngoingPlayer
-if(ModifierHasStarted(ROLE_WATCH_NAME))
+if(CurrentModifierIs(ROLE_WATCH_NAME))
+if(ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   speedUpAbility.UltimateCharge(5.5);

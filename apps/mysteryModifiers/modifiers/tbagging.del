@@ -12,7 +12,8 @@ Modifier tbagging: Modifier.New(
 
 rule: '[T-Bagging] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(TBAGGING_NAME))
+if(CurrentModifierIs(TBAGGING_NAME))
+if(ModifierInProgress())
 if(!IsInAir())
 {
   Wait(RandomReal(0.1, 0.5), WaitBehavior.AbortWhenFalse);

@@ -17,7 +17,8 @@ Modifier weakened: Modifier.New(
 
 rule: '[Weakened] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(WEAKENED_NAME))
+if(CurrentModifierIs(WEAKENED_NAME))
+if(ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.ZenyattaOrbOfDiscordTargetEffect, 1);
@@ -26,7 +27,8 @@ if(ModifierIsPreloading(WEAKENED_NAME))
 }
 
 rule: '[Weakened] Has Started - Global rule'
-if(ModifierHasStarted(WEAKENED_NAME))
+if(CurrentModifierIs(WEAKENED_NAME))
+if(ModifierInProgress())
 {
   SetDamageReceived(AllPlayers(), 125);
   SetHealingReceived(AllPlayers(), 75);
@@ -36,7 +38,6 @@ if(ModifierHasStarted(WEAKENED_NAME))
 
   // end
   WaitUntilModifierIsOver();
-  DestroyAllPlayersEffects();
 
   SetDamageReceived(AllPlayers(), 100);
   SetHealingReceived(AllPlayers(), 100);
@@ -47,7 +48,8 @@ if(ModifierHasStarted(WEAKENED_NAME))
 
 rule: '[Weakened] Has Started - Player rule'
 Event.OngoingPlayer
-if(ModifierHasStarted(WEAKENED_NAME))
+if(CurrentModifierIs(WEAKENED_NAME))
+if(ModifierInProgress())
 {
   speedUpAbility.AllCooldowns(0.75);
   // speedUpAbility.AllResources(0.75);

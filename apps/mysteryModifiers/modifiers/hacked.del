@@ -10,7 +10,8 @@ Modifier hacked: Modifier.New(
 );
 
 rule: '[Hacked] Has Started'
-if(ModifierHasStarted(HACKED_NAME))
+if(CurrentModifierIs(HACKED_NAME))
+if(ModifierInProgress())
 {
   SetStatus(AllPlayers(), null, Status.Hacked, NUMBER_MAX);
 

@@ -15,5 +15,7 @@ enum State {
 }
 
 playervar PlayerSnapshot playerSnapshot;
-globalvar Modifier currentModifier;
+globalvar String currentModifierName;
+globalvar Number currentModifierIdx;
+globalvar ModifierState currentModifierState;
 globalvar State state = State.NOT_STARTED;

@@ -11,45 +11,39 @@ single struct Modifier {
   public Boolean notification;
   public Number duration;
   public Boolean enabled;
-  public ModifierState state;
   public Number slowMotionSpeed;
   public Boolean canDurationBeExtended;
   public String[] description;
-
-  public Boolean preloading: state == ModifierState.PRELOAD;
-  public Boolean aboutToBeStarted: state == ModifierState.ABOUT_TO_BE_STARTED;
-  public Boolean started: state == ModifierState.STARTED;
-  public Boolean ended: state == ModifierState.ENDED;
 
   public static Modifier New(String name, String[] description, Boolean notification = true, Number duration = -1, Boolean canDurationBeExtended = true, Number slowMotionSpeed = 100): { 
     name: name,
     notification: notification,
     duration: duration, 
     enabled: WorkshopSettingToggle("Modifier", name, true, 1),
-    state: ModifierState.NONE,
     slowMotionSpeed: slowMotionSpeed,
     canDurationBeExtended: canDurationBeExtended,
     description: description
   };
 
-  public ref void Preload() {
-    state = ModifierState.PRELOAD;
+  public void Preload() {
+    currentModifierState = ModifierState.PRELOAD;
   }
 
-  public ref void Disable() {
-    state = ModifierState.ENDED;
+  public void Disable() {
+    currentModifierState = ModifierState.ENDED;
   }
 
-  public ref void Enable() {
-    state = ModifierState.ABOUT_TO_BE_STARTED;
+  public void Enable() {
+    currentModifierState = ModifierState.ABOUT_TO_BE_STARTED;
     Wait(ONE_TICK * 2);
-    state = ModifierState.STARTED;
+    currentModifierState = ModifierState.STARTED;
   }
 }
 
-Boolean CurrentModifierIs(in String name): currentModifier.name == name;
-Boolean ModifierIsPreloading(in String name): currentModifier.name == name && currentModifier.state == ModifierState.PRELOAD;
-Boolean ModifierHasStarted(in String name): currentModifier.name == name && currentModifier.state == ModifierState.STARTED;
+Boolean CurrentModifierIs(in String name): currentModifierName == name;
+Boolean ModifierIsPreloading(): currentModifierState == ModifierState.PRELOAD;
+Boolean ModifierInProgress(): currentModifierState == ModifierState.STARTED;
+Boolean ModifierAboutToBeStarted(): currentModifierState == ModifierState.ABOUT_TO_BE_STARTED;
 
 void WaitUntilAlive(in Player player = EventPlayer()) { 
   WaitUntil(IsAlive(player), modifierDurationLeft);
@@ -58,13 +52,13 @@ void WaitUntilAlive(in Player player = EventPlayer()) {
 }
 
 void WaitUntilIsDeadOrModifierIsOver(in Player player = EventPlayer()) {
-  WaitUntil(IsDead(player) || currentModifier.state == ModifierState.ENDED, modifierDurationLeft);
+  WaitUntil(IsDead(player) || currentModifierState == ModifierState.ENDED, modifierDurationLeft);
 }
 
 void WaitUntilModifierIsOver() {
-  WaitUntil(currentModifier.state == ModifierState.ENDED, modifierDurationLeft);
+  WaitUntil(currentModifierState == ModifierState.ENDED, modifierDurationLeft);
 }
 
 void WaitUntilModifierIsOverOrCondition(in Boolean condition) {
-  WaitUntil(currentModifier.state == ModifierState.ENDED || condition, modifierDurationLeft);
+  WaitUntil(currentModifierState == ModifierState.ENDED || condition, modifierDurationLeft);
 }

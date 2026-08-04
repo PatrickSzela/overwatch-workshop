@@ -75,7 +75,6 @@ if(duplicationState == DuplicateState.LOADING)
   if(HeroOf() != duplicationData.hero) {
     duplicationState = DuplicateState.DISABLED;
     StopForcingHero();
-    DestroyPlayerEffects();
     Unfreeze();
     return;
   }
@@ -145,8 +144,6 @@ if(duplicationState > DuplicateState.LOADING)
 
   if(duplicationData.restoreHealth) 
     playerSnapshot.RestoreHealth();
-
-  DestroyPlayerEffects();
 
   Wait(0.1);
   Unfreeze();

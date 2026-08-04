@@ -12,7 +12,8 @@ Modifier antiHeal: Modifier.New(
 
 rule: '[Anti-Heal] Is Preloading'
 Event.OngoingPlayer
-if(ModifierIsPreloading(ANTI_HEAL_NAME))
+if(CurrentModifierIs(ANTI_HEAL_NAME))
+if(ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.AnaBioticGrenadeNoHealingEffect, 1);
@@ -22,7 +23,8 @@ if(ModifierIsPreloading(ANTI_HEAL_NAME))
 }
 
 rule: '[Anti-Heal] Has Started - Global'
-if(ModifierHasStarted(ANTI_HEAL_NAME))
+if(CurrentModifierIs(ANTI_HEAL_NAME))
+if(ModifierInProgress())
 {
   SetHealingReceived(AllPlayers(), 0);
 
@@ -34,7 +36,8 @@ if(ModifierHasStarted(ANTI_HEAL_NAME))
 
 rule: '[Anti-Heal] Has Started - Player'
 Event.OngoingPlayer
-if(ModifierHasStarted(ANTI_HEAL_NAME))
+if(CurrentModifierIs(ANTI_HEAL_NAME))
+if(ModifierInProgress())
 {
   PlayEffect(EventPlayer(), PlayEffect.AnaBioticGrenadeNoHealingSound, Color.White, EventPlayer(), 50);
 }

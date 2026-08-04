@@ -28,7 +28,8 @@ Modifier hypothermia: Modifier.New(
 );
 
 rule: '[Hypothermia] Is Preloading - Global rule'
-if(ModifierIsPreloading(HYPOTHERMIA_NAME))
+if(CurrentModifierIs(HYPOTHERMIA_NAME))
+if(ModifierIsPreloading())
 {
   hypothermiaHUDs = CreateNiceProgressBar(
     value: LocalPlayer().hypothermiaFreezePercentage, 
@@ -39,14 +40,15 @@ if(ModifierIsPreloading(HYPOTHERMIA_NAME))
     position: Vector(1.65, -0.2575),
     scale: 0.75,
     fallbackText: $"Freeze percentage at: {LocalPlayer().hypothermiaFreezePercentage.Ceil()}%",
-    visibilityCondition: ModifierHasStarted(HYPOTHERMIA_NAME),
+    visibilityCondition: ModifierInProgress(),
     preferFallback: LocalPlayer().preferFallbackHud,
   );
 }
 
 // rule: '[Hypothermia] Is Preloading - Player rule'
 // Event.OngoingPlayer
-// if(ModifierIsPreloading(HYPOTHERMIA_NAME))
+// if(CurrentModifierIs(HYPOTHERMIA_NAME))
+// if(ModifierIsPreloading())
 // {
 //   WaitSpreadPerPlayer();
 //   CreatePlayerEffect(EventPlayer(), Effect.MeiFrozenEffect, 1, visibleCondition: hypothermiaFreezePercentage > 50);
@@ -55,7 +57,8 @@ if(ModifierIsPreloading(HYPOTHERMIA_NAME))
 // }
 
 rule: '[Hypothermia] Has Started - Global rule'
-if(ModifierHasStarted(HYPOTHERMIA_NAME))
+if(CurrentModifierIs(HYPOTHERMIA_NAME))
+if(ModifierInProgress())
 {
   WaitUntilModifierIsOver();
 
@@ -64,7 +67,8 @@ if(ModifierHasStarted(HYPOTHERMIA_NAME))
 
 rule: '[Hypothermia] Has Started - Player rule'
 Event.OngoingPlayer
-if(ModifierHasStarted(HYPOTHERMIA_NAME))
+if(CurrentModifierIs(HYPOTHERMIA_NAME))
+if(ModifierInProgress())
 if(IsAlive())
 {
   ChaseVariableAtRate(
@@ -84,7 +88,8 @@ if(IsAlive())
 
 rule: '[Hypothermia] Freeze player if not moving'
 Event.OngoingPlayer
-if(ModifierHasStarted(HYPOTHERMIA_NAME))
+if(CurrentModifierIs(HYPOTHERMIA_NAME))
+if(ModifierInProgress())
 if(hypothermiaFreezePercentage == 100)
 {
   SetStatus(EventPlayer(), null, Status.Frozen, modifierDurationLeft);
@@ -96,7 +101,8 @@ if(hypothermiaFreezePercentage == 100)
 
 rule: '[Hypothermia] Set movement speed based on freeze percentage'
 Event.OngoingPlayer
-if(ModifierHasStarted(HYPOTHERMIA_NAME))
+if(CurrentModifierIs(HYPOTHERMIA_NAME))
+if(ModifierInProgress())
 {
   WaitForeverUntil(hypothermiaFreezePercentage != EvaluateOnce(hypothermiaFreezePercentage));
   SetMoveSpeed(EventPlayer(), 100 - hypothermiaFreezePercentage * 0.5);

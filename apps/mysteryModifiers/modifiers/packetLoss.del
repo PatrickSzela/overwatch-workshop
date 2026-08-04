@@ -12,7 +12,8 @@ Modifier packetLoss: Modifier.New(
 
 rule: '[Packet Loss] Has Started'
 Event.OngoingPlayer
-if(ModifierHasStarted(PACKET_LOSS_NAME))
+if(CurrentModifierIs(PACKET_LOSS_NAME))
+if(ModifierInProgress())
 {
   Wait(RandomReal(1, 2), WaitBehavior.AbortWhenFalse);
 

@@ -26,9 +26,10 @@ globalvar Any[] invisibilityEffects = [];
 Boolean IsInvisibilityEnabled(Player player = EventPlayer()): !player.invisibilityTakenDamage && !player.invisibilityPlayersNearby;
 
 rule: '[Invisibility] Is Preloading'
-if(ModifierIsPreloading(INVISIBILITY_NAME))
+if(CurrentModifierIs(INVISIBILITY_NAME))
+if(ModifierIsPreloading())
 {
-  Boolean CONDITION: ModifierHasStarted(INVISIBILITY_NAME) && IsInvisibilityEnabled(LocalPlayer()) ? LocalPlayer() : null;
+  Boolean CONDITION: ModifierInProgress() && IsInvisibilityEnabled(LocalPlayer()) ? LocalPlayer() : null;
 
   // for(Number i! = 0; i < 1; i++) {
   //   invisibilityEffect += CreateEffect(
@@ -52,7 +53,7 @@ if(ModifierIsPreloading(INVISIBILITY_NAME))
   );
 
   invisibilityEffects += CreateEffect(
-    VisibleTo: ModifierHasStarted(INVISIBILITY_NAME) ? LocalPlayer() : null, 
+    VisibleTo: ModifierInProgress() ? LocalPlayer() : null, 
     Type: Effect.Ring, 
     // Color: CustomColor(63, 15, 72), 
     Color: CustomColor(118, 93, 189), 
@@ -71,7 +72,8 @@ if(ModifierIsPreloading(INVISIBILITY_NAME))
 }
 
 rule: '[Invisibility] Has Started'
-if(ModifierHasStarted(INVISIBILITY_NAME))
+if(CurrentModifierIs(INVISIBILITY_NAME))
+if(ModifierInProgress())
 {
   AllPlayers().invisibilityTakenDamage = false;
   AllPlayers().invisibilityPlayersNearby = false;
@@ -89,7 +91,8 @@ if(ModifierHasStarted(INVISIBILITY_NAME))
 
 rule: '[Invisibility] Player taken damage'
 Event.OnDamageTaken
-if(ModifierHasStarted(INVISIBILITY_NAME))
+if(CurrentModifierIs(INVISIBILITY_NAME))
+if(ModifierInProgress())
 {
   invisibilityTakenDamage = true;
   Wait(0.75, WaitBehavior.RestartWhenTrue);
@@ -98,7 +101,8 @@ if(ModifierHasStarted(INVISIBILITY_NAME))
 
 rule: '[Invisibility] Players nearby'
 Event.OngoingPlayer
-if(ModifierHasStarted(INVISIBILITY_NAME))
+if(CurrentModifierIs(INVISIBILITY_NAME))
+if(ModifierInProgress())
 if(INVISIBILITY_PLAYERS_NEARBY)
 {
   invisibilityPlayersNearby = true;
@@ -108,12 +112,13 @@ if(INVISIBILITY_PLAYERS_NEARBY)
 
 rule: '[Invisibility] Set invisibility'
 Event.OngoingPlayer
-if(ModifierHasStarted(INVISIBILITY_NAME))
+if(CurrentModifierIs(INVISIBILITY_NAME))
+if(ModifierInProgress())
 if(IsInvisibilityEnabled())
 {
   SetInvisible(EventPlayer(), InvisibleTo.All);
   
-  WaitUntil(!IsInvisibilityEnabled() || !ModifierHasStarted(INVISIBILITY_NAME), modifierDurationLeft);
+  WaitUntil(!IsInvisibilityEnabled() || !ModifierInProgress(), modifierDurationLeft);
 
   // MinWait();
 
