@@ -550,7 +550,7 @@ class MenuState {
       if(historyReplace)
         history[history.Length - 1] = { id: pageId, ..HistoryItem.BASE };
       else
-        history += { id: pageId, ..HistoryItem.BASE };
+        history += single { id: pageId, ..HistoryItem.BASE };
     }
   }
 

@@ -187,7 +187,7 @@ single struct OWTP {
   }
 
   public ref void RegisterMessageDefinition(in MessageDefinition definition) {
-    registeredMessageDefinitions += {
+    registeredMessageDefinitions += single {
       // `- 1` because we have 2 static messages already registered and ID can't be 0
       id: OWTP_SplitId(registeredMessageDefinitions.Length - 1), 
       ..definition
