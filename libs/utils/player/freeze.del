@@ -1,6 +1,7 @@
+import './input/allButtons.del';
+import '../player/helpers.del';
 import '../abbreviations.del';
 import '../helpers.del';
-import './input/allButtons.del';
 
 playervar Boolean _frozen! = false;
 
@@ -16,6 +17,7 @@ rule: '[libs/utils/player.freeze.del] Handle freeze state change' 50
 Event.OngoingPlayer
 if(_frozen)
 {
+  CancelPrimaryAction();
   SetMoveSpeed(EP, 0);
   DisallowAllButtons();
 

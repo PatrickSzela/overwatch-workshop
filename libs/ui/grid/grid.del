@@ -1,0 +1,190 @@
+import '../../utils/hud/diagnostics.del';
+import '../../utils/string/holyGrail.del';
+import '../../utils/player/input/navigation.del';
+import '../../utils/index.del';
+
+globalvar GridHud gridHud = GridHud.New();
+playervar Grid grid;
+
+single struct GridHud {
+  public Vector size;
+  public Vector halfSize;
+  public Any[] items;
+  public Boolean confirmButtonRendered;
+
+  public static GridHud New(): 
+    {items: [], size: Vector.Zero, halfSize: Vector.Zero, confirmButtonRendered: false};
+
+  public ref void GenerateHud(
+    in Vector gridSize,
+    in Boolean visibleCondition = IsNavigationEnabled(LP),
+    in Color titleColor = COLOR_NEUTRAL,
+    in String rightSideText = $"Use {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
+    in Vector rightSideTextOffset = Vector(4, 0, 0),
+    in Vector offset = Vector(0, 0, 0), 
+    in Number inset = 0.3, 
+    in Number scale = 2.5 
+  ) {
+    size = gridSize;
+    halfSize = (size - Vector(1, 1)) / 2;
+
+    // title
+    items += CreateInWorldText(
+      VisibleTo: visibleCondition ? LP : null,
+      Header: LP.grid.title,
+      Position: ScreenPositionToWorld(
+        offset.X,
+        (halfSize.Y + 1) * inset + offset.Y
+      ),
+      Scale: scale * 0.75,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+      TextColor: titleColor,
+      Spectators: Spectators.VisibleNever
+    );
+
+    // labels
+    for(Number y! = -halfSize.Y; y <= halfSize.Y; y++) {
+      for(Number x! = -halfSize.X; x <= halfSize.X; x++) {
+        Number itemX: EvaluateOnce(x + halfSize.X);
+        Number itemY: EvaluateOnce(y + halfSize.Y);
+        Number rendX: EvaluateOnce(x * inset + offset.X);
+        Number rendY: EvaluateOnce(y * inset + offset.Y);
+
+        items += CreateInWorldText(
+          VisibleTo: visibleCondition ? LP : null,
+          Header: LP.grid.labels[itemY][itemX],
+          Position: ScreenPositionToWorld(rendX, rendY),
+          Scale: scale,
+          Clipping: Clipping.DoNotClip,
+          Reevaluation: InworldTextRev.VisibleToPositionAndString,
+          TextColor: Color.White,
+          Spectators: Spectators.VisibleNever
+        );
+
+        items += CreateIcon(
+          VisibleTo: visibleCondition && LP.grid.selected[itemY][itemX] ? LocalPlayer() : null,
+          Position: ScreenPositionToWorld(rendX - 0.065, rendY - 0.05),
+          Icon: Icon.Checkmark,
+          Reevaluation: IconRev.VisibleToAndPosition,
+          IconColor: Color.Green,
+          ShowWhenOffscreen: true
+        );
+
+        MinWait();
+      }
+    }
+
+    // cursor
+    items += CreateInWorldText(
+      VisibleTo: visibleCondition ? LP : null,
+      Header: HolyGrailString("tx0C0000000002DD21"),
+      Position: ScreenPositionToWorld(
+        (LP.grid.cursorPos.X - halfSize.X) * inset + offset.X + 0.125, 
+        (LP.grid.cursorPos.Y - halfSize.Y) * inset + offset.Y - 0.1, 
+      ),
+      Scale: scale * 0.75,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToAndPosition,
+      TextColor: Color.White,
+      Spectators: Spectators.VisibleNever
+    );
+
+    // rightSideText
+    items += CreateInWorldText(
+      VisibleTo: visibleCondition ? LP : null,
+      Header: rightSideText,
+      Position: ScreenPositionToWorld(
+        rightSideTextOffset.X * inset + offset.X, 
+        rightSideTextOffset.Y * inset + offset.Y 
+      ),
+      Scale: scale * 0.6,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToPositionAndString,
+      TextColor: Color.White,
+      Spectators: Spectators.VisibleNever
+    );
+  }
+
+  public ref void GenerateConfirmButton(
+    in String label,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visibleCondition = IsNavigationEnabled(LP),
+    in Vector offset = Vector(0,0,0), 
+    in Number inset = 0.3, 
+    in Number scale = 2.5 
+  ) {
+    confirmButtonRendered = true;
+
+    items += CreateInWorldText(
+      VisibleTo: visibleCondition ? LP : null,
+      Header: label,
+      Position: ScreenPositionToWorld(
+        offset.X, 
+        (-halfSize.Y - 1) * inset + offset.Y
+      ),
+      Scale: scale * 0.75,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+      TextColor: color,
+      Spectators: Spectators.VisibleNever
+    );
+  }
+
+  public ref void DestroyHud() {
+    foreach(Any i! in items) {
+      DestroyInWorldText(i);
+      DestroyIcon(i);
+      MinWait();
+    }
+  }
+}
+
+struct Grid {
+  public String title;
+  public Any[][] values;
+  public Any[][] labels;
+  public Boolean[][] selected;
+  public Vector cursorPos;
+
+  public static Grid New(
+    in String title,
+    in Any[][] values,
+    in Any[][] labels
+  ) {
+    Boolean[] selRow! = Array(gridHud.size.X).Map((i) => false);
+    return {
+      title: title,
+      values: values,
+      labels: labels,
+      selected: Array(gridHud.size.Y).Map((i) => selRow),
+      cursorPos: Vector(
+        Floor(gridHud.halfSize.X), 
+        Floor(gridHud.halfSize.Y), 
+      )
+    };
+  }
+
+  public ref Boolean IsConfirmButtonHovered(): cursorPos.Y == -1;
+
+  public ref void Enable() {
+    SetNavigationEnabled(EP, true);
+  }
+
+  public ref void Disable() {
+    SetNavigationEnabled(EP, false);
+  }
+
+  public ref void Navigate(in Vector direction) {
+    Vector newPos! = cursorPos + direction;
+    cursorPos = Vector(
+      ClampFlip(newPos.X, 0, gridHud.size.X - 1), 
+      ClampFlip(newPos.Y, gridHud.confirmButtonRendered ? -1 : 0, gridHud.size.Y - 1)
+    );
+  }
+
+  public ref void ToggleSelection() {
+    if(cursorPos.Y > -1)
+      selected[cursorPos.Y][cursorPos.X] = !selected[cursorPos.Y][cursorPos.X];
+  }
+}

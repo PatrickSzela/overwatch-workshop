@@ -1,3 +1,4 @@
+import './libs/utils/hud/diagnostics.del';
 import './libs/utils/index.del';
 
 settings {
@@ -8,6 +9,15 @@ settings {
       }
     }
   }
+}
+
+rule: '[playground.del] Setup diagnostics'
+{
+  DisableInspector();
+  CreateDiagnosticsServerLoad();
+  CreateDiagnosticsSpacer();
+  CreateDiagnosticsTextCount();
+  CreateDiagnosticsEntityCount();
 }
 
 rule: '[playground.del]'

@@ -1,120 +1,51 @@
 import '../../../libs/utils/index.del';
 import '../../../libs/utils/player/freeze.del';
-import '../../../libs/utils/player/input/navigation.del';
 import '../../../libs/utils/string/holyGrail.del';
+import '../../../libs/ui/grid/index.del';
 import '../modifier.del';
 import '../utils/effects.del';
 
 String CAPTCHA_NAME: 'CAPTCHA';
 Number CAPTCHA_DURATION: 15;
 
-struct Captcha {
-  static Number SCALE: 2.5;
-  static Number DISTANCE_BETWEEN: 0.3;
-  static Vector OFFSET: Vector(0, 0.15);
+Modifier captcha: Modifier.New(
+  name: CAPTCHA_NAME, 
+  duration: CAPTCHA_DURATION,
+  description: ["A foolproof Anti-Clanker solution provided by Vishkar Corporation"]
+);
 
-  public Boolean enabled;
-  public Boolean generate;
-  public String title;
-  public String[][] hud;
-  public Any[][] values;
+single struct Captcha {
+  public Boolean shouldGenerate;
   public Boolean[][] solution;
-  public Boolean[][] choice;
   public Number retries;
-  public Vector cursorPos;
   public Any shield;
 
   public static Captcha New(): {
-    enabled: false,
-    generate: true,
-    title: null,
-    hud: [],
-    values: [],
+    shouldGenerate: true,
     solution: null,
-    choice: [[false, false, false], [false, false, false], [false, false, false]],
-    cursorPos: Vector.Zero,
     retries: 3,
     shield: null
   };
 
-  public static Any[] GenerateHUD() {
-    Any[] huds = [];
-
-    huds += CreateInWorldText(
-      VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
-      Header: $"{LocalPlayer().captchaData.title}",
-      Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(0, 2) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
-      Scale: Captcha.SCALE * 0.75,
-      Clipping: Clipping.DoNotClip,
-      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-      TextColor: COLOR_RAINBOW,
-      Spectators: Spectators.VisibleNever
+  public static void GenerateHud() {
+    gridHud.GenerateHud(
+      gridSize: Vector(3, 3), 
+      titleColor: COLOR_SUCCESS, 
+      rightSideText: $"Retries left: {LP.captchaData.retries}\nUse {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection\nUse {InputBindingFormatterSingle(Button.Reload)} to reroll at cost of 1 retry",
     );
 
-    for(Number y = -1; y <= 1; y++) {
-      for(Number x = -1; x <= 1; x++) {
-        huds += CreateInWorldText(
-          VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
-          Header: LocalPlayer().captchaData.hud[EvaluateOnce(y) + 1][EvaluateOnce(x) + 1],
-          Position: UpdateEveryFrame(ScreenVectorToWorld(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Captcha.OFFSET)),
-          Scale: Captcha.SCALE,
-          Clipping: Clipping.DoNotClip,
-          Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-          TextColor: Color.White,
-          Spectators: Spectators.VisibleNever
-        );
-
-        huds += CreateIcon(
-          VisibleTo: LocalPlayer().captchaData.enabled && LocalPlayer().captchaData.choice[EvaluateOnce(y) + 1][EvaluateOnce(x) + 1] ? LocalPlayer() : null,
-          Position: UpdateEveryFrame(ScreenVectorToWorld(EvaluateOnce(Vector(x, y) * Captcha.DISTANCE_BETWEEN) + Vector(-0.065, -0.05) + Captcha.OFFSET)),
-          Icon: Icon.Checkmark,
-          Reevaluation: IconRev.VisibleToPositionAndColor,
-          IconColor: Color.Green,
-          ShowWhenOffscreen: true
-        );
-
-        MinWait();
-      }
-    }
-
-    huds += CreateInWorldText(
-      VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
-      Header: HolyGrailString("tx0C0000000002DD21"),
-      Position: UpdateEveryFrame(ScreenVectorToWorld(LocalPlayer().captchaData.cursorPos * Captcha.DISTANCE_BETWEEN + Vector(0.125, -0.1) + Captcha.OFFSET)),
-      Scale: Captcha.SCALE * 0.75,
-      Clipping: Clipping.DoNotClip,
-      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-      TextColor: Color.White,
-      Spectators: Spectators.VisibleNever
+    gridHud.GenerateConfirmButton(
+      label: "Press here to verify",
+      color: COLOR_RAINBOW
     );
+  }
 
-    huds += CreateInWorldText(
-      VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
-      Header: $"Retries left: {LocalPlayer().captchaData.retries}\nUse {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection\nUse {InputBindingFormatterSingle(Button.Reload)} to reroll at cost of 1 retry",
-      Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(4.5, 0) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
-      Scale: Captcha.SCALE * 0.6,
-      Clipping: Clipping.DoNotClip,
-      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-      TextColor: Color.White,
-      Spectators: Spectators.VisibleNever
-    );
-
-    huds += CreateInWorldText(
-      VisibleTo: LocalPlayer().captchaData.enabled ? LocalPlayer() : null,
-      Header: "Press here to verify",
-      Position: UpdateEveryFrame(ScreenVectorToWorld(Vector(0, -2) * Captcha.DISTANCE_BETWEEN + Captcha.OFFSET)),
-      Scale: Captcha.SCALE * 0.75,
-      Clipping: Clipping.DoNotClip,
-      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-      TextColor: FadeColorOverTime(Vector(255, 255, 255), Vector(69, 255, 87)),
-      Spectators: Spectators.VisibleNever
-    );
-
-    return huds;
+  public static void DestroyHud() {
+    gridHud.DestroyHud();
   }
 
   public ref void GeneratePuzzle() {
-    generate = true;
+    shouldGenerate = true;
   }
 
   public ref void RULE_GeneratePuzzle() {
@@ -122,8 +53,9 @@ struct Captcha {
     Number validCount!;
     Any[] validValues!;
     Any[] invalidValues!;
-    Any[] _values!;
-    String[] _huds!;
+    Any[] values!;
+    String[] labels!;
+    String title!;
 
     switch(puzzle) {
       case 0:
@@ -149,139 +81,110 @@ struct Captcha {
         Number div! = [2, 3, 5].Random();
         Number max! = div == 3 ? 30 : 50;
         title = $"Select all numbers divisible by {div}";
-        _values = Array(9).Map((i) => RandomInteger(1, max));
-        validValues = _values.Filter((i) => i % div == 0);
+        values = Array(9).Map((i) => RandomInteger(1, max));
+        validValues = values.Filter((i) => i % div == 0);
         break;
       case 3:
         Boolean bigger! = RandomInteger(0, 1);
         Number num! = RandomInteger(25, 75);
         title = $"Select all numbers {bigger ? 'bigger' : 'smaller'} than {num}";
-        _values = Array(9).Map((i) => RandomInteger(0, 99));
-        validValues = _values.Filter((i) => bigger ? i > num : i < num);
+        values = Array(9).Map((i) => RandomInteger(0, 99));
+        validValues = values.Filter((i) => bigger ? i > num : i < num);
         break;
       case 4:
         Boolean before! = RandomInteger(0, 1);
         Number[] idxs! = alphabet.Map((i, idx) => idx);
         Number idx! = idxs.Slice(5, idxs.Length - 10).Random();
         title = $"Select all letters {before ? 'before' : 'after'} {alphabet[idx]}";
-        _values = idxs.Randomize().Slice(0, 9);
-        validValues = _values.Filter((i) => before ? i < idx : i > idx);
+        values = idxs.Randomize().Slice(0, 9);
+        validValues = values.Filter((i) => before ? i < idx : i > idx);
         break;
     }
 
-    if(!_values.Length) {
-      _values = (validValues.Randomize().Slice(0, validCount) + 
+    if(!values.Length) {
+      values = (validValues.Randomize().Slice(0, validCount) + 
         invalidValues.Randomize().Slice(0, 9 - validCount)).Randomize();
     }
 
-    Any[] _solution = _values.Map((i) => validValues.Contains(i));
-    _huds = _values.Map((i) => puzzle == 0 ? HeroIconString(i) : puzzle == 4 ? alphabet[i] : i);
-
-    hud = [_huds.Slice(0, 3), _huds.Slice(3, 3), _huds.Slice(6, 3)];
-    values = [_values.Slice(0, 3), _values.Slice(3, 3), _values.Slice(6, 3)];
+    Any[] _solution! = values.Map((i) => validValues.Contains(i));
+    labels = values.Map((i) => puzzle == 0 ? HeroIconString(i) : puzzle == 4 ? alphabet[i] : i);
     solution = [_solution.Slice(0, 3), _solution.Slice(3, 3), _solution.Slice(6, 3)];
-    choice = [[false, false, false], [false, false, false], [false, false, false]];
-    generate = false;
+
+    grid = Grid.New(
+      title: title,
+      values: [values.Slice(0, 3), values.Slice(3, 3), values.Slice(6, 3)],
+      labels: [labels.Slice(0, 3), labels.Slice(3, 3), labels.Slice(6, 3)],
+    );
+
+    shouldGenerate = false;
   }
 
   public ref void Enable() {
-    SetNavigationEnabled(EP, true);
-    shield = AddHealthPoolToPlayer(EventPlayer(), HealthType.Health, 500, false, false);
+    grid.Enable();
     DisableHeroHud();
-    enabled = true;
+    shield = AddHealthPoolToPlayer(EP, HealthType.Health, 500, false, false);
   }
 
   public ref void Disable() {
-    SetNavigationEnabled(EP, false);
-    RemoveHealthPoolFromPlayer(shield);
+    grid.Disable();
     EnableHeroHud();
-    enabled = false;
-  }
-
-  public ref void Navigate(in Vector direction) {
-    Vector newPos! = cursorPos + direction;
-
-    if(newPos.X >= -1 && newPos.X <= 1 && newPos.Y >= -2 && newPos.Y <= 1) {
-      cursorPos = RoundVector(newPos);
-    }
+    RemoveHealthPoolFromPlayer(shield);
+    DestroyPlayerEffects();
   }
   
-  public ref void CaptchaFailed() {
-    BigMessage(EventPlayer(), "CAPTCHA Failed");
-    PlayEffect(AllPlayers(), PlayEffect.ExplosionSound, Color.Red, EventPlayer(), 100);
-    PlayEffect(AllPlayers(), PlayEffect.BadExplosion, Color.Red, EventPlayer(), 1.5);
+  public ref void Pass() {
+    BigMessage(EP, "CAPTCHA Passed");
+    PlayEffect(EP, PlayEffect.BuffExplosionSound, Color.Red, EP, 100);
+    Disable();
+  }
+
+  public ref void Fail() {
+    BigMessage(EP, "CAPTCHA Failed");
+    PlayEffect(AllPlayers(), PlayEffect.ExplosionSound, Color.Red, EP, 100);
+    PlayEffect(AllPlayers(), PlayEffect.BadExplosion, Color.Red, EP, 1.5);
     KillIfKillableElseDamage();
   }
 
-  public ref void ToggleChoice() {
-    if(cursorPos.Y == -2) {
-      if(solution == choice) {
-        BigMessage(EventPlayer(), "CAPTCHA Passed");
-        PlayEffect(EventPlayer(), PlayEffect.BuffExplosionSound, Color.Red, EventPlayer(), 100);
-        Disable();
-      } else {
-        retries--;
-
-        if(retries) {
-          PlayEffect(EventPlayer(), PlayEffect.ExplosionSound, Color.Red, EventPlayer(), 100);
-        }
-      }
-
-      return;
+  public ref void Retry() {
+    retries--;
+    if(retries > -1) {
+      PlayEffect(EP, PlayEffect.ExplosionSound, Color.Red, EP, 100);
     }
+  }
 
-    choice[cursorPos.Y + 1][cursorPos.X + 1] = !choice[cursorPos.Y + 1][cursorPos.X + 1];
+  public ref void OnConfirmButtonPress() {
+    if(grid.selected == solution) {
+      Pass();
+    } else {
+      Retry();
+    }
   }
 }
 
 playervar Captcha captchaData;
-globalvar Any[] captchaHuds;
-
-
-Modifier captcha: Modifier.New(
-  name: CAPTCHA_NAME, 
-  duration: CAPTCHA_DURATION,
-  description: ["A foolproof Anti-Clanker solution provided by Vishkar Corporation"]
-);
 
 rule: '[Captcha] Is Preloading'
 if(CurrentModifierIs(CAPTCHA_NAME))
 if(ModifierIsPreloading())
 {
-  captchaHuds = Captcha.GenerateHUD();
-}
+  Captcha.GenerateHud();
 
-rule: '[Captcha] Is Preloading'
-Event.OngoingPlayer
-if(CurrentModifierIs(CAPTCHA_NAME))
-if(ModifierIsPreloading())
-{
-  WaitSpreadPerPlayer();
-  CreatePlayerEffect(EventPlayer(), Effect.AnaSleepingEffect, 1);
-  WaitSpreadPerPlayer();
-  captchaData = Captcha.New();
-}
-
-rule: '[Captcha] Generate puzzle'
-Event.OngoingPlayer
-if(captchaData.enabled)
-if(IsNavigationAllowed())
-if(EventPlayer().IsButtonHeld(Button.Reload))
-{
-  captchaData.GeneratePuzzle();
-  captchaData.retries -= 1;
-}
-
-rule: '[Captcha] Has Started'
-if(CurrentModifierIs(CAPTCHA_NAME))
-if(ModifierInProgress())
-{
+  WaitForeverUntil(ModifierInProgress());
   WaitUntilModifierIsOver();
   
-  foreach(Any d in captchaHuds) {
-    DestroyInWorldText(d);
-    DestroyIcon(d);
-  }
+  Wait(0.1);
+  Captcha.DestroyHud();
+}
+
+rule: '[Captcha] Is Preloading'
+Event.OngoingPlayer
+if(CurrentModifierIs(CAPTCHA_NAME))
+if(ModifierIsPreloading())
+{
+  WaitSpreadPerPlayer();
+  CreatePlayerEffect(EP, Effect.AnaSleepingEffect, 1);
+  WaitSpreadPerPlayer();
+  captchaData = Captcha.New();
 }
 
 rule: '[Captcha] Has Started'
@@ -296,42 +199,43 @@ if(ModifierInProgress())
 
   // end
   WaitUntilIsDeadOrModifierIsOver();
-  if(captchaData.enabled && !IsDead()) captchaData.CaptchaFailed();
+  
+  if(IsNavigationEnabled() && !IsDead()) 
+    captchaData.retries = -1;
+
   captchaData.Disable();
-}
-
-rule: '[Captcha] Navigate menu'
-Event.OngoingPlayer
-if(captchaData.enabled)
-if(IsNavigationAllowed())
-if(NavigationDirectionOf())
-{
-  captchaData.Navigate(NavigationDirectionOf());
-  MinWait();
-  LoopIfConditionIsTrue();
-}
-
-rule: '[Captcha] Interact with menu'
-Event.OngoingPlayer
-if(captchaData.enabled)
-if(IsNavigationAllowed())
-if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
-{
-  captchaData.ToggleChoice();
 }
 
 rule: '[Captcha] Generate puzzle'
 Event.OngoingPlayer
-if(captchaData.enabled)
-if(captchaData.generate)
+if(CurrentModifierIs(CAPTCHA_NAME))
+if(IsNavigationAllowed())
+if(EP.IsButtonHeld(Button.Reload))
+{
+  captchaData.GeneratePuzzle();
+  captchaData.retries -= 1;
+}
+
+rule: '[Captcha] Interact with confirm button'
+Event.OngoingPlayer
+if(CurrentModifierIs(CAPTCHA_NAME))
+if(IsNavigationAllowed())
+if(grid.IsConfirmButtonHovered())
+if(EP.IsButtonHeld(Button.PrimaryFire))
+{
+  captchaData.OnConfirmButtonPress();
+}
+
+rule: '[Captcha] Generate puzzle'
+Event.OngoingPlayer
+if(captchaData.shouldGenerate)
 {
   captchaData.RULE_GeneratePuzzle();
 }
 
 rule: '[Captcha] Handle retries'
 Event.OngoingPlayer
-if(captchaData.enabled)
-if(!captchaData.retries)
+if(captchaData.retries == -1)
 {
-  captchaData.CaptchaFailed();
+  captchaData.Fail();
 }
