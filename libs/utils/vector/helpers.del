@@ -7,9 +7,9 @@ Vector ArrayToVector(Number[] array): Vector(array[0], array[1], array[2]);
 # Rounds each component of `vector` with specified `precision`.
 Vector RoundVector(Vector vector, Number precision = 1):
   Vector(
-    RoundToInteger(vector.X * precision), 
-    RoundToInteger(vector.Y * precision),
-    RoundToInteger(vector.Z * precision)
+    Round(vector.X * precision), 
+    Round(vector.Y * precision),
+    Round(vector.Z * precision)
   ) / precision;
 
 # Snaps `vector` to the closest axis.
@@ -22,8 +22,8 @@ Vector SnapToClosestAxis(in Vector vector) {
 
 # Snaps `vector` to the closest axis based on specified `angle`.
 Vector SnapToAngle(in Vector vector, in Number angle = 90) {
-  Number azimuth: RoundToInteger((HorizontalAngleFromDirection(vector) - angle / 2) / angle) * angle;
-  Number inclination: RoundToInteger((VerticalAngleFromDirection(vector) - angle / 2) / angle) * angle;
+  Number azimuth: Ceil((HorizontalAngleFromDirection(vector) - angle / 2) / angle) * angle;
+  Number inclination: Ceil((VerticalAngleFromDirection(vector) - angle / 2) / angle) * angle;
 
   Vector dir! = DirectionFromAngles(azimuth, inclination);
   return SnapTo1(dir);

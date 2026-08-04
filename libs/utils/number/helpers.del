@@ -5,6 +5,15 @@ Number NUMBER_MIN: -9999999;
 # Maximum number supported by Workshop.
 Number NUMBER_MAX: 9999999;
 
+# Round down to the nearest integer.
+Number Floor(Number value): RoundToInteger(value, Rounding.Down);
+
+# Round up to the nearest integer.
+Number Ceil(Number value): RoundToInteger(value, Rounding.Up);
+
+# Round to the nearest integer.
+Number Round(Number value): RoundToInteger(value, Rounding.Nearest);
+
 # Returns sign of `value` (with `0` for 0).
 Number Sign(Number value): value < 0 ? -1 : value > 0 ? 1 : 0;
 
@@ -38,7 +47,7 @@ Boolean[] ToBinary(in Number number) {
   Boolean[] result! = [];
   while(cache > 0) {
     result += number % 2 ? true : false;
-    cache = RoundToInteger(cache, Rounding.Down);
+    cache = Floor(cache);
   }
   return result;
 }

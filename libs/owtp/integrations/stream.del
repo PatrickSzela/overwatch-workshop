@@ -71,7 +71,7 @@ single struct StreamIntegration {
   public ref void CreatePollHUD(in String title = "New poll has started! Cast your vote:\n") {
     CreateHudText(
       VisibleTo: LocalPlayer(),
-      Header: pollHUDText ? $"{title}{pollHUDText}\nPoll will close in {RoundToInteger(pollTimeoutDisplay, Rounding.Up)} secs" : "",
+      Header: pollHUDText ? $"{title}{pollHUDText}\nPoll will close in {Ceil(pollTimeoutDisplay)} secs" : "",
       HeaderColor: COLOR_RAINBOW,
       Location: Location.Left,
       SortOrder: -100,

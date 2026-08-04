@@ -1,3 +1,5 @@
+import '../number/helpers.del';
+
 # Creates an array with maximum size of 1 000 000 elements (compared to built-in limit of 1 000 elements) by internally utilizing multi-dimensional arrays.
 # 
 # NOTE: Multi-dimensional arrays have a big performance cost.
@@ -9,7 +11,7 @@ struct BigArray<T> {
   
   public static BigArray<T> New(in T[] arr = []): { multiArray: [arr], length: arr.Length };
 
-  private Number FirstIdx(in Number index): RoundToInteger(index / MAX_ARRAY_SIZE, Rounding.Down);
+  private Number FirstIdx(in Number index): Floor(index / MAX_ARRAY_SIZE);
   private Number SecondIdx(in Number index): index % MAX_ARRAY_SIZE;
 
   # Get value from array at `index`.

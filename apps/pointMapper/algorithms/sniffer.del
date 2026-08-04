@@ -41,9 +41,9 @@ if(stepSniffer == StepSniffer.Nothing)
   center = CurrentObjectivePosition() + (Offsets.Get(CurrentMap())[ObjectiveIndex()] || Vector.Zero);
 
   center = Vector(
-    RoundToInteger(center.X * 100) / 100, 
-    RoundToInteger(center.Y * 100) / 100, 
-    RoundToInteger(center.Z * 100) / 100
+    Round(center.X * 100) / 100, 
+    Round(center.Y * 100) / 100, 
+    Round(center.Z * 100) / 100
   );
 
   // generate dummies

@@ -85,7 +85,7 @@ void GenerateBoxesLines() {
 
     Number _i: EvaluateOnce(i);
     Number _iEnd: EvaluateOnce(i + 1);
-    Number boxIdx: EvaluateOnce(RoundToInteger(i / 5, Rounding.Down));
+    Number boxIdx: EvaluateOnce(Floor(i / 5));
 
     CreateBeamEffect(
       VisibleTo: boxes[boxIdx].visible ? LP : null, 
