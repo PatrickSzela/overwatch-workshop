@@ -9,28 +9,32 @@ playervar Vector _navigationDirReal! = Vector.Zero;
 playervar Vector _navigationDirPrev! = Vector.Zero;
 playervar Number _navigationRepeatTimer!;
 
-Boolean IsNavigationEnabled(): _navigationState == 2;
+Boolean IsNavigationEnabled(in Player player = EP): player._navigationState;
+Boolean IsNavigationAllowed(in Player player = EP): player._navigationState == 2;
 
 void SetNavigationEnabled(Player player! = EP, Boolean enabled!) "[libs/utils/input/navigation.del] Set Navigation Enabled" {
   _navigationState = enabled ? 1 : 0;
   SetFrozen(EP, enabled);
 }
 
-Vector IsMagnitude(): MagnitudeOf(ThrottleOf()) > 0.75;
-Boolean IsNavigating(): IsNavigationEnabled() && IsMagnitude();
+Vector _NavigationMagnitude(in Player player = EP): 
+  MagnitudeOf(ThrottleOf(player)) > 0.75;
+Boolean IsNavigating(in Player player = EP): 
+  IsNavigationAllowed(player) && _NavigationMagnitude(player);
 Vector NavigationDirectionOf(Player player = EP): player._navigationDir;
 
 rule: '[libs/utils/input/navigation.del] Pause until player releases all buttons' -102
 Event.OngoingPlayer
 if(_navigationState == 1)
 {
-  WaitForeverUntil(!IsMagnitude() && !(HeldButtonsOf() - Button.Crouch));
+  WaitForeverUntil(!_NavigationMagnitude() && !(HeldButtonsOf() - Button.Crouch));
   _navigationState = 2;
 }
 
 rule: '[libs/utils/input/navigation.del] Handle player\'s throttle' -101
 Event.OngoingPlayer
 if(_navigationState == 2)
+if(_NavigationMagnitude())
 {  
   _navigationDirReal = SnapToAngle(Vector(-ThrottleOf().X, ThrottleOf().Z, 0), 45);
   

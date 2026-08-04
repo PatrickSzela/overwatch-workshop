@@ -380,7 +380,7 @@ if(IsNavigating() || !divineBlessingUi.description)
 rule: '[Divine Blessing] Select choice'
 Event.OngoingPlayer
 if(divineBlessingUi.state)
-if(IsNavigationEnabled())
+if(IsNavigationAllowed())
 if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
 {
   divineBlessingUi.Select();

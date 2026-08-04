@@ -264,7 +264,7 @@ if(ModifierIsPreloading(CAPTCHA_NAME))
 rule: '[Captcha] Generate puzzle'
 Event.OngoingPlayer
 if(captchaData.enabled)
-if(IsNavigationEnabled())
+if(IsNavigationAllowed())
 if(EventPlayer().IsButtonHeld(Button.Reload))
 {
   captchaData.GeneratePuzzle();
@@ -301,7 +301,7 @@ if(ModifierHasStarted(CAPTCHA_NAME))
 rule: '[Captcha] Navigate menu'
 Event.OngoingPlayer
 if(captchaData.enabled)
-if(IsNavigationEnabled())
+if(IsNavigationAllowed())
 if(NavigationDirectionOf())
 {
   captchaData.Navigate(NavigationDirectionOf());
@@ -312,7 +312,7 @@ if(NavigationDirectionOf())
 rule: '[Captcha] Interact with menu'
 Event.OngoingPlayer
 if(captchaData.enabled)
-if(IsNavigationEnabled())
+if(IsNavigationAllowed())
 if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
 {
   captchaData.ToggleChoice();

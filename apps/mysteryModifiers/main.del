@@ -1,7 +1,7 @@
 import './settings.del';
 // import './settings.prod.del';
-// import './settings.dev.del';
-import './settings.dev.owtp.del';
+import './settings.dev.del';
+// import './settings.dev.owtp.del';
 import './debug.del';
 
 import '../../libs/utils/hud/diagnostics.del';
