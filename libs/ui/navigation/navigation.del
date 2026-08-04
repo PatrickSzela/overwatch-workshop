@@ -1,0 +1,81 @@
+import '../../utils/player/input/heldButtons.del';
+import '../../utils/player/freeze.del';
+import '../../utils/vector/index.del';
+import '../../utils/helpers.del';
+
+playervar Number _uiNavigationState! = 0;
+playervar Vector _uiNavigationDir! = Vector.Zero;
+playervar Vector _uiNavigationDirReal! = Vector.Zero;
+playervar Vector _uiNavigationDirPrev! = Vector.Zero;
+playervar Number _uiNavigationRepeatTimer!;
+
+Boolean IsUiNavigationEnabled(in Player player = EP): player._uiNavigationState;
+
+Boolean IsUiNavigationAllowed(in Player player = EP): player._uiNavigationState == 2;
+
+void SetUiNavigationEnabled(Player player! = EP, Boolean enabled!) "[libs/ui/navigation/navigation.del] Set UI Navigation Enabled" {
+  _uiNavigationState = enabled ? 1 : 0;
+  SetFrozen(EP, enabled);
+}
+
+Vector _UiNavigationMagnitude(in Player player = EP): 
+  MagnitudeOf(ThrottleOf(player)) > 0.75;
+
+Boolean IsNavigatingUi(in Player player = EP): 
+  IsUiNavigationAllowed(player) && _UiNavigationMagnitude(player);
+
+Vector UiNavigationDirectionOf(Player player = EP): player._uiNavigationDir;
+
+rule: '[libs/ui/navigation/navigation.del] Pause until player releases all buttons' -102
+Event.OngoingPlayer
+if(_uiNavigationState == 1)
+{
+  WaitForeverUntil(!_UiNavigationMagnitude() && !(HeldButtonsOf() - Button.Crouch));
+  _uiNavigationState = 2;
+}
+
+rule: '[libs/ui/navigation/navigation.del] Handle player\'s throttle' -101
+Event.OngoingPlayer
+if(_uiNavigationState == 2)
+if(_UiNavigationMagnitude())
+{  
+  _uiNavigationDirReal = SnapToAngle(Vector(-ThrottleOf().X, ThrottleOf().Z, 0), 45);
+  
+  MinWait();
+  LoopIfConditionIsTrue();
+
+  _uiNavigationDir = Vector.Zero;
+  _uiNavigationDirReal = Vector.Zero;
+  _uiNavigationDirPrev = Vector.Zero;
+}
+
+rule: '[libs/ui/navigation/navigation.del] Update exposed navigation data' -100
+Event.OngoingPlayer
+if(_uiNavigationState == 2)
+if(_uiNavigationDirReal)
+{
+  _uiNavigationRepeatTimer = 0.5;
+  _uiNavigationDir = Vector(
+    _uiNavigationDirPrev.X == _uiNavigationDirReal.X ? 0 : _uiNavigationDirReal.X, 
+    _uiNavigationDirPrev.Y == _uiNavigationDirReal.Y ? 0 : _uiNavigationDirReal.Y, 
+  );
+  _uiNavigationDirPrev = _uiNavigationDirReal;
+
+  while(_uiNavigationDirReal && _uiNavigationState == 2) {
+    WaitUntil(_uiNavigationDirReal != EvaluateOnce(_uiNavigationDirReal) || _uiNavigationState != EvaluateOnce(_uiNavigationState), ONE_TICK);
+    _uiNavigationDir = Vector.Zero;
+
+    if(_uiNavigationDirReal != _uiNavigationDirPrev || _uiNavigationState != 2)
+      break;
+
+    WaitUntil(_uiNavigationDirReal != EvaluateOnce(_uiNavigationDirReal) || _uiNavigationState != EvaluateOnce(_uiNavigationState), _uiNavigationRepeatTimer);
+
+    if(_uiNavigationDirReal != _uiNavigationDirPrev || _uiNavigationState != 2)
+      break;
+
+    _uiNavigationDir = _uiNavigationDirReal;
+    _uiNavigationRepeatTimer = 0.075;
+  }
+
+  LoopIfConditionIsTrue();
+}

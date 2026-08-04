@@ -1,7 +1,7 @@
 import '../../utils/hud/diagnostics.del';
 import '../../utils/string/holyGrail.del';
-import '../../utils/player/input/navigation.del';
 import '../../utils/index.del';
+import '../navigation/index.del';
 
 globalvar GridHud gridHud = GridHud.New();
 playervar Grid grid;
@@ -17,7 +17,7 @@ single struct GridHud {
 
   public ref void GenerateHud(
     in Vector gridSize,
-    in Boolean visibleCondition = IsNavigationEnabled(LP),
+    in Boolean visibleCondition = IsUiNavigationEnabled(LP),
     in Color titleColor = COLOR_NEUTRAL,
     in String rightSideText = $"Use {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
     in Vector rightSideTextOffset = Vector(4, 0, 0),
@@ -109,7 +109,7 @@ single struct GridHud {
   public ref void GenerateConfirmButton(
     in String label,
     in Color color = COLOR_NEUTRAL,
-    in Boolean visibleCondition = IsNavigationEnabled(LP),
+    in Boolean visibleCondition = IsUiNavigationEnabled(LP),
     in Vector offset = Vector(0,0,0), 
     in Number inset = 0.3, 
     in Number scale = 2.5 
@@ -168,11 +168,11 @@ struct Grid {
   public ref Boolean IsConfirmButtonHovered(): cursorPos.Y == -1;
 
   public ref void Enable() {
-    SetNavigationEnabled(EP, true);
+    SetUiNavigationEnabled(EP, true);
   }
 
   public ref void Disable() {
-    SetNavigationEnabled(EP, false);
+    SetUiNavigationEnabled(EP, false);
   }
 
   public ref void Navigate(in Vector direction) {

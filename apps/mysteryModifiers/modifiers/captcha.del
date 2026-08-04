@@ -200,7 +200,7 @@ if(ModifierInProgress())
   // end
   WaitUntilIsDeadOrModifierIsOver();
   
-  if(IsNavigationEnabled() && !IsDead()) 
+  if(IsUiNavigationEnabled() && !IsDead()) 
     captchaData.retries = -1;
 
   captchaData.Disable();
@@ -209,7 +209,7 @@ if(ModifierInProgress())
 rule: '[Captcha] Generate puzzle'
 Event.OngoingPlayer
 if(CurrentModifierIs(CAPTCHA_NAME))
-if(IsNavigationAllowed())
+if(IsUiNavigationAllowed())
 if(EP.IsButtonHeld(Button.Reload))
 {
   captchaData.GeneratePuzzle();
@@ -219,7 +219,7 @@ if(EP.IsButtonHeld(Button.Reload))
 rule: '[Captcha] Interact with confirm button'
 Event.OngoingPlayer
 if(CurrentModifierIs(CAPTCHA_NAME))
-if(IsNavigationAllowed())
+if(IsUiNavigationAllowed())
 if(grid.IsConfirmButtonHovered())
 if(EP.IsButtonHeld(Button.PrimaryFire))
 {

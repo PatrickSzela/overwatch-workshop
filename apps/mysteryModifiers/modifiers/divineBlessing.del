@@ -174,7 +174,7 @@ struct DivineBlessingUi {
   }
   
   public ref void Enable() {
-    SetNavigationEnabled(EP, true);
+    SetUiNavigationEnabled(EP, true);
     SetStatus(EP, null, Status.PhasedOut, NUMBER_MAX);
     DisableHeroHud(EP);
     DisableGameModeHud(EP);
@@ -196,7 +196,7 @@ struct DivineBlessingUi {
   }
 
   public ref void Disable() {
-    SetNavigationEnabled(EP, false);
+    SetUiNavigationEnabled(EP, false);
     ClearStatus(EP, Status.PhasedOut);
     EnableHeroHud(EP);
     EnableGameModeHud(EP);
@@ -374,9 +374,9 @@ if(divineBlessingUi.state)
 rule: '[Divine Blessing] Navigate menu'
 Event.OngoingPlayer
 if(divineBlessingUi.state)
-if(IsNavigating() || !divineBlessingUi.description)
+if(IsNavigatingUi() || !divineBlessingUi.description)
 {
-  divineBlessingUi.Navigate(-NavigationDirectionOf().Y);
+  divineBlessingUi.Navigate(-UiNavigationDirectionOf().Y);
   MinWait();
   LoopIfConditionIsTrue();
 }
@@ -384,7 +384,7 @@ if(IsNavigating() || !divineBlessingUi.description)
 rule: '[Divine Blessing] Select choice'
 Event.OngoingPlayer
 if(divineBlessingUi.state)
-if(IsNavigationAllowed())
+if(IsUiNavigationAllowed())
 if(EventPlayer().IsButtonHeld(Button.PrimaryFire))
 {
   divineBlessingUi.Select();
