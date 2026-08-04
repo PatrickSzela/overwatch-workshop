@@ -90,6 +90,7 @@ if(ModifierInProgress())
 
 rule: '[Jet Pack] Whether player is using Jet Pack'
 Event.OngoingPlayer
+if(CurrentModifierIs(JET_PACK_NAME))
 if(JET_PACK_IS_USING)
 {
   jetPackIsUsing = true;
@@ -102,6 +103,7 @@ if(JET_PACK_IS_USING)
 
 rule: '[Jet Pack] Handle movement speed & whether resource should regenerate'
 Event.OngoingPlayer
+if(CurrentModifierIs(JET_PACK_NAME))
 if(jetPackIsUsing)
 {
   jetPackIsResourceRegenerating = false;
