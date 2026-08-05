@@ -22,7 +22,7 @@ single struct GridHud {
     in String rightSideText = $"Use {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
     in Vector rightSideTextOffset = Vector(4, 0, 0),
     in Vector offset = Vector(0, 0, 0), 
-    in Number inset = 0.3, 
+    in Number gap = 0.3, 
     in Number scale = 2.5 
   ) {
     size = gridSize;
@@ -34,7 +34,7 @@ single struct GridHud {
       Header: LP.grid.title,
       Position: ScreenPositionToWorld(
         offset.X,
-        (halfSize.Y + 1) * inset + offset.Y
+        (halfSize.Y + 1) * gap + offset.Y
       ),
       Scale: scale * 0.75,
       Clipping: Clipping.DoNotClip,
@@ -48,8 +48,8 @@ single struct GridHud {
       for(Number x! = -halfSize.X; x <= halfSize.X; x++) {
         Number itemX: EvaluateOnce(x + halfSize.X);
         Number itemY: EvaluateOnce(y + halfSize.Y);
-        Number rendX: EvaluateOnce(x * inset + offset.X);
-        Number rendY: EvaluateOnce(y * inset + offset.Y);
+        Number rendX: EvaluateOnce(x * gap + offset.X);
+        Number rendY: EvaluateOnce(y * gap + offset.Y);
 
         items += CreateInWorldText(
           VisibleTo: visibleCondition ? LP : null,
@@ -80,8 +80,8 @@ single struct GridHud {
       VisibleTo: visibleCondition ? LP : null,
       Header: HolyGrailString("tx0C0000000002DD21"),
       Position: ScreenPositionToWorld(
-        (LP.grid.cursorPos.X - halfSize.X) * inset + offset.X + 0.125, 
-        (LP.grid.cursorPos.Y - halfSize.Y) * inset + offset.Y - 0.1, 
+        (LP.grid.cursorPos.X - halfSize.X) * gap + offset.X + 0.125, 
+        (LP.grid.cursorPos.Y - halfSize.Y) * gap + offset.Y - 0.1, 
       ),
       Scale: scale * 0.75,
       Clipping: Clipping.DoNotClip,
@@ -95,8 +95,8 @@ single struct GridHud {
       VisibleTo: visibleCondition ? LP : null,
       Header: rightSideText,
       Position: ScreenPositionToWorld(
-        rightSideTextOffset.X * inset + offset.X, 
-        rightSideTextOffset.Y * inset + offset.Y 
+        rightSideTextOffset.X * gap + offset.X, 
+        rightSideTextOffset.Y * gap + offset.Y 
       ),
       Scale: scale * 0.6,
       Clipping: Clipping.DoNotClip,
@@ -111,7 +111,7 @@ single struct GridHud {
     in Color color = COLOR_NEUTRAL,
     in Boolean visibleCondition = IsUiNavigationEnabled(LP),
     in Vector offset = Vector(0,0,0), 
-    in Number inset = 0.3, 
+    in Number gap = 0.3, 
     in Number scale = 2.5 
   ) {
     confirmButtonRendered = true;
@@ -121,7 +121,7 @@ single struct GridHud {
       Header: label,
       Position: ScreenPositionToWorld(
         offset.X, 
-        (-halfSize.Y - 1) * inset + offset.Y
+        (-halfSize.Y - 1) * gap + offset.Y
       ),
       Scale: scale * 0.75,
       Clipping: Clipping.DoNotClip,
