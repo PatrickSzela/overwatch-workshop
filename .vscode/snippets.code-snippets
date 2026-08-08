@@ -84,7 +84,7 @@
       "rule: '[${1:Name}] Has Started'",
       "Event.OngoingPlayer",
       "if(CurrentModifierIs(${TM_FILENAME_BASE/([A-Z]{2,})(?=[A-Z][a-z]+[0-9]*|$)|([A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+)([- _])?/${1:/upcase}${2:/upcase}_/gm}NAME))",
-      "if(ModifierIsPreloading())",
+      "if(ModifierInProgress())",
       "{",
       "  WaitUntilAlive();",
       "",
