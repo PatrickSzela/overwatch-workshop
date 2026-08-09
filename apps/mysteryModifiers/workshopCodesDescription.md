@@ -896,6 +896,30 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
+      <div class="modifier__title">Tic-tac-toe</div>  
+      <div class="modifier__duration">20 secs</div>
+    </div>
+    <div class="modifier__content">
+      <div class="modifier__description">
+        <p>It's called Tic-tac-toe but it doesn't involve Tic Tacs nor toes... That's just false advertising</p>
+      </div>
+      <ul class="update-notes__changes">
+        <li>Pairs randomly selected players together and forces them to play a round of Tic-tac-toe against each other</li>
+        <li>Use <kbd>Movement Inputs</kbd> to navigate</li>
+        <li>Use <kbd>Primary Fire</kbd> to toggle selection</li>
+        <li>Winning the Tic-tac-toe allows the player to continue playing</li>
+        <li>Losing the Tic-tac-toe ends with player's death</li>
+        <li>Draw ends with both players being able to continue playing</li>
+        <li>Grants players 500 temporary HP for the duration of the modifier</li>
+        <li>
+          Dead players will be respawned (in their appropriate spawn rooms) when the modifier begins
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modifier">
+    <div class="modifier__header">
       <div class="modifier__title">Top Down Camera</div>  
       <div class="modifier__duration">13 secs</div>
     </div>

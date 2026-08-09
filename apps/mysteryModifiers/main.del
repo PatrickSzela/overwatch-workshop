@@ -82,6 +82,7 @@ void StopModifier(Boolean addToHistory = true) "Stop Modifier" {
   // Log($'Disabling modifier {currentModifierName}');
 
   CurrentModifier().Disable();
+  Wait(0.1);
   modifierDurationLeft = 0;
   state = State.WAITING;
 }

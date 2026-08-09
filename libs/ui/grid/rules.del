@@ -12,6 +12,7 @@ if(UiNavigationDirectionOf())
 
 rule: '[libs/ui/grid/rules.del] Interact with grid'
 Event.OngoingPlayer
+if(gridHud.selectableItems)
 if(IsUiNavigationAllowed())
 if(EP.IsButtonHeld(Button.PrimaryFire))
 {

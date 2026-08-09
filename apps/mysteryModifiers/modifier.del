@@ -59,6 +59,10 @@ void WaitUntilModifierIsOver() {
   WaitUntil(currentModifierState == ModifierState.ENDED, modifierDurationLeft);
 }
 
+void WaitUntilModifierIsOverOr(in Number time) {
+  WaitUntil(currentModifierState == ModifierState.ENDED, Min(modifierDurationLeft, time));
+}
+
 void WaitUntilModifierIsOverOrCondition(in Boolean condition) {
   WaitUntil(currentModifierState == ModifierState.ENDED || condition, modifierDurationLeft);
 }

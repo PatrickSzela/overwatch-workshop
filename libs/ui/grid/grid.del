@@ -11,16 +11,14 @@ single struct GridHud {
   public Vector halfSize;
   public Any[] items;
   public Boolean confirmButtonRendered;
+  public Boolean selectableItems;
 
   public static GridHud New(): 
-    {items: [], size: Vector.Zero, halfSize: Vector.Zero, confirmButtonRendered: false};
+    {items: [], size: Vector.Zero, halfSize: Vector.Zero, confirmButtonRendered: false, selectableItems: false};
 
-  public ref void GenerateHud(
+  public ref void GenerateItems(
     in Vector gridSize,
     in Boolean visibleCondition = IsUiNavigationEnabled(LP),
-    in Color titleColor = COLOR_NEUTRAL,
-    in String rightSideText = $"Use {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
-    in Vector rightSideTextOffset = Vector(4, 0, 0),
     in Vector offset = Vector(0, 0, 0), 
     in Number gap = 0.3, 
     in Number scale = 2.5 
@@ -28,22 +26,6 @@ single struct GridHud {
     size = gridSize;
     halfSize = (size - Vector(1, 1)) / 2;
 
-    // title
-    items += CreateInWorldText(
-      VisibleTo: visibleCondition ? LP : null,
-      Header: LP.grid.title,
-      Position: ScreenPositionToWorld(
-        offset.X,
-        (halfSize.Y + 1) * gap + offset.Y
-      ),
-      Scale: scale * 0.75,
-      Clipping: Clipping.DoNotClip,
-      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
-      TextColor: titleColor,
-      Spectators: Spectators.VisibleNever
-    );
-
-    // labels
     for(Number y! = -halfSize.Y; y <= halfSize.Y; y++) {
       for(Number x! = -halfSize.X; x <= halfSize.X; x++) {
         Number itemX: EvaluateOnce(x + halfSize.X);
@@ -57,13 +39,49 @@ single struct GridHud {
           Position: ScreenPositionToWorld(rendX, rendY),
           Scale: scale,
           Clipping: Clipping.DoNotClip,
-          Reevaluation: InworldTextRev.VisibleToPositionAndString,
-          TextColor: Color.White,
+          Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+          TextColor: LP.grid.colors[itemY][itemX],
+          Spectators: Spectators.VisibleNever
+        );
+
+        MinWait();
+      }
+    }
+
+    GenerateCursor(visibleCondition, offset, gap, scale);
+  }
+
+  public ref void GenerateSelectableItems(
+    in Vector gridSize,
+    in Boolean visibleCondition = IsUiNavigationEnabled(LP),
+    in Vector offset = Vector(0, 0, 0), 
+    in Number gap = 0.3, 
+    in Number scale = 2.5 
+  ) {
+    size = gridSize;
+    halfSize = (size - Vector(1, 1)) / 2;
+    selectableItems = true;
+
+    for(Number y! = -halfSize.Y; y <= halfSize.Y; y++) {
+      for(Number x! = -halfSize.X; x <= halfSize.X; x++) {
+        Number itemX: EvaluateOnce(x + halfSize.X);
+        Number itemY: EvaluateOnce(y + halfSize.Y);
+        Number rendX: EvaluateOnce(x * gap + offset.X);
+        Number rendY: EvaluateOnce(y * gap + offset.Y);
+
+        items += CreateInWorldText(
+          VisibleTo: visibleCondition ? LP : null,
+          Header: LP.grid.labels[itemY][itemX],
+          Position: ScreenPositionToWorld(rendX, rendY),
+          Scale: scale,
+          Clipping: Clipping.DoNotClip,
+          Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+          TextColor: LP.grid.colors[itemY][itemX],
           Spectators: Spectators.VisibleNever
         );
 
         items += CreateIcon(
-          VisibleTo: visibleCondition && LP.grid.selected[itemY][itemX] ? LocalPlayer() : null,
+          VisibleTo: visibleCondition && LP.grid.selected[itemY][itemX] ? LP : null,
           Position: ScreenPositionToWorld(rendX - 0.065, rendY - 0.05),
           Icon: Icon.Checkmark,
           Reevaluation: IconRev.VisibleToAndPosition,
@@ -75,6 +93,15 @@ single struct GridHud {
       }
     }
 
+    GenerateCursor(visibleCondition, offset, gap, scale);
+  }
+
+  private ref void GenerateCursor(
+    in Boolean visibleCondition = IsUiNavigationEnabled(LP),
+    in Vector offset = Vector(0, 0, 0), 
+    in Number gap = 0.3, 
+    in Number scale = 2.5 
+  ) {
     // cursor
     items += CreateInWorldText(
       VisibleTo: visibleCondition ? LP : null,
@@ -89,25 +116,57 @@ single struct GridHud {
       TextColor: Color.White,
       Spectators: Spectators.VisibleNever
     );
+  }
 
-    // rightSideText
+  public ref void GenerateHelp(
+    in String text = $"Use {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to toggle selection",
+    in Boolean visibleCondition = IsUiNavigationEnabled(LP),
+    in Color color = COLOR_NEUTRAL,
+    in Vector offset = Vector(4, 0, 0), 
+    in Vector gridOffset = Vector(0, 0, 0), 
+    in Number gap = 0.3, 
+    in Number scale = 2.5 
+  ) {
     items += CreateInWorldText(
       VisibleTo: visibleCondition ? LP : null,
-      Header: rightSideText,
+      Header: text,
       Position: ScreenPositionToWorld(
-        rightSideTextOffset.X * gap + offset.X, 
-        rightSideTextOffset.Y * gap + offset.Y 
+        offset.X * gap + gridOffset.X, 
+        offset.Y * gap + gridOffset.Y 
       ),
       Scale: scale * 0.6,
       Clipping: Clipping.DoNotClip,
       Reevaluation: InworldTextRev.VisibleToPositionAndString,
-      TextColor: Color.White,
+      TextColor: color,
+      Spectators: Spectators.VisibleNever
+    );
+  }
+
+  public ref void GenerateTitle(
+    in String text = LP.grid.title,
+    in Boolean visibleCondition = IsUiNavigationEnabled(LP),
+    in Color color = COLOR_NEUTRAL,
+    in Vector offset = Vector(0, 0, 0), 
+    in Number gap = 0.3, 
+    in Number scale = 2.5 
+  ) {
+    items += CreateInWorldText(
+      VisibleTo: visibleCondition ? LP : null,
+      Header: text,
+      Position: ScreenPositionToWorld(
+        offset.X,
+        (halfSize.Y + 1) * gap + offset.Y
+      ),
+      Scale: scale * 0.75,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToPositionStringAndColor,
+      TextColor: color,
       Spectators: Spectators.VisibleNever
     );
   }
 
   public ref void GenerateConfirmButton(
-    in String label,
+    in String text,
     in Color color = COLOR_NEUTRAL,
     in Boolean visibleCondition = IsUiNavigationEnabled(LP),
     in Vector offset = Vector(0,0,0), 
@@ -118,7 +177,7 @@ single struct GridHud {
 
     items += CreateInWorldText(
       VisibleTo: visibleCondition ? LP : null,
-      Header: label,
+      Header: text,
       Position: ScreenPositionToWorld(
         offset.X, 
         (-halfSize.Y - 1) * gap + offset.Y
@@ -135,7 +194,6 @@ single struct GridHud {
     foreach(Any i! in items) {
       DestroyInWorldText(i);
       DestroyIcon(i);
-      MinWait();
     }
   }
 }
@@ -144,20 +202,26 @@ struct Grid {
   public String title;
   public Any[][] values;
   public Any[][] labels;
+  public Color[][] colors;
   public Boolean[][] selected;
   public Vector cursorPos;
 
   public static Grid New(
     in String title,
     in Any[][] values,
-    in Any[][] labels
+    in Any[][] labels,
+    in Any defaultColor = COLOR_NEUTRAL
   ) {
     Boolean[] selRow! = Array(gridHud.size.X).Map((i) => false);
+    Boolean[][] sel! = Array(gridHud.size.Y).Map((i) => selRow);
+    Color[] colRow! = selRow.Map((i) => defaultColor);
+
     return {
       title: title,
       values: values,
       labels: labels,
-      selected: Array(gridHud.size.Y).Map((i) => selRow),
+      colors: sel.Map((i) => colRow),
+      selected: sel,
       cursorPos: Vector(
         Floor(gridHud.halfSize.X), 
         Floor(gridHud.halfSize.Y), 
@@ -167,12 +231,12 @@ struct Grid {
 
   public ref Boolean IsConfirmButtonHovered(): cursorPos.Y == -1;
 
-  public ref void Enable() {
-    SetUiNavigationEnabled(EP, true);
+  public ref void Enable(in Player player = EP) {
+    SetUiNavigationEnabled(player, true);
   }
 
-  public ref void Disable() {
-    SetUiNavigationEnabled(EP, false);
+  public ref void Disable(in Player player = EP) {
+    SetUiNavigationEnabled(player, false);
   }
 
   public ref void Navigate(in Vector direction) {

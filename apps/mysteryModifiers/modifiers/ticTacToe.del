@@ -1,0 +1,244 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String TIC_TAC_TOE_NAME: 'Tic-tac-toe';
+Number TIC_TAC_TOE_DURATION: 20;
+
+Modifier ticTacToe: Modifier.New(
+  name: TIC_TAC_TOE_NAME, 
+  duration: TIC_TAC_TOE_DURATION,
+  description: [
+    "It's called Tic-tac-toe but it doesn't involve Tic Tacs",
+    "nor toes... That's just false advertising"
+  ]
+);
+
+enum TicTacToeMark {
+  EMPTY = "?",
+  HOST = "X",
+  OPPONENT = "O"
+}
+
+single struct TicTacToe {
+  public Player host;
+  public Player opponent;
+  public Player turn;
+  public TicTacToeMark result;
+  public Player winner;
+  public Player loser;
+  public Any tempHp;
+
+  public static TicTacToe New(in Player host = EP, in Player opponent): 
+    { host: host, opponent: opponent, turn: host, result: null, winner: null, loser: null, tempHp: null };
+
+  public static void GenerateHud() {
+    gridHud.GenerateItems(
+      gridSize: Vector(3, 3),
+    );
+
+    gridHud.GenerateTitle(
+      text: LP.ticTacToeData.turn == LP ? "Your turn" : $"{PlayerWithHeroIconFormatter(LP.ticTacToeData.turn)}'s turn",
+      color: LP.ticTacToeData.turn == LP ? COLOR_RAINBOW : COLOR_OVERWATCH
+    );
+
+    gridHud.GenerateHelp(
+      text: $"Playing against: {LP.ticTacToeData.host == LP ? PlayerWithHeroIconFormatter(LP.ticTacToeData.opponent) : PlayerWithHeroIconFormatter(LP.ticTacToeData.host)}\nUse {InputStringFormatterSingle('Movement Inputs')} to navigate\nUse {InputBindingFormatterSingle(Button.PrimaryFire)} to mark",
+    );
+  }
+
+  public static void GenerateGrid() {
+    TicTacToeMark[] inner! = Array(gridHud.size.X).Map((i) => TicTacToeMark.EMPTY);
+    TicTacToeMark[][] values! = [inner, inner, inner];
+    
+    grid = Grid.New("", values, values, COLOR_DISABLED);
+  }
+
+  public static void DestroyHud() {
+    gridHud.DestroyHud();
+  }
+
+  public ref void UpdateHostBoard() {
+    host.grid.values = opponent.grid.values;
+    host.grid.colors = opponent.grid.colors;
+    host.grid.labels = opponent.grid.labels;
+    host.ticTacToeData.turn = opponent.ticTacToeData.turn;
+    host.ticTacToeData.result = opponent.ticTacToeData.result;
+  }
+
+  public ref void UpdateOpponentBoard() {
+    opponent.grid.values = host.grid.values;
+    opponent.grid.colors = host.grid.colors;
+    opponent.grid.labels = host.grid.labels;
+    opponent.ticTacToeData.turn = host.ticTacToeData.turn;
+    opponent.ticTacToeData.result = host.ticTacToeData.result;
+  }
+
+  public ref TicTacToeMark GetWinner() {
+    TicTacToeMark result! = ticTacToeWinConditions.Map((i) =>
+      grid.values[i[0].Y][i[0].X] != TicTacToeMark.EMPTY &&
+      grid.values[i[0].Y][i[0].X] == 
+      grid.values[i[1].Y][i[1].X] && 
+      grid.values[i[1].Y][i[1].X] == 
+      grid.values[i[2].Y][i[2].X] ? 
+        grid.values[i[0].Y][i[0].X] : null
+    ).Filter((i) => i)[0];
+
+    if(!result && grid.values.IsTrueForAll((i) => !i.Contains(TicTacToeMark.EMPTY))) {
+      return TicTacToeMark.EMPTY;
+    }
+
+    return result;
+  }
+
+  public ref void Enable() {
+    grid.Enable();
+    tempHp = AddHealthPoolToPlayer(EP, HealthType.Health, 500, false, false);
+  }
+
+  public ref void Disable() {
+    grid.Disable();
+    RemoveHealthPoolFromPlayer(tempHp);
+    DestroyPlayerEffects();
+  }
+
+  public ref void OnMark() {
+    grid.values[grid.cursorPos.Y][grid.cursorPos.X] = turn == host ? TicTacToeMark.HOST : TicTacToeMark.OPPONENT;
+    grid.labels = grid.values;
+    grid.colors[grid.cursorPos.Y][grid.cursorPos.X] = turn == host ? COLOR_ERROR : COLOR_SUCCESS;
+
+    result = GetWinner();
+    turn = turn == host ? opponent : host;
+
+    if(EP == host) {
+      UpdateOpponentBoard();
+    } else {
+      UpdateHostBoard();
+    }
+  }
+
+  public ref void TimerRunOut() {
+    if(result) return;
+    result = turn == host ? TicTacToeMark.OPPONENT : TicTacToeMark.HOST;
+  }
+
+  public ref void SetUpWinner() {
+    if(result == TicTacToeMark.EMPTY) {
+      BigMessage([host, opponent], "Draw");
+    } else {
+      winner = 
+        result == TicTacToeMark.HOST ? host : opponent;
+      loser = winner == host ? opponent : host;
+
+      if(winner != loser)
+        BigMessage(loser, "You lost");
+    
+      BigMessage(winner, "You won");
+    }
+  }
+
+  public ref void KillLoser() {
+    if(EP == host && result != TicTacToeMark.EMPTY && winner != loser) {
+      PlayEffect(AllPlayers(), PlayEffect.ExplosionSound, Color.Red, loser, 100);
+      PlayEffect(AllPlayers(), PlayEffect.BadExplosion, Color.Red, loser, 1.5);
+      KillIfKillableElseDamage(loser, winner);
+    }
+  }
+}
+
+globalvar Vector[][] ticTacToeWinConditions = [
+  // rows
+  [Vector(0, 0), Vector(1, 0), Vector(2, 0)],
+  [Vector(0, 1), Vector(1, 1), Vector(2, 1)],
+  [Vector(0, 2), Vector(1, 2), Vector(2, 2)],
+  
+  // columns
+  [Vector(0, 0), Vector(0, 1), Vector(0, 2)],
+  [Vector(1, 0), Vector(1, 1), Vector(1, 2)],
+  [Vector(2, 0), Vector(2, 1), Vector(2, 2)],
+  
+  // diagonals
+  [Vector(0, 0), Vector(1, 1), Vector(2, 2)], // top-left to bottom-right
+  [Vector(2, 0), Vector(1, 1), Vector(0, 2)]  // top-right to bottom-left
+];
+playervar TicTacToe ticTacToeData;
+
+rule: '[Tic-tac-toe] Is Preloading'
+if(CurrentModifierIs(TIC_TAC_TOE_NAME))
+if(ModifierIsPreloading())
+{
+  TicTacToe.GenerateHud();
+
+  WaitForeverUntil(ModifierInProgress());
+  WaitUntilModifierIsOver();
+  
+  TicTacToe.DestroyHud();
+}
+
+rule: '[Tic-tac-toe] Is Preloading'
+Event.OngoingPlayer
+if(CurrentModifierIs(TIC_TAC_TOE_NAME))
+if(ModifierIsPreloading())
+{
+  WaitSpreadPerPlayer();
+  CreatePlayerEffect(EP, Effect.AnaSleepingEffect, 1);
+  WaitSpreadPerPlayer();
+  TicTacToe.GenerateGrid();
+}
+
+rule: '[Tic-tac-toe] Has Started'
+if(CurrentModifierIs(TIC_TAC_TOE_NAME))
+if(ModifierInProgress())
+{
+  Player[] hosts! = AP.Randomize().Slice(0, Ceil(AP.Length / 2));
+  Player[] opponents! = AP.Randomize() - hosts;
+
+  for(Number i! = 0; i < hosts.Length; i++) {
+    hosts[i].ticTacToeData = TicTacToe.New(hosts[i], opponents[i] ? opponents[i] : hosts[i]);
+    opponents[i].ticTacToeData = hosts[i].ticTacToeData;
+  }
+}
+
+rule: '[Tic-tac-toe] Has Started'
+Event.OngoingPlayer
+if(CurrentModifierIs(TIC_TAC_TOE_NAME))
+if(ModifierInProgress())
+{
+  if(IsDead())
+    Respawn();
+
+  ticTacToeData.Enable();
+
+  // end
+  WaitUntilModifierIsOver();
+  ticTacToeData.TimerRunOut();
+}
+
+rule: '[Tic-tac-toe] Interact with grid'
+Event.OngoingPlayer
+if(CurrentModifierIs(TIC_TAC_TOE_NAME))
+if(IsUiNavigationAllowed())
+if(EP.IsButtonHeld(Button.PrimaryFire))
+if(ticTacToeData.turn == EP)
+if(grid.values[grid.cursorPos.Y][grid.cursorPos.X] == TicTacToeMark.EMPTY)
+{
+  ticTacToeData.OnMark();
+}
+
+rule: '[Tic-tac-toe] Set up winner and loser'
+Event.OngoingPlayer
+if(CurrentModifierIs(TIC_TAC_TOE_NAME))
+if(ticTacToeData.result)
+if(ticTacToeData.host == EP)
+{
+  ticTacToeData.SetUpWinner();
+}
+
+rule: '[Tic-tac-toe] Kill loser'
+Event.OngoingPlayer
+if(CurrentModifierIs(TIC_TAC_TOE_NAME))
+if(ticTacToeData.result)
+{
+  WaitUntilModifierIsOverOr(1);
+  ticTacToeData.Disable();
+  ticTacToeData.KillLoser();
+}
