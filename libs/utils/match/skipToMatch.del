@@ -1,4 +1,4 @@
-globalvar Boolean _skipToMatch! = WorkshopSettingToggle("Match", "Skip Assembling Heroes and Setup phases", true);
+globalvar Boolean _skipToMatch! = WorkshopSettingToggle("Debug", "Skip Assembling Heroes and Setup phases", true);
 
 rule: '[libs/utils/match/skipToMatch.del] Skip assembling heroes'
 if(_skipToMatch)
