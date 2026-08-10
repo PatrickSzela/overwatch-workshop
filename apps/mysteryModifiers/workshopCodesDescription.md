@@ -1048,21 +1048,21 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
 ### **Available Settings**
 
-| Section                       | Name                                                        | Default value      |
-| ----------------------------- | ----------------------------------------------------------- | ------------------ |
-| Global                        | Modifiers are controlled by                                 | Game               |
-| Global - Controlled by Game   | Points required to trigger modifier                         | 50                 |
-| Global - Controlled by Game   | Percentage above which to decrease points over time         | 75                 |
-| Global - Controlled by Game   | Rate at which decrease points over time                     | 0.50               |
-| Global - Controlled by Game   | Percentage of damage done that will be converted to Points  | 1.25               |
-| Global - Controlled by Game   | Percentage of healing done that will be converted to Points | 1.00               |
-| Global - Controlled by Game   | Points to grant per Ultimate usage                          | 2                  |
-| Global - Controlled by Game   | Hide Modifier charge meter                                  | Off                |
-| Global - Controlled by Stream | Poll duration in seconds                                    | 30                 |
-| Global - Controlled by Stream | Start poll                                                  | When Modifier ends |
-| Global - Controlled by Stream | Show poll HUD in-game                                       | On                 |
-| Modifier                      | Global modifier duration scalar                             | 1                  |
-| Modifier                      | \<Modifier name\> toggle                                    | On                 |
+| Section                        | Name                                                        | Default value      |
+| ------------------------------ | ----------------------------------------------------------- | ------------------ |
+| Global                         | Modifiers are controlled by                                 | Game               |
+| Global - Controlled by Game    | Points required to trigger modifier                         | 50                 |
+| Global - Controlled by Game    | Percentage above which to decrease points over time         | 75                 |
+| Global - Controlled by Game    | Rate at which decrease points over time                     | 0.50               |
+| Global - Controlled by Game    | Percentage of damage done that will be converted to Points  | 1.25               |
+| Global - Controlled by Game    | Percentage of healing done that will be converted to Points | 1.00               |
+| Global - Controlled by Game    | Points to grant per Ultimate usage                          | 2                  |
+| Global - Controlled by Game    | Hide Modifier charge meter                                  | Off                |
+| Global - Controlled by Stream  | Poll duration in seconds                                    | 30                 |
+| Global - Controlled by Stream  | Start poll                                                  | When Modifier ends |
+| Global - Controlled by Stream  | Show poll HUD in-game                                       | On                 |
+| Modifier                       | Global modifier duration scalar                             | 1                  |
+| Modifier - Chance of appearing | \<Modifier name\>                                           | 1                  |
 
 Source code for [this Workshop mode](https://github.com/PatrickSzela/overwatch-workshop/tree/main/apps/mysteryModifiers) and [the external application](https://github.com/PatrickSzela/overwatch-workshop-integrations) are available on GitHub
 

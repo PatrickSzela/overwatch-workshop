@@ -27,11 +27,15 @@ single struct ControlledByStreamSettings {
 
 globalvar ControlledByStreamSettings streamSettings = ControlledByStreamSettings.New();
 
-void StartPoll(in Number timeout) {
-  streamIntegration.StartPoll(
-    enabledModifiers.Randomize().Slice(0, 5), 
-    timeout
-  );
+void StartPoll(Number timeout!) "Start poll" {
+  String[] names! = [];
+
+  for(Number i! = 0; i < 5; i++) {
+    names += RandomizeModifier(enabledModifiers - names);
+    MinWait();
+  }
+
+  streamIntegration.StartPoll(names, timeout);
 }
 
 rule: '[Controlled By - Stream] Handle connection'

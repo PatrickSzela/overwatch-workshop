@@ -70,6 +70,6 @@ if(WorkshopSettingToggle("Debug", "Start or stop modifier with Interact button",
   } else if(state == State.MODIFIER_STARTED) {
     StopModifier();
     Wait(0.1);
-    SetModifier(RandomValueInArray(enabledModifiers - modifierHistory));
+    SetModifier(RandomizeModifier(enabledModifiers - modifierHistory));
   }
 }

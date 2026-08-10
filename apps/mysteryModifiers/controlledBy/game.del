@@ -45,7 +45,7 @@ if(state == State.WAITING)
 
   // select next modifier so we can preload it
   // make sure to not apply the same modifier again
-  SetModifier(RandomValueInArray(enabledModifiers - modifierHistory));
+  SetModifier(RandomizeModifier(enabledModifiers - modifierHistory));
   
   WaitForeverUntil(charge >= gameSettings.chargeDestination * 0.5);
 

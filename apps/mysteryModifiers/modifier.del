@@ -10,7 +10,7 @@ single struct Modifier {
   public String name;
   public Boolean notification;
   public Number duration;
-  public Boolean enabled;
+  public Number weight;
   public Number slowMotionSpeed;
   public Boolean canDurationBeExtended;
   public String[] description;
@@ -19,7 +19,7 @@ single struct Modifier {
     name: name,
     notification: notification,
     duration: duration, 
-    enabled: WorkshopSettingToggle("Modifier", name, true, 1),
+    weight: WorkshopSettingInteger("Modifier - Chance of appearing", name, 1, 0, 10),
     slowMotionSpeed: slowMotionSpeed,
     canDurationBeExtended: canDurationBeExtended,
     description: description

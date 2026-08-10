@@ -22,7 +22,7 @@ globalvar Number modifierHistorySize = 3;
 
 rule: 'Initialize modifier list'
 {
-  enabledModifiers = allModifiers.FilteredArray((mod) => mod.enabled).Map((mod) => mod.name);
+  enabledModifiers = allModifiers.FilteredArray((mod) => mod.weight).Map((mod) => mod.name);
   
   if(enabledModifiers.Length <= modifierHistorySize)
     modifierHistorySize = 0;
@@ -41,6 +41,29 @@ void EnableModifiersLogic() {
   // Log("Started");
   stopReason = '';
   state = State.WAITING;
+}
+
+String RandomizeModifier(String[] modifiers! = enabledModifiers) {
+  String[] arr! = modifiers.Randomize();
+  Number weightSumTotal! = 0;
+  Number[] weights! = allModifiers.Filter((i) => arr.Contains(i.name)).Map((mod) => mod.weight);
+
+  foreach(Number weight! in weights) {
+    weightSumTotal += weight;
+  }
+
+  Number weightSum! = 0;
+  Number random! = RandomInteger(0, weightSumTotal);
+
+  foreach(String modif! in arr) {
+    Number idx: allModifiers.Map((i) => i.name).IndexOf(modif);
+    weightSum += allModifiers[idx].weight;
+
+    if(random <= weightSum) 
+      return modif;
+  }
+
+  return enabledModifiers[0];
 }
 
 void SetModifier(in String modifier) {
