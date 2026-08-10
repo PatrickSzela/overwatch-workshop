@@ -2,6 +2,7 @@ import '../modifier.del';
 import './adaptiveShield.del';
 import './antiHeal.del';
 import './blinded.del';
+import './blinking.del';
 import './bodyOdor.del';
 import './captcha.del';
 import './drunk.del';
@@ -50,6 +51,7 @@ globalvar Modifier[] allModifiers = [
   adaptiveShield,
   antiHeal,
   blinded,
+  blinking,
   bodyOdor,
   captcha,
   divineBlessing,

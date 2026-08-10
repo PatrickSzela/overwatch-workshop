@@ -32,8 +32,8 @@ Vector SnapToAngle(in Vector vector, in Number angle = 90) {
 # Remaps on screen position, where (0,0) is its center, to an in-world position.
 # 
 # [Based on code available on Workshop.codes.](https://workshop.codes/wiki/articles/rendering-an-inworld-text-at-a-specific-onscreen-position)
-Vector ScreenPositionToWorld(Number x, Number y): 
-  LP.EyePosition() + 100 * (
+Vector ScreenPositionToWorld(Number x, Number y, Number distance = 100): 
+  LP.EyePosition() + distance * (
     x * WorldVectorOf(Right(), LP, LocalVector.Rotation) +
     y * DirectionFromAngles(
       HorizontalAngleFromDirection(LP.FacingDirection()), 
@@ -44,8 +44,8 @@ Vector ScreenPositionToWorld(Number x, Number y):
 # Remaps on screen position, where (0,0, 0) is its center, to an in-world position.
 # 
 # [Based on code available on Workshop.codes.](https://workshop.codes/wiki/articles/rendering-an-inworld-text-at-a-specific-onscreen-position)
-Vector ScreenVectorToWorld(Vector vector): 
-  ScreenPositionToWorld(vector.X, vector.Y);
+Vector ScreenVectorToWorld(Vector vector, Number distance = 100): 
+  ScreenPositionToWorld(vector.X, vector.Y, distance);
 
 # Rotates `vector` around Y axis by `degrees`.
 Vector RotateVectorAroundY(in Vector vector, in Number degrees): Vector(

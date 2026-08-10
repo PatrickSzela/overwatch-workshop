@@ -96,6 +96,22 @@ Once the meter is fully charged, the same randomly selected modifier will be app
   </div>
 
   <div class="modifier">
+		<div class="modifier__header">
+			<div class="modifier__title">Blinking</div>  
+			<div class="modifier__duration">15 secs</div>
+		</div>
+		<div class="modifier__content">
+			<div class="modifier__description">
+				<p>Gosh darn it, there's something in my eye</p>
+			</div>
+			<ul class="update-notes__changes">
+				<li>Creates black bars on top and bottom of the screen</li>
+				<li>Randomly causes the bars to expand to the center of the player's screen for a split second</li>
+			</ul>
+		</div>
+	</div>
+
+  <div class="modifier">
     <div class="modifier__header">
       <div class="modifier__title">Body Odor</div>  
       <div class="modifier__duration">10 secs</div>

@@ -1,0 +1,70 @@
+import '../modifier.del';
+import '../utils/effects.del';
+
+String BLINKING_NAME: 'Blinking';
+Number BLINKING_DURATION: 15;
+
+globalvar Any[] blinkingHuds = [];
+playervar Number blinkingOffset = 1;
+
+Modifier blinking: Modifier.New(
+  name: BLINKING_NAME, 
+  duration: BLINKING_DURATION,
+  description: ["Gosh darn it, there's something in my eye"]
+);
+
+rule: '[Blinking] Is Preloading'
+if(CurrentModifierIs(BLINKING_NAME))
+if(ModifierIsPreloading())
+{
+  for(Number i = 0; i < 18; i++) {
+    blinkingHuds += CreateInWorldText(
+      VisibleTo: ModifierInProgress() ? LP : null,
+      Header: "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒",
+      Position: ScreenPositionToWorld(0, LP.blinkingOffset * 2 + EvaluateOnce(0.04 + i / 7)),
+      Scale: 100,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToAndPosition,
+      TextColor: Color.Black,
+      Spectators: Spectators.VisibleNever
+    );
+    blinkingHuds += CreateInWorldText(
+      VisibleTo: ModifierInProgress() ? LP : null,
+      Header: "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒",
+      Position: ScreenPositionToWorld(0, -LP.blinkingOffset * 2 - EvaluateOnce(0.18 + i / 7)),
+      Scale: 100,
+      Clipping: Clipping.DoNotClip,
+      Reevaluation: InworldTextRev.VisibleToAndPosition,
+      TextColor: Color.Black,
+      Spectators: Spectators.VisibleNever
+    );
+    MinWait();
+  }
+
+  WaitForeverUntil(ModifierInProgress());
+  WaitUntilModifierIsOver();
+
+  foreach(Any hud! in blinkingHuds) {
+    DestroyInWorldText(hud);
+  }
+  blinkingHuds = [];
+}
+
+rule: '[Blinking] Blink logic'
+Event.OngoingPlayer
+if(CurrentModifierIs(BLINKING_NAME))
+if(ModifierInProgress())
+{
+  Number destination! = [0, RandomReal(0.85, 0.95), RandomReal(0.85, 0.95)].Random();
+  Number duration: destination ? 0.3 : 0.1;
+
+  ChaseVariableOverTime(blinkingOffset, destination, duration, TimeChaseReevaluation.None);
+
+  Wait(duration, WaitBehavior.AbortWhenFalse);
+
+  ChaseVariableOverTime(blinkingOffset, RandomReal(0.85, 0.95), duration, TimeChaseReevaluation.None);
+
+  Wait(duration, WaitBehavior.AbortWhenFalse);
+  LoopIfConditionIsTrue();
+}
+
