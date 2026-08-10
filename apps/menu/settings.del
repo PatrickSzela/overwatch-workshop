@@ -33,16 +33,16 @@ settings
   }
   main
   {
-    Mode Name: "{{metadata.main.name}}"
+    Mode Name: "{{manifest.main.name}}"
     Description: "Controls:
 [Crouch + Interact] - Open/Close menu
 [Ultimate] - Go back (when in submenu)/Close menu (when in root)
 The rest of controls depends on currently hovered menu item and are listed below the menu itself
 
 ----------
-Version: {{metadata.main.version}}
-Import Code: {{metadata.main.code}}
-Created by: {{metadata.author.battletag}}"
+Version: {{manifest.main.version}}
+Import Code: {{manifest.main.code}}
+Created by: {{manifest.author.battletag}}"
   }
   workshop
   {

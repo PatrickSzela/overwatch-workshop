@@ -17,9 +17,9 @@ playervar Hero[] modernHeroes 65 = [];
 rule: 'Import code in top right'
 {
   CreateImportCodeHudText(
-    code: import('./metadata.json').code, 
-    title: import('./metadata.json').name, 
-    subtitle: "By " + import('./metadata.json').author.name, 
+    code: import('./manifest.json').code, 
+    title: import('./manifest.json').name, 
+    subtitle: "By " + import('./manifest.json').author.name, 
     color: Color.Orange
   );
 }

@@ -80,7 +80,7 @@ def replace_placeholders(content: str, ds_dir: Path) -> str:
     return placeholder.sub(replacer, content)
 
 
-def apply_metadata():
+def apply_manifest():
     parser = argparse.ArgumentParser(
         description="Helper script for replacing {{JSON_FILE.A.B.C}} with corresponding value in the JSON file placed next to ds.toml"
     )
@@ -126,4 +126,4 @@ def apply_metadata():
 
 
 if __name__ == "__main__":
-    apply_metadata()
+    apply_manifest()

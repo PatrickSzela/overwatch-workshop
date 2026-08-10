@@ -2,12 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Update metadata and copy to clipboard",
+      "name": "Update manifest and copy to clipboard",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "python",
       "runtimeArgs": [
-        "${workspaceFolder}/scripts/apply_metadata_and_copy.py",
+        "${workspaceFolder}/scripts/apply_manifest_and_copy.py",
         "${file}"
       ],
       "console": "internalConsole",

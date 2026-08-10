@@ -51,7 +51,7 @@ settings
 
   main
   {
-    Mode Name: "{{metadata.name}}"
+    Mode Name: "{{manifest.name}}"
     Description: "Displays precise Control Point boundaries
 
 Controls:
@@ -60,9 +60,9 @@ Controls:
 The rest of controls depends on currently hovered menu item and are listed below the menu itself
 
 ----------
-Version: {{metadata.version}}
-Import Code: {{metadata.code}}
-Created by: {{metadata.author.battletag}}"
+Version: {{manifest.version}}
+Import Code: {{manifest.code}}
+Created by: {{manifest.author.battletag}}"
   }
 	workshop
 	{

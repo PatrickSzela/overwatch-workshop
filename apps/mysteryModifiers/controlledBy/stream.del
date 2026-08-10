@@ -44,10 +44,10 @@ if(controlledBy == ControlledBy.STREAM)
   OWTP.WaitForGameToLoad();
 
   connection.Connect(
-    modeName: import('../metadata.json').name,
-    modeCode: import('../metadata.json').code,
-    modeVersion: import('../metadata.json').version,
-    modeAuthor: import('../metadata.json').author.name
+    modeName: import('../manifest.json').name,
+    modeCode: import('../manifest.json').code,
+    modeVersion: import('../manifest.json').version,
+    modeAuthor: import('../manifest.json').author.name
   );
 
   if(streamSettings.showPollHUD)

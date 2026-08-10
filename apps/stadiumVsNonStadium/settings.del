@@ -17,12 +17,12 @@ settings
   }
   main
   {
-    Mode Name: "{{metadata.name}}"
+    Mode Name: "{{manifest.name}}"
     Description: "Have you ever wanted to play a Stadium game with heroes that are not enabled in it by default, against a team of either Stadium enabled heroes or non-Stadium ones? Well, now you can!
 
 ----------
-Version: {{metadata.version}}
-Import Code: {{metadata.code}}
-Created by: {{metadata.author.battletag}}"
+Version: {{manifest.version}}
+Import Code: {{manifest.code}}
+Created by: {{manifest.author.battletag}}"
   }
 }

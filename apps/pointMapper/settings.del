@@ -53,7 +53,7 @@ settings
 
   main
   {
-    Mode Name: "{{metadata.name}}"
+    Mode Name: "{{manifest.name}}"
     Description: "Automatically map more accurate boundaries of control points
 
 With the default (2.5 cm) accuracy, it takes around 30 secs to 1 min to map the outline of the objective, depending on its size.
@@ -64,9 +64,9 @@ Controls:
 The rest of controls depends on currently hovered menu item and are listed below the menu itself
 
 ----------
-Version: {{metadata.version}}
-Import Code: {{metadata.code}}
-Created by: {{metadata.author.battletag}}"
+Version: {{manifest.version}}
+Import Code: {{manifest.code}}
+Created by: {{manifest.author.battletag}}"
   }
 	workshop
 	{

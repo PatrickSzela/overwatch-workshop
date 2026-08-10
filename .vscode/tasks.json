@@ -2,10 +2,10 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Update metadata",
+      "label": "Update manifest",
       "type": "shell",
       "command": "python",
-      "args": ["${workspaceFolder}/scripts/apply_metadata.py", "${file}"],
+      "args": ["${workspaceFolder}/scripts/apply_manifest.py", "${file}"],
       "presentation": {
         "panel": "shared",
         "reveal": "silent"

@@ -2,14 +2,14 @@ settings
 {
   main 
   {
-    Mode Name: "{{metadata.name}}"
+    Mode Name: "{{manifest.name}}"
     Description: "Have you ever thought how the game would look like, if you could put classic Overwatch 1 heroes against modern Overwatch 2 ones, or even if you could mix them all together?
 Well now you can, with configurable Self Healing and Tank Bonus Health passives!
 
 ----------
-Version: {{metadata.version}}
-Import Code: {{metadata.code}}
-Created by: {{metadata.author.battletag}}"
+Version: {{manifest.version}}
+Import Code: {{manifest.code}}
+Created by: {{manifest.author.battletag}}"
   }
   modes 
   {

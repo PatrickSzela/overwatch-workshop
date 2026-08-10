@@ -3,12 +3,12 @@
 import subprocess
 import sys
 
-from apply_metadata import apply_metadata
+from apply_manifest import apply_manifest
 
 
 def main():
     try:
-        result = apply_metadata()
+        result = apply_manifest()
         subprocess.run(["wl-copy"], input=result.encode(), check=True)
         print("Workshop code copied to clipboard")
     except subprocess.CalledProcessError:
