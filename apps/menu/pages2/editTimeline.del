@@ -107,7 +107,7 @@ if(menuState2.isFocused)
   }
   
   if(timeline.actions != editableActions || markedToRemove.Length) {
-    SmallMessageFixed(EventPlayer(), 'Saving actions');
+    SmallMessage(EventPlayer(), 'Saving actions');
 
     Timeline.Stop(timeline);
 
@@ -159,6 +159,6 @@ if(timeline.actions != editableActions)
 rule: 'Show message when item has been added to timeline'
 {
   WaitForeverUntil(EvaluateOnce(timelineActionsId) != timelineActionsId);
-  SmallMessageFixed(AllPlayers(), $"Added to timeline: {timeline.actions.Last}");
+  SmallMessage(AllPlayers(), $"Added to timeline: {timeline.actions.Last}");
   Loop();
 }

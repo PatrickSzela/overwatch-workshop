@@ -7,16 +7,9 @@ Boolean IsHUDPreferred(Player player):
     [Hero.Bastion, Hero.Junkrat].Contains(player.Hero()) && IsUsingUltimate(player) ||
     player.Hero() == Hero.Mei && IsUsingAbility1(player);
 
-# Displays a small message beneath the reticle that is visible to specific players.
-# 
-# Workaround for missing left margin.
-void SmallMessageFixed(in Player | Player[] visibleTo = EP, in Any header = "") {
-  SmallMessage(visibleTo, $"   {header}");
-}
-
 # Displays a small message beneath the reticle that is visible to specific players, with specified icon placed at beginning.
 void SmallMessageWithIcon(in Player | Player[] visibleTo = EP, in Any header = "", in String icon = IconString(Icon.ExclamationMark)) {
-  SmallMessage(visibleTo, $"   {icon}  {header}");
+  SmallMessage(visibleTo, $"{icon}  {header}");
 }
 
 # Creates an import code HUD in top right.

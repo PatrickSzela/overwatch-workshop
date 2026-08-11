@@ -11,7 +11,7 @@ Player CreateDummyBotWithMessageOnFail(in Hero hero, in Team team = Team.Team1, 
   CreateDummyBot(hero, team, slot, position);
 
   if(!EntityExists(LastCreatedEntity())) {
-    SmallMessageFixed(EP, "Failed to create a bot");
+    SmallMessage(EP, "Failed to create a bot");
     return null;
   }
   

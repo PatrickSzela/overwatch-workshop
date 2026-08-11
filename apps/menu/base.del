@@ -35,7 +35,7 @@ rule: 'Generate Menu'
   if(ToString(CurrentMap()).Contains(ToString(GameMode.PracticeRange))) {
     WaitForeverUntil(HasSpawned(HostPlayer()));
     Wait(0.25);
-    SmallMessageFixed(AllPlayers(), "Loading menu, please wait...");
+    SmallMessage(AllPlayers(), "Loading menu, please wait...");
     Wait(0.25);
   }
 
@@ -43,7 +43,7 @@ rule: 'Generate Menu'
   menu = new Menu(LocalPlayer().menuState);
   menu2 = new Menu(LocalPlayer().menuState2, MenuLocation.Right);
 
-  SmallMessageFixed(AllPlayers(), "Menu loaded");
+  SmallMessage(AllPlayers(), "Menu loaded");
 }
 
 rule: 'Pick position handle increase/decrease distance'

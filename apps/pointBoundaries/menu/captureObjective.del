@@ -16,7 +16,7 @@ void PageCaptureObjectiveCaptureObjective(Team team) "Capture Objective" {
   // for some weird ass reason control point progress doesn't go up when match is paused :)
   // UnpauseMatchTime();
 
-  SmallMessageFixed(AllPlayers(), "Waiting until Objective is captured...");
+  SmallMessage(AllPlayers(), "Waiting until Objective is captured...");
 
   Resurrect(AP);
   MinWait();

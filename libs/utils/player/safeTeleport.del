@@ -24,7 +24,7 @@ void SafeTeleport(Player player = EP, Vector position) "[libs/utils/player.safeT
 
     Wait(1);
 
-    SmallMessageFixed(player, "Fly to a safe spot");
+    SmallMessage(player, "Fly to a safe spot");
 
     WaitForeverUntil(IsMoving());
 

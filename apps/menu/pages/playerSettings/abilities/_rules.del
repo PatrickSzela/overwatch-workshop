@@ -154,7 +154,7 @@ if(IsButtonHeld(EventPlayer(), Button.Interact))
   WaitUntil(menuState.isOpen || !IsButtonHeld(EventPlayer(), Button.Interact), 5);
   AbortIfConditionIsFalse();
 
-  SmallMessageFixed(EventPlayer(), "Abilities are no longer forced, you can now open the menu");
+  SmallMessage(EventPlayer(), "Abilities are no longer forced, you can now open the menu");
 
   pageAbilitiesKeepHoldingButton = [];
   pageAbilitiesKeepSpammingButton = [];

@@ -5,7 +5,7 @@ import '../../../libs/utils/index.del';
 rule: 'Preparing'
 if(step == Step.Preparing)
 {
-  SmallMessageFixed(AllPlayers(), "Preparing");
+  SmallMessage(AllPlayers(), "Preparing");
 
   outline.Clear();
 
@@ -18,7 +18,7 @@ if(step == Step.Preparing)
 rule: 'Drawing'
 if(step == Step.Drawing)
 {
-  SmallMessageFixed(AllPlayers(), "Drawing");
+  SmallMessage(AllPlayers(), "Drawing");
   Wait(0.1);
 
   // EnableInspectorRecording();
@@ -28,7 +28,7 @@ if(step == Step.Drawing)
   outline.RenderLines(center, scale);
   outline.RenderVertices(center, scale);
 
-  SmallMessageFixed(AllPlayers(), "Finished");
+  SmallMessage(AllPlayers(), "Finished");
   // EnableInspectorRecording();
 
   step = Step.Nothing;

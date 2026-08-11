@@ -11,7 +11,7 @@ void PageNextObjectiveGoToNextObjective() "Next Objective: Go to Next Objective"
   Teleport(dummiesSlice, CurrentObjectivePosition());
   EnableCompletion();
 
-  SmallMessageFixed(AllPlayers(), "Waiting until objective is captured...");
+  SmallMessage(AllPlayers(), "Waiting until objective is captured...");
 
   foreach(Player player in AllPlayers()) {
     if(player.IsDummy()) continue;
