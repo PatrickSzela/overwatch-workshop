@@ -1,6 +1,6 @@
 import '../helpers.del';
 
-Hero[] HEROES_SPEED_6: [Hero.Tracer, Hero.Genji, Hero.Anran];
+Hero[] HEROES_SPEED_6: [Hero.Tracer, Hero.Genji, Hero.Anran, Hero.JetpackCat];
 
 # Stores base speed of player's hero.
 playervar Number baseSpeed;
