@@ -1,0 +1,36 @@
+import './index.del';
+
+String BABY_WAR_NAME: 'Baby War';
+Number BABY_WAR_DURATION: 15;
+
+globalvar Hero[] babyWarHeroes! = [Hero.Dva, Hero.Dmon];
+
+Modifier babyWar: Modifier.New(
+  name: BABY_WAR_NAME, 
+  duration: BABY_WAR_DURATION,
+  description: ["No mech? No problem!"]
+);
+
+rule: '[Duplicate: Baby War] Is Preloading'
+Event.OngoingPlayer
+if(CurrentModifierIs(BABY_WAR_NAME))
+if(ModifierIsPreloading())
+{
+  DuplicateModifSetHero(EP, babyWarHeroes.Random());
+}
+
+rule: '[Duplicate: Baby War] Has Started'
+Event.OngoingPlayer
+if(CurrentModifierIs(BABY_WAR_NAME))
+if(ModifierInProgress())
+if(DuplicateModifIsReady())
+{
+  SetUltimateAbilityEnabled(EP, false);
+  WaitUntil(!HasStatus(EP, Status.PhasedOut), modifierDurationLeft);
+  Damage(EP, null, NUMBER_MAX);
+
+  // end
+  WaitUntilIsDeadOrModifierIsOver();
+  
+  SetUltimateAbilityEnabled(EP, true);
+}

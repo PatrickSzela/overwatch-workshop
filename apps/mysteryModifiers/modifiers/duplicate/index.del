@@ -8,7 +8,7 @@ playervar Hero duplicateModifHeroCache;
 
 Modifier[] DUPLICATE_MODIF_LIST: [
   anaPaintball,
-  babyDva,
+  babyWar,
   catWars,
   duplicateRandomHero,
   duplicateSameHero,
@@ -24,7 +24,7 @@ Modifier[] DUPLICATE_MODIF_LIST: [
 
 globalvar String[] duplicateModifNamesList = [
   anaPaintball.name,
-  babyDva.name,
+  babyWar.name,
   catWars.name,
   duplicateRandomHero.name,
   duplicateSameHero.name,
@@ -73,7 +73,7 @@ if(ModifierInProgress())
 
 
 import "./anaPaintball.del";
-import "./babyDva.del";
+import "./babyWar.del";
 import "./catWars.del";
 import "./duplicateRandomHero.del";
 import "./duplicateSameHero.del";

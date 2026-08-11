@@ -63,7 +63,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
 
   <div class="modifier">
     <div class="modifier__header">
-      <div class="modifier__title">Baby D.Va<span>[1][2][3]</span></div>  
+      <div class="modifier__title">Baby Wars<span>[1][2][3]</span></div>  
       <div class="modifier__duration">15 secs</div>
     </div>
     <div class="modifier__content">
@@ -71,7 +71,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
         <p>No mech? No problem!</p>
       </div>
       <ul class="update-notes__changes">
-        <li>Switcher player's hero to D.Va and forcefully takes them out of the mech</li>
+        <li>Switcher player's hero to D.Va or D.Mon and forcefully takes them out of the mech</li>
         <li>Disables usage of Call Mech</li>
       </ul>
     </div>
