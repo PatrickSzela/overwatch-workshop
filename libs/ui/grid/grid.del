@@ -191,6 +191,8 @@ single struct GridHud {
   }
 
   public ref void DestroyHud() {
+    confirmButtonRendered = false;
+    
     foreach(Any i! in items) {
       DestroyInWorldText(i);
       DestroyIcon(i);
