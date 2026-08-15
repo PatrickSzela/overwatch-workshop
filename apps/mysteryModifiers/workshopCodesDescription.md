@@ -187,7 +187,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
   <div class="modifier">
     <div class="modifier__header">
       <div class="modifier__title">Divine Blessing</div>  
-      <div class="modifier__duration">15 secs</div>
+      <div class="modifier__duration">12 secs</div>
     </div>
     <div class="modifier__content">
       <div class="modifier__description">

@@ -6,7 +6,7 @@ import '../utils/effects.del';
 // TODO: info about gods being happy/unhappy
 
 String DIVINE_BLESSING_NAME: 'Divine Blessing';
-Number DIVINE_BLESSING_DURATION: 15;
+Number DIVINE_BLESSING_DURATION: 12;
 
 Vector DIVINE_BLESSING_CAMERA_OFFSET: Vector(0, -0.125, 0);
 Vector DIVINE_BLESSING_CAMERA_LOCAL_OFFSET: Vector(0.25, 0, 0);
