@@ -66,10 +66,3 @@ if(WorkshopSettingToggle("Debug", "Start or stop modifier with Interact button",
     SetModifier(RandomizeModifier(enabledModifiers - modifierHistory));
   }
 }
-
-rule: '[Debug] Start next modifier'
-Event.OngoingPlayer
-if(IsButtonHeld(HostPlayer(), Button.Reload))
-{
-  Damage(EP, null, 50);
-}
