@@ -169,8 +169,7 @@ single struct Captcha {
 playervar Captcha captchaData;
 
 rule: '[Captcha] Is Preloading'
-if(CurrentModifierIs(CAPTCHA_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(CAPTCHA_NAME) && ModifierIsPreloading())
 {
   Captcha.GenerateHud();
 
@@ -183,8 +182,7 @@ if(ModifierIsPreloading())
 
 rule: '[Captcha] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(CAPTCHA_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(CAPTCHA_NAME) && ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EP, Effect.AnaSleepingEffect, 1);
@@ -194,8 +192,7 @@ if(ModifierIsPreloading())
 
 rule: '[Captcha] Has Started'
 Event.OngoingPlayer
-if(CurrentModifierIs(CAPTCHA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(CAPTCHA_NAME) && ModifierInProgress())
 {
   if(IsDead())
     Respawn();

@@ -34,8 +34,7 @@ playervar Boolean topDownCameraEnabled = false;
 playervar Vector topDownCameraPrevFacingDir = Vector.Zero;
 
 rule: '[Top Down Camera] Is preloading'
-if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME) && ModifierIsPreloading())
 {
   topDownCameraEffects += CreateRayCastedEffect(
     player: LocalPlayer(),
@@ -46,8 +45,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Top Down Camera] Has Started'
-if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME) && ModifierInProgress())
 {
   AllPlayers().topDownCameraEnabled = true;
 
@@ -86,8 +84,7 @@ if(ModifierInProgress())
 
 rule: '[Top Down Camera] Temporarily disable for abilities that would break it'
 Event.OngoingPlayer
-if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME) && ModifierInProgress())
 if(topDownCameraEnabled)
 if(RayCastedCameraDisabled())
 {
@@ -103,8 +100,7 @@ if(RayCastedCameraDisabled())
 
 rule: '[Top Down Camera] Start/stop camera'
 Event.OngoingPlayer
-if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME) && ModifierInProgress())
 if(topDownCameraEnabled)
 {
   StartRayCastedCamera(
@@ -125,8 +121,7 @@ if(topDownCameraEnabled)
 
 rule: '[Top Down Camera] Store previous facing direction'
 Event.OngoingPlayer
-if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME) && ModifierInProgress())
 if(topDownCameraEnabled)
 {
   Vector facing = FacingDirectionOf();
@@ -138,8 +133,7 @@ if(topDownCameraEnabled)
 
 rule: '[Top Down Camera] Clamp Y component of facing direction'
 Event.OngoingPlayer
-if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TOP_DOWN_CAMERA_NAME) && ModifierInProgress())
 if(topDownCameraEnabled)
 if(FacingDirectionOf().Y > TOP_DOWN_CAMERA_MAX_Y_FACING)
 {

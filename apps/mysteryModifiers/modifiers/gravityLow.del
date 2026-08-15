@@ -10,8 +10,7 @@ Modifier gravityLow: Modifier.New(
 );
 
 rule: '[Gravity - High] Has Started'
-if(CurrentModifierIs(GRAVITY_LOW_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(GRAVITY_LOW_NAME) && ModifierInProgress())
 {
   SetGravity(AllPlayers(), 37.5);
   SetProjectileGravity(AllPlayers(), 37.5);

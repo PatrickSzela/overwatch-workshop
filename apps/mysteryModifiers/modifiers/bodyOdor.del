@@ -16,8 +16,7 @@ Modifier bodyOdor: Modifier.New(
 
 rule: '[Body Odor] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(BODY_ODOR_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(BODY_ODOR_NAME) && ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.Cloud, 1, CustomColor(78, 168, 9, 127), false);
@@ -29,8 +28,7 @@ if(ModifierIsPreloading())
 
 rule: '[Body Odor] Deal damage to nearby players'
 Event.OngoingPlayer
-if(CurrentModifierIs(BODY_ODOR_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(BODY_ODOR_NAME) && ModifierInProgress())
 {
   Player[] _playersNearby: PlayersWithinRadius(EventPlayer().Position(), BODY_ODOR_RADIUS, Team.All, RadiusLOS.SurfacesAndAllBarriers) - EventPlayer();
   Player[] playersNearby = _playersNearby;

@@ -13,16 +13,14 @@ Modifier babyWar: Modifier.New(
 
 rule: '[Duplicate: Baby War] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(BABY_WAR_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(BABY_WAR_NAME) && ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, babyWarHeroes.Random());
 }
 
 rule: '[Duplicate: Baby War] Has Started'
 Event.OngoingPlayer
-if(CurrentModifierIs(BABY_WAR_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(BABY_WAR_NAME) && ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   SetUltimateAbilityEnabled(EP, false);

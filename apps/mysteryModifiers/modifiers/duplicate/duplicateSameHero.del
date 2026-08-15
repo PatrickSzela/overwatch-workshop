@@ -15,8 +15,7 @@ Modifier duplicateSameHero: Modifier.New(
 );
 
 rule: '[Duplicate: Same Hero] Is Preloading - Select random hero'
-if(CurrentModifierIs(DUPLICATE_SAME_HERO_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(DUPLICATE_SAME_HERO_NAME) && ModifierIsPreloading())
 {
   // WORKAROUND: apparently AllPlayers().variable = RandomX() will not set the same value for every player
   // instead the value is randomized for EVERYONE
@@ -27,8 +26,7 @@ if(ModifierIsPreloading())
 
 rule: '[Duplicate: Same Hero] Setup'
 Event.OngoingPlayer
-if(CurrentModifierIs(DUPLICATE_SAME_HERO_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(DUPLICATE_SAME_HERO_NAME) && ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   speedUpAbility.UltimateCharge(5.5);

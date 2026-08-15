@@ -13,8 +13,7 @@ playervar Boolean catWarsShields;
 
 rule: '[Duplicate: Cat Wars] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(CAT_WARS_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(CAT_WARS_NAME) && ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.JetpackCat);
 
@@ -28,8 +27,7 @@ if(ModifierIsPreloading())
 
 rule: '[Duplicate: Cat Wars] Has Started'
 Event.OngoingPlayer
-if(CurrentModifierIs(CAT_WARS_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(CAT_WARS_NAME) && ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   SetAbility1Enabled(EP, false);
@@ -55,8 +53,7 @@ if(DuplicateModifIsReady())
 // client side gets randomly broken :)
 rule: '[Duplicate: Cat Wars] Display shields'
 Event.OngoingPlayer
-if(CurrentModifierIs(CAT_WARS_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(CAT_WARS_NAME) && ModifierInProgress())
 if(HealthOfType(<Player>EvaluateOnce(EventPlayer()), HealthType.Shields) > 0)
 {
   catWarsShields = true;
@@ -66,8 +63,7 @@ if(HealthOfType(<Player>EvaluateOnce(EventPlayer()), HealthType.Shields) > 0)
 
 rule: '[Duplicate: Cat Wars] Cancel Purr after first pulse (knockback)'
 Event.OngoingPlayer
-if(CurrentModifierIs(CAT_WARS_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(CAT_WARS_NAME) && ModifierInProgress())
 if(IsUsingAbility2())
 {
   Wait(0.5);

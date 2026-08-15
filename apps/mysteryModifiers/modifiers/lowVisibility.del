@@ -15,8 +15,7 @@ Modifier lowVisibility: Modifier.New(
 globalvar Any[] lowVisibilityEffects = [];
 
 rule: '[Low Visibility] Is Preloading'
-if(CurrentModifierIs(LOW_VISIBILITY_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(LOW_VISIBILITY_NAME) && ModifierIsPreloading())
 {
   Boolean condition: ModifierInProgress();
   Number count: 50;
@@ -52,8 +51,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Low Visibility] Has Started'
-if(CurrentModifierIs(LOW_VISIBILITY_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(LOW_VISIBILITY_NAME) && ModifierInProgress())
 {
   // end
   WaitUntilModifierIsOver();
@@ -64,8 +62,7 @@ if(ModifierInProgress())
 
 rule: '[Low Visibility] Disable outlines'
 Event.OngoingPlayer
-if(CurrentModifierIs(LOW_VISIBILITY_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(LOW_VISIBILITY_NAME) && ModifierInProgress())
 {
   Number distance: LOW_VISIBILITY_START_DISTANCE + LOW_VISIBILITY_FADE_DISTANCE * 0.15;
 

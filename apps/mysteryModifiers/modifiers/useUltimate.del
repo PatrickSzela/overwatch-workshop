@@ -11,8 +11,7 @@ Modifier useUltimate: Modifier.New(
 
 rule: '[Use Ultimate] Has Started'
 Event.OngoingPlayer
-if(CurrentModifierIs(USE_ULTIMATE_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(USE_ULTIMATE_NAME) && ModifierInProgress())
 {
   WaitUntilAlive();
 

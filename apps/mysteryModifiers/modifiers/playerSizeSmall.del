@@ -10,8 +10,7 @@ Modifier playerSizeSmall: Modifier.New(
 );
 
 rule: '[Player Size - Big] Has Started'
-if(CurrentModifierIs(PLAYER_SIZE_SMALL_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(PLAYER_SIZE_SMALL_NAME) && ModifierInProgress())
 {
   StartScalingPlayer(AllPlayers(), 0.5);
   StartModifyingHeroVoiceLines(AllPlayers(), 1.5);

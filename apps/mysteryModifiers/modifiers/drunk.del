@@ -25,8 +25,7 @@ void KnockDownAndDamage(in Player player = EP) {
 }
 
 rule: '[Drunk] Has Started - Global rule'
-if(CurrentModifierIs(DRUNK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(DRUNK_NAME) && ModifierInProgress())
 {
   SetSlowMotion(DRUNK_SLOW_MOTION_SPEED);
   StartModifyingHeroVoiceLines(AllPlayers(), 0.85);
@@ -42,8 +41,7 @@ if(ModifierInProgress())
 
 rule: '[Drunk] Has Started - Player rule'
 Event.OngoingPlayer
-if(CurrentModifierIs(DRUNK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(DRUNK_NAME) && ModifierInProgress())
 {
   StartThrottleInDirection(EventPlayer(), drunkMovementFinal, 0.5, Relative.ToPlayer, ThrottleBehavior.AddToExistingThrottle, ThrottleRev.DirectionAndMagnitude);
   ChaseVariableAtRate(drunkMovementFinal, drunkMovementChase, 0.01, RateChaseReevaluation.DestinationAndRate);
@@ -58,8 +56,7 @@ if(ModifierInProgress())
 
 rule: '[Drunk] Generate random vector'
 Event.OngoingPlayer
-if(CurrentModifierIs(DRUNK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(DRUNK_NAME) && ModifierInProgress())
 {
   drunkMovementChase = Vector(RandomReal(-0.01, 0.01), 0, RandomReal(-0.01, 0.01));
 
@@ -70,8 +67,7 @@ if(ModifierInProgress())
 
 rule: '[Drunk] Knock down randomly if lands on ground'
 Event.OngoingPlayer
-if(CurrentModifierIs(DRUNK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(DRUNK_NAME) && ModifierInProgress())
 if(!IsOnGround())
 {
   WaitUntilModifierIsOverOrCondition(IsOnGround());
@@ -82,8 +78,7 @@ if(!IsOnGround())
 
 rule: '[Drunk] Knock down randomly if on ground'
 Event.OngoingPlayer
-if(CurrentModifierIs(DRUNK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(DRUNK_NAME) && ModifierInProgress())
 if(IsOnGround())
 {
   WaitUntilModifierIsOverOrCondition(!HasStatus(EP, Status.KnockedDown));

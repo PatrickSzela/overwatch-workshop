@@ -14,8 +14,7 @@ Modifier blinking: Modifier.New(
 );
 
 rule: '[Blinking] Is Preloading'
-if(CurrentModifierIs(BLINKING_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(BLINKING_NAME) && ModifierIsPreloading())
 {
   for(Number i = 0; i < 18; i++) {
     blinkingHuds += CreateInWorldText(
@@ -52,8 +51,7 @@ if(ModifierIsPreloading())
 
 rule: '[Blinking] Blink logic'
 Event.OngoingPlayer
-if(CurrentModifierIs(BLINKING_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(BLINKING_NAME) && ModifierInProgress())
 {
   Number destination! = [0, RandomReal(0.85, 0.95), RandomReal(0.85, 0.95)].Random();
   Number duration: destination ? 0.3 : 0.1;

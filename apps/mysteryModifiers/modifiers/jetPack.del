@@ -22,8 +22,7 @@ Modifier jetPack: Modifier.New(
 );
 
 rule: '[Jet Pack] Is Preloading - Global rule'
-if(CurrentModifierIs(JET_PACK_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(JET_PACK_NAME) && ModifierIsPreloading())
 {
   jetPackHUDs = CreateNiceProgressBar(
     value: LocalPlayer().jetPackResource, 
@@ -41,16 +40,14 @@ if(ModifierIsPreloading())
 
 rule: '[Jet Pack] Is Preloading - Player rule'
 Event.OngoingPlayer
-if(CurrentModifierIs(JET_PACK_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(JET_PACK_NAME) && ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.WreckingBallPiledriverFireSound, 75, visibleCondition: jetPackIsUsing);
 }
 
 rule: '[Jet Pack] Has Started - Global rule'
-if(CurrentModifierIs(JET_PACK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(JET_PACK_NAME) && ModifierInProgress())
 {
   // end
   WaitUntilModifierIsOver();
@@ -61,8 +58,7 @@ if(ModifierInProgress())
 
 rule: '[Jet Pack] Has Started - Player rule'
 Event.OngoingPlayer
-if(CurrentModifierIs(JET_PACK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(JET_PACK_NAME) && ModifierInProgress())
 {
   StartAccelerating(EventPlayer(), Up(), 
     jetPackIsUsing ? 

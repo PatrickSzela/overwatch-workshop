@@ -163,8 +163,7 @@ globalvar Vector[][] ticTacToeWinConditions = [
 playervar TicTacToe ticTacToeData;
 
 rule: '[Tic-tac-toe] Is Preloading'
-if(CurrentModifierIs(TIC_TAC_TOE_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(TIC_TAC_TOE_NAME) && ModifierIsPreloading())
 {
   TicTacToe.GenerateHud();
 
@@ -176,8 +175,7 @@ if(ModifierIsPreloading())
 
 rule: '[Tic-tac-toe] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(TIC_TAC_TOE_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(TIC_TAC_TOE_NAME) && ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EP, Effect.AnaSleepingEffect, 1);
@@ -186,8 +184,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Tic-tac-toe] Has Started'
-if(CurrentModifierIs(TIC_TAC_TOE_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TIC_TAC_TOE_NAME) && ModifierInProgress())
 {
   Player[] hosts! = AP.Randomize().Slice(0, Ceil(AP.Length / 2));
   Player[] opponents! = AP.Randomize() - hosts;
@@ -200,8 +197,7 @@ if(ModifierInProgress())
 
 rule: '[Tic-tac-toe] Has Started'
 Event.OngoingPlayer
-if(CurrentModifierIs(TIC_TAC_TOE_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TIC_TAC_TOE_NAME) && ModifierInProgress())
 {
   if(IsDead())
     Respawn();

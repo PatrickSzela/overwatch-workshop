@@ -15,8 +15,7 @@ Modifier floorIsLava: Modifier.New(
 
 rule: '[Floor Is Lava] Handle logic'
 Event.OngoingPlayer
-if(CurrentModifierIs(FLOOR_IS_LAVA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(FLOOR_IS_LAVA_NAME) && ModifierInProgress())
 if(EventPlayer().IsOnGround())
 {
   SetStatus(EventPlayer(), EventPlayer(), Status.Burning, modifierDurationLeft);

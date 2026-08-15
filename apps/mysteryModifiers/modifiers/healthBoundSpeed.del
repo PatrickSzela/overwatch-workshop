@@ -12,8 +12,7 @@ Modifier healthBoundSpeed: Modifier.New(
 
 rule: '[Health-Bound Speed] Has Started'
 Event.OngoingPlayer
-if(CurrentModifierIs(HEALTH_BOUND_SPEED_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(HEALTH_BOUND_SPEED_NAME) && ModifierInProgress())
 {
   // end
   WaitUntilModifierIsOver();
@@ -22,8 +21,7 @@ if(ModifierInProgress())
 
 rule: '[Health-Bound Speed] Set speed on health change'
 Event.OngoingPlayer
-if(CurrentModifierIs(HEALTH_BOUND_SPEED_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(HEALTH_BOUND_SPEED_NAME) && ModifierInProgress())
 {
   Number scale: NormalizedHealth();
   SetMoveSpeed(EventPlayer(), (2 - scale) * 100);

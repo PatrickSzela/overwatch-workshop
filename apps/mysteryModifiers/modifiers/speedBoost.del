@@ -12,8 +12,7 @@ Modifier speedBoost: Modifier.New(
 
 rule: '[Speed Boost] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(SPEED_BOOST_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(SPEED_BOOST_NAME) && ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.LucioSoundBarrierProtectedEffect, 1);
@@ -24,8 +23,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Speed Boost] Has Started'
-if(CurrentModifierIs(SPEED_BOOST_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(SPEED_BOOST_NAME) && ModifierInProgress())
 {
   SetMoveSpeed(AllPlayers(), 200);
 

@@ -12,8 +12,7 @@ Modifier slowMotion: Modifier.New(
 );
 
 rule: '[Slow Motion] Has Started'
-if(CurrentModifierIs(SLOW_MOTION_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(SLOW_MOTION_NAME) && ModifierInProgress())
 {
   SetSlowMotion(SLOW_MOTION_SPEED);
   StartModifyingHeroVoiceLines(AllPlayers(), 0.1);

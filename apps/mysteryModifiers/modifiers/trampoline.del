@@ -11,8 +11,7 @@ Modifier trampoline: Modifier.New(
 
 rule: '[Trampoline] Handle logic'
 Event.OngoingPlayer
-if(CurrentModifierIs(TRAMPOLINE_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TRAMPOLINE_NAME) && ModifierInProgress())
 if(IsOnGround())
 {
   ApplyImpulse(EventPlayer(), Up(), RandomReal(7, 10), Relative.ToPlayer, ContraryMotion.Incorporate);

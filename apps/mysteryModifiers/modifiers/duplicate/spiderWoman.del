@@ -12,16 +12,14 @@ Modifier spiderWoman: Modifier.New(
 
 rule: '[Duplicate: Spider-Woman] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(SPIDER_WOMAN_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(SPIDER_WOMAN_NAME) && ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.Widowmaker);
 }
 
 rule: '[Duplicate: Spider-Woman] Has Started'
 Event.OngoingPlayer
-if(CurrentModifierIs(SPIDER_WOMAN_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(SPIDER_WOMAN_NAME) && ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   // reload if player is on widow already
@@ -36,8 +34,7 @@ if(DuplicateModifIsReady())
 
 rule: '[Duplicate: Spider-Woman] Kick player out of scope when on ground'
 Event.OngoingPlayer
-if(CurrentModifierIs(SPIDER_WOMAN_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(SPIDER_WOMAN_NAME) && ModifierInProgress())
 if(IsDuplicatingFrozenReady())
 if(IsOnGround())
 {
@@ -51,8 +48,7 @@ if(IsOnGround())
 
 rule: '[Duplicate: Spider-Woman] Disable scope on ground'
 Event.OngoingPlayer
-if(CurrentModifierIs(SPIDER_WOMAN_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(SPIDER_WOMAN_NAME) && ModifierInProgress())
 if(IsDuplicatingFrozenReady())
 if(IsOnGround())
 {
@@ -63,8 +59,7 @@ if(IsOnGround())
 
 rule: '[Duplicate: Spider-Woman] Reduce Grapple Hook cooldown on kill'
 Event.OnElimination
-if(CurrentModifierIs(SPIDER_WOMAN_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(SPIDER_WOMAN_NAME) && ModifierInProgress())
 if(IsDuplicatingFrozenReady())
 {
   SetAbilityCooldown(EventPlayer(), Button.Ability1, 0);

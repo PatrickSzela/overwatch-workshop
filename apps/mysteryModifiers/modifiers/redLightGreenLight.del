@@ -17,8 +17,7 @@ Modifier redLightGreenLight: Modifier.New(
 );
 
 rule: '[Red Light, Green Light] Is Preloading - Global'
-if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME) && ModifierIsPreloading())
 {
   Boolean condition: ModifierInProgress();
 
@@ -39,8 +38,7 @@ if(ModifierIsPreloading())
 
 rule: '[Red Light, Green Light] Is Preloading - Player'
 Event.OngoingPlayer
-if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME) && ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
 
@@ -55,8 +53,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Red Light, Green Light] Has Started'
-if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME) && ModifierInProgress())
 {
   // end
   WaitUntilModifierIsOver();
@@ -70,8 +67,7 @@ if(ModifierInProgress())
 }
 
 rule: '[Red Light, Green Light] Handle Color'
-if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME) && ModifierInProgress())
 {
   // TODO: make last possible red light last until the modifier ends
   Wait(
@@ -98,8 +94,7 @@ if(ModifierInProgress())
 rule: '[Red Light, Green Light] Kill if moving'
 Event.OngoingPlayer
 if(IsAlive())
-if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME) && ModifierInProgress())
 if(redLightGreenLightDoNotMove)
 {
   Wait(0.75);
@@ -151,8 +146,7 @@ if(redLightGreenLightBeam)
 
 rule: '[Red Light, Green Light] Clear player who dealt knockback if stopped moving'
 Event.PlayerReceivedKnockback
-if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME) && ModifierInProgress())
 if(redLightGreenLightKnockback)
 if(!SpeedOf())
 {
@@ -161,8 +155,7 @@ if(!SpeedOf())
 
 rule: '[Red Light, Green Light] Store player who dealt knockback'
 Event.PlayerReceivedKnockback
-if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(RED_LIGHT_GREEN_LIGHT_NAME) && ModifierInProgress())
 {
   redLightGreenLightKnockback = Attacker();
 }

@@ -13,8 +13,7 @@ Modifier blinded: Modifier.New(
 );
 
 rule: '[Blinded] Is Preloading'
-if(CurrentModifierIs(BLINDED_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(BLINDED_NAME) && ModifierIsPreloading())
 {
   Boolean condition: ModifierInProgress();
 
@@ -28,8 +27,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Blinded] Has Started'
-if(CurrentModifierIs(BLINDED_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(BLINDED_NAME) && ModifierInProgress())
 {
   StartForcingPlayerOutlines(AllPlayers(), AllPlayers(), false);
   DisableNameplates(AllPlayers(), AllPlayers());

@@ -305,16 +305,14 @@ playervar String divineBlessingStatus!;
 playervar Number divineBlessingDice!;
 
 rule: '[Divine Blessing] Is Preloading'
-if(CurrentModifierIs(DIVINE_BLESSING_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(DIVINE_BLESSING_NAME) && ModifierIsPreloading())
 {
   divineBlessingHuds = DivineBlessingUi.GenerateHud();
 }
 
 rule: '[Divine Blessing] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(DIVINE_BLESSING_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(DIVINE_BLESSING_NAME) && ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   divineBlessingUi = DivineBlessingUi.New();
@@ -322,8 +320,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Divine Blessing] Has Started'
-if(CurrentModifierIs(DIVINE_BLESSING_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(DIVINE_BLESSING_NAME) && ModifierInProgress())
 {
   WaitUntilModifierIsOver();
   
@@ -349,8 +346,7 @@ if(ModifierInProgress())
 
 rule: '[Divine Blessing] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(DIVINE_BLESSING_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(DIVINE_BLESSING_NAME) && ModifierInProgress())
 {
   if(IsDead())
     Respawn();

@@ -31,8 +31,7 @@ Modifier thirdPersonCamera: Modifier.New(
 );
 
 rule: '[Third Person Camera] Is preloading'
-if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME) && ModifierIsPreloading())
 {
   thirdPersonCameraEffects += CreateRayCastedEffect(
     player: LocalPlayer(),
@@ -43,8 +42,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Third Person Camera] Has Started'
-if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME) && ModifierInProgress())
 {
   AllPlayers().thirdPersonCameraEnabled = true;
 
@@ -58,8 +56,7 @@ if(ModifierInProgress())
 
 rule: '[Third Person Camera] Temporarily disable for abilities that would break it'
 Event.OngoingPlayer
-if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME) && ModifierInProgress())
 if(thirdPersonCameraEnabled)
 if(RayCastedCameraDisabled())
 {
@@ -75,8 +72,7 @@ if(RayCastedCameraDisabled())
 
 rule: '[Third Person Camera] Disable in certain scenarios'
 Event.OngoingPlayer
-if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(THIRD_PERSON_CAMERA_NAME) && ModifierInProgress())
 if(thirdPersonCameraEnabled)
 {
   StartRayCastedCamera(

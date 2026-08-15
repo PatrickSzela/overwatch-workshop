@@ -14,16 +14,14 @@ Modifier orbHell: Modifier.New(
 
 rule: '[Duplicate: Orb Hell] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(ORB_HELL_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(ORB_HELL_NAME) && ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.Moira);
 }
 
 rule: '[Duplicate: Orb Hell] Setup'
 Event.OngoingPlayer
-if(CurrentModifierIs(ORB_HELL_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(ORB_HELL_NAME) && ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   SetPrimaryFireEnabled(EP, false);

@@ -12,8 +12,7 @@ Modifier healthBoundSize: Modifier.New(
 
 rule: '[Health-Bound Size] Has Started'
 Event.OngoingPlayer
-if(CurrentModifierIs(HEALTH_BOUND_SIZE_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(HEALTH_BOUND_SIZE_NAME) && ModifierInProgress())
 {
   Number scale: NormalizedHealth();
   StartScalingPlayer(EventPlayer(), 0.5 + scale * 1.5, true);

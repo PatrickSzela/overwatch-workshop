@@ -44,8 +44,7 @@ Modifier laserEyes: Modifier.New(
 );
 
 rule: '[Laser Eyes] Is Preloading - Global rule'
-if(CurrentModifierIs(LASER_EYES_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(LASER_EYES_NAME) && ModifierIsPreloading())
 {
   for(Number i! = 0; i < 2; i++)
     laserEyesGlobalEffects += CreateBeamEffect(
@@ -69,8 +68,7 @@ if(ModifierIsPreloading())
 
 rule: '[Laser Eyes] Is Preloading - Player rule'
 Event.OngoingPlayer
-if(CurrentModifierIs(LASER_EYES_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(LASER_EYES_NAME) && ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
 
@@ -96,8 +94,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Laser Eyes] Has Started - Global rule'
-if(CurrentModifierIs(LASER_EYES_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(LASER_EYES_NAME) && ModifierInProgress())
 {
   // end
   WaitUntilModifierIsOver();
@@ -108,8 +105,7 @@ if(ModifierInProgress())
 
 rule: '[Laser Eyes] Has Started - Player rule'
 Event.OngoingPlayer
-if(CurrentModifierIs(LASER_EYES_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(LASER_EYES_NAME) && ModifierInProgress())
 {
   // end
   WaitUntilModifierIsOver();
@@ -120,8 +116,7 @@ if(ModifierInProgress())
 
 rule: '[Laser Eyes] Damage if looking at player'
 Event.OngoingPlayer
-if(CurrentModifierIs(LASER_EYES_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(LASER_EYES_NAME) && ModifierInProgress())
 if(LASER_EYES_LOOK_AT_RAY_CAST_PLAYER())
 if(IsAlive())
 {

@@ -14,8 +14,7 @@ Modifier iceRink: Modifier.New(
 
 rule: '[Ice Rink] If Velocity was overridden'
 Event.OngoingPlayer
-if(CurrentModifierIs(ICE_RINK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(ICE_RINK_NAME) && ModifierInProgress())
 if(IsAlive())
 if(AngleBetweenVectors(VelocityOf(), icyFloorVector) > 10)
 {
@@ -24,8 +23,7 @@ if(AngleBetweenVectors(VelocityOf(), icyFloorVector) > 10)
 
 rule: '[Ice Rink] Get Vector on landing'
 Event.OngoingPlayer
-if(CurrentModifierIs(ICE_RINK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(ICE_RINK_NAME) && ModifierInProgress())
 if(IsOnGround())
 if(IsAlive())
 {
@@ -35,8 +33,7 @@ if(IsAlive())
 
 rule: '[Ice Rink] Handle walking'
 Event.OngoingPlayer
-if(CurrentModifierIs(ICE_RINK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(ICE_RINK_NAME) && ModifierInProgress())
 if(IsOnGround())
 if(IsAlive())
 {
@@ -52,8 +49,7 @@ if(IsAlive())
 
 rule: '[Ice Rink] Handle walking'
 Event.OngoingPlayer
-if(CurrentModifierIs(ICE_RINK_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(ICE_RINK_NAME) && ModifierInProgress())
 if(IsOnGround())
 if(IsAlive())
 {

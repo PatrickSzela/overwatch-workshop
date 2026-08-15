@@ -16,16 +16,14 @@ Modifier duplicateRandomHero: Modifier.New(
 
 rule: '[Duplicate: Random Hero] Is Preloading - Select random hero'
 Event.OngoingPlayer
-if(CurrentModifierIs(DUPLICATE_RANDOM_HERO_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(DUPLICATE_RANDOM_HERO_NAME) && ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, RandomValueInArray(AllHeroes() - AllPlayers().Map((i) => i.Hero())));
 }
 
 rule: '[Duplicate: Random Hero] Setup'
 Event.OngoingPlayer
-if(CurrentModifierIs(DUPLICATE_RANDOM_HERO_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(DUPLICATE_RANDOM_HERO_NAME) && ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   speedUpAbility.UltimateCharge(5.5);

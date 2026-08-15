@@ -26,8 +26,7 @@ globalvar Any[] invisibilityEffects = [];
 Boolean IsInvisibilityEnabled(Player player = EventPlayer()): !player.invisibilityTakenDamage && !player.invisibilityPlayersNearby;
 
 rule: '[Invisibility] Is Preloading'
-if(CurrentModifierIs(INVISIBILITY_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(INVISIBILITY_NAME) && ModifierIsPreloading())
 {
   Boolean CONDITION: ModifierInProgress() && IsInvisibilityEnabled(LocalPlayer()) ? LocalPlayer() : null;
 
@@ -72,8 +71,7 @@ if(ModifierIsPreloading())
 }
 
 rule: '[Invisibility] Has Started'
-if(CurrentModifierIs(INVISIBILITY_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(INVISIBILITY_NAME) && ModifierInProgress())
 {
   AllPlayers().invisibilityTakenDamage = false;
   AllPlayers().invisibilityPlayersNearby = false;
@@ -91,8 +89,7 @@ if(ModifierInProgress())
 
 rule: '[Invisibility] Player taken damage'
 Event.OnDamageTaken
-if(CurrentModifierIs(INVISIBILITY_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(INVISIBILITY_NAME) && ModifierInProgress())
 {
   invisibilityTakenDamage = true;
   Wait(0.75, WaitBehavior.RestartWhenTrue);
@@ -101,8 +98,7 @@ if(ModifierInProgress())
 
 rule: '[Invisibility] Players nearby'
 Event.OngoingPlayer
-if(CurrentModifierIs(INVISIBILITY_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(INVISIBILITY_NAME) && ModifierInProgress())
 if(INVISIBILITY_PLAYERS_NEARBY)
 {
   invisibilityPlayersNearby = true;
@@ -112,8 +108,7 @@ if(INVISIBILITY_PLAYERS_NEARBY)
 
 rule: '[Invisibility] Set invisibility'
 Event.OngoingPlayer
-if(CurrentModifierIs(INVISIBILITY_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(INVISIBILITY_NAME) && ModifierInProgress())
 if(IsInvisibilityEnabled())
 {
   SetInvisible(EventPlayer(), InvisibleTo.All);

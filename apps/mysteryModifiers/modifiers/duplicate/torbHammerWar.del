@@ -11,16 +11,14 @@ Modifier torbHammerWar: Modifier.New(
 
 rule: '[Duplicate: Torbjörn\'s Hammer War] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(TORB_HAMMER_WAR_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(TORB_HAMMER_WAR_NAME) && ModifierIsPreloading())
 {
   DuplicateModifSetHero(EP, Hero.Torbjorn);
 }
 
 rule: '[Duplicate: Torbjörn\'s Hammer War] Setup'
 Event.OngoingPlayer
-if(CurrentModifierIs(TORB_HAMMER_WAR_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TORB_HAMMER_WAR_NAME) && ModifierInProgress())
 if(DuplicateModifIsReady())
 {
   SetAbility1Enabled(EventPlayer(), false);
@@ -32,8 +30,7 @@ if(DuplicateModifIsReady())
 
 rule: '[Duplicate: Torbjörn\'s Hammer War] Swap weapon'
 Event.OngoingPlayer
-if(CurrentModifierIs(TORB_HAMMER_WAR_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(TORB_HAMMER_WAR_NAME) && ModifierInProgress())
 if(IsDuplicatingFrozen())
 if(Weapon() == 1)
 {

@@ -12,8 +12,7 @@ Modifier vampiricExchange: Modifier.New(
 
 rule: '[Vampiric Exchange] Is Preloading'
 Event.OngoingPlayer
-if(CurrentModifierIs(VAMPIRIC_EXCHANGE_NAME))
-if(ModifierIsPreloading())
+if(CurrentModifierIs(VAMPIRIC_EXCHANGE_NAME) && ModifierIsPreloading())
 {
   WaitSpreadPerPlayer();
   CreatePlayerEffect(EventPlayer(), Effect.BadAura, 1, Color.Violet);
@@ -23,8 +22,7 @@ if(ModifierIsPreloading())
 
 rule: '[Vampiric Exchange] Heal on dealing damage'
 Event.OnDamageDealt
-if(CurrentModifierIs(VAMPIRIC_EXCHANGE_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(VAMPIRIC_EXCHANGE_NAME) && ModifierInProgress())
 {
   if(Victim() != EventPlayer()) {
     Heal(EventPlayer(), Victim(), EventDamage() * 0.25);
@@ -33,8 +31,7 @@ if(ModifierInProgress())
 
 rule: '[Vampiric Exchange] Deal damage on healing'
 Event.OnHealingDealt
-if(CurrentModifierIs(VAMPIRIC_EXCHANGE_NAME))
-if(ModifierInProgress())
+if(CurrentModifierIs(VAMPIRIC_EXCHANGE_NAME) && ModifierInProgress())
 {
   if(Healee() != EventPlayer()) {
     Damage(EventPlayer(), Healee(), EventHealing() * 0.5);
