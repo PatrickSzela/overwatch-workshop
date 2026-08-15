@@ -926,6 +926,7 @@ Once the meter is fully charged, the same randomly selected modifier will be app
         <li>Winning the Tic-tac-toe allows the player to continue playing</li>
         <li>Losing the Tic-tac-toe ends with player's death</li>
         <li>Draw ends with both players being able to continue playing</li>
+        <li>Undecided match (when timer runs out) ends with both players losing half of their HP</li>
         <li>Grants players 500 temporary HP for the duration of the modifier</li>
         <li>
           Dead players will be respawned (in their appropriate spawn rooms) when the modifier begins

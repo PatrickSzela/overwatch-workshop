@@ -16,7 +16,7 @@ Modifier ticTacToe: Modifier.New(
 enum TicTacToeMark {
   EMPTY = "?",
   HOST = "X",
-  OPPONENT = "O"
+  OPPONENT = "O",
 }
 
 single struct TicTacToe {
@@ -26,10 +26,11 @@ single struct TicTacToe {
   public TicTacToeMark result;
   public Player winner;
   public Player loser;
+  public Boolean timerRunOut;
   public Any tempHp;
 
   public static TicTacToe New(in Player host = EP, in Player opponent): 
-    { host: host, opponent: opponent, turn: host, result: null, winner: null, loser: null, tempHp: null };
+    { host: host, opponent: opponent, turn: host, result: null, winner: null, loser: null, timerRunOut: false, tempHp: null };
 
   public static void GenerateHud() {
     gridHud.GenerateItems(
@@ -118,12 +119,13 @@ single struct TicTacToe {
 
   public ref void TimerRunOut() {
     if(result) return;
-    result = turn == host ? TicTacToeMark.OPPONENT : TicTacToeMark.HOST;
+    result = TicTacToeMark.EMPTY;
+    timerRunOut = true;
   }
 
   public ref void SetUpWinner() {
     if(result == TicTacToeMark.EMPTY) {
-      BigMessage([host, opponent], "Draw");
+      BigMessage([host, opponent], timerRunOut ? "Undecided": "Draw");
     } else {
       winner = 
         result == TicTacToeMark.HOST ? host : opponent;
@@ -137,10 +139,19 @@ single struct TicTacToe {
   }
 
   public ref void KillLoser() {
-    if(EP == host && result != TicTacToeMark.EMPTY && winner != loser) {
+    if(EP != host) return;
+
+    if(result != TicTacToeMark.EMPTY && winner != loser) {
       PlayEffect(AllPlayers(), PlayEffect.ExplosionSound, Color.Red, loser, 100);
       PlayEffect(AllPlayers(), PlayEffect.BadExplosion, Color.Red, loser, 1.5);
       KillIfKillableElseDamage(loser, winner);
+    } else if(timerRunOut) {
+      Damage(host, opponent, host.Health() / 2);
+      Damage(opponent, host, opponent.Health() / 2);
+      PlayEffect(AllPlayers(), PlayEffect.ExplosionSound, Color.Orange, host, 100);
+      PlayEffect(AllPlayers(), PlayEffect.BadExplosion, Color.Orange, host, 1.5);
+      PlayEffect(AllPlayers(), PlayEffect.ExplosionSound, Color.Orange, opponent, 100);
+      PlayEffect(AllPlayers(), PlayEffect.BadExplosion, Color.Orange, opponent, 1.5);
     }
   }
 }
@@ -238,5 +249,6 @@ if(ticTacToeData.result)
 {
   WaitUntilModifierIsOverOr(1);
   ticTacToeData.Disable();
+  MinWait();
   ticTacToeData.KillLoser();
 }
