@@ -186,7 +186,9 @@ if(CurrentModifierIs(TIC_TAC_TOE_NAME) && ModifierIsPreloading())
 rule: '[Tic-tac-toe] Has Started'
 if(CurrentModifierIs(TIC_TAC_TOE_NAME) && ModifierInProgress())
 {
-  Player[] hosts! = AP.Randomize().Slice(0, Ceil(AP.Length / 2));
+  Player[] hosts! = AvailableTeams().Length != 2 || AllPlayers(Team.Team1).Length != AllPlayers(Team.Team2).Length ? 
+    AP.Randomize().Slice(0, Ceil(AP.Length / 2)) :
+    AllPlayers(AvailableTeams().Random());
   Player[] opponents! = AP.Randomize() - hosts;
 
   for(Number i! = 0; i < hosts.Length; i++) {

@@ -20,19 +20,12 @@ if(ToString(CurrentMap()).Contains("Workshop"))
 {
   WaitForeverUntil(HasSpawned(HostPlayer()));
 
-  foreach(Team team! in AllTeams()) {
-    if(TeamOf(HostPlayer()) == team || TeamOf(HostPlayer()) == OppositeTeamOf(team)) {
+  foreach(Team team! in AvailableTeams()) {
+    for(Number i! = 0; i < 5; i++) {
       Number idx: team == Team.Team1 ? 0 : 1;
 
-      CreateDummyBot(Hero.Roadhog, team, 2, Vector(idx * 3, 0, 0));
+      CreateDummyBot(AllHeroes().Random(), team, i, Vector(idx * 3, 0, i * 3));
       MinWait();
-      CreateDummyBot(Hero.Ana, team, 3, Vector(idx * 3, 0, 3));
-      MinWait();
-      CreateDummyBot(Hero.Soldier76, team, 4, Vector(idx * 3, 0, 6));
-      MinWait();
-
-      // StartHealOverTime(LastCreatedEntity(), null, NUMBER_MAX, NUMBER_MAX);
-      // SetStatus(LastCreatedEntity(), null, Status.Unkillable);
     }
   }
 }
@@ -72,4 +65,11 @@ if(WorkshopSettingToggle("Debug", "Start or stop modifier with Interact button",
     Wait(0.1);
     SetModifier(RandomizeModifier(enabledModifiers - modifierHistory));
   }
+}
+
+rule: '[Debug] Start next modifier'
+Event.OngoingPlayer
+if(IsButtonHeld(HostPlayer(), Button.Reload))
+{
+  Damage(EP, null, 50);
 }
