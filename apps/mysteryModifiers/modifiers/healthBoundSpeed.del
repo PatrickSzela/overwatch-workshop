@@ -29,4 +29,5 @@ if(CurrentModifierIs(HEALTH_BOUND_SPEED_NAME) && ModifierInProgress())
   WaitUntilModifierIsOverOrCondition(scale != EvaluateOnce(scale));
   MinWait();
   LoopIfConditionIsTrue();
+  SetMoveSpeed(EventPlayer(), 100);
 }
