@@ -4,7 +4,7 @@ import '../navigation/index.del';
 import './state.del';
 
 // let's keep this as a rule here instead of part of the ButtonDown logic so the button handling rule below can work only while menu is open
-rule: '[libs/menu/rules.del] Handle toggle open menu buttons'
+rule: '[libs/ui/menu/rules.del] Handle toggle open menu buttons'
 Event.OngoingPlayer
 if(IsDummyBot() == false)
 if(HeldButtonsOf() == menuState.toggleOpenKeybind)
@@ -12,14 +12,14 @@ if(HeldButtonsOf() == menuState.toggleOpenKeybind)
   menuState.SetOpen(!menuState.IsOpen());
 }
 
-rule: '[libs/menu/rules.del] Reenable crouch after menu is open for toggle crouch users' 99
+rule: '[libs/ui/menu/rules.del] Reenable crouch after menu is open for toggle crouch users' 99
 Event.OngoingPlayer
 if(menuState.IsOpen())
 {
   AllowButton(EP, Button.Crouch);
 }
 
-rule: '[libs/menu/rules.del] Trigger component actions when button is pressed'
+rule: '[libs/ui/menu/rules.del] Trigger component actions when button is pressed'
 Event.OngoingPlayer
 if(menuState.IsOpen())
 if(HeldButtonsOf())
@@ -35,7 +35,7 @@ if(HeldButtonsOf())
   }
 }
 
-rule: '[libs/menu/rules.del] Handle go back'
+rule: '[libs/ui/menu/rules.del] Handle go back'
 Event.OngoingPlayer
 if(menuState.IsOpen())
 if(menuState.IsNavigationEnabled())
@@ -45,7 +45,7 @@ if(menuState.IsActionButtonHeld(BUTTON_BACK))
   menuWindows[menuState.FocusedWindowLocation()].GoBack();
 }
 
-rule: '[libs/menu/rules.del] Handle switch window'
+rule: '[libs/ui/menu/rules.del] Handle switch window'
 Event.OngoingPlayer
 if(menuState.IsOpen())
 if(menuState.IsNavigationEnabled())
@@ -56,7 +56,7 @@ if(menuState.IsActionButtonHeld(BUTTON_SWITCH) || !menuState.FocusedWindow().ope
   menuState.SetFocusedWindow(locations[ClampFlip(idx, 0, locations.Length)]);
 }
 
-rule: '[libs/menu/rules.del] Handle navigation'
+rule: '[libs/ui/menu/rules.del] Handle navigation'
 Event.OngoingPlayer
 if(menuState.IsOpen())
 if(menuState.IsNavigationEnabled())
@@ -68,7 +68,7 @@ if(UiNavigationDirectionOf())
   LoopIfConditionIsTrue();
 }
 
-// rule: '[libs/menu/rules.del] Rerender focused window on navigation or button press/release'
+// rule: '[libs/ui/menu/rules.del] Rerender focused window on navigation or button press/release'
 // Event.OngoingPlayer
 // if(menuState.IsOpen())
 // {
@@ -81,7 +81,7 @@ if(UiNavigationDirectionOf())
 //   LoopIfConditionIsTrue();
 // }
 
-rule: '[libs/menu/rules.del] Rerender all windows on menu open/close'
+rule: '[libs/ui/menu/rules.del] Rerender all windows on menu open/close'
 Event.OngoingPlayer
 if(IsDummyBot() == false)
 {
@@ -90,7 +90,7 @@ if(IsDummyBot() == false)
   Loop();
 }
 
-rule: '[libs/menu/rules.del] Menu loop logic' 99999
+rule: '[libs/ui/menu/rules.del] Menu loop logic' 99999
 Event.OngoingPlayer
 if(menuState.IsLoading())
 {
