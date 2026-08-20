@@ -48,12 +48,8 @@ struct MenuWindow {
     in String rootPageId = null, 
     in Boolean open = true,
     in Description[] windowDescriptions = [], 
-    in Description[] closedDescriptions = [
-      // Description.New(
-      //   description: $"Press {ButtonFormatter_Underscores(menuState.toggleOpenKeybind)} to toggle Menu", 
-      //   color: COLOR_NEUTRAL
-      // )
-    ]): {
+    in Description[] closedDescriptions = []
+  ): {
     componentIds: [],
     focusedComponentId: null,
     rootPageId: rootPageId,
@@ -446,7 +442,7 @@ struct MenuWindow {
       String value! = component.value;
       
       // TODO: figure out a better way to do this
-      if(component.name && ![MenuCheckbox.TYPE, MenuRadio.TYPE].Contains(component.type))
+      if(component.name && !MenuComponentRegistry.RenderValueFromComponent(component.type))
         value = menuStore.Get(component.name);
         
       if(menuComponents[idx].valueFormatter)

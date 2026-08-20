@@ -44,7 +44,8 @@ class MenuRadio {
           order: ButtonDescriptionOrder(BUTTON_SELECT)
         )
       ],
-      renderer: RENDERER
+      renderer: RENDERER,
+      renderValueFromComponent: true
     );
   }
 }

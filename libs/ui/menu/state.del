@@ -33,6 +33,11 @@ single struct MenuState {
     focusedWindowLocation: initialFocusedWindow,
   };
 
+  public ref Description ToggleOpenDescription(): Description.New(
+    description: $"Press {ButtonFormatter_Underscores(menuState.toggleOpenKeybind)} to toggle Menu", 
+    color: COLOR_NEUTRAL
+  );
+
   # Whether player has access to menu.
   public ref Boolean IsEnabled(): enabled;
 

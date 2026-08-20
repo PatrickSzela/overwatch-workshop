@@ -32,8 +32,8 @@ if(HeroOf()) // HasSpawned() is unreliable when moving player to a different tea
 {
   menuState = MenuState.New(EP == HP, MENU_OPEN_CLOSE_BUTTONS);
   MenuWindow.SetMultiple(
-    left: MenuWindow.New('index'), 
-    right: MenuWindow.New('right', false, [], [])
+    left: MenuWindow.New('index', true, [], [menuState.ToggleOpenDescription()]), 
+    right: MenuWindow.New('right', false)
   );
 }
 

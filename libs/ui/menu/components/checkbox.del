@@ -50,7 +50,8 @@ class MenuCheckbox {
           order: ButtonDescriptionOrder(BUTTON_INVERT)
         )
       ],
-      renderer: RENDERER
+      renderer: RENDERER,
+      renderValueFromComponent: true
     );
   }
 }

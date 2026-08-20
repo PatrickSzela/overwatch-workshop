@@ -80,18 +80,13 @@ struct MenuComponent {
 
   public static void RemoveMultiple(in Any[] ids) {
     Any[] idxsToRemove! = ids.Map((i) => MenuComponent.GetIndexFromId(i));
-    // TODO: we can use normal filter here since we use indexes already?
-    menuComponents = FilterStruct(menuComponents, (c, idx) => !idxsToRemove.Contains(idx));
+    // TODO: figure out why this doesn't work
     // menuComponents = menuComponents.Filter((i, idx) => !idxsToRemove.Contains(idx));
+    menuComponents = FilterStruct(menuComponents, (c, idx) => !idxsToRemove.Contains(idx));
   }
 
   public static void RemoveAll() {
     menuComponents = [];
-  }
-
-  # Render component.
-  public ref void Render() {
-    shouldRerender = true;
   }
   
   # Marks all components to be rerendered.
@@ -172,6 +167,11 @@ struct MenuComponent {
   # Remove all current page's descriptions.
   public ref void RemoveAllDescriptions() {
     descriptions = [];
+  }
+
+  # Render component.
+  public ref void Render() {
+    shouldRerender = true;
   }
 }
 
