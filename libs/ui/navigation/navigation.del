@@ -16,11 +16,6 @@ Boolean IsUiNavigationAllowed(in Player player = EP): player._uiNavigationState 
 void SetUiNavigationEnabled(Player player! = EP, Boolean enabled!) "[libs/ui/navigation/navigation.del] Set UI Navigation Enabled" {
   player._uiNavigationState = enabled ? 1 : 0;
   SetFrozen(player, enabled);
-  
-  if(enabled) 
-    DisableHeroHud(player);
-  else
-    EnableHeroHud(player);
 }
 
 Vector _UiNavigationMagnitude(in Player player = EP): 

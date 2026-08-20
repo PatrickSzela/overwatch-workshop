@@ -235,10 +235,12 @@ struct Grid {
 
   public ref void Enable(in Player player = EP) {
     SetUiNavigationEnabled(player, true);
+    DisableHeroHud(EP);
   }
 
   public ref void Disable(in Player player = EP) {
     SetUiNavigationEnabled(player, false);
+    EnableHeroHud(EP);
   }
 
   public ref void Navigate(in Vector direction) {
