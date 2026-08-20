@@ -17,7 +17,7 @@ class MenuTimelineControls {
   public static MenuComponentProps PLAY_PAUSE: 
     MenuButton.New(
       id: PLAY_PAUSE_ID,
-      label: 'Play/pause',
+      label: 'Play',
       primaryAction: PageTimeline.PlayPauseTimelineActionRef()
     );
 

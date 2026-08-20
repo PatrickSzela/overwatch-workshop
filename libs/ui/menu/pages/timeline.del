@@ -5,11 +5,12 @@ import '../../../timeline/index.del';
 
 globalvar Timeline timeline = Timeline.New();
 
+// TODO: move to beginning 
 enum MenuTimelineActionId {
-  ADD_ACTION_TO_TIMELINE = -1,
-  PLAY_PAUSE_TIMELINE = -2,
-  SET_REPEAT_TIMELINE = -3,
-  STOP_TIMELINE = -4
+  ADD_ACTION_TO_TIMELINE = 12,
+  PLAY_PAUSE_TIMELINE = 13,
+  SET_REPEAT_TIMELINE = 14,
+  STOP_TIMELINE = 15
 }
 
 class PageTimeline {
