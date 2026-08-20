@@ -1,5 +1,4 @@
 import '../../../pickPosition/pickPosition.del';
-import '../../../utils/number/rampUp.del';
 import '../../navigation/index.del';
 import './value.del';
 
@@ -69,6 +68,11 @@ class MenuPositionPicker {
           order: -17
         ),
         Description.New(
+          description: UseToFormatter($"{WithUnderscores(BUTTON_SWITCH)}", 'speed up'), 
+          renderMode: DescriptionRenderMode.WindowFocused,
+          order: -16
+        ),
+        Description.New(
           description: PressToFormatter(WithUnderscores(BUTTON_PRIMARY), 'set position'), 
           renderMode: DescriptionRenderMode.WindowFocusedAndNavigationEnabled,
           order: ButtonDescriptionOrder(BUTTON_PRIMARY)
@@ -79,9 +83,8 @@ class MenuPositionPicker {
   }
 
   public static void CreateMarker(in String label, in String name) {
-    pickPosition.CreateAdditionalSphere(
-      position: menuStore.Get(EvaluateOnce(name)),
-      text: $"{label}: {menuStore.Get(EvaluateOnce(name))}"
+    pickPosition.CreateMarker(
+      text: $"{label}: {pickPosition.position}"
     );
   }
 }
@@ -89,14 +92,12 @@ class MenuPositionPicker {
 rule: '[libs/ui/menu/components/positionPicker.del] Enable/disable vector picker'
 Event.OngoingPlayer
 if(menuState.IsOpen())
-if(menuState.IsNavigationEnabled())
 if(menuState.FocusedComponent().type == MenuPositionPicker.TYPE)
 {
-  pickPosition.Enable();
+  pickPosition.Enable(menuStore.Get(menuState.FocusedComponent().name));
 
   WaitForeverUntil(
     menuState.IsOpen() == false || 
-    !menuState.IsNavigationEnabled() || 
     menuState.FocusedComponent().type != MenuPositionPicker.TYPE
   );
 
@@ -111,44 +112,20 @@ if(menuState.IsActionButtonHeld(MenuPositionPicker.BUTTON_EDIT_MODE))
 {
   Boolean editMode: menuState.IsNavigationEnabled();
 
+  pickPosition.SetManualEditing(editMode);
   menuState.SetNavigationEnabled(!editMode);
   menuState.RenderFocusedComponent();
-}
-
-rule: '[libs/ui/menu/components/positionPicker.del] Handle navigation' -1
-Event.OngoingPlayer
-if(menuState.IsOpen())
-if(menuState.IsNavigationEnabled() == false)
-if(menuState.FocusedComponent().type == MenuPositionPicker.TYPE)
-if(IsNavigatingUi() || menuState.IsActionButtonHeld(PickPosition.DISTANCE_INCREASE) || menuState.IsActionButtonHeld(PickPosition.DISTANCE_DECREASE))
-{
-  StartRampingUp();
-
-  String name! = menuState.FocusedComponent().name;
-  Vector value! = menuStore.Get(name);
-
-  Vector offset: (
-    ThrottleOf() + 
-    (
-      menuState.IsActionButtonHeld(PickPosition.DISTANCE_INCREASE) ? Up() : 
-      menuState.IsActionButtonHeld(PickPosition.DISTANCE_DECREASE) ? Down() : Vector.Zero
-    )
-  ) * RoundToInteger(RampUpValue() * 10) / 100;
-
-  menuStore.SetWithoutRendering(name, value + offset);
-  MinWait();
-  LoopIfConditionIsTrue();
-
-  menuState.RenderFocusedComponent();
-  StopRampingUp();
 }
 
 rule: '[libs/ui/menu/components/positionPicker.del] Set value from vector picker' -1
 Event.OngoingPlayer
 if(menuState.IsOpen())
-if(menuState.IsNavigationEnabled())
 if(menuState.FocusedComponent().type == MenuPositionPicker.TYPE)
-if(menuState.IsActionButtonHeld(BUTTON_PRIMARY))
+if(menuState.IsActionButtonHeld(BUTTON_PRIMARY) || pickPosition.IsManualEditing() && pickPosition.IsEditing())
 {
+  if(pickPosition.IsManualEditing())
+    WaitForeverUntil(!pickPosition.IsEditing());
+
+  pickPosition.SetPosition();
   menuStore.Set(menuState.FocusedComponent().name, pickPosition.Position());
 }

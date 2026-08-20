@@ -1,5 +1,4 @@
 import '../utils/index.del';
-import '../utils/number/rampUp.del';
 
 playervar PickPosition pickPosition = PickPosition.New();
 
@@ -7,17 +6,27 @@ single struct PickPosition {
   public static Number INITIAL_DISTANCE: 50;
   public static Number RADIUS: 0.25;
   public static Number TEXT_SIZE: 1;
-  public static Button DISTANCE_INCREASE: BUTTON_INCREASE;
-  public static Button DISTANCE_DECREASE: BUTTON_DECREASE;
 
-  public static Vector RayCast(in Player player, in Number distance = INITIAL_DISTANCE, in Player[] playersToExclude = []): 
-    RayCastHitPosition(player.EyePosition(), player.EyePosition() + player.FacingDirection() * distance, [], playersToExclude, false);
-  public Vector Position(): RayCast(EP, raycastDistance);
-  public Number Distance(): EP.EyePosition().DistanceTo(Position());
-  public Boolean IsEnabled(): active;
+  public static Vector RayCast(
+    Player player, 
+    Number distance = INITIAL_DISTANCE, 
+    Player[] playersToExclude = []
+  ): RayCastHitPosition(
+      StartPOS:player.EyePosition(), 
+      EndPOS: player.EyePosition() + player.FacingDirection() * distance, 
+      PlayersToInclude: [], 
+      PlayersToExclude: playersToExclude, 
+      IncludePlayerOwnedObjects: false
+    );
+
+  public Vector RayCastPosition(): RayCast(EP, raycastDistance);
+  public Number Distance(): EP.EyePosition().DistanceTo(RayCastPosition());
 
   public Number raycastDistance;
-  private Boolean active;
+  private Boolean enabled;
+  public Boolean manualEditing;
+  public Boolean editing;
+  public Vector position;
 
   private Any[] effects = [];
   private Any[] texts = [];
@@ -25,22 +34,26 @@ single struct PickPosition {
   private Any[] additionalTexts = [];
 
   public static PickPosition New(): 
-    { raycastDistance: INITIAL_DISTANCE, active: false, effects: [], texts: [], additionalEffects: [], additionalTexts: [] };
+    { raycastDistance: INITIAL_DISTANCE, enabled: false, manualEditing: false, editing: false, position: null, effects: [], texts: [], additionalEffects: [], additionalTexts: [] };
 
-  public ref void Enable(in Color color = Color.Red) {
-    active = true;
+  public Boolean IsEnabled(): enabled;
+
+  public ref void Enable(in Vector initialPosition, in Color color = Color.Red) {
+    enabled = true;
+    position = initialPosition;
 
     Render(
       effectStorage: effects,
       textStorage: texts,
       color: color,
-      position: Position(),
-      text: $"Position: {Position()}\nDistance: {Distance() + 0.001 / 10} m\nRay Cast Distance: {raycastDistance + 0.001 / 10} m"
+      position: RayCastPosition(),
+      text: $"Position: {RayCastPosition()}\nDistance: {Distance() + 0.001 / 10} m\nRay Cast Distance: {raycastDistance + 0.001 / 10} m",
+      visibility: !manualEditing
     );
   }
 
   public ref void Disable() {
-    active = false;
+    enabled = false;
 
     foreach(Any effect! in effects)
       DestroyEffect(effect);
@@ -51,15 +64,47 @@ single struct PickPosition {
     texts = [];
   }
 
+  public Boolean IsEditing(): editing; 
+
+  public Boolean IsManualEditing(): manualEditing;
+
+  public ref void SetManualEditing(in Boolean value) {
+    manualEditing = value;
+  }
+
+  public Vector Position(): position;
+
+  public ref void SetPosition() {
+    if(!manualEditing)
+      position = RayCastPosition();
+  }
+
   # NOTE: only use in rule
-  public ref void RULE_UpdateRaycastDistance() {
-    raycastDistance = Max(1, raycastDistance + RampUpValue() * (IsButtonHeld(EP, BUTTON_INCREASE) ? 1 : -1));
+  public ref void RULE_Update() {
+    editing = true;
+
+    Vector offset! = (
+      ThrottleOf() + 
+      (
+        IsButtonHeld(EP, BUTTON_INCREASE) ? Up() : 
+        IsButtonHeld(EP, BUTTON_DECREASE) ? Down() : 
+        Vector.Zero
+      )
+    ) * (IsButtonHeld(EP, BUTTON_SWITCH) ? 0.2 : 0.01);
+
+    if(manualEditing) {
+      position += offset;
+    } else {
+      raycastDistance = Max(1, raycastDistance + offset.Y);
+    }
+
     MinWait();
     LoopIfConditionIsTrue();
+    editing = false;
   }
 
   // TODO: move to MarkPosition
-  public ref void CreateAdditionalSphere(in Vector position, in Color color = Color.Green, in String text = null, in Boolean visibility = true) {
+  public ref void CreateMarker(in Vector position = position, in Color color = Color.Green, in String text = null, in Boolean visibility = true) {
     Render(
       effectStorage: additionalEffects,
       textStorage: additionalTexts,
@@ -82,7 +127,7 @@ single struct PickPosition {
 
   public ref void Render(ref Any[] effectStorage, ref Any[] textStorage, in Vector position, in Color color, in String text = null, in Boolean visibility = true) {
     effectStorage += CreateEffect(
-      VisibleTo: visibility ? EventPlayer() : null,
+      VisibleTo: visibility ? EP : null,
       Type: Effect.Sphere,
       Color: color,
       Position: UpdateEveryFrame(position),
@@ -92,7 +137,7 @@ single struct PickPosition {
 
     if(text.Length) {
       textStorage += CreateInWorldText(
-        VisibleTo: visibility ? EventPlayer() : null,
+        VisibleTo: visibility ? EP : null,
         Header: $"{text}\n",
         Position: UpdateEveryFrame(position),
         Scale: TEXT_SIZE,
@@ -106,7 +151,7 @@ single struct PickPosition {
     Render(effectStorage, textStorage, position, color, text, visibility);
     
     effectStorage += CreateBeamEffect(
-      VisibleTo: visibility ? EventPlayer() : null,
+      VisibleTo: visibility ? EP : null,
       BeamType: BeamType.GrappleBeam,
       StartPosition: lineEnd,
       EndPosition: UpdateEveryFrame(position),
@@ -119,9 +164,7 @@ single struct PickPosition {
 rule: '[libs/pickPosition/pickPosition.del] Update raycast distance'
 Event.OngoingPlayer
 if(pickPosition.IsEnabled())
-if(IsButtonHeld(EP, PickPosition.DISTANCE_INCREASE) || IsButtonHeld(EP, PickPosition.DISTANCE_DECREASE))
+if(ThrottleOf().Magnitude || IsButtonHeld(EP, BUTTON_INCREASE) || IsButtonHeld(EP, BUTTON_DECREASE))
 {
-  StartRampingUp();
-  pickPosition.RULE_UpdateRaycastDistance();
-  StopRampingUp();
+  pickPosition.RULE_Update();
 }
