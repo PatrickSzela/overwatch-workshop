@@ -1,0 +1,36 @@
+import './pages/actionConstructor.del';
+import './components/link.del';
+import './components/text.del';
+
+single struct MenuSimple {
+  public String label;
+  public String linkId;
+  public Any data;
+
+  public static MenuSimple TextLink(String label = ' ', String linkId = null):
+    {label: label, linkId: linkId, data: null};
+
+  public static MenuSimple Action(String label, Any actionId):
+    {label: label, linkId: PageActionConstructor.ID, data: actionId};
+
+  public static void Create(in String id, in String title, in MenuSimple[] data) {
+    _MenuSimpleCreate(id, title, data);
+  }
+}
+
+// WORKAROUND: #560
+void _MenuSimpleCreate(String id!, String title!, MenuSimple[] data!) "[libs/ui/menu/simple.del] Create Simple Page" {
+  menuState.CreatePage(
+    id: id,
+    title: title,
+    componentIds: MenuComponent.Add(data.Map((i) =>
+      MenuComponentProps.New(
+        type: i.linkId ? MenuLink.TYPE : MenuText.TYPE, 
+        label: i.label,
+        value: i.linkId,
+        enabled: i.linkId,
+        options: i.data
+      )
+    ))
+  );
+}

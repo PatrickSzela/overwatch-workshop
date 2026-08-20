@@ -1,0 +1,64 @@
+import '../state.del';
+import './component.del';
+
+class MenuLink {
+  public static Number TYPE: 2;
+  public static Button BUTTON_OPEN: BUTTON_PRIMARY;
+  public static ((Number, String, Any) => String) RENDERER: 
+    (idx, label, value) => $"{label} »";
+
+  public static MenuComponentProps New(
+    in String label,
+    in String pageId,
+    in Any pageData = null,
+    in String id = null,
+    in String name = null,
+    in Description[] descriptions = [],
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: label,
+    id: id,
+    name: name,
+    value: pageId,
+    options: pageData,
+    descriptions: descriptions,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    quaternaryAction: quaternaryAction,
+    color: color,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(
+      type: TYPE, 
+      descriptions: [
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_OPEN), 'open'),
+          order: ButtonDescriptionOrder(BUTTON_OPEN)
+        )
+      ],
+      renderer: RENDERER
+    );
+  }
+}
+
+rule: '[libs/ui/menu/components/link.del] Open page on button press' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.FocusedComponent().type == MenuLink.TYPE)
+if(menuState.IsActionButtonHeld(MenuLink.BUTTON_OPEN))
+{
+  String pageId! = menuState.FocusedComponent().value;
+  Any data! = menuState.FocusedComponent().options;
+
+  if(data)
+    menuStore.SetOrAdd($"{pageId}_data", data);
+
+  menuState.OpenPage(pageId);
+}

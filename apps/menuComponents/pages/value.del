@@ -1,0 +1,79 @@
+import '../../../libs/ui/menu/components/value.del';
+import '../../../libs/ui/menu/simple.del';
+
+class PageValue {
+  public static String ID: 'value';
+  public static String TITLE: 'Value';
+
+  public static String EMPTY_NAME: 'value_empty';
+  public static String NUMBER_NAME: 'value_number';
+  public static String STRING_NAME: 'value_string';
+  public static String POSITION_NAME: 'value_position';
+  public static String HERO_NAME: 'value_hero';
+  
+  public static Any[][] STORE: [
+    [EMPTY_NAME],
+    [NUMBER_NAME, 123.45],
+    [STRING_NAME, "hello :)"],
+    [POSITION_NAME, EP.Position()],
+    [HERO_NAME, EP.Hero()]
+  ];
+
+  public static Action TELEPORT: Action.New(
+    name: 'Teleport',
+    argumentIds: [
+      MenuActionArgumentId.PLAYERS,
+      MenuActionArgumentId.POSITION
+    ],
+    function: (args) => { 
+      Teleport(args[0], args[1]); 
+    }
+  );
+
+  public static Action UPDATE_TELEPORT_POSITION: Action.New(
+    name: 'Update teleport position',
+    function: (args) => { 
+      menuStore.Set(POSITION_NAME, EP.Position()); 
+    }
+  );
+
+  public static String[] Components() {
+    return MenuComponent.Add([
+      MenuValue.New(label: 'Empty', name: EMPTY_NAME),
+      MenuValue.New(label: 'Number', name: NUMBER_NAME),
+      MenuValue.New(label: 'String', name: STRING_NAME),
+      MenuValue.New(
+        label: 'vector with actions', 
+        name: POSITION_NAME, 
+        primaryAction: 
+          MenuActionRef.New(MenuActionId.TELEPORT, [POSITION_NAME], 'teleport'),
+        secondaryAction: 
+          MenuActionRef.New(MenuActionId.UPDATE_TELEPORT_POSITION, null, 'update teleport position'),
+      ),
+      MenuValue.New(
+        label: 'hero with formatter', 
+        name: HERO_NAME, 
+        valueFormatter: (value) => HeroWithIconFormatter(value)
+      )
+    ]);
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
+}
+
+rule: '[apps/menuComponents/pages/value.del] Create page' 100
+Event.OngoingPlayer
+if(PageValue.IsOpen())
+{
+  PageValue.Create();
+}

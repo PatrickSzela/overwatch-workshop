@@ -1,0 +1,76 @@
+import '../../navigation/index.del';
+import '../state.del';
+import './component.del';
+
+class MenuCarousel {
+  public static Number TYPE: 5;
+  public static ((Number, String, Any) => String) RENDERER: 
+    (idx, label, value) => 
+      $"{label}: {menuComponents[idx].options.Length ? '{0}{1}{2}'.Format(['‹ ', value, ' ›']) : 'Empty'}";
+  
+  public static MenuComponentProps New(
+    in String label,
+    in String name,
+    in Any[] options,
+    in String id = null,
+    in ((Any) => String) valueFormatter = null,
+    in Description[] descriptions = [],
+    in MenuActionRef primaryAction = null,
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: label,
+    id: id,
+    name: name,
+    valueFormatter: valueFormatter,
+    options: options,
+    descriptions: descriptions,
+    primaryAction: primaryAction,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    quaternaryAction: quaternaryAction,
+    color: color,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(
+      type: TYPE, 
+      descriptions: [
+        Description.New(
+          description: UseToFormatter(LEFT_RIGHT, 'change value'),
+          order: -19,
+          renderMode: DescriptionRenderMode.WindowFocused
+        )
+      ],
+      renderer: RENDERER
+    );
+  }
+}
+
+rule: '[libs/ui/menu/components/carousel.del] Change value on navigation' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.FocusedComponent().type == MenuCarousel.TYPE)
+if(IsUiNavigationAllowed())
+if(UiNavigationDirectionOf().X)
+{
+  Number idx! = menuState.FocusedComponentIndex();
+  String name: menuComponents[idx].name;
+  Any[] options! = menuComponents[idx].options;
+  Number optionIndex! = options.IndexOf(menuStore.Get(name));
+
+  if(optionIndex == -1) {
+    optionIndex = 0;
+  } else {
+    optionIndex += UiNavigationDirectionOf().X;
+    optionIndex = ClampFlip(optionIndex, 0, options.Length - 1);
+  }
+
+  menuComponents[idx].value = optionIndex;
+  menuStore.Set(name, options[optionIndex]);
+}

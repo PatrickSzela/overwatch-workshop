@@ -1,4 +1,4 @@
-import '../../../libs/menu/components/numberInput.del';
+import '../../../libs/ui/menu/components/numberInput.del';
 import '../_variables.del';
 
 String PAGE_MAPPING_ACCURACY_ID: 'mappingAccuracy';

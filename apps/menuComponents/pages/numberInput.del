@@ -1,48 +1,77 @@
-import '../../../libs/menu/components/numberInput.del';
-import '../_variables.del';
+import '../../../libs/ui/menu/components/numberInput.del';
+import '../../../libs/ui/menu/simple.del';
 
-String PAGE_DEBUG_NUMBER_INPUT_ID: 'numberInput';
-String PAGE_DEBUG_NUMBER_INPUT_NAME: 'Number Input';
+class PageNumberInput {
+  public static String ID: 'numberInput';
+  public static String TITLE: 'Number Input';
 
-Component[] PageDebugNumberInputItems() {
-  NumberInput[] list = [new NumberInput(menuState, "Integer")];
-  list.Last.onChange = (value, it) => Log($"{it.text}: value changed to {value}");
+  public static String INTEGER_NAME: 'numberInput_integer';
+  public static String FLOAT_NAME: 'numberInput_float';
+  public static String INTEGER_DEFAULT_NAME: 'numberInput_integer_default';
+  public static String FLOAT_DEFAULT_NAME: 'numberInput_float_default';
 
-  list += new NumberInput(
-    menuState: menuState, 
-    text: "Float",
-    fractionalLength: 2
-  );
-  list.Last.onChange = (value, it) => Log($"{it.text}: value changed to {value}");
+  public static Any[][] STORE: [
+    [INTEGER_NAME],
+    [FLOAT_NAME],
+    [INTEGER_DEFAULT_NAME, 12345],
+    [FLOAT_DEFAULT_NAME, -1234.567]
+  ];
 
-  list += new NumberInput(
-    menuState: menuState, 
-    text: "Integer with 5 length and default value",
-    integralLength: 5,
-    defaultValue: 12345
-  );
-  list.Last.onChange = (value, it) => Log($"{it.text}: value changed to {value}");
+  public static String[] Components() {
+    return MenuComponent.Add([
+      MenuNumberInput.New(
+        label: "Integer",
+        name: INTEGER_NAME
+      ),
+      MenuNumberInput.New(
+        label: "Float",
+        name: FLOAT_NAME,
+        fractionalLength: 2
+      ),
+      MenuNumberInput.New(
+        label: "Integer with 5 length and default value",
+        name: INTEGER_DEFAULT_NAME,
+        integralLength: 5
+      ),
+      MenuNumberInput.New(
+        label: "Float with 4+3 length, default value and unit",
+        name: FLOAT_DEFAULT_NAME,
+        integralLength: 4,
+        fractionalLength: 3,
+        negative: true,
+        unit: '%'
+      )
+    ]);
+  }
 
-  list += new NumberInput(
-    menuState: menuState, 
-    text: "Float with 4+3 length, default value and unit",
-    defaultValue: -1234.5678,
-    integralLength: 4,
-    fractionalLength: 3,
-    negative: true,
-    unit: '%'
-  );
-  list.Last.onChange = (value, it) => Log($"{it.text}: value changed to {value}");
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
 
-  return list;
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
 }
 
-rule: 'Debug/NumberInput'
+rule: '[apps/menuComponents/pages/numberInput.del] Create page' 100
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_NUMBER_INPUT_ID)
+if(PageNumberInput.IsOpen())
 {
-  menuState.CreatePage(
-    title: PAGE_DEBUG_NUMBER_INPUT_NAME, 
-    items: PageDebugNumberInputItems()
-  );
+  PageNumberInput.Create();
 }
+
+rule: '[apps/menuComponents/pages/numberInput.del] Log value on \"Float with 4+3 length\" change'
+Event.OngoingPlayer
+{
+  Boolean value: menuStore.Get(PageNumberInput.FLOAT_DEFAULT_NAME);
+  WaitForeverUntilValueChanges(value);
+
+  Log($'{PageNumberInput.FLOAT_DEFAULT_NAME}: value changed to {value}');
+
+  Loop();
+}
+

@@ -1,0 +1,62 @@
+import '../state.del';
+import './component.del';
+
+class MenuRadio {
+  public static Number TYPE: 7;
+  public static Button BUTTON_SELECT: BUTTON_PRIMARY;
+  public static ((Number, String, Any) => String) RENDERER: 
+    (idx, label, value) => 
+      $"{RadioFormatter(menuStore.Get(menuComponents[idx].name) == menuComponents[idx].value)} {label}{value}";
+
+  public static MenuComponentProps New(
+    in String name,
+    in Any value,
+    in String id = null,
+    in String label = '',
+    in ((Any) => String) valueFormatter = null,
+    in Description[] descriptions = [],
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: label,
+    id: id,
+    name: name,
+    value: value,
+    valueFormatter: valueFormatter,
+    descriptions: descriptions,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    quaternaryAction: quaternaryAction,
+    color: color,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(
+      type: TYPE, 
+      descriptions: [
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_SELECT), 'select'),
+          order: ButtonDescriptionOrder(BUTTON_SELECT)
+        )
+      ],
+      renderer: RENDERER
+    );
+  }
+}
+
+rule: '[libs/ui/menu/components/radio.del] Toggle selection on button press' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.FocusedComponent().type == MenuRadio.TYPE)
+if(menuState.IsActionButtonHeld(MenuRadio.BUTTON_SELECT))
+{
+  Number idx! = menuState.FocusedComponentIndex();
+  String name: menuComponents[idx].name;
+  String value: menuComponents[idx].value;
+  menuStore.Set(name, value);
+}

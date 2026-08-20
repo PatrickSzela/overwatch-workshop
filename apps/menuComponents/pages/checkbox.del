@@ -1,31 +1,53 @@
-import '../../../libs/menu/components/checkbox.del';
-import '../../../libs/utils/index.del';
-import '../_variables.del';
+import '../../../libs/ui/menu/components/checkbox.del';
+import '../../../libs/ui/menu/simple.del';
 
-String PAGE_DEBUG_CHECKBOX_ID: 'checkbox';
-String PAGE_DEBUG_CHECKBOX_NAME: 'Checkbox';
+class PageCheckbox {
+  public static String ID: 'checkbox';
+  public static String TITLE: 'Checkbox';
 
-Component[] PageDebugCheckboxItems() {
-  Checkbox[] items = [];
+  public static String NAME: ID;
 
-  for(Number i! = 1; i <= 10; i++) {
-    items += new Checkbox(
-      text: $"Item {i}", 
-      defaultChecked: i == 5
+  public static Any[][] STORE: [
+    [NAME, [1, 2, 3]]
+  ];
+
+  public static String[] Components() {
+    return MenuComponent.Add(ArrayOfLength<Any>(9).Map((_, i) => 
+      MenuCheckbox.New(
+        label: "Checkbox ",
+        name: NAME,
+        value: i + 1
+      ))
     );
-
-    items.Last.onChange = (checked, it) => Log($'{it.text}: value changed to {checked}');
   }
 
-  return items;
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
 }
 
-rule: 'Debug/Checkbox'
+rule: '[apps/menuComponents/pages/checkbox.del] Create page' 100
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_CHECKBOX_ID)
+if(PageCheckbox.IsOpen())
 {
-  menuState.CreatePage(
-    title: PAGE_DEBUG_CHECKBOX_NAME, 
-    items: PageDebugCheckboxItems()
-  );
+  PageCheckbox.Create();
+}
+
+rule: '[apps/menuComponents/pages/checkbox.del] Log value on change'
+Event.OngoingPlayer
+{
+  Boolean value: menuStore.Get(PageCheckbox.NAME);
+  WaitForeverUntilValueChanges(value);
+
+  Log($'{PageCheckbox.NAME}: values changed to [{Join(value)}]');
+
+  Loop();
 }

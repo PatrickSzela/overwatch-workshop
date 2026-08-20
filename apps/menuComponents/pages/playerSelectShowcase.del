@@ -1,0 +1,173 @@
+import '../../../libs/ui/menu/components/button.del';
+import '../../../libs/ui/menu/components/carousel.del';
+import '../../../libs/ui/menu/pages/playerSelect.del';
+import '../../../libs/ui/menu/simple.del';
+import '../../../libs/playerSnapshot.del';
+import '../../../libs/utils/player/sortedHeroes.del';
+
+playervar Number botId;
+
+class PagePlayerSelectShowcase {
+  public static String ID: 'playerSelectShowcase';
+  public static String TITLE: 'Select players showcase';
+
+  public static Number botIdx = 1;
+
+  public static String TEAM_NAME: 'playerSelectShowcase_team';
+  public static String HERO_NAME: 'playerSelectShowcase_hero';
+
+  public static Any[][] STORE: [
+    [TEAM_NAME, TeamOf()],
+    [HERO_NAME, HeroOf()]
+  ];
+
+  public static Action SPAWN_BOT_ACTION: Action.New(
+    name: 'Spawn bot', 
+    argumentIds: [
+      MenuActionArgumentId.HERO,
+      MenuActionArgumentId.TEAM
+    ], 
+    function: (args) => {
+      Player bot! = CreateDummyBotWithMessageOnFail(args[0], args[1], -1);
+      if(bot) {
+        bot.botId = botIdx;
+        botIdx++;
+      }
+    }
+  );
+  public static MenuActionRef SpawnBotActionRef():
+    MenuActionRef.New(MenuActionId.SPAWN_BOT, [HERO_NAME, TEAM_NAME], "apply");
+
+  public static MenuActionRef ChangeHeroActionRef():
+    MenuActionRef.New(MenuActionId.CHANGE_HERO, [PagePlayerSelect.NAME, HERO_NAME], "change hero of selected players");
+
+  public static Action REMOVE_PLAYER_ACTION: Action.New(
+    name: 'Remove player', 
+    argumentIds: [
+      MenuActionArgumentId.PLAYERS
+    ], 
+    function: (args) => {
+      foreach(Player player! in args[0]) {
+        if(player == EP) {
+          SmallMessage(EP, "You can't remove yourself from the game");
+          continue;
+        }
+
+        if(player.IsDummy())
+          DestroyDummyBot(player);
+        else
+          RemovePlayer(player);
+      }
+    }
+  );
+  public static MenuActionRef RemovePlayerActionRef():
+    MenuActionRef.New(MenuActionId.REMOVE_PLAYER, [PagePlayerSelect.NAME], "apply");
+
+  // this is a very naive implementation of moving players & bots to other team... moving players doesn't really preserve their state though because Workshop is a joke
+  // TODO: don't move player if there are no slots available
+  public static Action MOVE_PLAYER_ACTION: Action.New(
+    name: 'Move player', 
+    argumentIds: [
+      MenuActionArgumentId.PLAYERS,
+      MenuActionArgumentId.TEAM
+    ], 
+    function: (args) => {
+      Player[] players! = (<Player[]>args[0])
+        .Filter((i) => TeamOf(i) != args[1])
+        .Sort((i, idx) => i.IsDummy() ? idx : i == EP ? NUMBER_MAX : idx + 100);
+
+      for(Number i! = 0; i < players.Length; i++) {
+        Player p! = players[i];
+        PlayerSnapshot snap! = PlayerSnapshot.New(p);
+
+        if(p.IsDummy()) {
+          Number snapBotId! = p.botId;
+          DestroyDummyBot(p);
+          MinWait();
+          p = CreateDummyBot(snap.hero, args[1], -1);
+          p.botId = snapBotId;
+        } else {
+          MovePlayerToTeam(p, args[1], -1);
+        }
+
+        MinWait();
+        
+        snap.RestorePosition(p);
+        snap.RestoreFacingDirection(p);
+        snap.RestoreHealth(p);
+        snap.RestoreUltimateCharge(p);
+        snap.RestoreWeapon(p);
+
+        players[i] = p;
+      }
+
+      PagePlayerSelect.SetSelectedPlayers(players);
+    }
+  );
+  public static MenuActionRef MovePlayerActionRef():
+    MenuActionRef.New(MenuActionId.MOVE_PLAYER, [PagePlayerSelect.NAME, TEAM_NAME], "move selected players to team");
+
+  public static String[] Components() {
+    return MenuComponent.Add([
+      MenuText.New("Settings:"),
+      MenuCarousel.New(
+        label: "Team",
+        name: TEAM_NAME,
+        options: AvailableTeams(),
+        primaryAction: MovePlayerActionRef()
+      ),
+      MenuCarousel.New(
+        label: "Hero",
+        name: HERO_NAME,
+        options: SortedHeroes(), 
+        valueFormatter: (value) => HeroWithIconFormatter(value),
+        primaryAction: ChangeHeroActionRef()
+      ),
+      MenuText.New(),
+      MenuButton.New(
+        label: "Spawn a bot",
+        primaryAction: SpawnBotActionRef()
+      ),
+      MenuButton.New(
+        label: "Remove selected players from the game",
+        primaryAction: RemovePlayerActionRef()
+      )
+    ]);
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
+}
+
+rule: '[apps/menuComponents/pages/playerSelectShowcase.del] Create page' 100
+Event.OngoingPlayer
+if(PagePlayerSelectShowcase.IsOpen())
+{
+  PagePlayerSelectShowcase.Create();
+  
+  menuWindows[MenuWindowLocation.Right].SetOpen(true);
+  menuWindows[MenuWindowLocation.Right].OpenPage(PagePlayerSelect.ID, false);
+
+  WaitForeverUntil(!PagePlayerSelectShowcase.IsOpen());
+
+  menuWindows[MenuWindowLocation.Right].SetOpen(false);
+}
+
+rule: '[apps/menuComponents/pages/playerSelectShowcase.del] Update bot\'s name' 99999999
+Event.OngoingPlayer
+if(IsDummyBot())
+if($"BOT #{botId}" != ToString(EP))
+{
+  StartForcingDummyBotName(EP, $"BOT #{botId}");
+  MinWait();
+  LoopIfConditionIsTrue();
+}

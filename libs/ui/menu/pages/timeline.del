@@ -1,0 +1,178 @@
+import '../components/timelineControls.del';
+import '../components/timelineItem.del';
+import '../action.del';
+import '../../../timeline/index.del';
+
+globalvar Timeline timeline = Timeline.New();
+
+enum MenuTimelineActionId {
+  ADD_ACTION_TO_TIMELINE = -1,
+  PLAY_PAUSE_TIMELINE = -2,
+  SET_REPEAT_TIMELINE = -3,
+  STOP_TIMELINE = -4
+}
+
+class PageTimeline {
+  public static String ID: 'timeline';
+  public static String TITLE: 'Timeline';
+  public static Button BUTTON_EDIT_MODE: BUTTON_QUATERNARY;
+
+  public static Action PLAY_PAUSE_TIMELINE: Action.New('Play/pause timeline', null, (args) => {
+    if(timeline.IsPlaying())
+      timeline.Pause();
+    else
+      timeline.Play();
+  });
+  public static MenuActionRef PlayPauseTimelineActionRef():
+    MenuActionRef.New(MenuTimelineActionId.PLAY_PAUSE_TIMELINE, null, "Apply");
+
+  public static Action STOP_TIMELINE: Action.New('Stop playing timeline', null, (args) => {
+    timeline.Stop();
+  });
+  public static MenuActionRef StopTimelineActionRef():
+    MenuActionRef.New(MenuTimelineActionId.STOP_TIMELINE, null, "Apply");
+
+  public static Action SET_REPEAT_TIMELINE: Action.New('Set repeat timeline', null, (args) => {
+    timeline.SetRepeat(args[0]);
+  });
+  public static MenuActionRef SetRepeatTimelineActionRef():
+    MenuActionRef.New(MenuTimelineActionId.SET_REPEAT_TIMELINE, null, "Apply");
+
+  public static Action ADD_ACTION_TO_TIMELINE: Action.New('Add to timeline', null, (args) => {
+    timeline.AddAction(ActionRef.New(args[0], args.Slice(1, NUMBER_MAX)));
+  });
+  public static MenuActionRef AddActionToTimelineActionRef(in Any actionId, in Any[] arguments = []):
+    MenuActionRef.New(MenuTimelineActionId.ADD_ACTION_TO_TIMELINE, [actionId] + arguments, "Add to timeline");
+
+  // public static Action DISABLE_REMOVE_ACTION_FROM_TIMELINE: Action.New('Disable/remove from timeline', null, (args) => {
+  //   timeline.actionRefs[timeline.GetIndexFromId(args[0])].ToggleMark();
+  // });
+  // public static MenuActionRef DisableRemoveActionFromTimelineActionRef(in MenuActionId actionRefId):
+  //   MenuActionRef.New(MenuActionId.DISABLE_REMOVE_ACTION_FROM_TIMELINE, [actionRefId], "mark to disable −> remove −> reset");
+
+  // public static Action MOVE_ACTION_FROM_TIMELINE: Action.New('Toggle move', null, (args) => {
+  //   menuState.SetNavigationEnabled(!menuState.IsNavigationEnabled());
+  // });
+  // public static MenuActionRef MoveActionFromTimelineActionRef(in MenuActionId actionRefId):
+  //   MenuActionRef.New(MenuActionId.MOVE_ACTION_FROM_TIMELINE, [actionRefId], "toggle moving");
+  
+  // public static Action EXECUTE_ACTION_IN_TIMELINE: Action.New('Execute', null, (args) => {
+  //   timeline.ExecuteAction(args[0]);
+  // });
+  // public static MenuActionRef ExecuteActionInTimelineActionRef(in MenuActionId actionRefId):
+  //   MenuActionRef.New(MenuActionId.EXECUTE_ACTION_IN_TIMELINE, [actionRefId], "Execute");
+
+  public static String[] Components() {
+    return [];
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
+
+  public static String GenerateLabel(in ActionRef actionRef) {
+    ActionArgument[] a! = actions[actionRef.actionId].argumentIds.Map((i) => arguments[i]);
+
+    String args! = Join(actionRef.argumentValues.Map((i, idx) => 
+      (
+        a[idx].type == Type.HERO ? HeroWithIconFormatter(i) :
+        a[idx].type == Type.PLAYER ? PlayerWithHeroIconFormatter(i) :
+        a[idx].type == Type.NUMBER ? $"{i}{(<InputSettings>a[idx].data).unit}" :
+        i
+      ) + (CountOf(i) > 1 ? $" +{CountOf(i) - 1}" : "")
+    ));
+
+    return $"{actionRef.id.Replace('timeline_', '')}. {actions[actionRef.actionId].name}" + (args ? $": {args}" : '');
+  }
+}
+
+rule: '[libs/ui/menu/pages/timeline.del] Create page' 100
+Event.OngoingPlayer
+if(PageTimeline.IsOpen())
+{
+  PageTimeline.Create();
+}
+
+rule: '[libs/ui/menu/pages/timeline.del] Execute timeline actions when playing'
+if(timeline.IsPlaying())
+{
+  timeline.RuleLogic();
+}
+
+// TODO: add Go to ID
+// TODO: remove marked items
+// TODO: instead of editing timeline directly, edit timelineDataRef in component, then apply it to the actual timeline?
+// TODO: multiple timelines
+// TODO: store action function implementations in a separate subroutine instead of lambda to reduce lambda's max rule size?
+// TODO: edit action (move args generation to subroutine, make 2 separate pages for action constructor and editor, editor specific for timeline though)
+rule: '[libs/ui/menu/pages/timeline.del] Rerender page on timeline actions change' 101
+Event.OngoingPlayer
+if(PageTimeline.IsOpen())
+{  
+  MenuWindowLocation winIdx! = menuState.LocationOfWindowWithPageOpen(PageTimeline.ID);
+
+  String[] oldIds: menuWindows[winIdx].componentIds;
+  String[] desiredIds! = timeline.actionRefs.Map((i) => i.id);
+
+  String[] idsToAdd! = desiredIds - oldIds;
+  String[] idsToDelete! = oldIds - desiredIds;
+
+  if(idsToAdd.Length) {
+    MenuComponent.Add(idsToAdd.Map((i) => MenuTimelineItem.New(actionId: i)));
+    menuWindows[winIdx].SetFocusedComponent(desiredIds.Last);
+  }
+
+  // TODO: optimize generation of large list
+
+  Any[] timelineActionsChanged! = desiredIds
+    .Map((i, idx) => [idx, MenuComponent.GetIndexFromId(i)])
+    .Filter((i, idx) => timeline.actionRefs[idx] != menuComponents[i[1]].value);
+
+  for(Number w! = 0; w < timelineActionsChanged.Length; w++) {
+    Number i! = timelineActionsChanged[w][0];
+    Number compIdx! = timelineActionsChanged[w][1];
+
+    timeline.actionRefs[i].label = PageTimeline.GenerateLabel(timeline.actionRefs[i]);
+    menuComponents[compIdx].value = timeline.actionRefs[i];
+    menuComponents[compIdx].Render();
+  }
+
+  menuWindows[winIdx].ReorderComponents(desiredIds);
+  
+  if(idsToDelete.Length) {
+    menuWindows[winIdx].DetachComponents(idsToDelete);
+    menuWindows[winIdx].FixFocusedComponent();
+  }
+
+  WaitForeverUntil(timeline.actionRefs != EvaluateOnce(timeline.actionRefs) || !PageTimeline.IsOpen());
+  LoopIfConditionIsTrue();
+}
+
+rule: '[libs/ui/menu/pages/timeline.del] Color current item in timeline when playing' 999999
+Event.OngoingPlayer
+if(PageTimeline.IsOpen())
+if(timeline.actionRefs.Length)
+{
+  MenuWindowLocation winIdx! = menuState.LocationOfWindowWithPageOpen(PageTimeline.ID);
+
+  Number refIdx: timeline.playingIndex;
+  String focusId: timeline.actionRefs[refIdx].id;
+  Number focusIdx! = MenuComponent.GetIndexFromId(focusId);
+
+  menuComponents[focusIdx].Render();
+  menuWindows[winIdx].SetFocusedComponent(focusId);
+  menuWindows[winIdx].UpdateScroll();
+
+  WaitForeverUntil(timeline.playingIndex != EvaluateOnce(timeline.playingIndex) || !PageTimeline.IsOpen());
+  AbortIfConditionIsFalse();
+  
+  menuComponents[focusIdx].Render();
+
+  Loop();
+}

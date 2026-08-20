@@ -1,0 +1,84 @@
+import '../utils/index.del';
+
+globalvar Action[] actions;
+globalvar ActionArgument[] arguments;
+
+single struct ActionArgument {
+  public String name;
+  public Type type;
+  public () => Any[] options;
+  public () => Any defaultValue;
+  public Boolean multiple;
+  public Any data;
+
+  public static ActionArgument New(
+    String name, 
+    Type type, 
+    () => Any[] options = null, 
+    () => Any defaultValue = null, 
+    Boolean multiple = false, 
+    Any data = null
+  ): {
+    name: name, 
+    type: type, 
+    multiple: multiple, 
+    options: options, 
+    defaultValue: defaultValue, 
+    data: data
+  };
+}
+
+struct Action {
+  public String name;
+  public Any[] argumentIds;
+  public (Any[]) => void function;
+
+  public static Action New(String name, Any[] argumentIds = [], (Any[]) => void function): { 
+    name: name, 
+    argumentIds: argumentIds,
+    function: function,
+  };
+
+  public ref void Execute(in Any[] argumentValues) {
+    function(argumentValues);
+  }
+}
+
+single struct ActionRef {
+  public String id;
+  public Any actionId;
+  public Any[] argumentValues;
+  public Number mark;
+  public String label;
+
+  public static ActionRef New(Any actionId, Any[] argumentValues): { 
+    id: null,
+    actionId: actionId,
+    argumentValues: argumentValues,
+    mark: 0,
+    label: ''
+  };
+
+  public ref void Execute() {
+    actions[actionId].Execute(argumentValues);
+  }
+
+  public ref void ToggleMark() {
+    mark = (mark + 1) % 3;
+  }
+
+  // public ref void GenerateLabel() {
+  //   ActionArgument[] a! = actions[actionId].argumentIds.Map((i) => arguments[i]);
+
+  //   String args! = Join(argumentValues.Map((i, idx) => 
+  //     (
+  //       a[idx].type == Type.HERO ? HeroWithIconFormatter(i) :
+  //       a[idx].type == Type.PLAYER ? PlayerWithHeroIconFormatter(i) :
+  //       a[idx].type == Type.NUMBER ? $"{i}{(<InputSettings>a[idx].data).unit}" :
+  //       i
+  //     ) + (CountOf(i) > 1 ? $" +{CountOf(i) - 1}" : "")
+  //   ));
+
+  //   label = $"{id.Replace('timeline_', '')}. {actions[actionId].name}" + (args ? $": {args}" : '');
+  // }
+}

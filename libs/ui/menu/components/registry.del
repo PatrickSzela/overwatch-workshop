@@ -1,0 +1,27 @@
+import '../helpers.del';
+
+globalvar MenuComponentRegistry[] menuComponentRegistry = [];
+
+single struct MenuComponentRegistry {
+  public Description[] descriptions;
+  public (Number, String, Any) => String renderer;
+
+  public static MenuComponentRegistry New(
+    Description[] descriptions = [], 
+    (Number, String, Any) => String renderer = (idx, label, value) => label
+  ): { descriptions: descriptions, renderer: renderer };
+
+  public static void Register(
+    in Number type, 
+    in Description[] descriptions = [], 
+    in (Number, String, Any) => String renderer = (idx, label, value) => label
+  ) {
+    menuComponentRegistry[type] = MenuComponentRegistry.New(descriptions, renderer);
+  }
+
+  public static Description[] Descriptions(Number type): 
+    menuComponentRegistry[type].descriptions;
+
+  public static (Number, String, Any) => String Renderer(Number type): 
+    menuComponentRegistry[type].renderer;
+}

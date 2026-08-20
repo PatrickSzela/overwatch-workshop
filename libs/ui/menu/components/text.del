@@ -1,0 +1,25 @@
+import './component.del';
+
+class MenuText {
+  public static Number TYPE: 0;
+
+  public static MenuComponentProps New(
+    in String label = ' ',
+    in String id = null,
+    in Any value = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE, 
+    label: label,
+    id: id,
+    value: value,
+    color: color,
+    enabled: false,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(TYPE);
+  }
+}

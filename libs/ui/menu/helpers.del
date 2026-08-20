@@ -1,0 +1,164 @@
+import '../../utils/index.del';
+
+# Maximum number of visible components, after which the page will become scrollable.
+Number MAX_COMPONENTS_ON_PAGE: 15;
+
+void LogHelper(in Any text) {
+  // Log(text);
+}
+
+single struct RenderedText {
+  public Color color;
+  public String text;
+  public Boolean focused;
+
+  public static RenderedText New(in String text, in Color color = COLOR_NEUTRAL, in Boolean focused = false): 
+    { text: text, color: color, focused: focused };
+}
+
+struct RenderedTexts {
+  public RenderedText[] titles;
+  public RenderedText[] separators;
+  public RenderedText[] components;
+  public RenderedText[] descriptions;
+
+  public RenderedText[] merged;
+
+  public static RenderedTexts New(): {
+    titles: [], separators: [], components: [], descriptions: [], merged: []
+  };
+}
+
+enum DescriptionRenderMode {
+  Always,
+  WindowFocused,
+  WindowFocusedAndNavigationEnabled,
+  WindowFocusedAndNavigationDisabled,
+  WindowFocusedNavigationEnabledAndOneWindowOpen,
+  WindowFocusedNavigationEnabledAndMultipleWindowsOpen
+}
+
+single struct Description {
+  public String text;
+  public Color color;
+  public Boolean visible;
+  public DescriptionRenderMode renderMode;
+  public Number order;
+
+  public static Description New(
+    String description, 
+    Color color = COLOR_NEUTRAL, 
+    Boolean visible = true, 
+    DescriptionRenderMode renderMode = <DescriptionRenderMode>0, //WORKAROUND: #559 - DescriptionRenderMode.Always, 
+    Number order = 0
+  ): { 
+    text: description, 
+    color: color, 
+    visible: visible, 
+    renderMode: renderMode,
+    order: order 
+  };
+
+  public static RenderedText[] Render(
+    Description[] descriptions, 
+    Boolean isWindowFocused, 
+    Boolean isNavigationEnabled, 
+    Number openWindowsCount
+  ): descriptions
+      .FilteredArray(
+        (i) => i.visible && (
+          [DescriptionRenderMode.Always] +
+          (isWindowFocused ? [
+            DescriptionRenderMode.WindowFocused,
+            isNavigationEnabled ? 
+              DescriptionRenderMode.WindowFocusedAndNavigationEnabled :
+              DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+            isNavigationEnabled && openWindowsCount > 1 ? 
+              DescriptionRenderMode.WindowFocusedNavigationEnabledAndMultipleWindowsOpen :
+              DescriptionRenderMode.WindowFocusedNavigationEnabledAndOneWindowOpen
+          ] : [])
+        ).Contains(i.renderMode))
+      .SortedArray((i) => i.order)
+      .Map((i) => RenderedText.New(i[0], i[1]));
+}
+
+single struct InputSettings {
+  public Number min;
+  public Number max;
+  public Boolean negative;
+  public Number integralLength;
+  public Number fractionalLength;
+  public Number length;
+  public String unit;
+
+  public static InputSettings New(
+    Number min = NUMBER_MIN, 
+    Number max = NUMBER_MAX, 
+    Boolean negative = false, 
+    Number integralLength = 3, 
+    Number fractionalLength = 0, 
+    Number length = 10, 
+    String unit = ''
+  ): {
+    min: min,
+    max: max,
+    negative: negative,
+    integralLength: integralLength,
+    fractionalLength: fractionalLength,
+    length: length,
+    unit: unit
+  };
+}
+
+single struct HistoryItem {
+  public String id;
+  public Number outerScroll;
+  public Number innerScroll;
+
+  public static HistoryItem New(String id): 
+    { id: id, innerScroll: 0, outerScroll: 0 };
+}
+
+enum MenuWindowLocation {
+  Left,
+  Center,
+  Right
+}
+
+single struct MenuWindowCreatePage {
+  public String title;
+  public Number[] indexes;
+  public Description[] descriptions;
+
+  public static MenuWindowCreatePage New(String title, Number[] indexes, Description[] descriptions = []): 
+    { title: title, indexes: indexes, descriptions: descriptions };
+}
+
+single struct MenuWindowOpenPage {
+  public String pageId;
+  public Boolean replaceLastHistory;
+
+  public static MenuWindowOpenPage New(String pageId, Boolean replaceLastHistory):
+    { pageId: pageId, replaceLastHistory: replaceLastHistory };
+}
+
+enum MenuWindowOperationType {
+  GO_BACK,
+  OPEN_PAGE,
+  DESTROY_PAGE,
+  CREATE_PAGE,
+  REMOVE_COMPONENTS,
+  ADD_COMPONENTS,
+  REORDER_COMPONENTS,
+  FIX_FOCUSED_COMPONENT,
+  UPDATE_SCROLL,
+  RENDER
+}
+
+single struct MenuWindowOperation {
+  public MenuWindowOperationType type;
+  public Any data;
+
+  public static MenuWindowOperation New(MenuWindowOperationType type, Any data = null): 
+    { type: type, data: data };
+}

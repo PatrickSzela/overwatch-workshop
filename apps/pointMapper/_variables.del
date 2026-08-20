@@ -1,5 +1,5 @@
 import '../../libs/utils/index.del';
-import '../../libs/menu/_index.del';
+import '../../libs/ui/menu/_index.del';
 import './outline.del';
 
 enum Step {

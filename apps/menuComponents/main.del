@@ -1,46 +1,50 @@
-// TODO: mention importing all used components in proper order because of some weird OSTW bug
-import '../../libs/menu/components/component.del'; 
-import '../../libs/menu/components/componentWithValue.del'; 
-import '../../libs/menu/components/text.del'; 
-import '../../libs/menu/components/link.del'; 
-import '../../libs/menu/components/numberInput.del'; 
-import '../../libs/menu/components/toggle.del';
-import '../../libs/menu/components/checkbox.del'; 
-import '../../libs/menu/components/radio.del'; 
-import '../../libs/menu/components/carousel.del'; 
-
-import './_variables.del';
-import './pages/_index.del';
+import '../../libs/ui/menu/index.del'; 
 import '../../libs/utils/hud/diagnostics.del';
-import '../../libs/utils/index.del';
+import '../../libs/utils/match/pauseTimer.del';
+// TODO: figure out why it needs to be here...
+import './actions.del';
+import './pages/index.del';
 import './settings.del';
 
 Button[] MENU_OPEN_CLOSE_BUTTONS: [Button.Crouch, Button.Interact];
 
-// TODO: info that this must be called for bots too
-rule: 'Generate Menu State'
-Event.OngoingPlayer
+rule: '[apps/menuComponents/main.del] Generate Menu HUD'
 {
-  menuState = new MenuState('root', [Button.Crouch, Button.Interact], EventPlayer() == HostPlayer());
-  menuState.SetFocused();
+  menuRenderer.GenerateLoadingHud(MenuWindowLocation.Left, Location.Left);
+  menuRenderer.GenerateLoadingHud(MenuWindowLocation.Right, Location.Right);
+  
+  menuRenderer.WaitBeforeGenerating();
+
+  menuRenderer.GenerateLeftHud();
+  menuRenderer.DestroyLoadingHud(MenuWindowLocation.Left);
+
+  Wait(0.5);
+
+  menuRenderer.GenerateRightHud();
+  menuRenderer.DestroyLoadingHud(MenuWindowLocation.Right);
 }
 
-rule: 'Generate Menu'
+rule: '[apps/menuComponents/main.del] Generate Menu State & Window'
+Event.OngoingPlayer 
+if(menuState == null)
+if(IsDummyBot() == false)
+if(HeroOf()) // HasSpawned() is unreliable when moving player to a different team
 {
-  menu = new Menu(LocalPlayer().menuState);
+  menuState = MenuState.New(EP == HP, MENU_OPEN_CLOSE_BUTTONS);
+  MenuWindow.SetMultiple(
+    left: MenuWindow.New('index'), 
+    right: MenuWindow.New('right', false, [], [])
+  );
 }
 
-rule: 'Render menu' 10
-Event.OngoingPlayer
+rule: '[apps/menuComponents/main.del] Diagnostics'
 {
-  menuState.RULE_Render();
-}
-
-rule: 'Diagnostics'
-{
-  CreateDiagnosticsText($"Server Load: {ServerLoad()}%", ServerLoad() > 80, ServerLoad() > 100);
-  CreateDiagnosticsText($"Server Load Peak: {ServerLoadPeak()}%", ServerLoadPeak() > 80, ServerLoadPeak() > 100);
+  SetMatchTimerPaused(true);
+  
+  CreateDiagnosticsServerLoad();
+  CreateDiagnosticsSpacer();
   CreateDiagnosticsText($"Class Memory Used: {ClassMemoryUsed()}/1000", ClassMemoryUsed() > 800, ClassMemoryUsed() > 900);
-  CreateDiagnosticsText($"Text count: {TextCount()}/128", TextCount() > 96, TextCount() > 112);
-  CreateDiagnosticsText($"Entity count: {EntityCount()}/128", EntityCount() > 96, EntityCount() > 112);
+  CreateDiagnosticsTextCount();
+  CreateDiagnosticsEntityCount();
+  CreateDiagnosticsText($"Component count: {LP.menuComponents.Length}/1000", LP.menuComponents.Length > 100, LP.menuComponents.Length > 200);
 }

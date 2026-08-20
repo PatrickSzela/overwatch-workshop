@@ -1,31 +1,71 @@
-import '../../../libs/menu/components/toggle.del';
-import '../../../libs/utils/index.del';
-import '../_variables.del';
+import '../../../libs/ui/menu/components/toggle.del';
+import '../../../libs/ui/menu/simple.del';
 
-String PAGE_DEBUG_TOGGLE_ID: 'toggle';
-String PAGE_DEBUG_TOGGLE_NAME: 'Toggle';
+class PageToggle {
+  public static String ID: 'toggle';
+  public static String TITLE: 'Toggle';
+  
+  public static String NORMAL_NAME: 'toggle_normal';
+  public static String ON_BY_DEFAULT_NAME: 'toggle_on_by_default';
+  public static String CUSTOM_FORMATTER_NAME: 'toggle_with_custom_formatter';
+  public static String WITH_EVENT_NAME: 'toggle_with_event';
 
-Component[] PageDebugToggleItems() {
-  Toggle[] list = [];
+  public static Any[][] STORE: [
+    [NORMAL_NAME],
+    [ON_BY_DEFAULT_NAME, true],
+    [CUSTOM_FORMATTER_NAME],
+    [WITH_EVENT_NAME]
+  ];
 
-  for(Number i! = 0; i <= 1; i++) {
-    list += new Toggle(
-      text: $"Item {i + 1}", 
-      defaultChecked: i == 1
-    );
-
-    list.Last.onChange = (checked, it) => Log($'{it.text}: value changed to {checked}');
+  public static String[] Components() {
+    return MenuComponent.Add([ 
+      MenuToggle.New(
+        label: "Normal", 
+        name: NORMAL_NAME
+      ),
+      MenuToggle.New(
+        label: "On by default", 
+        name: ON_BY_DEFAULT_NAME
+      ),
+      MenuToggle.New(
+        label: "With Yes/No formatter", 
+        name: CUSTOM_FORMATTER_NAME,
+        valueFormatter: (value) => BooleanFormatterYesNo(value)
+      ),
+      MenuToggle.New(
+        label: "Log change event", 
+        name: WITH_EVENT_NAME
+      )
+    ]);
   }
 
-  return list;
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
 }
 
-rule: 'Debug/Toggle'
+rule: '[apps/menuComponents/pages/toggle.del] Create page' 100
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_TOGGLE_ID)
+if(PageToggle.IsOpen())
 {
-  menuState.CreatePage(
-    title: PAGE_DEBUG_TOGGLE_NAME, 
-    items: PageDebugToggleItems()
-  );
+  PageToggle.Create();
+}
+
+rule: '[apps/menuComponents/pages/toggle.del] Log value on change'
+Event.OngoingPlayer
+{
+  Boolean value: menuStore.Get(PageToggle.WITH_EVENT_NAME);
+  WaitForeverUntilValueChanges(value);
+
+  Log($'{PageToggle.WITH_EVENT_NAME}: value changed to {value}');
+
+  Loop();
 }

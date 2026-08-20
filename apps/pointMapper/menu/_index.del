@@ -1,5 +1,5 @@
 import '../_variables.del';
-import '../../../libs/menu/components/text.del';
+import '../../../libs/ui/menu/components/text.del';
 import './mappingAccuracy.del';
 import './startMapping.del';
 // import './stopMapping.del';

@@ -1,0 +1,118 @@
+import '../../../utils/player/sortedHeroes.del';
+import '../../../utils/player/sortedAllPlayers.del';
+import '../../../utils/team/availableTeams.del';
+import '../components/button.del';
+import '../components/carousel.del';
+import '../components/checkbox.del';
+import '../components/link.del';
+import '../components/toggle.del';
+import '../components/numberInput.del';
+import '../components/positionPicker.del';
+import '../components/text.del';
+import '../components/value.del';
+import './timeline.del';
+import '../simple.del';
+
+// TODO: move timeline stuff away from here
+
+playervar Any actionConstructorId!;
+
+class PageActionConstructor {
+  public static String ID: 'actionConstructor';
+  public static String TITLE: 'Action Constructor';
+  public static String CHECKBOXES_ID: 'actionConstructorCheckboxes';
+
+  public static String NAME_PREFIX: 'actionConstructor_';
+
+  public static String[] Components() {
+    actionConstructorId = menuStore.Get($"{ID}_data");
+
+    MenuComponentProps[] props! = [];
+    String[] args! = [];
+
+    // TODO: move vector picker stuff outside
+    // TODO: add `s` suffix to arg names when multiple options are possible
+    // TODO: reset value
+    foreach(Any argId! in actions[actionConstructorId].argumentIds) {
+      ActionArgument arg! = arguments[argId];
+      String name! = $"{NAME_PREFIX}{arg.name}";
+      args += name;
+
+      Any[] options! = arg.options || 
+        arg.type == Type.BUTTON ? AllButtons() : 
+        arg.type == Type.HERO ? SortedHeroes() :
+        arg.type == Type.PLAYER ? sortedPlayers :
+        arg.type == Type.TEAM ? AvailableTeams() : null;
+
+      (Any) => String formatter! = 
+        arg.type == Type.HERO ? (value) => HeroWithIconFormatter(value) : 
+        arg.type == Type.PLAYER ? (value) => PlayerWithHeroIconTeamFormatter(value) : null;
+      
+      if(arg.multiple) {
+        props += [MenuText.New($"{arg.name}:")] + options.Map((i) => MenuCheckbox.New(name, i, valueFormatter: formatter));
+      } else if(options) {
+        props += MenuCarousel.New(arg.name, name, options, valueFormatter: formatter);
+      } else if(arg.type == Type.BOOLEAN) { 
+        props += MenuToggle.New(arg.name, name);
+      } else if(arg.type == Type.NUMBER) { 
+        props += MenuNumberInput.NewWithInputSettings(arg.name, name, config: arg.data);
+      } else if(arg.type == Type.VECTOR) {
+        MenuPositionPicker.CreateMarker($"{actions[actionConstructorId].name} {arg.name}", name);
+        props += MenuPositionPicker.New(arg.name, name);
+      }
+
+      if(!menuStore.Contains(name)) {
+        menuStore.Add(
+          key: name,
+          value: 
+            arg.defaultValue ? arg.defaultValue() : 
+            arg.multiple ? [] : options.First
+        );
+      }
+    }
+
+    props = MenuComponent.Add(
+      props + [
+        MenuText.New(),
+        MenuButton.New(
+          label: 'Execute',
+          primaryAction: 
+            MenuActionRef.New(
+              actionId: actionConstructorId, 
+              arguments: args, 
+              buttonDescription: actions[actionConstructorId].name
+            )
+        ),
+        MenuButton.New(
+          label: 'Add to timeline',
+          primaryAction: 
+            PageTimeline.AddActionToTimelineActionRef(actionConstructorId, args)
+        )
+      ]
+    );
+    return <String[]>props;
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: $"{TITLE}: {actions[actionConstructorId].name}",
+      componentIds: Components()
+    );
+  }
+}
+
+rule: '[libs/ui/menu/pages/actionConstructor.del] Create page' 100
+Event.OngoingPlayer
+if(PageActionConstructor.IsOpen())
+{
+  PageActionConstructor.Create();
+
+  WaitForeverUntil(!PageActionConstructor.IsOpen());
+  
+  pickPosition.DestroyAdditionalSpheres();
+}

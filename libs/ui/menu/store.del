@@ -1,0 +1,60 @@
+import './state.del';
+
+playervar MenuStore menuStore;
+
+# Implements a dictionary by utilizing a multi-dimensional array.
+#
+# [Based on code by ItsDeltin.](https://github.com/ItsDeltin/Overwatch-Script-To-Workshop/wiki/Dictionary)
+struct MenuStore {
+  public String[] keys;
+  public Any[] values;
+
+  public static MenuStore New(Any[][] data = []) {
+    return { 
+      keys: data.Map((i) => i[0]), 
+      values: data.Map((i) => i[1] ? i[1] : null) 
+    };
+  }
+
+  # Returns value associated with the `key`.
+  public ref Any Get(String key): values[keys.IndexOf(key)];
+  
+  # Checks whether `key` exists in the store.
+  public ref Boolean Contains(String key): keys.Contains(key);
+
+  # Sets a `value` in the store at `key`. Will rerender all components that are named `key`.
+  public ref void Set(in String key, in Any value) {
+    _SetValueAndRenderComponentsSubroutine(key, value);
+  }
+
+  # Sets a `value` in the store at `key` without rerendering components. 
+  public ref void SetWithoutRendering(in String key, in Any value) {
+    menuStore.values[menuStore.keys.IndexOf(key)] = value;
+  }
+    
+  # Adds a `value` to the store at `key`.
+  public ref void Add(in String key, in Any value) {
+    keys += key;
+    // needs to explicitly set the index instead of appending, otherwise arrays won't be added properly
+    values[values.Length] = value;
+  }
+
+  # Sets a `value` in the store at `key`. Will add the `key` if it doesn't exist.
+  public ref void SetOrAdd(in String key, in Any value) {
+    Number index: keys.IndexOf(key);
+    if (index == -1) // Key not found; add it.
+      Add(key, value);
+    else
+      values[index] = value;
+  }
+}
+
+// WORKAROUND: #560
+void _RenderAllComponentsNamedSubroutine(String name!) "[libs/ui/menu/store.del] Render All Components Named" {
+  menuState.RenderAllComponentsNamed(name);
+}
+
+void _SetValueAndRenderComponentsSubroutine(String key!, Any value!) "[libs/ui/menu/store.del] Set Value And Render Components" {
+  menuStore.SetWithoutRendering(key, value);
+  _RenderAllComponentsNamedSubroutine(key);
+}

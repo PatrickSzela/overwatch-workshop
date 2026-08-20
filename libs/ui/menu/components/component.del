@@ -1,0 +1,226 @@
+import '../../../utils/player/input/heldButtons.del';
+import '../../../utils/index.del';
+import '../action.del';
+import '../helpers.del';
+import '../customButtons.del';
+// import '../store.del';
+
+playervar Number menuReusableIdx;
+playervar Number menuIdCounter! = 0;
+playervar MenuComponent[] menuComponents = [];
+
+# NOTE: when adding a new field at the end of the struct, update `Add` method to refer to the added field
+struct MenuComponent {
+  # Type of the component.
+  public Any type;
+  # Unique ID of the component. If not provided, will be assigned automatically after component is added to `menuComponents` list with `MenuComponent.Add()`.
+  public Any id;
+  # Displayed label.
+  public String label;
+  # Name under which the value of the component is stored.
+  public String name;
+  # Value stored in the component.
+  # 
+  # Usable by:
+  # - `Link` - stores ID of the page that should be opened when interacted with,
+  # - `Toggle`, `Radio`, `Checkbox` - stores value assigned to the Component,
+  # - `Carousel` - stores index of currently selected option,
+  # - `TextInput`, `NumberInput` - stores index of currently edited part of value.
+  public Any value;
+  # Formatter that generates nicely formatted String from a `value`.
+  public ((Any) => String) valueFormatter;
+  # Available options.
+  # 
+  # Usable by:
+  # - `Carousel` - available options in the carousel,
+  # - `TextInput`, `NumberInput` - user's provided value split into parts.
+  public Any[] options;
+  # Fully rendered text.
+  public String renderedText;
+  # Whether the component should rerender during next rendering phase.
+  public Boolean shouldRerender;
+  # Descriptions assigned to the component.
+  public Description[] descriptions;
+  # Action's descriptions assigned to the component.
+  public MenuActionRef[] actions;
+  # Color of the displayed text.
+  public Color color;
+  # Whether component is enabled.
+  public Boolean enabled;
+  # Whether component should be visible.
+  public Boolean visible;
+  # Stores settings required for component.
+  public Any config;
+  
+  public static Boolean Exists(Any id): 
+    menuComponents.Map((i) => i.id).Contains(id);
+
+  public static Number GetIndexFromId(Any id): 
+    menuComponents.Map((i) => i.id).IndexOf(id);
+
+  public static Any GetIdFromIndex(Number index): 
+    GetFromIndex(index).id;
+
+  public static MenuComponent GetFromId(Any id):
+    menuComponents[GetIndexFromId(id)];
+
+  public static MenuComponent GetFromIndex(Number index):
+    menuComponents[index];
+
+  public static Number[] GetIndexesOfAllComponentsNamed(String name):
+    menuComponents.Map((i, idx) => idx).Filter((i) => menuComponents[i].name == name);
+
+  public static Any[] Add(in MenuComponentProps[] props) {
+    return _AddComponentsSubroutine(props);
+  }
+
+  public static void Remove(in Any id) {
+    menuComponents.ModRemoveByIndex(GetIndexFromId(id));
+  }
+
+  public static void RemoveMultiple(in Any[] ids) {
+    Any[] idxsToRemove! = ids.Map((i) => MenuComponent.GetIndexFromId(i));
+    // TODO: we can use normal filter here since we use indexes already?
+    menuComponents = FilterStruct(menuComponents, (c, idx) => !idxsToRemove.Contains(idx));
+    // menuComponents = menuComponents.Filter((i, idx) => !idxsToRemove.Contains(idx));
+  }
+
+  public static void RemoveAll() {
+    menuComponents = [];
+  }
+
+  # Render component.
+  public ref void Render() {
+    shouldRerender = true;
+  }
+  
+  # Marks all components to be rerendered.
+  public static void RenderAllComponents() {
+    menuComponents = menuComponents.Map((i) => {shouldRerender: true, ..i});
+  }
+
+  # Marks components to be rerendered.
+  public static void RenderComponents(in Any[] ids) {
+    menuComponents = menuComponents.Map((i) => 
+      {shouldRerender: ids.Contains(i.id) || i.shouldRerender, ..i});
+  }
+
+  # Render all components named `name`.
+  public static void RenderAllComponentsNamed(in String name) {
+    menuComponents = menuComponents.Map((i) => 
+      {shouldRerender: i.name == name || i.shouldRerender, ..i});
+  }
+
+  # Unique ID of the component. If not provided, will be assigned automatically after component is added to `menuComponents` list with `MenuComponent.Add()`.
+  public ref Any Id(): id;
+
+  # Displayed label.
+  public ref String Label(): label;
+  
+  # Set displayed label.
+  public ref void SetLabel(in String value) {
+    label = value;
+  }
+
+  # Name under which the value of the component is stored.
+  public ref String Name(): name;
+
+  # Set name under which the value of the component is stored.
+  public ref void SetName(in String value) {
+    name = value;
+  }
+
+  # Whether component is enabled.
+  public ref Boolean IsEnabled(): enabled;
+
+  # Set whether component is enabled.
+  public ref void SetEnabled(in Boolean value) {
+    enabled = value;
+  }
+
+  # Whether component should be visible.
+  public ref Boolean IsVisible(): visible;
+
+  # Set whether component should be visible.
+  public ref void SetVisible(in Boolean value) {
+    visible = value;
+  }
+
+  # Color of the displayed text.
+  public ref Color Color(): color;
+  
+  # Set color of the displayed text.
+  public ref void SetColor(in Color value) {
+    color = value;
+  }
+
+  # Add `description` to the component.
+  public ref void AddDescription(in Description value) {
+    descriptions += value;
+  }
+
+  # Add `descriptions` to the component.
+  public ref void AddDescriptions(in Description[] value) {
+    descriptions += descriptions;
+  }
+
+  # Set `descriptions` of the component.
+  public ref void SetDescriptions(in Description[] value) {
+    descriptions = descriptions;
+  }
+
+  # Remove all current page's descriptions.
+  public ref void RemoveAllDescriptions() {
+    descriptions = [];
+  }
+}
+
+single struct MenuComponentProps {
+  public MenuComponent props;
+
+  public static MenuComponentProps New(
+    in Any type,
+    in String label,
+    in Any id = false,
+    in String name = null,
+    in Any value = null,
+    in ((Any) => String) valueFormatter = null,
+    in Any[] options = [],
+    in Description[] descriptions = [],
+    in MenuActionRef primaryAction = null,
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean enabled = true,
+    in Boolean visible = true,
+    in Any config = null
+  ): {
+    props: {
+      type: type,
+      label: label, 
+      id: id,
+      name: name,
+      value: value,
+      valueFormatter: valueFormatter,
+      options: options,
+      renderedText: '',
+      shouldRerender: true,
+      descriptions: descriptions,
+      actions: [primaryAction, secondaryAction, tertiaryAction, quaternaryAction],
+      color: color,
+      enabled: enabled,
+      visible: visible,
+      config: config
+    }
+  };
+}
+
+// WORKAROUND: #560 when static struct method is marked as subroutine OSTW throws an error
+Any[] _AddComponentsSubroutine(MenuComponentProps[] props) "[libs/ui/menu/components/component.del] Add Components" {
+  Any[] ids! = props.Map((i, idx) => i.props.id || (menuIdCounter + idx));
+  menuComponents += props.Map((i, idx) => { id: ids[idx], ..i.props });
+  menuIdCounter += ids.Length;
+  props = null;
+  return ids;
+}

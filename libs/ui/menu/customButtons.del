@@ -1,0 +1,5 @@
+// import './customButtons.settings.del';
+import './customButtons.hardcoded.del';
+
+Number ButtonDescriptionOrder(Button button):
+  buttonsSettings.IndexOf(button) - 12;

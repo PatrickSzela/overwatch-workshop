@@ -1,0 +1,87 @@
+import '../state.del';
+import './component.del';
+
+class MenuCheckbox {
+  public static Number TYPE: 6;
+  public static Button BUTTON_TOGGLE: BUTTON_PRIMARY;
+  public static Button BUTTON_SELECT_DESELECT: BUTTON_SECONDARY;
+  public static Button BUTTON_INVERT: BUTTON_TERTIARY;
+  public static ((Number, String, Any) => String) RENDERER: 
+    (idx, label, value) => 
+      $"{CheckboxFormatter((<Any[]>menuStore.Get(menuComponents[idx].name)).Contains(menuComponents[idx].value))} {label}{value}";
+
+  public static MenuComponentProps New(
+    in String name,
+    in Any value,
+    in String id = null,
+    in String label = '',
+    in ((Any) => String) valueFormatter = null,
+    in Description[] descriptions = [],
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: label,
+    id: id,
+    name: name,
+    value: value,
+    valueFormatter: valueFormatter,
+    descriptions: descriptions,
+    quaternaryAction: quaternaryAction,
+    color: color,
+    visible: visible
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(
+      type: TYPE, 
+      descriptions: [
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_TOGGLE), 'toggle'),
+          order: ButtonDescriptionOrder(BUTTON_TOGGLE)
+        ),
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_SELECT_DESELECT), 'select/deselect all'),
+          order: ButtonDescriptionOrder(BUTTON_SELECT_DESELECT)
+        ),
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_INVERT), 'invert selection'),
+          order: ButtonDescriptionOrder(BUTTON_INVERT)
+        )
+      ],
+      renderer: RENDERER
+    );
+  }
+}
+
+rule: '[libs/ui/menu/components/checkbox.del] Update selection on action' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.FocusedComponent().type == MenuCheckbox.TYPE)
+if(HeldButtonsOf())
+// if(menuState.IsActionButtonHeld(MenuCheckbox.BUTTON_TOGGLE))
+{
+  Number idx! = menuState.FocusedComponentIndex();
+  String name! = menuComponents[idx].name;
+  Number value! = menuComponents[idx].value;
+  Any[] values! = (<Any[]>menuStore.Get(name));
+
+  Any[] allOptions! = MenuComponent.GetIndexesOfAllComponentsNamed(name).Map((i) => menuComponents[i].value);
+
+  switch(HeldButtonsOf()) {
+    case [BUTTON_PRIMARY]: 
+      values = values.Contains(value) ? values - value : values + value; 
+      break;
+    case [BUTTON_SECONDARY]: 
+      values = (allOptions - values).Length ? allOptions : [];
+      break;
+    case [BUTTON_TERTIARY]: 
+      values = allOptions - values;
+      break;
+    default:
+      return;
+  }
+
+  menuStore.Set(name, values);
+}

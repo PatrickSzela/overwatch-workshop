@@ -1,0 +1,40 @@
+import '../state.del';
+import './component.del';
+
+class MenuValue {
+  public static Number TYPE: 3;
+  public static ((Number, String, Any) => String) RENDERER: 
+    (idx, label, value) =>  $"{label}: {value}";
+
+  public static MenuComponentProps New(
+    in String label,
+    in String name,
+    in String id = null,
+    in ((Any) => String) valueFormatter = null,
+    in Description[] descriptions = [],
+    in MenuActionRef primaryAction = null,
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in MenuActionRef quaternaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: label,
+    id: id,
+    name: name,
+    valueFormatter: valueFormatter,
+    descriptions: descriptions,
+    primaryAction: primaryAction,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    quaternaryAction: quaternaryAction,
+    color: color,
+    visible: visible
+  );
+
+
+  public static void Register() {
+    MenuComponentRegistry.Register(TYPE, renderer: RENDERER);
+  }
+}

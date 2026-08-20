@@ -1,0 +1,6 @@
+import './customButtons.del';
+import './helpers.del';
+import './renderer.del';
+import './rules.del';
+import './state.del';
+import './window.del';

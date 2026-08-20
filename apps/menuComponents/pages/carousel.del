@@ -1,39 +1,94 @@
-import '../../../libs/utils/index.del';
-import '../../../libs/menu/components/carousel.del';
-import '../_variables.del';
+import '../../../libs/ui/menu/components/carousel.del';
+import '../../../libs/ui/menu/simple.del';
 
-String PAGE_DEBUG_CAROUSEL_ID: 'carousel';
-String PAGE_DEBUG_CAROUSEL_NAME: 'Carousel';
+class PageCarousel {
+  public static String ID: 'carousel';
+  public static String TITLE: 'Carousel';
 
-Component[] PageDebugCarouselItems() {
-  Carousel[] items = [
-    new Carousel("Empty", []),
-    new Carousel("One option", ["1"]),
-    new Carousel("Two options", ["1", "2"]),
-    new Carousel("Three options", ["1", "2", "3"]),
-    new Carousel(
-      text: "Three options with \"2\" as default value",
-      options: ["1", "2", "3"],
-      defaultValue: "2",
-    ),
-    new Carousel(
-      text: "Custom formatter & events",
-      options: AllHeroes(), 
-    )
+  public static String EMPTY_NAME: "carousel_empty";
+  public static String ONE_NAME: "carousel_one";
+  public static String TWO_NAME: "carousel_two";
+  public static String THREE_NAME: "carousel_three";
+  public static String THREE_WITH_2_NAME: "carousel_three_with_2";
+  public static String HERO_NAME: "carousel_hero";
+
+  public static Any[][] STORE: [
+    [EMPTY_NAME],
+    [ONE_NAME, 1],
+    [TWO_NAME, 1],
+    [THREE_NAME, 1],
+    [THREE_WITH_2_NAME, 2],
+    [HERO_NAME, HeroOf()]
   ];
 
-  items.Last.valueFormatter = (it) => HeroWithIconFormatter(it.value);
-  items.Last.onChange = (value, it) => Log($"{it.text}: value changed to \"{value}\"");
+  // TODO: move to lib
+  // TODO: instead of forcing bot's hero, recreate it so when it respawns after dying the hero doesn't change back
+  // TODO: changing player's hero will cause timeline to pause if that action is executed first because of button being held after respawning
+  public static Action CHANGE_HERO_ACTION: Action.New(
+    name: 'Change hero',
+    argumentIds: [
+      MenuActionArgumentId.PLAYERS,
+      MenuActionArgumentId.HERO
+    ],
+    function: (args) => { 
+      ForcePlayerHero(args[0], args[1]);
+      StopForcingHero(args[0]);
+    }
+  );
+  public static MenuActionRef ChangeHeroActionRef():
+    MenuActionRef.New(MenuActionId.CHANGE_HERO, [EP, HERO_NAME], 'Change hero');
 
-  return items;
+  public static String[] Components() {
+    return MenuComponent.Add([
+      MenuCarousel.New("Empty", EMPTY_NAME, []),
+      MenuCarousel.New("One option", ONE_NAME, [1]),
+      MenuCarousel.New("Two options", TWO_NAME, [1, 2]),
+      MenuCarousel.New("Three options", THREE_NAME, [1, 2, 3]),
+      MenuCarousel.New(
+        label: "Three options with \"2\" as default value",
+        name: THREE_WITH_2_NAME,
+        options: [1, 2, 3]
+      ),
+      MenuCarousel.New(
+        label: "All heroes with formatter, action & log value on change",
+        name: HERO_NAME,
+        options: SortedHeroes(), 
+        valueFormatter: (value) => HeroWithIconFormatter(value),
+        descriptions: [
+          Description.New("Value change will be logged to Inspector", COLOR_INFO)
+        ],
+        primaryAction: ChangeHeroActionRef()
+      )
+    ]);
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
 }
 
-rule: 'Debug/Carousel'
+rule: '[apps/menuComponents/pages/carousel.del] Create page' 100
 Event.OngoingPlayer
-if(menuState.pageId == PAGE_DEBUG_CAROUSEL_ID)
+if(PageCarousel.IsOpen())
 {
-  menuState.CreatePage(
-    title: PAGE_DEBUG_CAROUSEL_NAME, 
-    items: PageDebugCarouselItems()
-  );
+  PageCarousel.Create();
+}
+
+rule: '[apps/menuComponents/pages/carousel.del] Log value on Hero carousel change'
+Event.OngoingPlayer
+{
+  Hero value: menuStore.Get(PageCarousel.HERO_NAME);
+  WaitForeverUntilValueChanges(value);
+
+  Log($'{PageCarousel.HERO_NAME}: value changed to {value}');
+
+  Loop();
 }

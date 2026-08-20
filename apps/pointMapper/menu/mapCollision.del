@@ -1,4 +1,4 @@
-import '../../../libs/menu/components/toggle.del';
+import '../../../libs/ui/menu/components/toggle.del';
 import '../_variables.del';
 
 String PAGE_MAP_COLLISION_ID: 'mapCollision';

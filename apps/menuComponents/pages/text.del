@@ -1,0 +1,74 @@
+import '../../../libs/ui/menu/components/text.del';
+import '../../../libs/ui/menu/components/toggle.del';
+import '../../../libs/ui/menu/simple.del';
+
+class PageText {
+  public static String ID: 'text';
+  public static String TITLE: 'Text';
+
+  public static String VISIBILITY_NAME: 'text_component_visibility';
+
+  public static Any[][] STORE: [
+    [VISIBILITY_NAME, -1]
+  ];
+
+  public static ((Any) => String) VISIBILITY_VALUE_FORMATTER: 
+    (value) => ["all", "only #1", "only #2", "only #3"][value + 1];
+
+  public static String[] Components() {
+    MenuComponentProps[] c: ArrayOfLength<MenuComponentProps>(2).Map((_, i) => 
+      MenuText.New(
+        label: $"#{i + 1}", 
+        id: ToString(i), 
+        visible: [-1, i].Contains(menuStore.Get(VISIBILITY_NAME))
+      )
+    );
+
+    return MenuComponent.Add([
+      MenuText.New('normal'),
+      MenuText.New('red color', color: Color.Red),
+      MenuText.New(),
+      MenuCarousel.New(
+        label: 'visibility of components below', 
+        name: VISIBILITY_NAME,
+        options: [-1, 0, 1, 2],
+        valueFormatter: VISIBILITY_VALUE_FORMATTER
+      )
+    ] + c);
+  }
+
+  public static Boolean IsOpen(): menuState.IsPageOpen(ID);
+
+  public static MenuSimple SimpleLink(): MenuSimple.TextLink(TITLE, ID);
+
+  public static void Create() {
+    menuState.CreatePage(
+      id: ID,
+      title: TITLE,
+      componentIds: Components()
+    );
+  }
+}
+
+rule: '[apps/menuComponents/pages/text.del] Create page' 100
+Event.OngoingPlayer
+if(PageText.IsOpen())
+{
+  PageText.Create();
+}
+
+rule: '[apps/menuComponents/pages/text.del] Toggle visibility of components'
+Event.OngoingPlayer
+{
+  Boolean value: menuStore.Get(PageText.VISIBILITY_NAME);
+  WaitForeverUntilValueChanges(value);
+
+  Number[] ids: [0, 1, 2];
+
+  foreach(Number id! in ids) {
+    Number idx: MenuComponent.GetIndexFromId(ToString(id));
+    menuComponents[idx].SetVisible([-1, id].Contains(value));
+  }
+
+  Loop();
+}

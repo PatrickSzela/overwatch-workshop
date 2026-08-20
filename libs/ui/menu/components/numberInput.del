@@ -1,0 +1,195 @@
+import '../../../utils/index.del';
+import '../../../utils/number/split.del';
+import '../../../utils/number/join.del';
+import '../../navigation/index.del';
+import '../state.del';
+import './component.del';
+
+// TODO: split main logic into shared Input
+// TODO: implement min/max
+
+# NOTE: number passed in `defaultValue` will lose its precision because of Workshop limitations
+class MenuNumberInput {
+  public static Number TYPE: 8;
+  public static Button BUTTON_EDIT_MODE: BUTTON_QUATERNARY;
+
+  public static InputSettings Settings(Number idx): menuComponents[idx].config;
+  
+  public static ((Number, String, Any) => String) RENDERER: (idx, label, value) => {
+    if(!menuComponents[idx].options.Length) {
+      menuComponents[idx].options = SplitNumber(
+        number: value, 
+        integralLength: Settings(idx).integralLength, 
+        fractionalLength: Settings(idx).fractionalLength
+      );
+      // set index to first non-zero value
+      menuComponents[idx].value = Max(0, Settings(idx).integralLength - ToString(AbsoluteValue(RoundToInteger(value))).Length) + 1;
+    }
+
+    Any[] vals! = menuComponents[idx].options.Map((part, partIdx) => 
+      partIdx == 0 ?
+        part == -1 ? '-' : '+' :
+        part == -2 ? '.' : part
+    );
+
+    if(menuState.IsNavigationEnabled()) {
+      // remove leading zeros by replacing integral part of the number with Workshop's
+      vals = [$"{value}".Split('.')[0]] + (vals.Contains('.') ? vals.Slice(vals.IndexOf('.'), NUMBER_MAX) : []);
+    } else {
+      vals[menuComponents[idx].value] = $"[{vals[menuComponents[idx].value]}]";
+
+      if(!Settings(idx).negative && menuComponents[idx].options[0] != -1) 
+        vals = vals.Slice(1, NUMBER_MAX);
+    }
+
+    return $"{label}: {Join(vals, menuState.IsNavigationEnabled() ? "" : " ")}{Settings(idx).unit}";
+  };
+
+  public static MenuComponentProps New(
+    in String label, 
+    in String name,
+    in String id = null,
+    in Description[] descriptions = [],
+    in Boolean negative = false,
+    in Number min = NUMBER_MIN,
+    in Number max = NUMBER_MAX,
+    in Number integralLength = 3,
+    in Number fractionalLength = 0,
+    in String unit = '',
+    in MenuActionRef primaryAction = null,
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuNumberInput.NewWithInputSettings(
+    label: label,
+    name: name,
+    id: id,
+    descriptions: descriptions,
+    negative: negative,
+    config: InputSettings.New(
+      negative: negative,
+      integralLength: integralLength,
+      fractionalLength: fractionalLength,
+      unit: unit
+    ),
+    primaryAction: primaryAction,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    color: color,
+    visible: visible
+  );
+
+  public static MenuComponentProps NewWithInputSettings(
+    in String label, 
+    in String name,
+    in String id = null,
+    in Description[] descriptions = [],
+    in Boolean negative = false,
+    in InputSettings config = InputSettings.New(),
+    in MenuActionRef primaryAction = null,
+    in MenuActionRef secondaryAction = null,
+    in MenuActionRef tertiaryAction = null,
+    in Color color = COLOR_NEUTRAL,
+    in Boolean visible = true
+  ): MenuComponentProps.New(
+    type: TYPE,
+    label: label,
+    id: id,
+    name: name,
+    descriptions: descriptions,
+    primaryAction: primaryAction,
+    secondaryAction: secondaryAction,
+    tertiaryAction: tertiaryAction,
+    color: color,
+    visible: visible,
+    config: config
+  );
+
+  public static void Register() {
+    MenuComponentRegistry.Register(
+      type: TYPE, 
+      descriptions: [
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_EDIT_MODE), 'enable edit mode'), 
+          color: COLOR_SUCCESS,
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationEnabled,
+          order: -20
+        ),
+        Description.New(
+          description: PressToFormatter(WithUnderscores(BUTTON_EDIT_MODE), 'disable edit mode'), 
+          color: COLOR_ERROR,
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+          order: -20
+        ),
+        Description.New(
+          description: UseToFormatter(FORWARD_BACK, 'increase/decrease current value'), 
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+          order: -19
+        ),
+        Description.New(
+          description: UseToFormatter(LEFT_RIGHT, 'select value to edit'), 
+          renderMode: DescriptionRenderMode.WindowFocusedAndNavigationDisabled,
+          order: -18
+        )
+      ],
+      renderer: RENDERER
+    );
+  }
+
+  public static Number CalculateLength(in Number idx) {
+    return 1 + Settings(idx).integralLength + (Settings(idx).fractionalLength ? 1 + Settings(idx).fractionalLength : 0);
+  }
+}
+
+rule: '[libs/ui/menu/components/numberInput.del] Toggle edit mode on button press' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.FocusedComponent().type == MenuNumberInput.TYPE)
+if(menuState.IsActionButtonHeld(MenuNumberInput.BUTTON_EDIT_MODE))
+{
+  Boolean editMode: menuState.IsNavigationEnabled();
+
+  menuState.SetNavigationEnabled(!editMode);
+  menuState.RenderFocusedComponent();
+}
+
+rule: '[libs/ui/menu/components/numberInput.del] Handle navigation' -1
+Event.OngoingPlayer
+if(menuState.IsOpen())
+if(menuState.IsNavigationEnabled() == false)
+if(menuState.FocusedComponent().type == MenuNumberInput.TYPE)
+if(IsUiNavigationAllowed())
+if(UiNavigationDirectionOf())
+{
+  Number idx! = menuState.FocusedComponentIndex();
+
+  Number offset: UiNavigationDirectionOf().X;
+  Number index! = menuComponents[idx].value;
+  Number[] parts! = menuComponents[idx].options;
+  String name: menuComponents[idx].name;
+  Boolean negative! = MenuNumberInput.Settings(idx).negative;
+  Number length! = MenuNumberInput.CalculateLength(idx);
+
+  if(UiNavigationDirectionOf() == Left() || UiNavigationDirectionOf() == Right()) {
+    index += offset;
+
+    // selected dot
+    if(index > 0 && parts[index] == -2)
+      index += offset;
+
+    menuComponents[idx].value = ClampFlip(index, negative ? 0 : 1, length - 1);
+    menuState.RenderFocusedComponent();
+  } else {
+    if(index == 0) {
+      parts[index] = parts[index] == 1 ? -1 : 1;
+    } else {
+      parts[index] += UiNavigationDirectionOf().Y;
+      parts[index] = ClampFlip(parts[index], 0, 9);
+    }
+    
+    menuComponents[idx].options = parts;
+    menuStore.Set(name, JoinNumber(parts));
+    // rendering already done by Set above
+  }
+}

@@ -1,68 +1,86 @@
-import './actions.del';
+import './action.del';
 
 globalvar Number timelineActionsId = -1;
 
 struct Timeline {
-  public Action[] actions;
-  public Number index;
-  public Number isPlaying;
+  public ActionRef[] actionRefs;
+  public Number playingIndex;
+  public Number startedPlayingTimestamp;
   public Boolean isRepeating;
 
   public static Timeline New():
-    { actions: [], index: 0, isPlaying: false, isRepeating: false };
+    { actionRefs: [], playingIndex: 0, startedPlayingTimestamp: 0, isRepeating: false };
+
+  public ref Boolean IsPlaying(): startedPlayingTimestamp;
+
+  public ref Number GetIndexFromId(in String id):
+    actionRefs.Map((i) => i.id == id).IndexOf(id);
 
   // TODO: info about not editing while playing
-  public static void AddAction(ref Timeline timelineRef, in Action action) {
+  public ref void AddAction(in ActionRef action) {
     timelineActionsId++;
-    timelineRef.actions += [{id: timelineActionsId, ..action}];
+    actionRefs += [{id: $"timeline_{timelineActionsId}", ..action}];
   }
 
-  public static void AddAction(ref Timeline timelineRef, in Action action, in Number index) {
+  public ref void AddAction(in ActionRef action, in Number index) {
     timelineActionsId++;
-    timelineRef.actions = 
-      timelineRef.actions.Slice(0, index) + 
-      [{id: timelineActionsId, ..action}] +
-      timelineRef.actions.Slice(index, 999);
+    actionRefs = AddAtPosition(actionRefs, single {id: $"timeline_{timelineActionsId}", ..action}, index);
   }
 
-  public static void Play(ref Timeline timelineRef) {
-    timelineRef.isPlaying = TotalTimeElapsed();
+  public ref void RemoveAction(in String id) {
+    actionRefs = actionRefs.Filter((i) => i.id != id);
   }
 
-  public static void Pause(ref Timeline timelineRef) {
-    timelineRef.isPlaying = 0;
+  public ref void ExecuteAction(in String id) {
+    // WORKAROUND: this index must be temporarily stored, otherwise wrong function will get executed
+    Number idx! = GetIndexFromId(id);
+    actionRefs[idx].Execute();
   }
 
-  public static void Stop(ref Timeline timelineRef) {
-    timelineRef.isPlaying = 0;
-    timelineRef.index = 0;
+  // public ref void ToggleActionEnabled(in String id) {
+  //   actionRefs[GetIndexFromId(id)].ToggleEnabled();
+  // }
+
+  public ref void Play() {
+    startedPlayingTimestamp = TotalTimeElapsed();
   }
 
-  public static void SetRepeat(ref Timeline timelineRef, in Boolean repeat) {
-    timelineRef.isRepeating = repeat;
+  public ref void Pause() {
+    startedPlayingTimestamp = 0;
   }
 
-  public static void GoToId(ref Timeline timelineRef, in Number id) {
-    Number final! = timelineRef.actions.Map((i) => i.id).IndexOf(id) - 1;
-    if(final <= timelineRef.index && TotalTimeElapsed() > timelineRef.isPlaying || final > timelineRef.index)
-      timelineRef.index = final;
+  public ref void Stop() {
+    startedPlayingTimestamp = 0;
+    playingIndex = 0;
+  }
+
+  public ref Boolean IsRepeating(): isRepeating;
+
+  public ref void SetRepeat(in Boolean repeat) {
+    isRepeating = repeat;
+  }
+
+  public ref void GoToId(in String id) {
+    Number goToIndex! = actionRefs.Map((i) => i.id).IndexOf(id) - 1;
+    if(goToIndex <= playingIndex && TotalTimeElapsed() > startedPlayingTimestamp || goToIndex > playingIndex)
+      playingIndex = goToIndex;
   }
 
   // to be used in a rule
-  public static void RuleLogic(ref Timeline timelineRef) {
-    for(timelineRef.index; timelineRef.index < timelineRef.actions.Length; timelineRef.index++) {
-      Action action: timelineRef.actions[timelineRef.index];
-      if(action.disabled) continue;
-      action.code();
-      if(!timelineRef.isPlaying) break;
+  public ref void RuleLogic() {
+    for(playingIndex; playingIndex < actionRefs.Length; playingIndex++) {
+      if(actionRefs[playingIndex].mark) continue;
+      actionRefs[playingIndex].Execute();
+      if(!IsPlaying()) break;
     }
 
-    if(timelineRef.index == timelineRef.actions.Length)
-      timelineRef.index = 0;
+    // TODO: find first non-disabled item
+    if(playingIndex >= actionRefs.Length - 1)
+      playingIndex = 0;
 
-    if(timelineRef.isRepeating && timelineRef.isPlaying != TotalTimeElapsed())
+    if(isRepeating && IsPlaying() && startedPlayingTimestamp < TotalTimeElapsed())
       LoopIfConditionIsTrue();
 
-    timelineRef.isPlaying = false;
+    Pause();
   }
 }
