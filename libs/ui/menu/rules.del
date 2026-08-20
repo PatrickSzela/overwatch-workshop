@@ -94,27 +94,27 @@ rule: '[libs/ui/menu/rules.del] Menu loop logic' 99999
 Event.OngoingPlayer
 if(menuState.IsLoading())
 {
-  Number[] sortedIdxs! = menuWindows
-    .Map((a, idx) => idx)
-    .Sort((a) => menuState.FocusedWindowLocation() == a ? -1 : a);
+  // Number[] sortedIdxs! = menuWindows
+  //   .Map((a, idx) => idx)
+  //   .Sort((a) => menuState.FocusedWindowLocation() == a ? -1 : a);
   
   for(Number i! = 0; i < menuWindows.Length; i++) {
-    Number e! = sortedIdxs[i];
-    if(menuWindows[e].IsLoading()) {
+    // Number e! = sortedIdxs[i];
+    if(menuWindows[i].IsLoading()) {
       MinWait();
-      menuWindows[e].RULE_Logic(e);
+      menuWindows[i].RULE_Logic(i);
     }
   }
 
   Number openWindowsCount! = menuState.OpenWindowsCount();
   
   for(Number i! = 0; i < menuWindows.Length; i++) {
-    Number e! = sortedIdxs[i];
-    if(menuWindows[e].IsLoading()) {
-      menuWindows[e].RULE_Logic_Final(
-        e,
+    // Number e! = sortedIdxs[i];
+    if(menuWindows[i].IsLoading()) {
+      menuWindows[i].RULE_Logic_Final(
+        i,
         menuState.IsOpen(), 
-        menuState.focusedWindowLocation == e, 
+        menuState.focusedWindowLocation == i, 
         menuState.IsNavigationEnabled(),
         openWindowsCount
       );
