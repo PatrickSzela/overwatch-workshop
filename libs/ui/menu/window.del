@@ -107,6 +107,7 @@ struct MenuWindow {
   public ref void SetOpen(in Boolean value) {
     open = value;
     renderedTexts = [];
+    Render();
   }
 
   # ID of currently open page.
