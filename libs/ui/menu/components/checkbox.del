@@ -8,7 +8,7 @@ class MenuCheckbox {
   public static Button BUTTON_INVERT: BUTTON_TERTIARY;
   public static ((Number, String, Any) => String) RENDERER: 
     (idx, label, value) => 
-      $"{CheckboxFormatter((<Any[]>menuStore.Get(menuComponents[idx].name)).Contains(value))} {label}{value}";
+      $"{CheckboxFormatter((<Any[]>menuStore.Get(menuComponents[idx].name)).Contains(menuComponents[idx].value))} {label}{value}";
 
   public static MenuComponentProps New(
     in String name,
