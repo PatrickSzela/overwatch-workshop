@@ -83,6 +83,7 @@ class MenuPositionPicker {
   }
 
   public static void CreateMarker(in String label, in String name) {
+    pickPosition.position = menuStore.Get(name);
     pickPosition.CreateMarker(
       text: $"{label}: {pickPosition.position}"
     );
@@ -94,7 +95,7 @@ Event.OngoingPlayer
 if(menuState.IsOpen())
 if(menuState.FocusedComponent().type == MenuPositionPicker.TYPE)
 {
-  pickPosition.Enable(menuStore.Get(menuState.FocusedComponent().name));
+  pickPosition.Enable();
 
   WaitForeverUntil(
     menuState.IsOpen() == false || 

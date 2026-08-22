@@ -47,6 +47,15 @@ class PageActionConstructor {
       (Any) => String formatter! = 
         arg.type == Type.HERO ? (value) => HeroWithIconFormatter(value) : 
         arg.type == Type.PLAYER ? (value) => PlayerWithHeroIconTeamFormatter(value) : null;
+
+      if(!menuStore.Contains(name)) {
+        menuStore.Add(
+          key: name,
+          value: 
+            arg.defaultValue ? arg.defaultValue() : 
+            arg.multiple ? [] : options.First
+        );
+      }
       
       if(arg.multiple) {
         props += [MenuText.New($"{arg.name}:")] + options.Map((i) => MenuCheckbox.New(name, i, valueFormatter: formatter));
@@ -59,15 +68,6 @@ class PageActionConstructor {
       } else if(arg.type == Type.VECTOR) {
         MenuPositionPicker.CreateMarker($"{actions[actionConstructorId].name} {arg.name}", name);
         props += MenuPositionPicker.New(arg.name, name);
-      }
-
-      if(!menuStore.Contains(name)) {
-        menuStore.Add(
-          key: name,
-          value: 
-            arg.defaultValue ? arg.defaultValue() : 
-            arg.multiple ? [] : options.First
-        );
       }
     }
 
