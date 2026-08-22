@@ -1,4 +1,4 @@
-globalvar String importDate = "2026-06-20";
+globalvar String importDate = "2026-08-22";
 
 rule: "Temple of Anubis - e7472f83-fef2-430a-b4ba-1806641c5bd0"
 if("Temple of Anubis" == ToString(CurrentMap()))
@@ -165,7 +165,7 @@ if(DistanceBetween(Vector(-24.52196000, 6.42948770, -1.41806320), ObjectivePosit
   maxBoxCount = 1;
 }
 
-rule: "Eichenwalde - 6476a523-ca4e-477e-82fd-795a66930cbb"
+rule: "Eichenwalde - e17cd01f-943c-46f9-87e3-86658b161f32"
 if("Eichenwalde" == ToString(CurrentMap()))
 if("Hybrid" == ToString(CurrentGameMode()))
 if(DistanceBetween(Vector(11.34882800, 8.14279700, -72.16461000), ObjectivePosition(ObjectiveIndex())) < 20)
@@ -220,7 +220,7 @@ if(DistanceBetween(Vector(11.34882800, 8.14279700, -72.16461000), ObjectivePosit
   maxBoxCount = 1;
 }
 
-rule: "Paraíso - bde98da8-fda9-41f7-a1a0-33d0cc20cefe"
+rule: "Paraíso - 7a21466b-3960-4474-8783-c0e8d1e5cdd4"
 if("Paraíso" == ToString(CurrentMap()))
 if("Hybrid" == ToString(CurrentGameMode()))
 if(DistanceBetween(Vector(-8.65996900, 3.84505600, -15.51732400), ObjectivePosition(ObjectiveIndex())) < 20)
@@ -429,18 +429,18 @@ if(DistanceBetween(Vector(0.00000000, 272.61975000, 280.00000000), ObjectivePosi
   maxBoxCount = 8;
 }
 
-rule: "Busan - fc76e3fe-8749-409a-bb56-ac011f9055a6"
+rule: "Busan - d8005e86-b901-46be-8dc8-e18ca4430e3f"
 if("Busan" == ToString(CurrentMap()))
 if("Control" == ToString(CurrentGameMode()))
-if(DistanceBetween(Vector(51.96663700, 8.02324300, -92.95854000), ObjectivePosition(ObjectiveIndex())) < 20)
+if(DistanceBetween(Vector(222.36253000, 10.52769300, 241.26309000), ObjectivePosition(ObjectiveIndex())) < 20)
 {
-  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
-  translations = [Vector(51.96663700, 8.02324300, -92.95854000)];
-  extents = [Vector(9.09734250, 2.31931500, 6.39214500)];
-  maxBoxCount = 1;
+  orientations = [[0.00000000, 0.20205273, 0.00000000, 0.97937490], [0.00000000, 0.20205271, 0.00000000, 0.97937490], [0.00000000, -0.18811813, 0.00000000, 0.98214656], [0.00000000, 0.56146300, 0.00000000, 0.82750213]];
+  translations = [Vector(222.36253000, 10.52769300, 241.26309000), Vector(222.69190000, 10.52769500, 242.08324000), Vector(225.13553000, 10.52769000, 235.17403000), Vector(215.99242000, 10.52768800, 239.08942000)];
+  extents = [Vector(6.19847060, 4.59228130, 7.50314330), Vector(7.97728730, 4.59228130, 6.61958600), Vector(1.23382630, 4.59228130, 2.99975370), Vector(1.25730870, 4.59228130, 2.98803970)];
+  maxBoxCount = 4;
 }
 
-rule: "Busan - 09edf379-e346-45e6-bde1-e005cb396189"
+rule: "Busan - 64a933b9-9193-4994-af02-970cd164d53f"
 if("Busan" == ToString(CurrentMap()))
 if("Control" == ToString(CurrentGameMode()))
 if(DistanceBetween(Vector(-328.39978000, 12.51106800, 140.57346000), ObjectivePosition(ObjectiveIndex())) < 20)
@@ -448,18 +448,18 @@ if(DistanceBetween(Vector(-328.39978000, 12.51106800, 140.57346000), ObjectivePo
   orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
   translations = [Vector(-328.39978000, 12.51106800, 140.57346000)];
   extents = [Vector(7.04333500, 4.73578260, 6.65835480)];
-  maxBoxCount = 1;
+  maxBoxCount = 4;
 }
 
-rule: "Busan - d81b6594-90c8-4912-8ed2-edfc9ea2815e"
+rule: "Busan - a581e800-625b-4a66-a37c-cc689b615b1d"
 if("Busan" == ToString(CurrentMap()))
 if("Control" == ToString(CurrentGameMode()))
-if(DistanceBetween(Vector(222.34221000, 10.52770000, 241.27184000), ObjectivePosition(ObjectiveIndex())) < 20)
+if(DistanceBetween(Vector(51.96663700, 8.02324300, -92.95854000), ObjectivePosition(ObjectiveIndex())) < 20)
 {
-  orientations = [[0.00000000, 0.20205265, 0.00000000, 0.97937477]];
-  translations = [Vector(222.34221000, 10.52770000, 241.27184000)];
-  extents = [Vector(7.97728730, 4.59228130, 7.50314330)];
-  maxBoxCount = 1;
+  orientations = [[0.00000000, 0.00000000, 0.00000000, 1.00000000]];
+  translations = [Vector(51.96663700, 8.02324300, -92.95854000)];
+  extents = [Vector(9.09734250, 2.31931500, 6.39214500)];
+  maxBoxCount = 4;
 }
 
 rule: "Antarctic Peninsula - 1e69893e-d7b9-42af-9e8f-2976042e2238"

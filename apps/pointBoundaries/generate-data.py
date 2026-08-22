@@ -1,12 +1,38 @@
+import argparse
 import json
 import os
 from datetime import date
 from typing import Any
-import argparse
+
+GAMEMODES = (
+    "Control",
+    "Assault",
+    "Flashpoint",
+    "Hybrid",
+    "Clash",
+)
+
+LIGHTNINGS = (
+    "Evening",
+    "Gardens",
+    "Overcast",
+    "Sunset",
+    "Dawn",
+    "Snowy",
+    "Morning",
+    "Night",
+    "Sanctuary",
+    "A03A",  # Temple of Anubis
+    "A039",  # Aatlis
+)
+
 
 class Box:
     def __init__(
-        self, Orientation: list[float], Translation: list[float], Extents: list[float]
+        self,
+        Orientation: list[float],
+        Translation: list[float],
+        Extents: list[float],
     ) -> None:
         self.orientation = Orientation
         self.translation = Translation
@@ -33,14 +59,21 @@ type Data = dict[str, dict[str, Map]]
 def format_floats_in_array(array: list[float]):
     return [format(x, ".8f") for x in array]
 
+
 def array_to_vector(array: list[Any]):
     return f"Vector({', '.join(format_floats_in_array(array))})"
 
 
 def output_ostw_rule(map_name: str, mode: str, area: Area, max_box_count: int):
-    orientations = json.dumps([format_floats_in_array(box.orientation) for box in area.boxes]).replace('"', '')
-    translations = json.dumps([array_to_vector(box.translation) for box in area.boxes]).replace('"', '')
-    extents = json.dumps([array_to_vector(box.extents) for box in area.boxes]).replace('"', '')
+    orientations = json.dumps(
+        [format_floats_in_array(box.orientation) for box in area.boxes]
+    ).replace('"', "")
+    translations = json.dumps(
+        [array_to_vector(box.translation) for box in area.boxes]
+    ).replace('"', "")
+    extents = json.dumps(
+        [array_to_vector(box.extents) for box in area.boxes]
+    ).replace('"', "")
 
     return f'''rule: "{map_name} - {area.uuid}"
 if("{map_name}" == ToString(CurrentMap()))
@@ -54,7 +87,9 @@ if(DistanceBetween({array_to_vector(area.boxes[0].translation)}, ObjectivePositi
 }}
 '''
 
+
 # TODO: split output into multiple files (per mode)
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -76,37 +111,51 @@ def main():
 
         output_data: Data = {}
 
-        for _i, mapData in enumerate(data):
-            if not isinstance(mapData, dict):
+        for _i, map_data in enumerate(data):
+            if not isinstance(map_data, dict):
                 print("Map data is not a dictionary")
                 return
 
-            if not isinstance(mapData["MapName"], str) or not isinstance(
-                mapData["Areas"], list
+            if not isinstance(map_data["MapName"], str) or not isinstance(
+                map_data["Areas"], list
             ):
                 return
 
-            name, _lightning, mode, *rest = mapData["MapName"].split(" - ")
+            full_name = map_data["MapName"]
+            areas = map_data["Areas"]
 
-            # some maps names have hardcoded information about their variant (for example, "Busan - Sanctuary"), so let's skip these by checking if string after the 2nd ` - ` contains a mode's name
-            # this should prob be handled better in case blizzard adds a map with ` - ` in its name to one of the core gamemodes
-            if mode.lower() not in (
-                "control",
-                "assault",
-                "flashpoint",
-                "hybrid",
-                "clash",
-            ):
+            parts = full_name.split(" - ")
+
+            name = parts[0]
+            mode = next((mode for mode in GAMEMODES if mode in parts), None)
+
+            if not mode:
+                # print(f'Skipping "{full_name}" due to unknown game mode')
                 continue
 
-            if len(rest):
-                # additional data usually means the map belongs to some limited-time event, and we don't care about these
+            # additional data usually means the map belongs to some limited-time event, and we don't care about these
+            if parts[len(parts) - 1] != mode:
+                # print(f'Skipping "{full_name}" due to extra data after mode')
+                continue
+
+            lightning = parts[parts.index(mode) - 1]
+
+            if lightning not in LIGHTNINGS:
+                # print(f'Skipping "{full_name}" due to unknown lightning')
+                continue
+
+            if parts[1] != lightning and not (
+                parts[1].startswith("S") and parts[1][1:].isdigit()
+            ):
+                # print(
+                #     f'Skipping "{full_name}" due to it being a submap that\'s limited to one of control points'
+                # )
                 continue
 
             if mode not in output_data:
                 output_data[mode] = {}
 
-            data = Map(name, mode, mapData["Areas"])  # type: ignore
+            data = Map(name, mode, areas)  # type: ignore
 
             if mode in output_data and name in output_data[mode]:
                 # check if duplicated map has the same boxes
@@ -114,17 +163,21 @@ def main():
                 uuids2 = [i.uuid for i in output_data[mode][name].areas]
 
                 if uuids != uuids2:
-                    print("Duplicated map {name} found, but boxes UUIDs differ!")
+                    print(
+                        f'Duplicated map "{name}" found, but boxes UUIDs differ!'
+                    )
                     print(uuids)
                     print(uuids2)
 
                 continue
 
-            total_max_box_count = max(total_max_box_count, *[len(area.boxes) for area in data.areas])
+            total_max_box_count = max(
+                total_max_box_count, *[len(area.boxes) for area in data.areas]
+            )
 
             output_data[mode][name] = data
 
-        #with open(output_path_json, "w") as f:
+        # with open(output_path_json, "w") as f:
         #    json.dump(output_data, f, indent=2, default=vars)
 
         # output to .del file
@@ -132,9 +185,13 @@ def main():
             f'globalvar String importDate = "{str(date.today())}";\n',
         ]
         for mode, maps in output_data.items():
-            for map, mapData in maps.items():
-                for _idx, area in enumerate(mapData.areas):
-                    rules.append(output_ostw_rule(map, mode, area, mapData.max_box_count))
+            for map_name, map_data in maps.items():
+                for _idx, area in enumerate(map_data.areas):
+                    rules.append(
+                        output_ostw_rule(
+                            map_name, mode, area, map_data.max_box_count
+                        )
+                    )
 
         with open(output_path, "w") as f:
             f.write("\n".join(rules))
