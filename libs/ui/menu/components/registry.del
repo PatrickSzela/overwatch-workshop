@@ -5,21 +5,18 @@ globalvar MenuComponentRegistry[] menuComponentRegistry = [];
 single struct MenuComponentRegistry {
   public Description[] descriptions;
   public (Number, String, Any) => String renderer;
-  public Boolean renderValueFromComponent;
 
   public static MenuComponentRegistry New(
     Description[] descriptions = [], 
-    (Number, String, Any) => String renderer = (idx, label, value) => label,
-    Boolean renderValueFromComponent = false
-  ): { descriptions: descriptions, renderer: renderer, renderValueFromComponent: renderValueFromComponent };
+    (Number, String, Any) => String renderer = (idx, label, value) => label
+  ): { descriptions: descriptions, renderer: renderer };
 
   public static void Register(
     in Number type, 
     in Description[] descriptions = [], 
-    in (Number, String, Any) => String renderer = (idx, label, value) => label,
-    in Boolean renderValueFromComponent = false
+    in (Number, String, Any) => String renderer = (idx, label, value) => label
   ) {
-    menuComponentRegistry[type] = MenuComponentRegistry.New(descriptions, renderer, renderValueFromComponent);
+    menuComponentRegistry[type] = MenuComponentRegistry.New(descriptions, renderer);
   }
 
   public static Description[] Descriptions(Number type): 
@@ -27,7 +24,4 @@ single struct MenuComponentRegistry {
 
   public static (Number, String, Any) => String Renderer(Number type): 
     menuComponentRegistry[type].renderer;
-
-  public static Boolean RenderValueFromComponent(Number type): 
-    menuComponentRegistry[type].renderValueFromComponent;
 }

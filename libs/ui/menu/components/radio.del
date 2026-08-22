@@ -6,7 +6,7 @@ class MenuRadio {
   public static Button BUTTON_SELECT: BUTTON_PRIMARY;
   public static ((Number, String, Any) => String) RENDERER: 
     (idx, label, value) => 
-      $"{RadioFormatter(menuStore.Get(menuComponents[idx].name) == value)} {label}{value}";
+      $"{RadioFormatter(value == menuComponents[idx].value)} {label}{menuComponents[idx].value}";
 
   public static MenuComponentProps New(
     in String name,
@@ -44,8 +44,7 @@ class MenuRadio {
           order: ButtonDescriptionOrder(BUTTON_SELECT)
         )
       ],
-      renderer: RENDERER,
-      renderValueFromComponent: true
+      renderer: RENDERER
     );
   }
 }

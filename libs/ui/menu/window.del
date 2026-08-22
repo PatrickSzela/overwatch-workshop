@@ -441,8 +441,7 @@ struct MenuWindow {
       MenuComponent component: menuComponents[idx];
       String value! = component.value;
       
-      // TODO: figure out a better way to do this
-      if(component.name && !MenuComponentRegistry.RenderValueFromComponent(component.type))
+      if(component.name)
         value = menuStore.Get(component.name);
         
       if(menuComponents[idx].valueFormatter)
